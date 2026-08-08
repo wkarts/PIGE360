@@ -1,0 +1,14 @@
+enabled: false
+mode: not_configured
+providers:
+- CloudflareDnsProvider
+- CloudflareTunnelProvider
+- CloudflareForSaasProvider
+- CloudflareCertificateProvider
+- LetsEncryptAcmeProvider
+- CpanelDnsProvider
+- ManualDnsProvider
+forbidden:
+- global_api_key
+- public_origin_a_record
+remote_execution: false

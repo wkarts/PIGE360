@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_pades_engine.py::test_pades_detects_signed_byte_range_tampering
+
+.PIGE360_NODE_RESULT=PASS

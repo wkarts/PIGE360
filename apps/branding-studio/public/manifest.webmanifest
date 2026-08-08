@@ -1,0 +1,9 @@
+{
+  "name": "Branding Studio",
+  "short_name": "Branding Stu",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F2F4F7",
+  "theme_color": "#006D77",
+  "icons": []
+}

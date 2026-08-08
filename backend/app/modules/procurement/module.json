@@ -1,0 +1,45 @@
+{
+  "module": "procurement",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "purchase_orders",
+      "path": "procurement/orders",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "submitted",
+          "cancelled"
+        ],
+        "submitted": [
+          "approved",
+          "rejected"
+        ],
+        "approved": [
+          "ordered",
+          "cancelled"
+        ],
+        "ordered": [
+          "partially_received",
+          "received",
+          "cancelled"
+        ],
+        "partially_received": [
+          "received",
+          "cancelled"
+        ],
+        "received": [
+          "closed"
+        ]
+      },
+      "event_prefix": "PurchaseOrder",
+      "roles": [
+        "inventory_manager",
+        "finance_manager"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "module": "communication",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "messages",
+      "path": "communication/messages",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "queued",
+          "cancelled"
+        ],
+        "queued": [
+          "sent",
+          "failed"
+        ],
+        "failed": [
+          "queued",
+          "cancelled"
+        ],
+        "sent": [
+          "delivered",
+          "read"
+        ],
+        "delivered": [
+          "read"
+        ]
+      },
+      "event_prefix": "Message",
+      "roles": [
+        "tenant_owner",
+        "institution_director",
+        "teacher",
+        "finance_operator"
+      ]
+    }
+  ]
+}

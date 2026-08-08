@@ -1,0 +1,35 @@
+name: 50 · Release
+'on':
+  workflow_dispatch:
+    inputs:
+      enable_remote_release: {type: boolean, required: false, default: false}
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: bash scripts/release/package-local.sh
+      - uses: actions/upload-artifact@v4
+        with: {name: pige360-release-local, path: release/output/**, if-no-files-found: error}
+  remote-release:
+    if: ${{ inputs.enable_remote_release == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+    needs: package
+    runs-on: ubuntu-24.04
+    environment: remote-release
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {name: pige360-release-local, path: release/output}
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          REMOTE_RELEASE_ENABLED: 'true'
+        run: bash scripts/release/publish-github-release.sh release/output

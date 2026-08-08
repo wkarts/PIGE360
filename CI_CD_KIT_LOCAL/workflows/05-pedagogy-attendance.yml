@@ -1,0 +1,19 @@
+name: 05 · Planejamento e frequência
+'on':
+  pull_request:
+    paths: ['backend/app/modules/lesson_planning/**','backend/app/modules/class_attendance/**','backend/tests/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  domain-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: python -m pip install -r backend/requirements.lock
+      - run: cd backend && PYTHONPATH=. pytest -q tests/test_planning.py tests/test_attendance.py

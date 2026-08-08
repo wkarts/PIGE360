@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_contract_lifecycle.py::test_template_with_undeclared_variable_cannot_be_published
+
+.PIGE360_NODE_RESULT=PASS

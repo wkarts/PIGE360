@@ -1,0 +1,31 @@
+{
+  "module": "people",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "people",
+      "path": "people",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "inactive",
+          "archived"
+        ],
+        "inactive": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "Person",
+      "roles": [
+        "tenant_owner",
+        "institution_director",
+        "secretary",
+        "hr_manager"
+      ]
+    }
+  ]
+}

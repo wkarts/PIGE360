@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/portals/test_portal_scope.py::test_guardian_portal_and_pix_are_limited_to_linked_financial_dependent
+
+.PIGE360_NODE_RESULT=PASS

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-08T17:55:10.085316+00:00",
+  "platform": "Linux-6.18.35-x86_64-with-glibc2.41",
+  "python_runtime": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "tools": {
+    "python": {
+      "available": true,
+      "path": "/opt/pyvenv/bin/python",
+      "version": "Python 3.13.5"
+    },
+    "node": {
+      "available": true,
+      "path": "/opt/nvm/versions/node/v22.16.0/bin/node",
+      "version": "v22.16.0"
+    },
+    "npm": {
+      "available": true,
+      "path": "/opt/nvm/versions/node/v22.16.0/bin/npm",
+      "version": "10.9.2"
+    },
+    "tsc": {
+      "available": true,
+      "path": "/opt/nvm/versions/node/v22.16.0/bin/tsc",
+      "version": "Version 5.8.3"
+    },
+    "chromium": {
+      "available": true,
+      "path": "/usr/bin/chromium",
+      "version": "Chromium 144.0.7559.96 built on Debian GNU/Linux 13 (trixie)"
+    },
+    "docker": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "podman": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "cargo": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "rustc": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "gradle": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "java": {
+      "available": true,
+      "path": "/usr/bin/java",
+      "version": "openjdk version \"21.0.11\" 2026-04-21"
+    },
+    "xcodebuild": {
+      "available": false,
+      "path": null,
+      "version": null
+    },
+    "alembic": {
+      "available": true,
+      "path": "/opt/pyvenv/bin/alembic",
+      "version": "alembic 1.18.4"
+    },
+    "pytest": {
+      "available": true,
+      "path": "/opt/pyvenv/bin/pytest",
+      "version": "pytest 9.0.2"
+    }
+  },
+  "network_used": false
+}

@@ -1,0 +1,42 @@
+{
+  "module": "government_education",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "government_exports",
+      "path": "government-education/exports",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "validating",
+          "cancelled"
+        ],
+        "validating": [
+          "ready",
+          "failed"
+        ],
+        "failed": [
+          "validating",
+          "cancelled"
+        ],
+        "ready": [
+          "exported"
+        ],
+        "exported": [
+          "acknowledged"
+        ],
+        "acknowledged": [
+          "archived"
+        ]
+      },
+      "event_prefix": "GovernmentEducationExport",
+      "roles": [
+        "tenant_owner",
+        "secretary"
+      ]
+    }
+  ]
+}

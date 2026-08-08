@@ -1,0 +1,22 @@
+[package]
+name = "pige360-native-bridge"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Bridge Tauri segura para sessão, SQLCipher, identidade, sync, fiscal e impressão."
+
+[lints]
+workspace = true
+
+[dependencies]
+pige360-device-identity = { path = "../device-identity" }
+pige360-fiscal-snapshot = { path = "../fiscal-snapshot" }
+pige360-offline-database = { path = "../offline-database" }
+pige360-printing = { path = "../printing" }
+pige360-secure-storage = { path = "../secure-storage" }
+pige360-sync-engine = { path = "../sync-engine" }
+serde.workspace = true
+serde_json.workspace = true
+tauri.workspace = true
+thiserror.workspace = true

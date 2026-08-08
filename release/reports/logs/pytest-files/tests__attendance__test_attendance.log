@@ -1,0 +1,4 @@
+$ /opt/pyvenv/bin/python -m pytest -q --disable-warnings tests/attendance/test_attendance.py
+
+..                                                                       [100%]
+2 passed in 2.43s

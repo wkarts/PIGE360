@@ -1,0 +1,108 @@
+{
+  "module": "finance",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "financial_contracts",
+      "path": "finance/contracts",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "approved",
+          "cancelled"
+        ],
+        "approved": [
+          "active",
+          "cancelled"
+        ],
+        "active": [
+          "suspended",
+          "terminated",
+          "completed"
+        ],
+        "suspended": [
+          "active",
+          "terminated"
+        ],
+        "terminated": [
+          "archived"
+        ],
+        "completed": [
+          "archived"
+        ]
+      },
+      "event_prefix": "FinancialContract",
+      "roles": [
+        "tenant_owner",
+        "finance_manager",
+        "finance_operator"
+      ]
+    },
+    {
+      "name": "charges",
+      "path": "finance/charges",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "issued",
+          "cancelled"
+        ],
+        "issued": [
+          "partially_paid",
+          "paid",
+          "overdue",
+          "cancelled"
+        ],
+        "partially_paid": [
+          "paid",
+          "overdue",
+          "cancelled"
+        ],
+        "overdue": [
+          "partially_paid",
+          "paid",
+          "renegotiated",
+          "cancelled"
+        ],
+        "paid": [
+          "refunded"
+        ],
+        "refunded": [
+          "closed"
+        ]
+      },
+      "event_prefix": "Charge",
+      "roles": [
+        "finance_manager",
+        "finance_operator"
+      ]
+    },
+    {
+      "name": "payments",
+      "path": "finance/payments",
+      "initial_state": "pending",
+      "transitions": {
+        "pending": [
+          "confirmed",
+          "failed",
+          "cancelled"
+        ],
+        "confirmed": [
+          "partially_refunded",
+          "refunded"
+        ],
+        "partially_refunded": [
+          "refunded"
+        ]
+      },
+      "event_prefix": "Payment",
+      "roles": [
+        "finance_manager",
+        "finance_operator"
+      ]
+    }
+  ]
+}

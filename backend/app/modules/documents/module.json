@@ -1,0 +1,38 @@
+{
+  "module": "documents",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "documents",
+      "path": "documents",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "generated",
+          "cancelled"
+        ],
+        "generated": [
+          "published",
+          "signed",
+          "cancelled"
+        ],
+        "published": [
+          "archived"
+        ],
+        "signed": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Document",
+      "roles": [
+        "tenant_owner",
+        "secretary",
+        "teacher",
+        "finance_operator"
+      ]
+    }
+  ]
+}

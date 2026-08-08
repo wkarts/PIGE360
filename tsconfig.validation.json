@@ -1,0 +1,70 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@pige360/domain-types": [
+        "packages/domain-types/src/index.ts"
+      ],
+      "@pige360/tenant-branding": [
+        "packages/tenant-branding/src/index.ts"
+      ],
+      "@pige360/offline-sync": [
+        "packages/offline-sync/src/index.ts"
+      ],
+      "@pige360/app-manifest": [
+        "packages/app-manifest/src/index.ts"
+      ],
+      "@pige360/auth": [
+        "packages/auth/src/index.ts"
+      ],
+      "@pige360/mail-client": [
+        "packages/mail-client/src/index.ts"
+      ],
+      "@pige360/validation": [
+        "packages/validation/src/index.ts"
+      ],
+      "@pige360/permissions": [
+        "packages/permissions/src/index.ts"
+      ],
+      "@pige360/observability": [
+        "packages/observability/src/index.ts"
+      ],
+      "@pige360/fiscal-types": [
+        "packages/fiscal-types/src/index.ts"
+      ],
+      "@pige360/testing": [
+        "packages/testing/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "packages/domain-types/src/**/*.ts",
+    "packages/tenant-branding/src/**/*.ts",
+    "packages/offline-sync/src/**/*.ts",
+    "packages/api-sdk/src/**/*.ts",
+    "scripts/frontend/typescript-validation/**/*.ts",
+    "packages/ui/src/**/*.ts",
+    "apps/*/src/**/*.ts",
+    "types/**/*.d.ts",
+    "packages/app-manifest/src/**/*.ts",
+    "packages/auth/src/**/*.ts",
+    "packages/mail-client/src/**/*.ts",
+    "packages/validation/src/**/*.ts",
+    "packages/permissions/src/**/*.ts",
+    "packages/observability/src/**/*.ts",
+    "packages/fiscal-types/src/**/*.ts",
+    "packages/testing/src/**/*.ts"
+  ]
+}

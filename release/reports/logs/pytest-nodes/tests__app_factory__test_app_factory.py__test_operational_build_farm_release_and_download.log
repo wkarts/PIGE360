@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/app_factory/test_app_factory.py::test_operational_build_farm_release_and_download
+
+.PIGE360_NODE_RESULT=PASS

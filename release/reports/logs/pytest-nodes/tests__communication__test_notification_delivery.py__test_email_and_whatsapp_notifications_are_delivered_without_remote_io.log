@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/communication/test_notification_delivery.py::test_email_and_whatsapp_notifications_are_delivered_without_remote_io
+
+.PIGE360_NODE_RESULT=PASS

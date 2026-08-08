@@ -1,0 +1,1098 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:43fccdc8-52f3-5db1-858b-903437eeaa97",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-08-08T17:54:52.902724+00:00",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "pige360-local-sbom-generator",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "30cdba1ab92ae01a314a62d37cd7708f",
+      "name": "PIGE360",
+      "version": "1.0.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "745a3720f398d9b27166089e0cabdb57",
+      "name": "alembic",
+      "version": "1.18.4",
+      "purl": "pkg:pypi/alembic@1.18.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "7a8159fb215da9c895a2669c0919a3ef",
+      "name": "annotated-types",
+      "version": "0.7.0",
+      "purl": "pkg:pypi/annotated-types@0.7.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "aeec6ba4abaab5e93935c4b71bc49dff",
+      "name": "anyio",
+      "version": "4.13.0",
+      "purl": "pkg:pypi/anyio@4.13.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "7c891fb474a828ea5ca37907f25e88e4",
+      "name": "argon2-cffi",
+      "version": "25.1.0",
+      "purl": "pkg:pypi/argon2-cffi@25.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "102ba425232e254dc3561cdca14c7808",
+      "name": "argon2-cffi-bindings",
+      "version": "25.1.0",
+      "purl": "pkg:pypi/argon2-cffi-bindings@25.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "afb96a62999dce20033de3189f71c897",
+      "name": "cffi",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/cffi@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "399b65b0287833844d22cf2d6c9d1edf",
+      "name": "click",
+      "version": "8.1.8",
+      "purl": "pkg:pypi/click@8.1.8"
+    },
+    {
+      "type": "library",
+      "bom-ref": "b52acaf3cc7ae9fe441febfb99e81c8a",
+      "name": "cryptography",
+      "version": "46.0.4",
+      "purl": "pkg:pypi/cryptography@46.0.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "9989f87205ff200e9af15539307f1206",
+      "name": "et-xmlfile",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/et-xmlfile@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "97859a5cf1e274d50327f825ebb71ee2",
+      "name": "fastapi",
+      "version": "0.128.2",
+      "purl": "pkg:pypi/fastapi@0.128.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "bac92128db40497575258d31be3472b1",
+      "name": "greenlet",
+      "version": "3.5.1",
+      "purl": "pkg:pypi/greenlet@3.5.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "15b6f0daeed790363b0cec21cfc32ed4",
+      "name": "h11",
+      "version": "0.16.0",
+      "purl": "pkg:pypi/h11@0.16.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "6e1338103b4a0ed11959bd8aa2ceaa76",
+      "name": "httpx",
+      "version": "0.28.1",
+      "purl": "pkg:pypi/httpx@0.28.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "033db306b8c8e0fb5c82936f0c32b328",
+      "name": "Mako",
+      "version": "1.3.12",
+      "purl": "pkg:pypi/mako@1.3.12"
+    },
+    {
+      "type": "library",
+      "bom-ref": "ac42727cf1821ded44f0c85f1243e2c6",
+      "name": "MarkupSafe",
+      "version": "3.0.3",
+      "purl": "pkg:pypi/markupsafe@3.0.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "11c2ff177f8ef68271436b9ebcfdb953",
+      "name": "pillow",
+      "version": "12.2.0",
+      "purl": "pkg:pypi/pillow@12.2.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "449bc93d74e90f185f1a0526e9bda18a",
+      "name": "pycparser",
+      "version": "2.23",
+      "purl": "pkg:pypi/pycparser@2.23"
+    },
+    {
+      "type": "library",
+      "bom-ref": "2be44ed628f9ce741a3ecbe95f434386",
+      "name": "pydantic",
+      "version": "2.13.4",
+      "purl": "pkg:pypi/pydantic@2.13.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "ae01868d888335b9b253f81b937fb57d",
+      "name": "pydantic-core",
+      "version": "2.46.4",
+      "purl": "pkg:pypi/pydantic-core@2.46.4"
+    },
+    {
+      "type": "library",
+      "bom-ref": "a0c946c4f2945aa2425a9a65dad1842a",
+      "name": "PyJWT",
+      "version": "2.13.0",
+      "purl": "pkg:pypi/pyjwt@2.13.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "844b65c574ea171c42494834bad3a039",
+      "name": "reportlab",
+      "version": "4.4.9",
+      "purl": "pkg:pypi/reportlab@4.4.9"
+    },
+    {
+      "type": "library",
+      "bom-ref": "ed7c693a157d95fb75ce126ef9b62222",
+      "name": "sniffio",
+      "version": "1.3.1",
+      "purl": "pkg:pypi/sniffio@1.3.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "60073587300e0f02b971f40d467a8aaf",
+      "name": "SQLAlchemy",
+      "version": "2.0.50",
+      "purl": "pkg:pypi/sqlalchemy@2.0.50"
+    },
+    {
+      "type": "library",
+      "bom-ref": "0937a24e0cdf7436168bc330dfd72e04",
+      "name": "starlette",
+      "version": "0.50.0",
+      "purl": "pkg:pypi/starlette@0.50.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "efbab1bd84785f5090d6400e5105e5d6",
+      "name": "typing-extensions",
+      "version": "4.15.0",
+      "purl": "pkg:pypi/typing-extensions@4.15.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "24ae14ff63a65eb5def2f882467137dd",
+      "name": "typing-inspection",
+      "version": "0.4.2",
+      "purl": "pkg:pypi/typing-inspection@0.4.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "8a156d1c36ee1441366b2b90308fabee",
+      "name": "uvicorn",
+      "version": "0.48.0",
+      "purl": "pkg:pypi/uvicorn@0.48.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "0f6fc393d2ef722d170edcdbe9dd79be",
+      "name": "asn1crypto",
+      "version": "1.5.1",
+      "purl": "pkg:pypi/asn1crypto@1.5.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "4010441a71cbce33ce77be26717df4b5",
+      "name": "pypdf",
+      "version": "5.9.0",
+      "purl": "pkg:pypi/pypdf@5.9.0"
+    },
+    {
+      "type": "application",
+      "bom-ref": "d08a9f8ca7d5aa5a4f43c6d29601bf1d",
+      "name": "@pige360/admin-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/admin-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "1515e5fca0376f0403bb4984a3555c42",
+      "name": "@pige360/branding-studio",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/branding-studio"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "755efba75497c6a69ac0a72a13e41cec",
+      "name": "@pige360/desktop-admin",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/desktop-admin"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "d2b206d4a2ecaaaea253b5c34874effd",
+      "name": "@pige360/family-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/family-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "37f55d0ece7f9b6c50d2ca5de96e0468",
+      "name": "@pige360/kiosk-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/kiosk-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "c6d9a4f6ce067db92611cbeb90632dc2",
+      "name": "@pige360/platform-console",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/platform-console"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "fc6a7aa291b1e3f05d24c27501446f57",
+      "name": "@pige360/pos-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/pos-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "5fc84673e1cf22f44f27230d06a598c8",
+      "name": "@pige360/public-portal",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/public-portal"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "f20ec7f0346dac412f53c1f8651974f3",
+      "name": "@pige360/student-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/student-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "82ffa26d86b08b63b15dd9323f60ba4b",
+      "name": "@pige360/teacher-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/teacher-app"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "4ef6e9793d524ebb0aa60fd9cd0c6090",
+      "name": "@pige360/tenant-admin-web",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/tenant-admin-web"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "a551afbc1c873aa5699e75b191e69dc1",
+      "name": "@pige360/tenant-download-center",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/tenant-download-center"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "c910bb79291f4fd69f4ea0891015d60a",
+      "name": "@pige360/timeclock-app",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "apps/timeclock-app"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "cdff1c6924454581004b27f0a8a89816",
+      "name": "@pige360/api-sdk",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/api-sdk"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "ca3751e3fef75ad44dd5c6273ac7cd1f",
+      "name": "@pige360/app-manifest",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/app-manifest"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "0434915beb69c2400c530fd1a6cc4b66",
+      "name": "@pige360/auth",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/auth"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "3ae13a0c2f10d77c0cda3e02c4148c16",
+      "name": "@pige360/design-tokens",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/design-tokens"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "64c5fc917813cd140b23cdb62608eb4c",
+      "name": "@pige360/domain-types",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/domain-types"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "9c78be6302101d612280bd7cb7bfd53c",
+      "name": "@pige360/fiscal-types",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/fiscal-types"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "726fad45b7057076c16348794e31c117",
+      "name": "@pige360/mail-client",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/mail-client"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "c1c3252065522b7033029a35dde9744d",
+      "name": "@pige360/observability",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/observability"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "423661ccfe38127486ecab407a86285f",
+      "name": "@pige360/offline-sync",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/offline-sync"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "290180bea31c2d19f46baa7474d9fce0",
+      "name": "@pige360/permissions",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/permissions"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "4fc8da866f3b1d2c3357604e903e19d6",
+      "name": "@pige360/tenant-branding",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/tenant-branding"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "f290b080f7c84e0b3155aaa4f9072722",
+      "name": "@pige360/testing",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/testing"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "69cd8c4d2fb3ce74665ce324a5f21531",
+      "name": "@pige360/ui",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/ui"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "94d4d87bf0726619ca2a98cbadd9c5aa",
+      "name": "@pige360/validation",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "pige360:path",
+          "value": "packages/validation"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "1e6ed82adb5adcd5597cce0101b53045",
+      "name": "pige360-device-identity",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-device-identity@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "6d814bac97952e45628f56dbf8014332",
+      "name": "pige360-fiscal-snapshot",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-fiscal-snapshot@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "0f0f6f5fe0f610827ae42ce52b51bd50",
+      "name": "pige360-native-bridge",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-native-bridge@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "0ee6ea089c2191e42dbeb16125ccb086",
+      "name": "pige360-offline-database",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-offline-database@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "fe2100994837423f4c1850865427cb91",
+      "name": "pige360-printing",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-printing@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "bde23c062e0fafa8d5c1c0faed816040",
+      "name": "pige360-secure-storage",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-secure-storage@1.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "c6266f8c16674ec2f897f441c33ae0a5",
+      "name": "pige360-sync-engine",
+      "version": "1.0.0",
+      "purl": "pkg:cargo/pige360-sync-engine@1.0.0"
+    },
+    {
+      "type": "container",
+      "bom-ref": "ed62407ec433e6593d5175d67beb6ea6",
+      "name": "python",
+      "version": "3.13.5-slim-bookworm",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/base/Dockerfile.python"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "0f759a04ec4f25ed18d4f5885e32a3d3",
+      "name": "node",
+      "version": "22.16.0-bookworm-slim",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/base/Dockerfile.node"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "26f4d86337162f2fad73f0dd128955c3",
+      "name": "nginx",
+      "version": "1.27.5-alpine",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/Dockerfile.web"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "7cdef7b9b119f611115fe335bbaaf90e",
+      "name": "debian",
+      "version": "bookworm-slim",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/base/Dockerfile.runtime"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "3ce1e10dd179f2f9779a50397dffea2c",
+      "name": "rust",
+      "version": "1.88.0-bookworm",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/build-farm/Dockerfile.linux"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "bom-ref": "0e1713da28187283d4d4a77284cd4f1f",
+      "name": "node",
+      "version": "22.14.0-bookworm-slim",
+      "properties": [
+        {
+          "name": "pige360:declared-in",
+          "value": "infra/docker/build-farm/Dockerfile.linux"
+        }
+      ]
+    },
+    {
+      "type": "data",
+      "bom-ref": "5b87bb17d5f46afdfdb7c5ab54d2a37a",
+      "name": "pige360-official-branding",
+      "version": "1.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d8713a5d621fbaefc71b1bba063f50379d1d1780a3ae9bf5e309ada1c5a3c518"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3edd554f969cd6b8375511f3e5fa3b38c32a8db0c7d5d98290cbc4f2583e0b7a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "02ef32957388e61f82774b738f4c3ec5281bb34d3d2ded09d4aab1b99c508521"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "5738db6300f4f3c03d387d32b4ea519bd7cb664cee8f814bec06df36280c3bb2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "6a36303c61829e8b176c117a9c4617d18bf439823a816b35608addfc175733be"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "d06872da0227d4a4c47b98cb28620cf3dc37ada397bbe78f1a5e1e32bb5634a8"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ff70a1d64eb20a311acdf8fec6a45873c6a5294ae8317ca8591c2b8c6bef40df"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "0e68f16787ebf9160f21074a5a837cec208f734a9117d583b4891cd3485bcd2a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "03b1abc2426bb9efc8a1ae9cf0ca6b713f92657e9dc3efd5b1011d5e5061af7b"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "79bd7ed8459feedc546fb08a2a6bbfe7e730c48e24ff2fad8507d268fca9b0ea"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "c7e89ba26c962d9f126a0073066d43f8d8cedff1be8b2b333bf1709b3be44f26"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9911a627ece881095c096332f0803c22f1ace5e9300d599b4f8e240cfe00db26"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "76261f91fafe961a9de23d21e5b3835cab4aae1e77edbefa0abde81bababf895"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "7bec2501cc67b00930c282805979dfdef7a985af8f942542311b6f4be98e8946"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "e2364a1c95502090d41450404525128091440ed14e44793f6d29e28d65f46415"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "752f230b16a87e7af6cf0bab865c4c6eaa3df568ac1eeb514a51a7ce4fc5b7a2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b2765efbbb0f2496e3761496c19a9c8b7fc6f9ee617976d54aca03830668094d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "c7cf347b57e5041d82ccd6b15e7b236a7397de796dace37d96c407c3a79b95e6"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "7bec2501cc67b00930c282805979dfdef7a985af8f942542311b6f4be98e8946"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "518e0c981ad128a799f867a4507613ab3664b539b91a0dc94fdbe3456002ed56"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "4115566e40230feaa0691e8db7c6a97f4d204e4767c40d66017d57dde55561d9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "eb6f8ef98143ee00488b4c088646d44dbf5d954b50e42386c11ea6a3ac3e1bd5"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "4f1b83c7bb868efc7a229e57b313b9608a1a67784df51dd4220c19912b058566"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "19342eb3c4df3eac36e3f3836027514d24a7f581c206508c5833fc4fcae5f406"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "56ee0b6dad0ddf0ebe7995e460e3186cfb9dcc9eed187570ea801fd26c301dd9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "54d5a5284ac53e1768d4bddb22951162adf2a5e18bd0abc5ce24c82a9071e92a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "89c171e2aee0935f3105cc1dd717b48dcea6cbb3a98181943a604c604f085fc0"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "7e928e35d80d1791930b2d60f0965891359c1cb9206c173955d21550c63a7d95"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "56eb776667b40583cb696784700c3ee3694af633b2717693c7cc93aef71ab6ed"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "6f295b2191c28f98e185068ad02a7d71786f1c83515c0499a1d9c9da031b8e51"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bf98271d96e4c4fc497f9482a150df02bc66758c518748fe25052896088c5313"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bf98271d96e4c4fc497f9482a150df02bc66758c518748fe25052896088c5313"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "100547cb2a05c47329527ddb226dd551242e5659176ce3dc366e2561b7c4b302"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "af32eac3f1a828305b44e6f979cbedad027ba265fa17226461131f8ffe436fde"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "6b93a1b5ea27cd7e016fed835e0092bf6ddf4162e15046cb78df2bd8a819640b"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "56668524fcfa4b970a0ef23ef5488eac165c1dbec486088ec2a4a0a92e366db3"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "ed146c910cb0523d695deb67047b73e267b8499226f89548957e6ac489b150be"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "9e966febb683387a1ae36ded6d54833ec3b605a541a816d3c821f48230167367"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "c0cab957c207194f216c3c6ee898036b37443cb64e097095466f37ff3b9cae79"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "895530d2d3a49a963c520f2b3a0e865abcb3f1a6349f1f546d1303e9f4ac7d58"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "de2865fdc11b6daf27ffadfc4a017f8326a11ac7f7a0cb017f508de475a8a69a"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "844efba89f4d68e3af770667ee7db2604caa40aa65d5236959e975827af053c0"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "d12afdaf731aff7a22e2891e008498c6c1c1552e867f1bab7ce66173f3d967ab"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "0da0d23b495e67e33d0eb6c192e3bf6fd4a01d26037712a24fbad561a7d52f77"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e"
+        },
+        {
+          "alg": "SHA-256",
+          "content": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2"
+        }
+      ],
+      "properties": [
+        {
+          "name": "pige360:asset-count",
+          "value": "115"
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "pige360:network-used",
+      "value": "false"
+    },
+    {
+      "name": "pige360:scope",
+      "value": "source-and-declared-runtime"
+    }
+  ]
+}

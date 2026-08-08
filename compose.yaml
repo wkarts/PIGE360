@@ -1,0 +1,1514 @@
+name: pige360
+services:
+  pige360-postgres-control:
+    image: postgres:17.5-bookworm
+    environment:
+      POSTGRES_DB: platform_control
+      POSTGRES_USER: pige360_control
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_control_password
+    secrets:
+    - postgres_control_password
+    volumes:
+    - pige360-control-db:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pige360_control -d platform_control
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+    - pige360-data
+    restart: unless-stopped
+  pige360-postgres-tenants:
+    image: postgres:17.5-bookworm
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: pige360_tenant_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+    secrets:
+    - postgres_tenant_password
+    volumes:
+    - pige360-tenant-dbs:/var/lib/postgresql/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pige360_tenant_admin -d postgres
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+    - pige360-data
+    restart: unless-stopped
+  pige360-redis:
+    image: redis:8.0.2-bookworm
+    command:
+    - /bin/sh
+    - -ec
+    - exec redis-server --appendonly yes --requirepass "$$(cat /run/secrets/redis_password)"
+    volumes:
+    - pige360-redis:/data
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - redis-cli -a "$$(cat /run/secrets/redis_password)" ping 2>/dev/null | grep -q PONG
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    networks:
+    - pige360-data
+    restart: unless-stopped
+    secrets:
+    - redis_password
+  pige360-rabbitmq:
+    image: rabbitmq:4.1.1-management
+    hostname: pige360-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: pige360
+      RABBITMQ_DEFAULT_VHOST: pige360
+      RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/rabbitmq_password
+    volumes:
+    - pige360-rabbitmq:/var/lib/rabbitmq
+    healthcheck:
+      test:
+      - CMD
+      - rabbitmq-diagnostics
+      - -q
+      - ping
+      interval: 15s
+      timeout: 8s
+      retries: 10
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    secrets:
+    - rabbitmq_password
+  pige360-minio:
+    image: minio/minio:RELEASE.2025-05-24T17-08-30Z
+    command:
+    - server
+    - /data
+    - --console-address
+    - :9001
+    environment:
+      MINIO_ROOT_USER_FILE: /run/secrets/minio_access_key
+      MINIO_ROOT_PASSWORD_FILE: /run/secrets/minio_secret_key
+    secrets:
+    - minio_access_key
+    - minio_secret_key
+    volumes:
+    - pige360-minio:/data
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9000/minio/health/live
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+    - pige360-data
+    restart: unless-stopped
+  pige360-clamav:
+    image: clamav/clamav:1.4.2
+    profiles:
+    - security
+    volumes:
+    - pige360-clamav:/var/lib/clamav
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - printf 'PING\n' | nc -w 3 127.0.0.1 3310 | grep PONG
+      interval: 30s
+      timeout: 5s
+      retries: 10
+    networks:
+    - pige360-data
+    restart: unless-stopped
+  pige360-minio-init:
+    image: minio/mc:RELEASE.2025-05-21T01-59-54Z
+    depends_on:
+      pige360-minio:
+        condition: service_healthy
+    environment:
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+    secrets:
+    - minio_access_key
+    - minio_secret_key
+    entrypoint:
+    - /bin/sh
+    - /opt/pige360/init-minio.sh
+    volumes:
+    - ./infra/scripts/init-minio.sh:/opt/pige360/init-minio.sh:ro
+    networks:
+    - pige360-data
+    restart: 'no'
+  pige360-app-init:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.migrations
+    environment: &id001
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    depends_on:
+      pige360-postgres-control:
+        condition: service_healthy
+      pige360-postgres-tenants:
+        condition: service_healthy
+      pige360-minio-init:
+        condition: service_completed_successfully
+    secrets:
+    - app_jwt_secret
+    - bootstrap_token
+    - minio_access_key
+    - minio_secret_key
+    - postgres_control_password
+    - postgres_tenant_password
+    - database_secret_key
+    - redis_password
+    - rabbitmq_password
+    - worker_context_signing_key
+    - build_farm_token
+    command:
+    - /opt/pige360/infra/scripts/app-init.sh
+    volumes:
+    - pige360-tenant-storage:/var/lib/pige360/tenants
+    networks:
+    - pige360-data
+    restart: 'no'
+  pige360-api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.api
+    image: pige360-api:1.0.0
+    environment: *id001
+    secrets: &id002
+    - app_jwt_secret
+    - bootstrap_token
+    - minio_access_key
+    - minio_secret_key
+    - postgres_control_password
+    - postgres_tenant_password
+    - database_secret_key
+    - redis_password
+    - rabbitmq_password
+    - worker_context_signing_key
+    - build_farm_token
+    depends_on: &id003
+      pige360-postgres-control:
+        condition: service_healthy
+      pige360-postgres-tenants:
+        condition: service_healthy
+      pige360-redis:
+        condition: service_healthy
+      pige360-rabbitmq:
+        condition: service_healthy
+      pige360-minio:
+        condition: service_healthy
+      pige360-app-init:
+        condition: service_completed_successfully
+    volumes:
+    - pige360-tenant-storage:/var/lib/pige360/tenants
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live')
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+    - pige360-app
+    - pige360-data
+    - pige360-observability
+    - pige360-build-farm
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp:size=256m,mode=1777
+  pige360-web:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+      args:
+        APP_DIR: apps/tenant-admin-web
+    image: pige360-web:1.0.0
+    depends_on:
+      pige360-api:
+        condition: service_healthy
+    ports:
+    - ${WEB_BIND_HOST:-127.0.0.1}:${WEB_PUBLISHED_PORT:-58080}:8080
+    networks:
+    - pige360-app
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /var/cache/nginx
+    - /var/run
+  pige360-platform-console:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+      args:
+        APP_DIR: apps/platform-console
+    image: pige360-platform-console:1.0.0
+    networks:
+    - pige360-app
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /var/cache/nginx
+    - /var/run
+  pige360-branding-studio:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+      args:
+        APP_DIR: apps/branding-studio
+    image: pige360-branding-studio:1.0.0
+    networks:
+    - pige360-app
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /var/cache/nginx
+    - /var/run
+  pige360-tenant-download-center:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.web
+      args:
+        APP_DIR: apps/tenant-download-center
+    image: pige360-tenant-download-center:1.0.0
+    networks:
+    - pige360-app
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /var/cache/nginx
+    - /var/run
+  pige360-app-factory-api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.api
+    image: pige360-app-factory:1.0.0
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      APP_PROCESS_ROLE: app-factory
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-app
+    - pige360-data
+    - pige360-build-farm
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp:size=512m,mode=1777
+  pige360-beat:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - beat
+    - --loglevel=INFO
+    environment: *id001
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+  pige360-worker-app-builds:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=app-builds
+    - --hostname=app-builds@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: app-builds
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    - pige360-build-farm
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-app-distribution:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=app-distribution
+    - --hostname=app-distribution@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: app-distribution
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    - pige360-build-farm
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-visual-regression:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=visual-regression
+    - --hostname=visual-regression@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: visual-regression
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    - pige360-build-farm
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-default:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=default
+    - --hostname=default@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: default
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-high-priority:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=high-priority
+    - --hostname=high-priority@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: high-priority
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-academic:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=academic
+    - --hostname=academic@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: academic
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-pedagogy:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=pedagogy
+    - --hostname=pedagogy@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: pedagogy
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-attendance:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=attendance
+    - --hostname=attendance@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: attendance
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-finance:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=finance
+    - --hostname=finance@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: finance
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-banking:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=banking
+    - --hostname=banking@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: banking
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-fiscal:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=fiscal
+    - --hostname=fiscal@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: fiscal
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-sales:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=sales
+    - --hostname=sales@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: sales
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-hr:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=hr
+    - --hostname=hr@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: hr
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-mail:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=mail
+    - --hostname=mail@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: mail
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-notifications:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=notifications
+    - --hostname=notifications@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: notifications
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-documents:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=documents
+    - --hostname=documents@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: documents
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-contracts:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=contracts
+    - --hostname=contracts@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: contracts
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-signatures:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=signatures
+    - --hostname=signatures@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: signatures
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-reports:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=reports
+    - --hostname=reports@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: reports
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-worker-integrations:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.worker
+    image: pige360-worker:1.0.0
+    command:
+    - celery
+    - -A
+    - app.worker
+    - worker
+    - --loglevel=INFO
+    - --queues=integrations
+    - --hostname=integrations@%h
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      REMOTE_CI_ENABLED: 'false'
+      REMOTE_REGISTRY_ENABLED: 'false'
+      REMOTE_RELEASE_ENABLED: 'false'
+      REMOTE_DEPLOY_ENABLED: 'false'
+      APP_JWT_SECRET_FILE: /run/secrets/app_jwt_secret
+      APP_BOOTSTRAP_TOKEN_FILE: /run/secrets/bootstrap_token
+      DATABASE_CONTROL_URL: postgresql+asyncpg://pige360_control@pige360-postgres-control:5432/platform_control
+      DATABASE_TENANT_ADMIN_URL: postgresql+asyncpg://pige360_tenant_admin@pige360-postgres-tenants:5432/postgres
+      REDIS_URL: redis://pige360-redis:6379/0
+      RABBITMQ_URL: amqp://pige360@pige360-rabbitmq:5672/pige360
+      MINIO_ENDPOINT: http://pige360-minio:9000
+      MINIO_ACCESS_KEY_FILE: /run/secrets/minio_access_key
+      MINIO_SECRET_KEY_FILE: /run/secrets/minio_secret_key
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://pige360-otel-collector:4317
+      CELERY_QUEUE: integrations
+      DATABASE_CONTROL_PASSWORD_FILE: /run/secrets/postgres_control_password
+      DATABASE_TENANT_ADMIN_PASSWORD_FILE: /run/secrets/postgres_tenant_password
+      DATABASE_SECRET_KEY_FILE: /run/secrets/database_secret_key
+      REDIS_PASSWORD_FILE: /run/secrets/redis_password
+      RABBITMQ_PASSWORD_FILE: /run/secrets/rabbitmq_password
+      WORKER_CONTEXT_SIGNING_KEY_FILE: /run/secrets/worker_context_signing_key
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+    secrets: *id002
+    depends_on: *id003
+    networks:
+    - pige360-data
+    - pige360-observability
+    restart: unless-stopped
+    stop_grace_period: 45s
+  pige360-builder-linux:
+    build:
+      context: .
+      dockerfile: infra/docker/build-farm/Dockerfile.linux
+    image: pige360-builder-linux:1.0.0
+    profiles:
+    - build-farm
+    environment:
+      PIGE360_API_URL: http://pige360-api:8000/api/v1
+      PIGE360_PLATFORM_HOST: api.platform.local
+      PIGE360_SOURCE_ROOT: /workspace/source
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+      BUILD_FARM_OS: linux
+      BUILD_FARM_PLATFORMS: pwa,linux-x64,linux-arm64
+      BUILD_FARM_WORKER_ID: linux-compose
+    secrets:
+    - build_farm_token
+    volumes:
+    - .:/workspace/source:ro
+    networks:
+    - pige360-build-farm
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+    - /tmp:size=4g,mode=1777
+    - /workspace/jobs:size=8g,mode=1777
+    security_opt:
+    - no-new-privileges:true
+  pige360-builder-windows:
+    image: alpine:3.22.0
+    profiles:
+    - native-build-runner-descriptors
+    command:
+    - /bin/sh
+    - -ec
+    - echo "pige360-builder-windows requer runner nativo windows executando scripts/build-farm/agent.py (windows-x64,windows-x86)"
+      >&2; exit 78
+    restart: 'no'
+    read_only: true
+    security_opt:
+    - no-new-privileges:true
+  pige360-builder-macos:
+    image: alpine:3.22.0
+    profiles:
+    - native-build-runner-descriptors
+    command:
+    - /bin/sh
+    - -ec
+    - echo "pige360-builder-macos requer runner nativo macos executando scripts/build-farm/agent.py (macos-intel,macos-apple)"
+      >&2; exit 78
+    restart: 'no'
+    read_only: true
+    security_opt:
+    - no-new-privileges:true
+  pige360-builder-android:
+    build:
+      context: .
+      dockerfile: infra/docker/build-farm/Dockerfile.linux
+    environment:
+      BUILD_FARM_OS: linux
+      BUILD_FARM_PLATFORMS: android-apk,android-aab
+      BUILD_FARM_TOKEN_FILE: /run/secrets/build_farm_token
+      BUILD_FARM_WORKER_ID: android-compose
+      PIGE360_API_URL: http://pige360-api:8000/api/v1
+      PIGE360_PLATFORM_HOST: api.platform.local
+      PIGE360_SOURCE_ROOT: /workspace/source
+      ANDROID_HOME: /opt/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+    image: pige360-builder-android:1.0.0
+    networks:
+    - pige360-build-farm
+    profiles:
+    - build-farm
+    read_only: true
+    restart: unless-stopped
+    secrets:
+    - build_farm_token
+    security_opt:
+    - no-new-privileges:true
+    tmpfs:
+    - /tmp:size=4g,mode=1777
+    - /workspace/jobs:size=8g,mode=1777
+    volumes:
+    - .:/workspace/source:ro
+    - ${ANDROID_SDK_HOME:-./.toolchains/android-sdk}:/opt/android-sdk:ro
+  pige360-builder-ios:
+    image: alpine:3.22.0
+    profiles:
+    - native-build-runner-descriptors
+    command:
+    - /bin/sh
+    - -ec
+    - echo "pige360-builder-ios requer runner nativo macos executando scripts/build-farm/agent.py (ios-app,ios-xcarchive,ios-ipa-unsigned)"
+      >&2; exit 78
+    restart: 'no'
+    read_only: true
+    security_opt:
+    - no-new-privileges:true
+  pige360-cloudflared-control:
+    image: cloudflare/cloudflared:2025.6.1
+    profiles:
+    - cloudflare
+    command:
+    - tunnel
+    - --no-autoupdate
+    - run
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cloudflare_control_tunnel_token
+    secrets:
+    - cloudflare_control_tunnel_token
+    networks:
+    - pige360-app
+    restart: unless-stopped
+  pige360-cloudflared-tenants:
+    image: cloudflare/cloudflared:2025.6.1
+    profiles:
+    - cloudflare
+    command:
+    - tunnel
+    - --no-autoupdate
+    - run
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/cloudflare_tenant_tunnel_token
+    secrets:
+    - cloudflare_tenant_tunnel_token
+    networks:
+    - pige360-app
+    restart: unless-stopped
+  pige360-otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.128.0
+    command:
+    - --config=/etc/otel/config.yaml
+    volumes:
+    - ./infra/monitoring/otel-collector.yaml:/etc/otel/config.yaml:ro
+    networks:
+    - pige360-observability
+    restart: unless-stopped
+  pige360-prometheus:
+    image: prom/prometheus:v3.4.1
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    volumes:
+    - ./infra/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    - pige360-prometheus:/prometheus
+    networks:
+    - pige360-observability
+    restart: unless-stopped
+  pige360-grafana:
+    image: grafana/grafana:12.0.2
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_admin_password
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+    secrets:
+    - grafana_admin_password
+    volumes:
+    - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    - pige360-grafana:/var/lib/grafana
+    networks:
+    - pige360-observability
+    restart: unless-stopped
+  pige360-loki:
+    image: grafana/loki:3.5.1
+    command:
+    - -config.file=/etc/loki/config.yaml
+    volumes:
+    - ./infra/monitoring/loki.yaml:/etc/loki/config.yaml:ro
+    - pige360-loki:/loki
+    networks:
+    - pige360-observability
+    restart: unless-stopped
+networks:
+  pige360-app:
+    name: pige360-app
+    driver: bridge
+  pige360-data:
+    name: pige360-data
+    driver: bridge
+    internal: true
+  pige360-observability:
+    name: pige360-observability
+    driver: bridge
+    internal: true
+  pige360-build-farm:
+    name: pige360-build-farm
+    driver: bridge
+    internal: true
+volumes:
+  pige360-control-db:
+    name: pige360-control-db
+  pige360-tenant-dbs:
+    name: pige360-tenant-dbs
+  pige360-redis:
+    name: pige360-redis
+  pige360-rabbitmq:
+    name: pige360-rabbitmq
+  pige360-minio:
+    name: pige360-minio
+  pige360-clamav:
+    name: pige360-clamav
+  pige360-tenant-storage:
+    name: pige360-tenant-storage
+  pige360-prometheus:
+    name: pige360-prometheus
+  pige360-grafana:
+    name: pige360-grafana
+  pige360-loki:
+    name: pige360-loki
+secrets:
+  app_jwt_secret:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/app_jwt_secret.txt
+  bootstrap_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/bootstrap_token.txt
+  minio_access_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/minio_access_key.txt
+  minio_secret_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/minio_secret_key.txt
+  postgres_control_password:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/postgres_control_password.txt
+  postgres_tenant_password:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/postgres_tenant_password.txt
+  grafana_admin_password:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/grafana_admin_password.txt
+  cloudflare_control_tunnel_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/cloudflare_control_tunnel_token.txt
+  cloudflare_tenant_tunnel_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/cloudflare_tenant_tunnel_token.txt
+  database_secret_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/database_secret_key.txt
+  redis_password:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/redis_password.txt
+  rabbitmq_password:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/rabbitmq_password.txt
+  worker_context_signing_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/worker_context_signing_key.txt
+  build_farm_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/build_farm_token.txt

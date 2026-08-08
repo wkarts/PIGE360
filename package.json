@@ -1,0 +1,21 @@
+{
+  "name": "pige360-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "validate:ts": "tsc -p tsconfig.validation.json --noEmit",
+    "test:visual": "python3 scripts/visual/validate_visual_contract.py",
+    "build:web": "npm --workspaces --if-present run build"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3",
+    "vue-tsc": "2.2.0"
+  }
+}

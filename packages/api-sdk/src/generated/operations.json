@@ -1,0 +1,4242 @@
+[
+  {
+    "operationId": "about",
+    "method": "GET",
+    "path": "/api/v1/about",
+    "tags": [
+      "foundation"
+    ]
+  },
+  {
+    "operationId": "list_academic_periods",
+    "method": "GET",
+    "path": "/api/v1/academic-periods",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_academic_period",
+    "method": "POST",
+    "path": "/api/v1/academic-periods",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_academic_years",
+    "method": "GET",
+    "path": "/api/v1/academic-years",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_academic_year",
+    "method": "POST",
+    "path": "/api/v1/academic-years",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_complementary_activities",
+    "method": "GET",
+    "path": "/api/v1/academic/complementary-activities",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "submit_complementary_activity",
+    "method": "POST",
+    "path": "/api/v1/academic/complementary-activities",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "decide_complementary_activity",
+    "method": "POST",
+    "path": "/api/v1/academic/complementary-activities/{activity_id}/decision",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "recognize_component_completion",
+    "method": "POST",
+    "path": "/api/v1/academic/component-completions",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_component_prerequisites",
+    "method": "GET",
+    "path": "/api/v1/academic/component-prerequisites",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "create_component_prerequisite",
+    "method": "POST",
+    "path": "/api/v1/academic/component-prerequisites",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "save_early_childhood_daily_record",
+    "method": "POST",
+    "path": "/api/v1/academic/early-childhood/daily-records",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "record_student_pickup",
+    "method": "POST",
+    "path": "/api/v1/academic/early-childhood/pickups",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_authorized_student_pickups",
+    "method": "GET",
+    "path": "/api/v1/academic/early-childhood/students/{student_id}/authorized-pickups",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_early_childhood_daily_records",
+    "method": "GET",
+    "path": "/api/v1/academic/early-childhood/students/{student_id}/daily-records",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_student_pickups",
+    "method": "GET",
+    "path": "/api/v1/academic/early-childhood/students/{student_id}/pickups",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_internships",
+    "method": "GET",
+    "path": "/api/v1/academic/internships",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "create_internship",
+    "method": "POST",
+    "path": "/api/v1/academic/internships",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "log_internship_hours",
+    "method": "POST",
+    "path": "/api/v1/academic/internships/{internship_id}/hours",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "transition_internship",
+    "method": "POST",
+    "path": "/api/v1/academic/internships/{internship_id}/state",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "get_student_integralization",
+    "method": "GET",
+    "path": "/api/v1/academic/students/{student_id}/integralization",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "list_theses",
+    "method": "GET",
+    "path": "/api/v1/academic/theses",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "create_thesis",
+    "method": "POST",
+    "path": "/api/v1/academic/theses",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "transition_thesis",
+    "method": "POST",
+    "path": "/api/v1/academic/theses/{thesis_id}/state",
+    "tags": [
+      "academic-progress"
+    ]
+  },
+  {
+    "operationId": "create_admission_application",
+    "method": "POST",
+    "path": "/api/v1/admissions/applications",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "reserve_admission_vacancy",
+    "method": "POST",
+    "path": "/api/v1/admissions/applications/{application_id}/reserve",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "record_admission_assessment_result",
+    "method": "POST",
+    "path": "/api/v1/admissions/applications/{application_id}/results",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "transition_admission_application",
+    "method": "POST",
+    "path": "/api/v1/admissions/applications/{application_id}/state",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_campaigns",
+    "method": "GET",
+    "path": "/api/v1/admissions/campaigns",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "create_admission_campaign",
+    "method": "POST",
+    "path": "/api/v1/admissions/campaigns",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "transition_admission_campaign",
+    "method": "POST",
+    "path": "/api/v1/admissions/campaigns/{campaign_id}/state",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_candidates",
+    "method": "GET",
+    "path": "/api/v1/admissions/candidates",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_admission_candidate",
+    "method": "POST",
+    "path": "/api/v1/admissions/candidates",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "get_admission_candidate",
+    "method": "GET",
+    "path": "/api/v1/admissions/candidates/{candidate_id}",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "convert_candidate_to_enrollment",
+    "method": "POST",
+    "path": "/api/v1/admissions/candidates/{candidate_id}/convert",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "transition_admission_candidate",
+    "method": "POST",
+    "path": "/api/v1/admissions/candidates/{candidate_id}/state",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_admission_leads",
+    "method": "GET",
+    "path": "/api/v1/admissions/leads",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "create_admission_lead",
+    "method": "POST",
+    "path": "/api/v1/admissions/leads",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "convert_lead_to_admission_application",
+    "method": "POST",
+    "path": "/api/v1/admissions/leads/{lead_id}/convert",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "transition_admission_lead",
+    "method": "POST",
+    "path": "/api/v1/admissions/leads/{lead_id}/state",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_processes",
+    "method": "GET",
+    "path": "/api/v1/admissions/processes",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "create_admission_process",
+    "method": "POST",
+    "path": "/api/v1/admissions/processes",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_applications",
+    "method": "GET",
+    "path": "/api/v1/admissions/processes/{process_id}/applications",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_assessments",
+    "method": "GET",
+    "path": "/api/v1/admissions/processes/{process_id}/assessments",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "create_admission_assessment",
+    "method": "POST",
+    "path": "/api/v1/admissions/processes/{process_id}/assessments",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "calculate_admission_ranking",
+    "method": "POST",
+    "path": "/api/v1/admissions/processes/{process_id}/ranking",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "transition_admission_process",
+    "method": "POST",
+    "path": "/api/v1/admissions/processes/{process_id}/state",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "list_admission_vacancy_reservations",
+    "method": "GET",
+    "path": "/api/v1/admissions/reservations",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "get_academic_analytics",
+    "method": "GET",
+    "path": "/api/v1/analytics/academic",
+    "tags": [
+      "analytics"
+    ]
+  },
+  {
+    "operationId": "get_finance_analytics",
+    "method": "GET",
+    "path": "/api/v1/analytics/finance",
+    "tags": [
+      "analytics"
+    ]
+  },
+  {
+    "operationId": "get_operations_analytics",
+    "method": "GET",
+    "path": "/api/v1/analytics/operations",
+    "tags": [
+      "analytics"
+    ]
+  },
+  {
+    "operationId": "get_analytics_overview",
+    "method": "GET",
+    "path": "/api/v1/analytics/overview",
+    "tags": [
+      "analytics"
+    ]
+  },
+  {
+    "operationId": "create_current_tenant_app_build",
+    "method": "POST",
+    "path": "/api/v1/apps/builds",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "get_tenant_apps_catalog",
+    "method": "GET",
+    "path": "/api/v1/apps/catalog",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "create_current_tenant_app_manifest",
+    "method": "POST",
+    "path": "/api/v1/apps/manifests",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "get_tenant_app_release",
+    "method": "GET",
+    "path": "/api/v1/apps/releases/{release_id}",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "download_tenant_app_release",
+    "method": "GET",
+    "path": "/api/v1/apps/releases/{release_id}/download",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "check_tenant_app_update",
+    "method": "GET",
+    "path": "/api/v1/apps/update/{app}/{platform}/{arch}",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "list_assets_relational",
+    "method": "GET",
+    "path": "/api/v1/assets",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "create_asset_relational",
+    "method": "POST",
+    "path": "/api/v1/assets",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "get_asset_details",
+    "method": "GET",
+    "path": "/api/v1/assets/{asset_id}",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "register_asset_event",
+    "method": "POST",
+    "path": "/api/v1/assets/{asset_id}/events",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "get_class_attendance",
+    "method": "GET",
+    "path": "/api/v1/attendance/classes/{class_id}",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "create_attendance_justification",
+    "method": "POST",
+    "path": "/api/v1/attendance/justifications",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "list_attendance_justifications",
+    "method": "GET",
+    "path": "/api/v1/attendance/justifications",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "approve_attendance_justification",
+    "method": "POST",
+    "path": "/api/v1/attendance/justifications/{justification_id}/approve",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "reject_attendance_justification",
+    "method": "POST",
+    "path": "/api/v1/attendance/justifications/{justification_id}/reject",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "list_attendance_policies",
+    "method": "GET",
+    "path": "/api/v1/attendance/policies",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "create_attendance_policy",
+    "method": "POST",
+    "path": "/api/v1/attendance/policies",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "create_attendance_policy_version",
+    "method": "POST",
+    "path": "/api/v1/attendance/policies/{policy_id}/versions",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "get_attendance_risks",
+    "method": "GET",
+    "path": "/api/v1/attendance/risks",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "get_student_attendance",
+    "method": "GET",
+    "path": "/api/v1/attendance/students/{student_id}",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "auth_login",
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "tags": [
+      "identity"
+    ]
+  },
+  {
+    "operationId": "auth_me",
+    "method": "GET",
+    "path": "/api/v1/auth/me",
+    "tags": [
+      "identity"
+    ]
+  },
+  {
+    "operationId": "auth_refresh",
+    "method": "POST",
+    "path": "/api/v1/auth/refresh",
+    "tags": [
+      "identity"
+    ]
+  },
+  {
+    "operationId": "auth_create_user",
+    "method": "POST",
+    "path": "/api/v1/auth/users",
+    "tags": [
+      "identity"
+    ]
+  },
+  {
+    "operationId": "list_automation_rules_relational",
+    "method": "GET",
+    "path": "/api/v1/automations/rules",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_automation_rule_relational",
+    "method": "POST",
+    "path": "/api/v1/automations/rules",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "execute_automation_rule",
+    "method": "POST",
+    "path": "/api/v1/automations/rules/{rule_id}/execute",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_bank_accounts",
+    "method": "GET",
+    "path": "/api/v1/banking/accounts",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "create_bank_account",
+    "method": "POST",
+    "path": "/api/v1/banking/accounts",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "import_bank_transactions",
+    "method": "POST",
+    "path": "/api/v1/banking/accounts/{account_id}/imports",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "create_pix_charge",
+    "method": "POST",
+    "path": "/api/v1/banking/accounts/{account_id}/pix-charges",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "confirm_pix_charge",
+    "method": "POST",
+    "path": "/api/v1/banking/pix-charges/{charge_id}/confirm",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "list_bank_transactions",
+    "method": "GET",
+    "path": "/api/v1/banking/transactions",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "reconcile_bank_transaction",
+    "method": "POST",
+    "path": "/api/v1/banking/transactions/{transaction_id}/reconcile",
+    "tags": [
+      "banking"
+    ]
+  },
+  {
+    "operationId": "upload_current_tenant_brand_asset",
+    "method": "POST",
+    "path": "/api/v1/branding/assets",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "get_current_tenant_branding",
+    "method": "GET",
+    "path": "/api/v1/branding/current",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "preview_current_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/branding/preview",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "publish_current_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/branding/publish",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "rollback_current_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/branding/rollback",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "list_canteen_locations",
+    "method": "GET",
+    "path": "/api/v1/canteen/locations",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "create_canteen_location",
+    "method": "POST",
+    "path": "/api/v1/canteen/locations",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "list_canteen_menus",
+    "method": "GET",
+    "path": "/api/v1/canteen/menus",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "create_canteen_menu",
+    "method": "POST",
+    "path": "/api/v1/canteen/menus",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "add_canteen_menu_item",
+    "method": "POST",
+    "path": "/api/v1/canteen/menus/{menu_id}/items",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "change_canteen_menu_state",
+    "method": "POST",
+    "path": "/api/v1/canteen/menus/{menu_id}/state",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "search_canteen_pos_students",
+    "method": "GET",
+    "path": "/api/v1/canteen/pos/students",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "quote_canteen_sale",
+    "method": "POST",
+    "path": "/api/v1/canteen/quote",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "get_student_food_policy",
+    "method": "GET",
+    "path": "/api/v1/canteen/students/{student_id}/policy",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "set_student_food_policy",
+    "method": "PUT",
+    "path": "/api/v1/canteen/students/{student_id}/policy",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "list_canteen_subsidies",
+    "method": "GET",
+    "path": "/api/v1/canteen/subsidies",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "create_canteen_subsidy",
+    "method": "POST",
+    "path": "/api/v1/canteen/subsidies",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "list_student_wallets",
+    "method": "GET",
+    "path": "/api/v1/canteen/wallets",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "create_student_wallet",
+    "method": "POST",
+    "path": "/api/v1/canteen/wallets",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "get_my_canteen_wallets",
+    "method": "GET",
+    "path": "/api/v1/canteen/wallets/me",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "update_student_wallet_limits",
+    "method": "PATCH",
+    "path": "/api/v1/canteen/wallets/{wallet_id}",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "credit_student_wallet",
+    "method": "POST",
+    "path": "/api/v1/canteen/wallets/{wallet_id}/credits",
+    "tags": [
+      "canteen"
+    ]
+  },
+  {
+    "operationId": "list_class_groups",
+    "method": "GET",
+    "path": "/api/v1/class-groups",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_class_group",
+    "method": "POST",
+    "path": "/api/v1/class-groups",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "get_class_group_capacity",
+    "method": "GET",
+    "path": "/api/v1/class-groups/{class_group_id}/capacity",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_class_sessions",
+    "method": "GET",
+    "path": "/api/v1/class-sessions",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "create_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "get_class_session",
+    "method": "GET",
+    "path": "/api/v1/class-sessions/{session_id}",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "get_session_attendance",
+    "method": "GET",
+    "path": "/api/v1/class-sessions/{session_id}/attendance",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "save_session_attendance",
+    "method": "PUT",
+    "path": "/api/v1/class-sessions/{session_id}/attendance",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "correct_session_attendance",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/attendance/corrections",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "submit_session_attendance",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/attendance/submit",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "cancel_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/cancel",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "close_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/close",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "reopen_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/reopen",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "reschedule_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/reschedule",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "start_class_session",
+    "method": "POST",
+    "path": "/api/v1/class-sessions/{session_id}/start",
+    "tags": [
+      "class-attendance"
+    ]
+  },
+  {
+    "operationId": "get_my_communication_preferences",
+    "method": "GET",
+    "path": "/api/v1/communication/preferences/me",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "set_my_communication_preference",
+    "method": "PUT",
+    "path": "/api/v1/communication/preferences/me",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "list_communication_templates",
+    "method": "GET",
+    "path": "/api/v1/communication/templates",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "create_communication_template",
+    "method": "POST",
+    "path": "/api/v1/communication/templates",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "publish_communication_template",
+    "method": "POST",
+    "path": "/api/v1/communication/templates/{template_id}/publish",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "create_communication_template_version",
+    "method": "POST",
+    "path": "/api/v1/communication/templates/{template_id}/versions",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "list_consent_purposes",
+    "method": "GET",
+    "path": "/api/v1/compliance/consent-purposes",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "grant_consent",
+    "method": "POST",
+    "path": "/api/v1/compliance/consents",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "revoke_consent",
+    "method": "POST",
+    "path": "/api/v1/compliance/consents/{consent_id}/revoke",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "get_compliance_dashboard",
+    "method": "GET",
+    "path": "/api/v1/compliance/dashboard",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_data_subject_requests",
+    "method": "GET",
+    "path": "/api/v1/compliance/data-subject-requests",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "create_data_subject_request",
+    "method": "POST",
+    "path": "/api/v1/compliance/data-subject-requests",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "execute_data_subject_anonymization",
+    "method": "POST",
+    "path": "/api/v1/compliance/data-subject-requests/{request_id}/anonymize",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "generate_data_subject_export",
+    "method": "POST",
+    "path": "/api/v1/compliance/data-subject-requests/{request_id}/export",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "download_data_subject_export",
+    "method": "GET",
+    "path": "/api/v1/compliance/data-subject-requests/{request_id}/export",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "transition_data_subject_request",
+    "method": "POST",
+    "path": "/api/v1/compliance/data-subject-requests/{request_id}/state",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_legal_holds",
+    "method": "GET",
+    "path": "/api/v1/compliance/legal-holds",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "create_legal_hold",
+    "method": "POST",
+    "path": "/api/v1/compliance/legal-holds",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "release_legal_hold",
+    "method": "POST",
+    "path": "/api/v1/compliance/legal-holds/{hold_id}/release",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_person_consents",
+    "method": "GET",
+    "path": "/api/v1/compliance/persons/{person_id}/consents",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_privacy_notices",
+    "method": "GET",
+    "path": "/api/v1/compliance/privacy-notices",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "create_privacy_notice",
+    "method": "POST",
+    "path": "/api/v1/compliance/privacy-notices",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "get_privacy_notice",
+    "method": "GET",
+    "path": "/api/v1/compliance/privacy-notices/{notice_id}",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "publish_privacy_notice",
+    "method": "POST",
+    "path": "/api/v1/compliance/privacy-notices/{notice_id}/publish",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_processing_activities",
+    "method": "GET",
+    "path": "/api/v1/compliance/processing-activities",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "create_processing_activity",
+    "method": "POST",
+    "path": "/api/v1/compliance/processing-activities",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_retention_policies",
+    "method": "GET",
+    "path": "/api/v1/compliance/retention-policies",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "create_retention_policy",
+    "method": "POST",
+    "path": "/api/v1/compliance/retention-policies",
+    "tags": [
+      "compliance-lgpd"
+    ]
+  },
+  {
+    "operationId": "list_contract_templates",
+    "method": "GET",
+    "path": "/api/v1/contract-templates",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "create_contract_template",
+    "method": "POST",
+    "path": "/api/v1/contract-templates",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "preview_contract_template",
+    "method": "POST",
+    "path": "/api/v1/contract-templates/{template_id}/preview",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "publish_contract_template",
+    "method": "POST",
+    "path": "/api/v1/contract-templates/{template_id}/publish",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "validate_contract_template",
+    "method": "POST",
+    "path": "/api/v1/contract-templates/{template_id}/validate",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "create_contract_template_version",
+    "method": "POST",
+    "path": "/api/v1/contract-templates/{template_id}/versions",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_legal_contracts",
+    "method": "GET",
+    "path": "/api/v1/contracts",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "create_legal_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "get_legal_contract",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "patch_legal_contract",
+    "method": "PATCH",
+    "path": "/api/v1/contracts/{contract_id}",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_contract_amendments",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}/amendments",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "create_contract_amendment",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/amendments",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "approve_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/approve",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "get_contract_audit",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}/audit",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "cancel_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/cancel",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "download_contract_document",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}/document",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "get_contract_evidence",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}/evidence",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "generate_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/generate",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "renew_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/renew",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "send_contract_for_signature",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/send-for-signature",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "terminate_contract",
+    "method": "POST",
+    "path": "/api/v1/contracts/{contract_id}/terminate",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_contract_versions",
+    "method": "GET",
+    "path": "/api/v1/contracts/{contract_id}/versions",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_curricula",
+    "method": "GET",
+    "path": "/api/v1/curricula",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_curriculum",
+    "method": "POST",
+    "path": "/api/v1/curricula",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_curriculum_components",
+    "method": "GET",
+    "path": "/api/v1/curriculum-components",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_curriculum_component",
+    "method": "POST",
+    "path": "/api/v1/curriculum-components",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "get_tenant_operations_dashboard",
+    "method": "GET",
+    "path": "/api/v1/dashboard/operations",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "list_documents_relational",
+    "method": "GET",
+    "path": "/api/v1/documents",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "upload_document_relational",
+    "method": "POST",
+    "path": "/api/v1/documents",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "download_document_relational",
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}/download",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_employees_relational",
+    "method": "GET",
+    "path": "/api/v1/employees",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_employee_relational",
+    "method": "POST",
+    "path": "/api/v1/employees",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_enrollments_relational",
+    "method": "GET",
+    "path": "/api/v1/enrollments",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_enrollment_relational",
+    "method": "POST",
+    "path": "/api/v1/enrollments",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "get_enrollment_relational",
+    "method": "GET",
+    "path": "/api/v1/enrollments/{enrollment_id}",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "activate_enrollment_relational",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/activate",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "cancel_or_withdraw_enrollment",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/cancel",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "change_enrollment_class_group",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/change-class",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "complete_enrollment",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/complete",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_enrollment_movements",
+    "method": "GET",
+    "path": "/api/v1/enrollments/{enrollment_id}/movements",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "renew_enrollment",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/renew",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "reserve_enrollment_vacancy",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/reserve",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "suspend_enrollment",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/suspend",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "transfer_enrollment",
+    "method": "POST",
+    "path": "/api/v1/enrollments/{enrollment_id}/transfer",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "decide_event_authorization",
+    "method": "POST",
+    "path": "/api/v1/event-registrations/{registration_id}/authorization",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "check_in_event_participant",
+    "method": "POST",
+    "path": "/api/v1/event-registrations/{registration_id}/check-in",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "check_out_event_participant",
+    "method": "POST",
+    "path": "/api/v1/event-registrations/{registration_id}/check-out",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_events_relational",
+    "method": "GET",
+    "path": "/api/v1/events",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_event_relational",
+    "method": "POST",
+    "path": "/api/v1/events",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_my_event_registrations",
+    "method": "GET",
+    "path": "/api/v1/events/me/registrations",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "get_event_details_relational",
+    "method": "GET",
+    "path": "/api/v1/events/{event_id}",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "publish_event_relational",
+    "method": "POST",
+    "path": "/api/v1/events/{event_id}/publish",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "register_event_participant",
+    "method": "POST",
+    "path": "/api/v1/events/{event_id}/registrations",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "add_event_schedule_item",
+    "method": "POST",
+    "path": "/api/v1/events/{event_id}/schedule",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_financial_contracts",
+    "method": "GET",
+    "path": "/api/v1/finance/contracts",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "create_financial_contract",
+    "method": "POST",
+    "path": "/api/v1/finance/contracts",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "generate_financial_installments",
+    "method": "POST",
+    "path": "/api/v1/finance/contracts/{contract_id}/installments",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "renegotiate_financial_contract",
+    "method": "POST",
+    "path": "/api/v1/finance/contracts/{contract_id}/renegotiate",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_financial_renegotiations",
+    "method": "GET",
+    "path": "/api/v1/finance/contracts/{contract_id}/renegotiations",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_installments",
+    "method": "GET",
+    "path": "/api/v1/finance/installments",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_financial_ledger",
+    "method": "GET",
+    "path": "/api/v1/finance/ledger",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_my_financial_installments",
+    "method": "GET",
+    "path": "/api/v1/finance/my-installments",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "register_payment",
+    "method": "POST",
+    "path": "/api/v1/finance/payments",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_payment_refunds",
+    "method": "GET",
+    "path": "/api/v1/finance/payments/{payment_id}/refunds",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "refund_payment",
+    "method": "POST",
+    "path": "/api/v1/finance/payments/{payment_id}/refunds",
+    "tags": [
+      "finance"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_documents_relational",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "request_fiscal_document_relational",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "cancel_fiscal_document_local",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/cancel",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_document_events",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/events",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "retry_fiscal_document",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/retry",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_ibpt_rate",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/rates/{code}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_ibpt_snapshots",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/snapshots",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_ibpt_status",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/status",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "request_ibpt_sync",
+    "method": "POST",
+    "path": "/api/v1/fiscal/ibpt/sync",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_ibpt_sync_runs",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/sync-runs",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_profiles",
+    "method": "GET",
+    "path": "/api/v1/fiscal/profiles",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_profile",
+    "method": "POST",
+    "path": "/api/v1/fiscal/profiles",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_rules",
+    "method": "GET",
+    "path": "/api/v1/fiscal/rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_rule",
+    "method": "POST",
+    "path": "/api/v1/fiscal/rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "simulate_fiscal_operation",
+    "method": "POST",
+    "path": "/api/v1/fiscal/simulate",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "generate_government_export",
+    "method": "POST",
+    "path": "/api/v1/government-education/exports",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_government_exports",
+    "method": "GET",
+    "path": "/api/v1/government-education/exports",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "download_government_export",
+    "method": "GET",
+    "path": "/api/v1/government-education/exports/{export_id}/download",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "request_government_transmission",
+    "method": "POST",
+    "path": "/api/v1/government-education/exports/{export_id}/transmissions",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "import_government_file",
+    "method": "POST",
+    "path": "/api/v1/government-education/imports",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "list_government_imports",
+    "method": "GET",
+    "path": "/api/v1/government-education/imports",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "download_government_import",
+    "method": "GET",
+    "path": "/api/v1/government-education/imports/{import_id}/download",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "list_government_layouts",
+    "method": "GET",
+    "path": "/api/v1/government-education/layouts",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_government_layout",
+    "method": "POST",
+    "path": "/api/v1/government-education/layouts",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_government_transmissions",
+    "method": "GET",
+    "path": "/api/v1/government-education/transmissions",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "retry_government_transmission",
+    "method": "POST",
+    "path": "/api/v1/government-education/transmissions/{transmission_id}/retry",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "validate_government_records",
+    "method": "POST",
+    "path": "/api/v1/government-education/validations",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "list_government_validations",
+    "method": "GET",
+    "path": "/api/v1/government-education/validations",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "list_government_validation_issues",
+    "method": "GET",
+    "path": "/api/v1/government-education/validations/{run_id}/issues",
+    "tags": [
+      "government-education"
+    ]
+  },
+  {
+    "operationId": "link_guardian_student",
+    "method": "POST",
+    "path": "/api/v1/guardian-students",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_guardian",
+    "method": "POST",
+    "path": "/api/v1/guardians",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_health_access_log",
+    "method": "GET",
+    "path": "/api/v1/health/access-log",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "list_health_incidents",
+    "method": "GET",
+    "path": "/api/v1/health/incidents",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "create_health_incident",
+    "method": "POST",
+    "path": "/api/v1/health/incidents",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "close_health_incident",
+    "method": "POST",
+    "path": "/api/v1/health/incidents/{incident_id}/close",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "health_live",
+    "method": "GET",
+    "path": "/api/v1/health/live",
+    "tags": [
+      "foundation"
+    ]
+  },
+  {
+    "operationId": "get_my_health_context",
+    "method": "GET",
+    "path": "/api/v1/health/me",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "administer_medication",
+    "method": "POST",
+    "path": "/api/v1/health/medication-administrations",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "list_medication_authorizations",
+    "method": "GET",
+    "path": "/api/v1/health/medication-authorizations",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "create_medication_authorization",
+    "method": "POST",
+    "path": "/api/v1/health/medication-authorizations",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "health_ready",
+    "method": "GET",
+    "path": "/api/v1/health/ready",
+    "tags": [
+      "foundation"
+    ]
+  },
+  {
+    "operationId": "create_health_record_relational",
+    "method": "POST",
+    "path": "/api/v1/health/records",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_health_record_metadata",
+    "method": "GET",
+    "path": "/api/v1/health/records",
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "operationId": "access_health_record",
+    "method": "POST",
+    "path": "/api/v1/health/records/{record_id}/access",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_employment_contracts",
+    "method": "GET",
+    "path": "/api/v1/hr/employment-contracts",
+    "tags": [
+      "hr"
+    ]
+  },
+  {
+    "operationId": "create_employment_contract",
+    "method": "POST",
+    "path": "/api/v1/hr/employment-contracts",
+    "tags": [
+      "hr"
+    ]
+  },
+  {
+    "operationId": "create_hr_event",
+    "method": "POST",
+    "path": "/api/v1/hr/events",
+    "tags": [
+      "hr"
+    ]
+  },
+  {
+    "operationId": "list_institutions",
+    "method": "GET",
+    "path": "/api/v1/institutions",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_institution",
+    "method": "POST",
+    "path": "/api/v1/institutions",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_integration_connections_relational",
+    "method": "GET",
+    "path": "/api/v1/integration-connections",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_integration_connection_relational",
+    "method": "POST",
+    "path": "/api/v1/integration-connections",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "update_integration_connection",
+    "method": "PATCH",
+    "path": "/api/v1/integration-connections/{connection_id}",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "cloudflare_create_custom_hostname",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/cloudflare/custom-hostnames",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "cloudflare_upsert_dns",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/cloudflare/dns",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "evolution_send_text",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/evolution/messages/text",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "get_integration_connection_health",
+    "method": "GET",
+    "path": "/api/v1/integration-connections/{connection_id}/health",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "mailcow_create_mailbox",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/mailcow/mailboxes",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "mailcow_set_mailbox_state",
+    "method": "PATCH",
+    "path": "/api/v1/integration-connections/{connection_id}/mailcow/mailboxes/{email}/state",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "test_integration_connection",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/test",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "integration_provider_status",
+    "method": "GET",
+    "path": "/api/v1/integrations/providers/status",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "create_inventory_count",
+    "method": "POST",
+    "path": "/api/v1/inventory/counts",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "finalize_inventory_count",
+    "method": "POST",
+    "path": "/api/v1/inventory/counts/{count_id}/finalize",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "list_stock_movements",
+    "method": "GET",
+    "path": "/api/v1/inventory/movements",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "transfer_stock_between_warehouses",
+    "method": "POST",
+    "path": "/api/v1/inventory/transfers",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "list_lesson_plans",
+    "method": "GET",
+    "path": "/api/v1/lesson-plans",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "create_lesson_plan",
+    "method": "POST",
+    "path": "/api/v1/lesson-plans",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "get_lesson_plan",
+    "method": "GET",
+    "path": "/api/v1/lesson-plans/{lesson_id}",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "patch_lesson_plan",
+    "method": "PATCH",
+    "path": "/api/v1/lesson-plans/{lesson_id}",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "cancel_lesson_plan",
+    "method": "POST",
+    "path": "/api/v1/lesson-plans/{lesson_id}/cancel",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "complete_lesson_plan",
+    "method": "POST",
+    "path": "/api/v1/lesson-plans/{lesson_id}/complete",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "get_lesson_execution",
+    "method": "GET",
+    "path": "/api/v1/lesson-plans/{lesson_id}/execution",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "reschedule_lesson_plan",
+    "method": "POST",
+    "path": "/api/v1/lesson-plans/{lesson_id}/reschedule",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "start_lesson_plan",
+    "method": "POST",
+    "path": "/api/v1/lesson-plans/{lesson_id}/start",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "list_library_fines",
+    "method": "GET",
+    "path": "/api/v1/library/fines",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "settle_library_fine",
+    "method": "POST",
+    "path": "/api/v1/library/fines/{fine_id}/settle",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "list_library_items_relational",
+    "method": "GET",
+    "path": "/api/v1/library/items",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_library_item_relational",
+    "method": "POST",
+    "path": "/api/v1/library/items",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_library_loans_relational",
+    "method": "GET",
+    "path": "/api/v1/library/loans",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_library_loan_relational",
+    "method": "POST",
+    "path": "/api/v1/library/loans",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "renew_library_loan",
+    "method": "POST",
+    "path": "/api/v1/library/loans/{loan_id}/renew",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "return_library_loan",
+    "method": "POST",
+    "path": "/api/v1/library/loans/{loan_id}/return",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_library_policies",
+    "method": "GET",
+    "path": "/api/v1/library/policies",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "create_library_policy_version",
+    "method": "POST",
+    "path": "/api/v1/library/policies",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "list_library_reservations",
+    "method": "GET",
+    "path": "/api/v1/library/reservations",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "create_library_reservation",
+    "method": "POST",
+    "path": "/api/v1/library/reservations",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "cancel_library_reservation",
+    "method": "POST",
+    "path": "/api/v1/library/reservations/{reservation_id}/cancel",
+    "tags": [
+      "library"
+    ]
+  },
+  {
+    "operationId": "list_mail_accounts",
+    "method": "GET",
+    "path": "/api/v1/mail/accounts",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "create_mail_account",
+    "method": "POST",
+    "path": "/api/v1/mail/accounts",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "create_mail_delegation",
+    "method": "POST",
+    "path": "/api/v1/mail/accounts/{account_id}/delegations",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "list_mail_delegations",
+    "method": "GET",
+    "path": "/api/v1/mail/accounts/{account_id}/delegations",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "revoke_mail_delegation",
+    "method": "POST",
+    "path": "/api/v1/mail/accounts/{account_id}/delegations/{delegation_id}/revoke",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "list_my_mail_drafts",
+    "method": "GET",
+    "path": "/api/v1/mail/me/drafts",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "create_my_mail_draft",
+    "method": "POST",
+    "path": "/api/v1/mail/me/drafts",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "update_my_mail_draft",
+    "method": "PATCH",
+    "path": "/api/v1/mail/me/drafts/{draft_id}",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "send_my_mail_draft",
+    "method": "POST",
+    "path": "/api/v1/mail/me/drafts/{draft_id}/send",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "health_my_mail",
+    "method": "POST",
+    "path": "/api/v1/mail/me/health",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "list_my_mail_messages",
+    "method": "GET",
+    "path": "/api/v1/mail/me/messages",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "get_my_mail_message",
+    "method": "GET",
+    "path": "/api/v1/mail/me/messages/{message_id}",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "download_my_mail_attachment",
+    "method": "GET",
+    "path": "/api/v1/mail/me/messages/{message_id}/attachments/{attachment_index}",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "forward_my_mail_message",
+    "method": "POST",
+    "path": "/api/v1/mail/me/messages/{message_id}/forward",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "move_my_mail_message",
+    "method": "POST",
+    "path": "/api/v1/mail/me/messages/{message_id}/move",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "reply_my_mail_message",
+    "method": "POST",
+    "path": "/api/v1/mail/me/messages/{message_id}/reply",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "set_my_mail_message_seen",
+    "method": "POST",
+    "path": "/api/v1/mail/me/messages/{message_id}/seen",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "trash_my_mail_message",
+    "method": "POST",
+    "path": "/api/v1/mail/me/messages/{message_id}/trash",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "send_my_mail",
+    "method": "POST",
+    "path": "/api/v1/mail/me/send",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "get_my_mail_status",
+    "method": "GET",
+    "path": "/api/v1/mail/me/status",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "sync_my_mail",
+    "method": "POST",
+    "path": "/api/v1/mail/me/sync",
+    "tags": [
+      "mail"
+    ]
+  },
+  {
+    "operationId": "list_notices_relational",
+    "method": "GET",
+    "path": "/api/v1/notices",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_notice_relational",
+    "method": "POST",
+    "path": "/api/v1/notices",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "get_notice",
+    "method": "GET",
+    "path": "/api/v1/notices/{notice_id}",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "acknowledge_notice",
+    "method": "POST",
+    "path": "/api/v1/notices/{notice_id}/acknowledge",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "publish_notice",
+    "method": "POST",
+    "path": "/api/v1/notices/{notice_id}/publish",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "mark_notice_read",
+    "method": "POST",
+    "path": "/api/v1/notices/{notice_id}/read",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "list_notice_receipts",
+    "method": "GET",
+    "path": "/api/v1/notices/{notice_id}/receipts",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "create_notice_version",
+    "method": "POST",
+    "path": "/api/v1/notices/{notice_id}/versions",
+    "tags": [
+      "notices"
+    ]
+  },
+  {
+    "operationId": "list_notifications",
+    "method": "GET",
+    "path": "/api/v1/notifications",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "queue_notification",
+    "method": "POST",
+    "path": "/api/v1/notifications",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "get_notification",
+    "method": "GET",
+    "path": "/api/v1/notifications/{notification_id}",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "cancel_notification",
+    "method": "POST",
+    "path": "/api/v1/notifications/{notification_id}/cancel",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "retry_notification",
+    "method": "POST",
+    "path": "/api/v1/notifications/{notification_id}/retry",
+    "tags": [
+      "communication"
+    ]
+  },
+  {
+    "operationId": "list_operational_inbox",
+    "method": "GET",
+    "path": "/api/v1/operations/events/inbox",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_operational_outbox",
+    "method": "GET",
+    "path": "/api/v1/operations/events/outbox",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "retry_operational_event",
+    "method": "POST",
+    "path": "/api/v1/operations/events/{event_id}/retry",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_payroll_rules",
+    "method": "GET",
+    "path": "/api/v1/payroll/rules",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "create_payroll_rule",
+    "method": "POST",
+    "path": "/api/v1/payroll/rules",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "list_payroll_runs_relational",
+    "method": "GET",
+    "path": "/api/v1/payroll/runs",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "process_payroll_run_relational",
+    "method": "POST",
+    "path": "/api/v1/payroll/runs",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "close_payroll_run",
+    "method": "POST",
+    "path": "/api/v1/payroll/runs/{run_id}/close",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "list_payroll_entries",
+    "method": "GET",
+    "path": "/api/v1/payroll/runs/{run_id}/entries",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "get_employee_payslip",
+    "method": "GET",
+    "path": "/api/v1/payroll/runs/{run_id}/payslips/{employee_id}",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "reopen_payroll_run",
+    "method": "POST",
+    "path": "/api/v1/payroll/runs/{run_id}/reopen",
+    "tags": [
+      "payroll"
+    ]
+  },
+  {
+    "operationId": "list_assessments",
+    "method": "GET",
+    "path": "/api/v1/pedagogy/assessments",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "create_assessment",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/assessments",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "get_assessment",
+    "method": "GET",
+    "path": "/api/v1/pedagogy/assessments/{assessment_id}",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "update_assessment",
+    "method": "PATCH",
+    "path": "/api/v1/pedagogy/assessments/{assessment_id}",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "close_assessment",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/assessments/{assessment_id}/close",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "save_assessment_grades",
+    "method": "PUT",
+    "path": "/api/v1/pedagogy/assessments/{assessment_id}/grades",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "publish_assessment",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/assessments/{assessment_id}/publish",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "close_grade_period",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/grade-periods/close",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "reopen_grade_period",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/grade-periods/reopen",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "list_grading_policies",
+    "method": "GET",
+    "path": "/api/v1/pedagogy/grading-policies",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "create_grading_policy",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/grading-policies",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "list_period_results",
+    "method": "GET",
+    "path": "/api/v1/pedagogy/period-results",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "calculate_period_results",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/period-results/calculate",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "save_recovery_grade",
+    "method": "POST",
+    "path": "/api/v1/pedagogy/period-results/{result_id}/recovery",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "get_student_report_card",
+    "method": "GET",
+    "path": "/api/v1/pedagogy/students/{student_id}/report-card",
+    "tags": [
+      "pedagogy"
+    ]
+  },
+  {
+    "operationId": "list_people",
+    "method": "GET",
+    "path": "/api/v1/people",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_person",
+    "method": "POST",
+    "path": "/api/v1/people",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_employee_benefits",
+    "method": "GET",
+    "path": "/api/v1/personnel/benefits",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "create_employee_benefit",
+    "method": "POST",
+    "path": "/api/v1/personnel/benefits",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "change_employee_benefit_state",
+    "method": "POST",
+    "path": "/api/v1/personnel/benefits/{benefit_id}/state",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "get_employee_personnel_timeline",
+    "method": "GET",
+    "path": "/api/v1/personnel/employees/{employee_id}/timeline",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "list_personnel_leaves",
+    "method": "GET",
+    "path": "/api/v1/personnel/leaves",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "submit_personnel_leave",
+    "method": "POST",
+    "path": "/api/v1/personnel/leaves",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "approve_personnel_leave",
+    "method": "POST",
+    "path": "/api/v1/personnel/leaves/{leave_id}/approve",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "reject_personnel_leave",
+    "method": "POST",
+    "path": "/api/v1/personnel/leaves/{leave_id}/reject",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "list_vacation_periods",
+    "method": "GET",
+    "path": "/api/v1/personnel/vacations",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "schedule_vacation_period",
+    "method": "POST",
+    "path": "/api/v1/personnel/vacations",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "approve_vacation_period",
+    "method": "POST",
+    "path": "/api/v1/personnel/vacations/{vacation_id}/approve",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "cancel_vacation_period",
+    "method": "POST",
+    "path": "/api/v1/personnel/vacations/{vacation_id}/cancel",
+    "tags": [
+      "personnel"
+    ]
+  },
+  {
+    "operationId": "list_platform_audit",
+    "method": "GET",
+    "path": "/api/v1/platform/audit",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "platform_bootstrap",
+    "method": "POST",
+    "path": "/api/v1/platform/bootstrap",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "claim_app_build_job",
+    "method": "POST",
+    "path": "/api/v1/platform/build-farm/jobs/claim",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "upload_app_build_artifact",
+    "method": "POST",
+    "path": "/api/v1/platform/build-farm/jobs/{job_id}/artifacts",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "download_app_build_asset",
+    "method": "GET",
+    "path": "/api/v1/platform/build-farm/jobs/{job_id}/assets/{asset_id}",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "complete_app_build_job",
+    "method": "POST",
+    "path": "/api/v1/platform/build-farm/jobs/{job_id}/complete",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "fail_app_build_job",
+    "method": "POST",
+    "path": "/api/v1/platform/build-farm/jobs/{job_id}/fail",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "get_platform_operational_status",
+    "method": "GET",
+    "path": "/api/v1/platform/status",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "list_platform_support_sessions",
+    "method": "GET",
+    "path": "/api/v1/platform/support-sessions",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "list_platform_tenants",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "create_platform_tenant",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "list_platform_tenant_apps",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "list_platform_tenant_app_artifacts",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/artifacts",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "create_platform_tenant_app_build",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/builds",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "get_platform_tenant_app_build",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/builds/{build_id}",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "retry_platform_tenant_app_build",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/builds/{build_id}/retry",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "set_platform_tenant_app_entitlement",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/entitlements",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "create_platform_tenant_app_manifest",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/manifests",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "create_platform_tenant_app_release",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/releases",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "publish_platform_tenant_app_release",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/releases/{release_id}/publish",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "revoke_platform_tenant_app_release",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/apps/releases/{release_id}/revoke",
+    "tags": [
+      "app-factory"
+    ]
+  },
+  {
+    "operationId": "get_platform_tenant_branding",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/branding",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "upload_platform_tenant_brand_asset",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/branding/assets",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "preview_platform_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/branding/preview",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "publish_platform_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/branding/publish",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "rollback_platform_tenant_branding",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/branding/rollback",
+    "tags": [
+      "branding"
+    ]
+  },
+  {
+    "operationId": "create_support_session",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/support-sessions",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "get_family_dependent_context",
+    "method": "GET",
+    "path": "/api/v1/portal/family/dependents/{student_id}",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_family_portal_context",
+    "method": "GET",
+    "path": "/api/v1/portal/family/me",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_kiosk_portal_context",
+    "method": "GET",
+    "path": "/api/v1/portal/kiosk/me",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_student_portal_context",
+    "method": "GET",
+    "path": "/api/v1/portal/student/me",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_teacher_assignment_students",
+    "method": "GET",
+    "path": "/api/v1/portal/teacher/assignments/{assignment_id}/students",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_teacher_portal_context",
+    "method": "GET",
+    "path": "/api/v1/portal/teacher/me",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_teacher_session_roster",
+    "method": "GET",
+    "path": "/api/v1/portal/teacher/sessions/{session_id}/roster",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "get_timeclock_portal_context",
+    "method": "GET",
+    "path": "/api/v1/portal/timeclock/me",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "list_cash_sessions",
+    "method": "GET",
+    "path": "/api/v1/pos/cash-sessions",
+    "tags": [
+      "pos"
+    ]
+  },
+  {
+    "operationId": "open_cash_session",
+    "method": "POST",
+    "path": "/api/v1/pos/cash-sessions/open",
+    "tags": [
+      "pos"
+    ]
+  },
+  {
+    "operationId": "close_cash_session",
+    "method": "POST",
+    "path": "/api/v1/pos/cash-sessions/{cash_id}/close",
+    "tags": [
+      "pos"
+    ]
+  },
+  {
+    "operationId": "register_cash_movement",
+    "method": "POST",
+    "path": "/api/v1/pos/cash-sessions/{cash_id}/movements",
+    "tags": [
+      "pos"
+    ]
+  },
+  {
+    "operationId": "get_cash_session_summary",
+    "method": "GET",
+    "path": "/api/v1/pos/cash-sessions/{cash_id}/summary",
+    "tags": [
+      "pos"
+    ]
+  },
+  {
+    "operationId": "list_products_relational",
+    "method": "GET",
+    "path": "/api/v1/products",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "create_product_relational",
+    "method": "POST",
+    "path": "/api/v1/products",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "adjust_product_stock",
+    "method": "POST",
+    "path": "/api/v1/products/{product_id}/stock-adjustments",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "list_programs",
+    "method": "GET",
+    "path": "/api/v1/programs",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_program",
+    "method": "POST",
+    "path": "/api/v1/programs",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_public_admission_campaigns",
+    "method": "GET",
+    "path": "/api/v1/public/admissions/campaigns",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "create_public_admission_lead",
+    "method": "POST",
+    "path": "/api/v1/public/admissions/leads",
+    "tags": [
+      "admissions"
+    ]
+  },
+  {
+    "operationId": "get_public_tenant_context",
+    "method": "GET",
+    "path": "/api/v1/public/context",
+    "tags": [
+      "tenant-portals"
+    ]
+  },
+  {
+    "operationId": "validate_public_contract_file",
+    "method": "POST",
+    "path": "/api/v1/public/contracts/validate-file",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "validate_public_contract",
+    "method": "GET",
+    "path": "/api/v1/public/contracts/validate/{code}",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_purchase_orders_relational",
+    "method": "GET",
+    "path": "/api/v1/purchase-orders",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_purchase_order_relational",
+    "method": "POST",
+    "path": "/api/v1/purchase-orders",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "receive_purchase_order",
+    "method": "POST",
+    "path": "/api/v1/purchase-orders/{order_id}/receive",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "tenant_reference_catalog",
+    "method": "GET",
+    "path": "/api/v1/references/catalog",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_reports_catalog",
+    "method": "GET",
+    "path": "/api/v1/reports/catalog",
+    "tags": [
+      "reporting"
+    ]
+  },
+  {
+    "operationId": "list_report_runs",
+    "method": "GET",
+    "path": "/api/v1/reports/runs",
+    "tags": [
+      "reporting"
+    ]
+  },
+  {
+    "operationId": "run_report",
+    "method": "POST",
+    "path": "/api/v1/reports/runs",
+    "tags": [
+      "reporting"
+    ]
+  },
+  {
+    "operationId": "get_report_run",
+    "method": "GET",
+    "path": "/api/v1/reports/runs/{run_id}",
+    "tags": [
+      "reporting"
+    ]
+  },
+  {
+    "operationId": "download_report_run",
+    "method": "GET",
+    "path": "/api/v1/reports/runs/{run_id}/download",
+    "tags": [
+      "reporting"
+    ]
+  },
+  {
+    "operationId": "list_request_types",
+    "method": "GET",
+    "path": "/api/v1/request-types",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "create_request_type",
+    "method": "POST",
+    "path": "/api/v1/request-types",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "publish_request_type",
+    "method": "POST",
+    "path": "/api/v1/request-types/{type_id}/publish",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "create_request_type_version",
+    "method": "POST",
+    "path": "/api/v1/request-types/{type_id}/versions",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "list_sales_relational",
+    "method": "GET",
+    "path": "/api/v1/sales",
+    "tags": [
+      "sales"
+    ]
+  },
+  {
+    "operationId": "complete_sale_relational",
+    "method": "POST",
+    "path": "/api/v1/sales",
+    "tags": [
+      "sales"
+    ]
+  },
+  {
+    "operationId": "get_sale_details",
+    "method": "GET",
+    "path": "/api/v1/sales/{sale_id}",
+    "tags": [
+      "sales"
+    ]
+  },
+  {
+    "operationId": "return_sale_items",
+    "method": "POST",
+    "path": "/api/v1/sales/{sale_id}/returns",
+    "tags": [
+      "sales"
+    ]
+  },
+  {
+    "operationId": "list_service_orders",
+    "method": "GET",
+    "path": "/api/v1/service-orders",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_order",
+    "method": "POST",
+    "path": "/api/v1/service-orders",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "list_service_requests_relational",
+    "method": "GET",
+    "path": "/api/v1/service-requests",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_service_request_relational",
+    "method": "POST",
+    "path": "/api/v1/service-requests",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "get_service_request",
+    "method": "GET",
+    "path": "/api/v1/service-requests/{request_id}",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "comment_service_request",
+    "method": "POST",
+    "path": "/api/v1/service-requests/{request_id}/comments",
+    "tags": [
+      "requests"
+    ]
+  },
+  {
+    "operationId": "transition_service_request",
+    "method": "POST",
+    "path": "/api/v1/service-requests/{request_id}/transition",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_services_relational",
+    "method": "GET",
+    "path": "/api/v1/services",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_relational",
+    "method": "POST",
+    "path": "/api/v1/services",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_signature_envelope_details",
+    "method": "GET",
+    "path": "/api/v1/signature-envelopes/{envelope_id}",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "decline_signature_envelope",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/decline",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "authorize_govbr_signature",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/govbr/authorize",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "complete_govbr_signature",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/govbr/callback",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "sign_icp_brasil_pades",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/icp-brasil/sign",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "sign_icp_brasil_detached",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/icp-brasil/sign-detached",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "request_signature_otp",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/otp",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "remind_signature_envelope",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/remind",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "retry_signature_envelope",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/retry",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "sign_signature_envelope",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/sign",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "validate_signature_envelope",
+    "method": "POST",
+    "path": "/api/v1/signature-envelopes/{envelope_id}/validate",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_signature_providers",
+    "method": "GET",
+    "path": "/api/v1/signatures/providers",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "test_signature_provider",
+    "method": "POST",
+    "path": "/api/v1/signatures/providers/{provider}/test",
+    "tags": [
+      "contracts-signatures"
+    ]
+  },
+  {
+    "operationId": "list_students_relational",
+    "method": "GET",
+    "path": "/api/v1/students",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_student_relational",
+    "method": "POST",
+    "path": "/api/v1/students",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "get_student_relational",
+    "method": "GET",
+    "path": "/api/v1/students/{student_id}",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_suppliers_relational",
+    "method": "GET",
+    "path": "/api/v1/suppliers",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_supplier_relational",
+    "method": "POST",
+    "path": "/api/v1/suppliers",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_teacher_assignments",
+    "method": "GET",
+    "path": "/api/v1/teacher-assignments",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_teacher_assignment",
+    "method": "POST",
+    "path": "/api/v1/teacher-assignments",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_teaching_plans",
+    "method": "GET",
+    "path": "/api/v1/teaching-plans",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "create_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "teaching_plan_coverage_report",
+    "method": "GET",
+    "path": "/api/v1/teaching-plans/reports/coverage",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "get_teaching_plan",
+    "method": "GET",
+    "path": "/api/v1/teaching-plans/{plan_id}",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "patch_teaching_plan",
+    "method": "PATCH",
+    "path": "/api/v1/teaching-plans/{plan_id}",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "approve_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/approve",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "archive_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/archive",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "duplicate_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/duplicate",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "request_teaching_plan_changes",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/request-changes",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "schedule_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/schedule",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "submit_teaching_plan",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/submit",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "create_teaching_plan_version",
+    "method": "POST",
+    "path": "/api/v1/teaching-plans/{plan_id}/versions",
+    "tags": [
+      "lesson-planning"
+    ]
+  },
+  {
+    "operationId": "get_tenant_context",
+    "method": "GET",
+    "path": "/api/v1/tenant/context",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "list_timekeeping_adjustments",
+    "method": "GET",
+    "path": "/api/v1/timekeeping/adjustments",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "request_timekeeping_adjustment",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/adjustments",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "approve_timekeeping_adjustment",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/adjustments/{adjustment_id}/approve",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "reject_timekeeping_adjustment",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/adjustments/{adjustment_id}/reject",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "list_timekeeping_closures",
+    "method": "GET",
+    "path": "/api/v1/timekeeping/closures",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "close_timekeeping_period",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/closures/close",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "reopen_timekeeping_period",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/closures/{competence}/reopen",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "list_time_entries_relational",
+    "method": "GET",
+    "path": "/api/v1/timekeeping/entries",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "clock_current_employee",
+    "method": "POST",
+    "path": "/api/v1/timekeeping/me/entries",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "get_timekeeping_summary",
+    "method": "GET",
+    "path": "/api/v1/timekeeping/summary",
+    "tags": [
+      "timekeeping"
+    ]
+  },
+  {
+    "operationId": "register_transport_trip_event",
+    "method": "POST",
+    "path": "/api/v1/transport/events",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "list_transport_occurrences",
+    "method": "GET",
+    "path": "/api/v1/transport/occurrences",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "create_transport_occurrence",
+    "method": "POST",
+    "path": "/api/v1/transport/occurrences",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "resolve_transport_occurrence",
+    "method": "POST",
+    "path": "/api/v1/transport/occurrences/{occurrence_id}/resolve",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "create_transport_rider",
+    "method": "POST",
+    "path": "/api/v1/transport/riders",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_transport_riders",
+    "method": "GET",
+    "path": "/api/v1/transport/riders",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "list_transport_routes_relational",
+    "method": "GET",
+    "path": "/api/v1/transport/routes",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_transport_route_relational",
+    "method": "POST",
+    "path": "/api/v1/transport/routes",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_transport_schedules",
+    "method": "GET",
+    "path": "/api/v1/transport/schedules",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "create_transport_schedule",
+    "method": "POST",
+    "path": "/api/v1/transport/schedules",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "list_student_transport_events",
+    "method": "GET",
+    "path": "/api/v1/transport/students/{student_id}/events",
+    "tags": [
+      "transportation"
+    ]
+  },
+  {
+    "operationId": "list_trips_relational",
+    "method": "GET",
+    "path": "/api/v1/trips",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_trip_relational",
+    "method": "POST",
+    "path": "/api/v1/trips",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_my_trips",
+    "method": "GET",
+    "path": "/api/v1/trips/me",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "get_trip_details_relational",
+    "method": "GET",
+    "path": "/api/v1/trips/{trip_id}",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "add_trip_checkpoint",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/checkpoints",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "reach_trip_checkpoint",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/checkpoints/{checkpoint_id}/reach",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "create_trip_incident",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/incidents",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "add_trip_passenger",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/passengers",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "board_trip_passenger",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/passengers/{passenger_id}/board",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "disembark_trip_passenger",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/passengers/{passenger_id}/disembark",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "publish_trip_relational",
+    "method": "POST",
+    "path": "/api/v1/trips/{trip_id}/publish",
+    "tags": [
+      "community-documents-integrations"
+    ]
+  },
+  {
+    "operationId": "list_units",
+    "method": "GET",
+    "path": "/api/v1/units",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "create_unit",
+    "method": "POST",
+    "path": "/api/v1/units",
+    "tags": [
+      "institutional-academic-core"
+    ]
+  },
+  {
+    "operationId": "list_workflow_definitions",
+    "method": "GET",
+    "path": "/api/v1/workflows/definitions",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "create_workflow_definition",
+    "method": "POST",
+    "path": "/api/v1/workflows/definitions",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "publish_workflow_definition",
+    "method": "POST",
+    "path": "/api/v1/workflows/definitions/{definition_id}/publish",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "create_workflow_definition_version",
+    "method": "POST",
+    "path": "/api/v1/workflows/definitions/{definition_id}/versions",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "list_workflow_instances",
+    "method": "GET",
+    "path": "/api/v1/workflows/instances",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "start_workflow_instance",
+    "method": "POST",
+    "path": "/api/v1/workflows/instances",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "get_workflow_instance",
+    "method": "GET",
+    "path": "/api/v1/workflows/instances/{instance_id}",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "cancel_workflow_instance",
+    "method": "POST",
+    "path": "/api/v1/workflows/instances/{instance_id}/cancel",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "list_my_workflow_tasks",
+    "method": "GET",
+    "path": "/api/v1/workflows/tasks/me",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "complete_workflow_task",
+    "method": "POST",
+    "path": "/api/v1/workflows/tasks/{task_id}/complete",
+    "tags": [
+      "workflows"
+    ]
+  },
+  {
+    "operationId": "reassign_workflow_task",
+    "method": "POST",
+    "path": "/api/v1/workflows/tasks/{task_id}/reassign",
+    "tags": [
+      "workflows"
+    ]
+  }
+]

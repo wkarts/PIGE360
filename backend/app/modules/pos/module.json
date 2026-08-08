@@ -1,0 +1,34 @@
+{
+  "module": "pos",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "pos_sessions",
+      "path": "pos/sessions",
+      "initial_state": "closed",
+      "transitions": {
+        "closed": [
+          "open"
+        ],
+        "open": [
+          "closing"
+        ],
+        "closing": [
+          "closed",
+          "discrepancy"
+        ],
+        "discrepancy": [
+          "closed"
+        ]
+      },
+      "event_prefix": "PosSession",
+      "roles": [
+        "canteen_manager",
+        "pos_operator"
+      ]
+    }
+  ]
+}

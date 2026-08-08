@@ -1,0 +1,1442 @@
+[
+  {
+    "name": "people",
+    "path": "people",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "inactive",
+        "archived"
+      ],
+      "inactive": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "Person",
+    "roles": [
+      "tenant_owner",
+      "institution_director",
+      "secretary",
+      "hr_manager"
+    ]
+  },
+  {
+    "name": "students",
+    "path": "students",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "suspended",
+        "transferred",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ],
+      "transferred": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Student",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "academic_coordinator"
+    ]
+  },
+  {
+    "name": "guardians",
+    "path": "guardians",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "inactive",
+        "archived"
+      ],
+      "inactive": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "Guardian",
+    "roles": [
+      "tenant_owner",
+      "secretary"
+    ]
+  },
+  {
+    "name": "employees",
+    "path": "employees",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "cancelled"
+      ],
+      "active": [
+        "suspended",
+        "terminated"
+      ],
+      "suspended": [
+        "active",
+        "terminated"
+      ],
+      "terminated": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Employee",
+    "roles": [
+      "tenant_owner",
+      "hr_manager",
+      "personnel_operator"
+    ]
+  },
+  {
+    "name": "admissions",
+    "path": "admissions/candidates",
+    "initial_state": "lead",
+    "transitions": {
+      "lead": [
+        "applied",
+        "lost"
+      ],
+      "applied": [
+        "under_review",
+        "rejected"
+      ],
+      "under_review": [
+        "approved",
+        "waitlisted",
+        "rejected"
+      ],
+      "approved": [
+        "converted"
+      ],
+      "waitlisted": [
+        "approved",
+        "rejected"
+      ]
+    },
+    "event_prefix": "Admission",
+    "roles": [
+      "tenant_owner",
+      "secretary"
+    ]
+  },
+  {
+    "name": "enrollments",
+    "path": "enrollments",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "pending_documents",
+        "approved",
+        "cancelled"
+      ],
+      "pending_documents": [
+        "approved",
+        "cancelled"
+      ],
+      "approved": [
+        "active",
+        "cancelled"
+      ],
+      "active": [
+        "suspended",
+        "transferred",
+        "completed",
+        "cancelled"
+      ],
+      "suspended": [
+        "active",
+        "cancelled"
+      ],
+      "transferred": [
+        "archived"
+      ],
+      "completed": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Enrollment",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "institution_director"
+    ]
+  },
+  {
+    "name": "programs",
+    "path": "academic/programs",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "archived"
+      ],
+      "active": [
+        "suspended",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "AcademicProgram",
+    "roles": [
+      "tenant_owner",
+      "academic_coordinator"
+    ]
+  },
+  {
+    "name": "curricula",
+    "path": "academic/curricula",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "under_review",
+        "archived"
+      ],
+      "under_review": [
+        "approved",
+        "changes_requested"
+      ],
+      "changes_requested": [
+        "under_review"
+      ],
+      "approved": [
+        "published",
+        "superseded"
+      ],
+      "published": [
+        "superseded",
+        "archived"
+      ]
+    },
+    "event_prefix": "Curriculum",
+    "roles": [
+      "tenant_owner",
+      "academic_coordinator"
+    ]
+  },
+  {
+    "name": "class_groups",
+    "path": "academic/class-groups",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "cancelled"
+      ],
+      "active": [
+        "closed",
+        "cancelled"
+      ],
+      "closed": [
+        "reopened",
+        "archived"
+      ],
+      "reopened": [
+        "closed"
+      ]
+    },
+    "event_prefix": "ClassGroup",
+    "roles": [
+      "tenant_owner",
+      "academic_coordinator",
+      "secretary"
+    ]
+  },
+  {
+    "name": "evaluations",
+    "path": "pedagogy/evaluations",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "scheduled",
+        "cancelled"
+      ],
+      "scheduled": [
+        "applied",
+        "cancelled"
+      ],
+      "applied": [
+        "graded"
+      ],
+      "graded": [
+        "published"
+      ],
+      "published": [
+        "reopened"
+      ],
+      "reopened": [
+        "published"
+      ]
+    },
+    "event_prefix": "Evaluation",
+    "roles": [
+      "teacher",
+      "academic_coordinator"
+    ]
+  },
+  {
+    "name": "grades",
+    "path": "pedagogy/grades",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "submitted"
+      ],
+      "submitted": [
+        "published",
+        "changes_requested"
+      ],
+      "changes_requested": [
+        "submitted"
+      ],
+      "published": [
+        "reopened"
+      ],
+      "reopened": [
+        "published"
+      ]
+    },
+    "event_prefix": "Grade",
+    "roles": [
+      "teacher",
+      "academic_coordinator"
+    ]
+  },
+  {
+    "name": "financial_contracts",
+    "path": "finance/contracts",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "approved",
+        "cancelled"
+      ],
+      "approved": [
+        "active",
+        "cancelled"
+      ],
+      "active": [
+        "suspended",
+        "terminated",
+        "completed"
+      ],
+      "suspended": [
+        "active",
+        "terminated"
+      ],
+      "terminated": [
+        "archived"
+      ],
+      "completed": [
+        "archived"
+      ]
+    },
+    "event_prefix": "FinancialContract",
+    "roles": [
+      "tenant_owner",
+      "finance_manager",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "charges",
+    "path": "finance/charges",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "issued",
+        "cancelled"
+      ],
+      "issued": [
+        "partially_paid",
+        "paid",
+        "overdue",
+        "cancelled"
+      ],
+      "partially_paid": [
+        "paid",
+        "overdue",
+        "cancelled"
+      ],
+      "overdue": [
+        "partially_paid",
+        "paid",
+        "renegotiated",
+        "cancelled"
+      ],
+      "paid": [
+        "refunded"
+      ],
+      "refunded": [
+        "closed"
+      ]
+    },
+    "event_prefix": "Charge",
+    "roles": [
+      "finance_manager",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "payments",
+    "path": "finance/payments",
+    "initial_state": "pending",
+    "transitions": {
+      "pending": [
+        "confirmed",
+        "failed",
+        "cancelled"
+      ],
+      "confirmed": [
+        "partially_refunded",
+        "refunded"
+      ],
+      "partially_refunded": [
+        "refunded"
+      ]
+    },
+    "event_prefix": "Payment",
+    "roles": [
+      "finance_manager",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "bank_accounts",
+    "path": "banking/accounts",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "suspended",
+        "closed"
+      ],
+      "suspended": [
+        "active",
+        "closed"
+      ]
+    },
+    "event_prefix": "BankAccount",
+    "roles": [
+      "finance_manager"
+    ]
+  },
+  {
+    "name": "reconciliations",
+    "path": "banking/reconciliations",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "processing",
+        "cancelled"
+      ],
+      "processing": [
+        "completed",
+        "failed"
+      ],
+      "failed": [
+        "processing",
+        "cancelled"
+      ],
+      "completed": [
+        "reopened"
+      ],
+      "reopened": [
+        "completed"
+      ]
+    },
+    "event_prefix": "Reconciliation",
+    "roles": [
+      "finance_manager",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "services",
+    "path": "services",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "archived"
+      ],
+      "active": [
+        "suspended",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "Service",
+    "roles": [
+      "tenant_owner",
+      "finance_manager"
+    ]
+  },
+  {
+    "name": "service_orders",
+    "path": "services/orders",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "confirmed",
+        "cancelled"
+      ],
+      "confirmed": [
+        "in_progress",
+        "cancelled"
+      ],
+      "in_progress": [
+        "completed",
+        "cancelled"
+      ],
+      "completed": [
+        "billed",
+        "refunded"
+      ],
+      "billed": [
+        "closed"
+      ]
+    },
+    "event_prefix": "ServiceOrder",
+    "roles": [
+      "finance_manager",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "sales",
+    "path": "sales",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "confirmed",
+        "cancelled"
+      ],
+      "confirmed": [
+        "paid",
+        "cancelled"
+      ],
+      "paid": [
+        "fulfilled",
+        "refunded"
+      ],
+      "fulfilled": [
+        "closed",
+        "returned"
+      ],
+      "returned": [
+        "refunded"
+      ],
+      "refunded": [
+        "closed"
+      ]
+    },
+    "event_prefix": "Sale",
+    "roles": [
+      "sales_manager",
+      "pos_operator",
+      "finance_manager"
+    ]
+  },
+  {
+    "name": "pos_sessions",
+    "path": "pos/sessions",
+    "initial_state": "closed",
+    "transitions": {
+      "closed": [
+        "open"
+      ],
+      "open": [
+        "closing"
+      ],
+      "closing": [
+        "closed",
+        "discrepancy"
+      ],
+      "discrepancy": [
+        "closed"
+      ]
+    },
+    "event_prefix": "PosSession",
+    "roles": [
+      "canteen_manager",
+      "pos_operator"
+    ]
+  },
+  {
+    "name": "canteen_products",
+    "path": "canteen/products",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "archived"
+      ],
+      "active": [
+        "suspended",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "CanteenProduct",
+    "roles": [
+      "canteen_manager",
+      "inventory_manager"
+    ]
+  },
+  {
+    "name": "inventory_items",
+    "path": "inventory/items",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "inactive",
+        "archived"
+      ],
+      "inactive": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "InventoryItem",
+    "roles": [
+      "inventory_manager"
+    ]
+  },
+  {
+    "name": "purchase_orders",
+    "path": "procurement/orders",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "submitted",
+        "cancelled"
+      ],
+      "submitted": [
+        "approved",
+        "rejected"
+      ],
+      "approved": [
+        "ordered",
+        "cancelled"
+      ],
+      "ordered": [
+        "partially_received",
+        "received",
+        "cancelled"
+      ],
+      "partially_received": [
+        "received",
+        "cancelled"
+      ],
+      "received": [
+        "closed"
+      ]
+    },
+    "event_prefix": "PurchaseOrder",
+    "roles": [
+      "inventory_manager",
+      "finance_manager"
+    ]
+  },
+  {
+    "name": "assets",
+    "path": "assets",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "maintenance",
+        "loaned",
+        "retired"
+      ],
+      "maintenance": [
+        "active",
+        "retired"
+      ],
+      "loaned": [
+        "active"
+      ],
+      "retired": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Asset",
+    "roles": [
+      "inventory_manager"
+    ]
+  },
+  {
+    "name": "fiscal_documents",
+    "path": "fiscal/documents",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "requested",
+        "cancelled"
+      ],
+      "requested": [
+        "authorized",
+        "rejected"
+      ],
+      "rejected": [
+        "requested",
+        "cancelled"
+      ],
+      "authorized": [
+        "cancelled",
+        "substituted"
+      ],
+      "cancelled": [
+        "archived"
+      ],
+      "substituted": [
+        "archived"
+      ]
+    },
+    "event_prefix": "FiscalDocument",
+    "roles": [
+      "fiscal_manager"
+    ]
+  },
+  {
+    "name": "tax_rules",
+    "path": "fiscal/tax-rules",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "under_review",
+        "archived"
+      ],
+      "under_review": [
+        "published",
+        "changes_requested"
+      ],
+      "changes_requested": [
+        "under_review"
+      ],
+      "published": [
+        "superseded"
+      ],
+      "superseded": [
+        "archived"
+      ]
+    },
+    "event_prefix": "TaxRule",
+    "roles": [
+      "fiscal_manager"
+    ]
+  },
+  {
+    "name": "hr_candidates",
+    "path": "hr/candidates",
+    "initial_state": "applied",
+    "transitions": {
+      "applied": [
+        "screening",
+        "rejected"
+      ],
+      "screening": [
+        "interview",
+        "rejected"
+      ],
+      "interview": [
+        "approved",
+        "rejected"
+      ],
+      "approved": [
+        "hired"
+      ],
+      "hired": [
+        "archived"
+      ]
+    },
+    "event_prefix": "HrCandidate",
+    "roles": [
+      "hr_manager"
+    ]
+  },
+  {
+    "name": "payroll_runs",
+    "path": "payroll/runs",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "calculated",
+        "cancelled"
+      ],
+      "calculated": [
+        "under_review",
+        "draft"
+      ],
+      "under_review": [
+        "approved",
+        "calculated"
+      ],
+      "approved": [
+        "closed"
+      ],
+      "closed": [
+        "reopened"
+      ],
+      "reopened": [
+        "closed"
+      ]
+    },
+    "event_prefix": "PayrollRun",
+    "roles": [
+      "payroll_operator",
+      "personnel_operator"
+    ]
+  },
+  {
+    "name": "timekeeping_records",
+    "path": "timekeeping/records",
+    "initial_state": "open",
+    "transitions": {
+      "open": [
+        "submitted"
+      ],
+      "submitted": [
+        "approved",
+        "rejected"
+      ],
+      "rejected": [
+        "open"
+      ],
+      "approved": [
+        "closed"
+      ],
+      "closed": [
+        "reopened"
+      ],
+      "reopened": [
+        "closed"
+      ]
+    },
+    "event_prefix": "TimekeepingRecord",
+    "roles": [
+      "timekeeping_operator",
+      "hr_manager"
+    ]
+  },
+  {
+    "name": "events",
+    "path": "events",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "published",
+        "cancelled"
+      ],
+      "published": [
+        "in_progress",
+        "cancelled"
+      ],
+      "in_progress": [
+        "completed",
+        "cancelled"
+      ],
+      "completed": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Event",
+    "roles": [
+      "event_manager"
+    ]
+  },
+  {
+    "name": "trips",
+    "path": "travel/trips",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "awaiting_authorizations",
+        "cancelled"
+      ],
+      "awaiting_authorizations": [
+        "confirmed",
+        "cancelled"
+      ],
+      "confirmed": [
+        "in_progress",
+        "cancelled"
+      ],
+      "in_progress": [
+        "completed"
+      ],
+      "completed": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Trip",
+    "roles": [
+      "event_manager"
+    ]
+  },
+  {
+    "name": "notices",
+    "path": "notices",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "under_review",
+        "published",
+        "cancelled"
+      ],
+      "under_review": [
+        "published",
+        "changes_requested"
+      ],
+      "changes_requested": [
+        "under_review"
+      ],
+      "published": [
+        "expired",
+        "cancelled"
+      ],
+      "expired": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Notice",
+    "roles": [
+      "tenant_owner",
+      "institution_director",
+      "teacher"
+    ]
+  },
+  {
+    "name": "service_requests",
+    "path": "requests",
+    "initial_state": "open",
+    "transitions": {
+      "open": [
+        "assigned",
+        "cancelled"
+      ],
+      "assigned": [
+        "in_progress",
+        "waiting_customer",
+        "resolved"
+      ],
+      "in_progress": [
+        "waiting_customer",
+        "resolved"
+      ],
+      "waiting_customer": [
+        "in_progress",
+        "cancelled"
+      ],
+      "resolved": [
+        "closed",
+        "reopened"
+      ],
+      "reopened": [
+        "assigned"
+      ]
+    },
+    "event_prefix": "ServiceRequest",
+    "roles": [
+      "tenant_owner",
+      "request_agent",
+      "student",
+      "guardian",
+      "employee"
+    ]
+  },
+  {
+    "name": "automation_rules",
+    "path": "workflows/rules",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "archived"
+      ],
+      "active": [
+        "paused",
+        "archived"
+      ],
+      "paused": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "AutomationRule",
+    "roles": [
+      "tenant_owner"
+    ]
+  },
+  {
+    "name": "messages",
+    "path": "communication/messages",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "queued",
+        "cancelled"
+      ],
+      "queued": [
+        "sent",
+        "failed"
+      ],
+      "failed": [
+        "queued",
+        "cancelled"
+      ],
+      "sent": [
+        "delivered",
+        "read"
+      ],
+      "delivered": [
+        "read"
+      ]
+    },
+    "event_prefix": "Message",
+    "roles": [
+      "tenant_owner",
+      "institution_director",
+      "teacher",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "mailboxes",
+    "path": "mail/mailboxes",
+    "initial_state": "requested",
+    "transitions": {
+      "requested": [
+        "provisioning",
+        "cancelled"
+      ],
+      "provisioning": [
+        "active",
+        "failed"
+      ],
+      "failed": [
+        "provisioning",
+        "cancelled"
+      ],
+      "active": [
+        "suspended",
+        "deleted"
+      ],
+      "suspended": [
+        "active",
+        "deleted"
+      ]
+    },
+    "event_prefix": "Mailbox",
+    "roles": [
+      "mail_admin",
+      "hr_manager"
+    ]
+  },
+  {
+    "name": "contracts",
+    "path": "contracts",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "generated",
+        "cancelled"
+      ],
+      "generated": [
+        "under_internal_review",
+        "approved",
+        "cancelled"
+      ],
+      "under_internal_review": [
+        "approved",
+        "draft",
+        "cancelled"
+      ],
+      "approved": [
+        "awaiting_signatures",
+        "cancelled"
+      ],
+      "awaiting_signatures": [
+        "partially_signed",
+        "signed",
+        "cancelled"
+      ],
+      "partially_signed": [
+        "signed",
+        "cancelled"
+      ],
+      "signed": [
+        "active"
+      ],
+      "active": [
+        "suspended",
+        "expired",
+        "terminated",
+        "rescinded",
+        "superseded"
+      ],
+      "suspended": [
+        "active",
+        "terminated"
+      ],
+      "expired": [
+        "archived"
+      ],
+      "terminated": [
+        "archived"
+      ],
+      "rescinded": [
+        "archived"
+      ],
+      "superseded": [
+        "archived"
+      ],
+      "cancelled": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Contract",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "finance_manager",
+      "hr_manager"
+    ]
+  },
+  {
+    "name": "contract_templates",
+    "path": "contract-templates",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "under_review",
+        "archived"
+      ],
+      "under_review": [
+        "approved",
+        "draft"
+      ],
+      "approved": [
+        "published"
+      ],
+      "published": [
+        "suspended",
+        "superseded"
+      ],
+      "suspended": [
+        "published",
+        "superseded"
+      ],
+      "superseded": [
+        "archived"
+      ]
+    },
+    "event_prefix": "ContractTemplate",
+    "roles": [
+      "tenant_owner",
+      "secretary"
+    ]
+  },
+  {
+    "name": "documents",
+    "path": "documents",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "generated",
+        "cancelled"
+      ],
+      "generated": [
+        "published",
+        "signed",
+        "cancelled"
+      ],
+      "published": [
+        "archived"
+      ],
+      "signed": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Document",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "teacher",
+      "finance_operator"
+    ]
+  },
+  {
+    "name": "signature_envelopes",
+    "path": "signature-envelopes",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "sent",
+        "cancelled"
+      ],
+      "sent": [
+        "partially_signed",
+        "signed",
+        "declined",
+        "expired"
+      ],
+      "partially_signed": [
+        "signed",
+        "declined",
+        "expired"
+      ],
+      "signed": [
+        "validated"
+      ],
+      "validated": [
+        "archived"
+      ],
+      "declined": [
+        "archived"
+      ],
+      "expired": [
+        "archived"
+      ]
+    },
+    "event_prefix": "SignatureEnvelope",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "guardian",
+      "student",
+      "employee"
+    ]
+  },
+  {
+    "name": "library_items",
+    "path": "library/items",
+    "initial_state": "available",
+    "transitions": {
+      "available": [
+        "reserved",
+        "loaned",
+        "maintenance",
+        "lost"
+      ],
+      "reserved": [
+        "available",
+        "loaned"
+      ],
+      "loaned": [
+        "available",
+        "overdue",
+        "lost"
+      ],
+      "overdue": [
+        "available",
+        "lost"
+      ],
+      "maintenance": [
+        "available",
+        "retired"
+      ],
+      "lost": [
+        "archived"
+      ]
+    },
+    "event_prefix": "LibraryItem",
+    "roles": [
+      "tenant_owner",
+      "secretary"
+    ]
+  },
+  {
+    "name": "library_loans",
+    "path": "library/loans",
+    "initial_state": "active",
+    "transitions": {
+      "active": [
+        "returned",
+        "overdue",
+        "lost"
+      ],
+      "overdue": [
+        "returned",
+        "lost"
+      ],
+      "returned": [
+        "closed"
+      ],
+      "lost": [
+        "closed"
+      ]
+    },
+    "event_prefix": "LibraryLoan",
+    "roles": [
+      "tenant_owner",
+      "secretary",
+      "student",
+      "guardian"
+    ]
+  },
+  {
+    "name": "transport_routes",
+    "path": "transportation/routes",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "active",
+        "archived"
+      ],
+      "active": [
+        "suspended",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "TransportRoute",
+    "roles": [
+      "tenant_owner",
+      "institution_director"
+    ]
+  },
+  {
+    "name": "health_incidents",
+    "path": "health/incidents",
+    "initial_state": "open",
+    "transitions": {
+      "open": [
+        "attended",
+        "referred",
+        "closed"
+      ],
+      "attended": [
+        "referred",
+        "closed"
+      ],
+      "referred": [
+        "closed"
+      ],
+      "closed": [
+        "reopened"
+      ],
+      "reopened": [
+        "closed"
+      ]
+    },
+    "event_prefix": "HealthIncident",
+    "roles": [
+      "tenant_owner",
+      "institution_director"
+    ]
+  },
+  {
+    "name": "government_exports",
+    "path": "government-education/exports",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "validating",
+        "cancelled"
+      ],
+      "validating": [
+        "ready",
+        "failed"
+      ],
+      "failed": [
+        "validating",
+        "cancelled"
+      ],
+      "ready": [
+        "exported"
+      ],
+      "exported": [
+        "acknowledged"
+      ],
+      "acknowledged": [
+        "archived"
+      ]
+    },
+    "event_prefix": "GovernmentEducationExport",
+    "roles": [
+      "tenant_owner",
+      "secretary"
+    ]
+  },
+  {
+    "name": "integration_connections",
+    "path": "integrations/connections",
+    "initial_state": "draft",
+    "transitions": {
+      "draft": [
+        "testing",
+        "archived"
+      ],
+      "testing": [
+        "active",
+        "failed"
+      ],
+      "failed": [
+        "testing",
+        "archived"
+      ],
+      "active": [
+        "suspended",
+        "archived"
+      ],
+      "suspended": [
+        "active",
+        "archived"
+      ]
+    },
+    "event_prefix": "IntegrationConnection",
+    "roles": [
+      "tenant_owner"
+    ]
+  },
+  {
+    "name": "reports",
+    "path": "reports",
+    "initial_state": "requested",
+    "transitions": {
+      "requested": [
+        "generating",
+        "cancelled"
+      ],
+      "generating": [
+        "available",
+        "failed"
+      ],
+      "failed": [
+        "generating",
+        "cancelled"
+      ],
+      "available": [
+        "expired"
+      ],
+      "expired": [
+        "archived"
+      ]
+    },
+    "event_prefix": "Report",
+    "roles": [
+      "tenant_owner",
+      "institution_director",
+      "teacher",
+      "finance_manager"
+    ]
+  }
+]

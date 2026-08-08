@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420">
+  <rect width="1400" height="420" fill="none"/>
+  <g transform="translate(20,20) scale(0.74)">
+    
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#006D77"/>
+      <stop offset="55%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="120" fill="#0D1B2A"/>
+  <path d="M256 64 A192 192 0 1 1 102 371" fill="none" stroke="url(#g1)" stroke-width="48" stroke-linecap="round"/>
+  <path d="M383 92 A192 192 0 0 1 426 134" fill="none" stroke="#F59E0B" stroke-width="24" stroke-linecap="round"/>
+  <path d="M174 164 H308 C363 164 397 193 397 241 C397 288 364 316 309 316 H227 L189 395 H126 L198 242 H299 C322 242 335 233 335 218 C335 203 322 195 299 195 H157 Z"
+        fill="#FFFFFF"/>
+
+  </g>
+  <text x="430" y="185" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700" fill="#0D1B2A">PIGE</text>
+  <text x="790" y="185" font-family="Arial, Helvetica, sans-serif" font-size="150" font-weight="700" fill="#14B8A6">360</text>
+  <line x1="435" y1="220" x2="1220" y2="220" stroke="#006D77" stroke-width="5"/>
+  <text x="440" y="300" font-family="Arial, Helvetica, sans-serif" font-size="48" letter-spacing="12" fill="#0D1B2A">SCHOOL PLATFORM</text>
+  <text x="440" y="365" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#006D77">PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL</text>
+</svg>

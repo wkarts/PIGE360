@@ -1,0 +1,64 @@
+{
+  "module": "services",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "services",
+      "path": "services",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "archived"
+        ],
+        "active": [
+          "suspended",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "Service",
+      "roles": [
+        "tenant_owner",
+        "finance_manager"
+      ]
+    },
+    {
+      "name": "service_orders",
+      "path": "services/orders",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "confirmed",
+          "cancelled"
+        ],
+        "confirmed": [
+          "in_progress",
+          "cancelled"
+        ],
+        "in_progress": [
+          "completed",
+          "cancelled"
+        ],
+        "completed": [
+          "billed",
+          "refunded"
+        ],
+        "billed": [
+          "closed"
+        ]
+      },
+      "event_prefix": "ServiceOrder",
+      "roles": [
+        "finance_manager",
+        "finance_operator"
+      ]
+    }
+  ]
+}

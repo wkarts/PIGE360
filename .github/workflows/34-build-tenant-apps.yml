@@ -1,0 +1,41 @@
+name: 34 · Apps white-label por tenant
+'on':
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: Caminho do tenant-app-manifest.yaml
+        required: true
+        default: deploy/local/tenant-app-manifest.demo.yaml
+      publish_stores: {type: boolean, required: false, default: false}
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate-manifest:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        run: python scripts/validation/tenant_app_manifest.py "${{ inputs.manifest }}" --github-output
+  build:
+    needs: validate-manifest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.validate-manifest.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/mobile/build-tenant-app.sh "${{ inputs.manifest }}" "${{ matrix.app }}" "${{ matrix.platform }}"
+      - uses: actions/upload-artifact@v4
+        with: {name: 'tenant-${{ matrix.app }}-${{ matrix.platform }}', path: release/artifacts/tenant-apps/**, if-no-files-found: error}
+  store-publication-disabled:
+    if: ${{ inputs.publish_stores == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: app-stores
+    steps:
+      - run: echo 'Publicação em lojas permanece condicionada a segredos e aprovação.'

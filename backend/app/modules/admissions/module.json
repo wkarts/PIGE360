@@ -1,0 +1,41 @@
+{
+  "module": "admissions",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "admissions",
+      "path": "admissions/candidates",
+      "initial_state": "lead",
+      "transitions": {
+        "lead": [
+          "applied",
+          "lost"
+        ],
+        "applied": [
+          "under_review",
+          "rejected"
+        ],
+        "under_review": [
+          "approved",
+          "waitlisted",
+          "rejected"
+        ],
+        "approved": [
+          "converted"
+        ],
+        "waitlisted": [
+          "approved",
+          "rejected"
+        ]
+      },
+      "event_prefix": "Admission",
+      "roles": [
+        "tenant_owner",
+        "secretary"
+      ]
+    }
+  ]
+}

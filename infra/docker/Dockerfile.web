@@ -1,0 +1,38 @@
+FROM node:22.16.0-bookworm-slim AS build
+ARG APP_DIR=apps/tenant-admin-web
+ARG VERSION=1.0.0
+WORKDIR /workspace
+ENV NODE_ENV=development \
+    NPM_CONFIG_AUDIT=false \
+    NPM_CONFIG_FUND=false \
+    NPM_CONFIG_UPDATE_NOTIFIER=false
+COPY package*.json ./
+COPY apps/ ./apps/
+COPY packages/ ./packages/
+COPY types/ ./types/
+COPY tsconfig.validation.json ./
+# O workspace atual foi construído sem rede e, portanto, não inventa um
+# package-lock com integrities fictícias. Em CI/host com rede, as versões
+# diretas são exatas e o npm resolve a árvore antes do build. Quando um
+# package-lock raiz íntegro for disponibilizado, NPM_INSTALL_MODE=ci força npm ci.
+ARG NPM_INSTALL_MODE=install
+RUN if [ "$NPM_INSTALL_MODE" = "ci" ]; then \
+      test -s package-lock.json && npm ci --workspaces --include-workspace-root; \
+    else \
+      npm install --workspaces --include-workspace-root; \
+    fi
+RUN npm --workspace "./${APP_DIR}" run build
+
+FROM nginx:1.27.5-alpine
+ARG APP_DIR=apps/tenant-admin-web
+ARG VERSION=1.0.0
+LABEL org.opencontainers.image.title="pige360-web" \
+      org.opencontainers.image.version="$VERSION" \
+      org.opencontainers.image.source="local-workspace"
+RUN addgroup -g 10001 -S pige360 && adduser -S -D -H -u 10001 -G pige360 pige360 \
+ && mkdir -p /var/cache/nginx /var/run && chown -R 10001:10001 /var/cache/nginx /var/run /usr/share/nginx/html
+COPY infra/docker/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /workspace/${APP_DIR}/dist/ /usr/share/nginx/html/
+USER 10001:10001
+EXPOSE 8080
+HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -q -O- http://127.0.0.1:8080/healthz || exit 1

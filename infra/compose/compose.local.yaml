@@ -1,0 +1,8 @@
+services:
+  pige360-api:
+    environment:
+      APP_ENV: development
+      APP_DEMO_MODE: 'true'
+  pige360-web:
+    ports:
+    - 127.0.0.1:58080:8080

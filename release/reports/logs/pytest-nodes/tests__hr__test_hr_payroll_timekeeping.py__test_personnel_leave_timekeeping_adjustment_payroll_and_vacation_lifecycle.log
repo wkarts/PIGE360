@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/hr/test_hr_payroll_timekeeping.py::test_personnel_leave_timekeeping_adjustment_payroll_and_vacation_lifecycle
+
+.PIGE360_NODE_RESULT=PASS

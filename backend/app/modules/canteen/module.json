@@ -1,0 +1,33 @@
+{
+  "module": "canteen",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "canteen_products",
+      "path": "canteen/products",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "archived"
+        ],
+        "active": [
+          "suspended",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "CanteenProduct",
+      "roles": [
+        "canteen_manager",
+        "inventory_manager"
+      ]
+    }
+  ]
+}

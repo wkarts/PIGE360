@@ -1,0 +1,76 @@
+{
+  "module": "library",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "library_items",
+      "path": "library/items",
+      "initial_state": "available",
+      "transitions": {
+        "available": [
+          "reserved",
+          "loaned",
+          "maintenance",
+          "lost"
+        ],
+        "reserved": [
+          "available",
+          "loaned"
+        ],
+        "loaned": [
+          "available",
+          "overdue",
+          "lost"
+        ],
+        "overdue": [
+          "available",
+          "lost"
+        ],
+        "maintenance": [
+          "available",
+          "retired"
+        ],
+        "lost": [
+          "archived"
+        ]
+      },
+      "event_prefix": "LibraryItem",
+      "roles": [
+        "tenant_owner",
+        "secretary"
+      ]
+    },
+    {
+      "name": "library_loans",
+      "path": "library/loans",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "returned",
+          "overdue",
+          "lost"
+        ],
+        "overdue": [
+          "returned",
+          "lost"
+        ],
+        "returned": [
+          "closed"
+        ],
+        "lost": [
+          "closed"
+        ]
+      },
+      "event_prefix": "LibraryLoan",
+      "roles": [
+        "tenant_owner",
+        "secretary",
+        "student",
+        "guardian"
+      ]
+    }
+  ]
+}

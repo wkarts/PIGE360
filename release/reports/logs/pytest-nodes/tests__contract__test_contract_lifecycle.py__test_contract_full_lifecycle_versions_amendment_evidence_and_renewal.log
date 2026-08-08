@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_contract_lifecycle.py::test_contract_full_lifecycle_versions_amendment_evidence_and_renewal
+
+.PIGE360_NODE_RESULT=PASS

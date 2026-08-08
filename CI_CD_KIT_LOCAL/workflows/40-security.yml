@@ -1,0 +1,26 @@
+name: 40 · Segurança e supply chain
+'on':
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source-security:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: python scripts/validation/secret_scan.py
+      - run: python scripts/supply-chain/generate_sbom.py --check
+      - run: python scripts/validation/validate_project.py --security-only
+  container-security:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo 'Trivy/Grype devem ser fixados por digest no ambiente autorizado.'
+      - run: python scripts/validation/validate_dockerfiles.py

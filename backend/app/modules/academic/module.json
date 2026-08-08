@@ -1,0 +1,92 @@
+{
+  "module": "academic",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "programs",
+      "path": "academic/programs",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "archived"
+        ],
+        "active": [
+          "suspended",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "AcademicProgram",
+      "roles": [
+        "tenant_owner",
+        "academic_coordinator"
+      ]
+    },
+    {
+      "name": "curricula",
+      "path": "academic/curricula",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "under_review",
+          "archived"
+        ],
+        "under_review": [
+          "approved",
+          "changes_requested"
+        ],
+        "changes_requested": [
+          "under_review"
+        ],
+        "approved": [
+          "published",
+          "superseded"
+        ],
+        "published": [
+          "superseded",
+          "archived"
+        ]
+      },
+      "event_prefix": "Curriculum",
+      "roles": [
+        "tenant_owner",
+        "academic_coordinator"
+      ]
+    },
+    {
+      "name": "class_groups",
+      "path": "academic/class-groups",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "cancelled"
+        ],
+        "active": [
+          "closed",
+          "cancelled"
+        ],
+        "closed": [
+          "reopened",
+          "archived"
+        ],
+        "reopened": [
+          "closed"
+        ]
+      },
+      "event_prefix": "ClassGroup",
+      "roles": [
+        "tenant_owner",
+        "academic_coordinator",
+        "secretary"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/database/test_postgres_sql_contract.py::test_is_null_remains_null_predicate
+
+.PIGE360_NODE_RESULT=PASS

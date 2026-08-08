@@ -1,0 +1,12 @@
+mode: disabled
+api_base_url: ''
+api_key_secret_ref: secrets/mailcow/api-key
+imap:
+  enabled: false
+  port: 993
+  tls: true
+smtp:
+  enabled: false
+  port: 465
+  tls: true
+content_source_of_truth: mailcow

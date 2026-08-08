@@ -1,0 +1,44 @@
+name: 60 · Deploy SaaS (opt-in)
+'on':
+  workflow_dispatch:
+    inputs:
+      enable_remote_deploy: {type: boolean, required: true, default: false}
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  guard:
+    if: ${{ inputs.enable_remote_deploy != true || vars.REMOTE_DEPLOY_ENABLED != 'true' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo 'Deploy remoto permanece desabilitado por configuração.'
+  deploy:
+    if: ${{ inputs.enable_remote_deploy == true && vars.REMOTE_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: bash scripts/release/build-self-hosted.sh
+      - name: Configurar SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SAAS_DEPLOY_SSH_PRIVATE_KEY }}
+          SAAS_KNOWN_HOSTS: ${{ secrets.SAAS_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY" && test -n "$SAAS_KNOWN_HOSTS"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SAAS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+      - name: Deploy blue/green remoto
+        env:
+          REMOTE_DEPLOY_ENABLED: 'true'
+          SAAS_DEPLOY_HOST: ${{ vars.SAAS_DEPLOY_HOST }}
+          SAAS_DEPLOY_USER: ${{ vars.SAAS_DEPLOY_USER }}
+          SAAS_DEPLOY_PORT: ${{ vars.SAAS_DEPLOY_PORT }}
+          SAAS_DEPLOY_PATH: ${{ vars.SAAS_DEPLOY_PATH }}
+        run: bash scripts/deploy/deploy-saas-ssh.sh

@@ -1,0 +1,7 @@
+$ /opt/pyvenv/bin/python3 -m pytest -q --disable-warnings
+
+STDOUT
+...........................................                              [100%]
+43 passed in 24.97s
+
+STDERR

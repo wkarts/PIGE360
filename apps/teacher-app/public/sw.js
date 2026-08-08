@@ -1,0 +1,1 @@
+const CACHE="pige360-teacher-app-1.0.0";self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./assets/app.css","./assets/app.js"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));

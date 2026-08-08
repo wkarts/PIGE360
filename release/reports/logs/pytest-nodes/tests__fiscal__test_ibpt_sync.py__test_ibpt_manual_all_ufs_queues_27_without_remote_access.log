@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/fiscal/test_ibpt_sync.py::test_ibpt_manual_all_ufs_queues_27_without_remote_access
+
+.PIGE360_NODE_RESULT=PASS

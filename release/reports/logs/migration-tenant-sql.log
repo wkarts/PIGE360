@@ -1,0 +1,1 @@
+alembic tenant upgrade head --sql -> exit 0; 2968 linhas SQL; head=0029_admissions_funnel

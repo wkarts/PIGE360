@@ -1,0 +1,58 @@
+{
+  "module": "banking",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "bank_accounts",
+      "path": "banking/accounts",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "suspended",
+          "closed"
+        ],
+        "suspended": [
+          "active",
+          "closed"
+        ]
+      },
+      "event_prefix": "BankAccount",
+      "roles": [
+        "finance_manager"
+      ]
+    },
+    {
+      "name": "reconciliations",
+      "path": "banking/reconciliations",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "processing",
+          "cancelled"
+        ],
+        "processing": [
+          "completed",
+          "failed"
+        ],
+        "failed": [
+          "processing",
+          "cancelled"
+        ],
+        "completed": [
+          "reopened"
+        ],
+        "reopened": [
+          "completed"
+        ]
+      },
+      "event_prefix": "Reconciliation",
+      "roles": [
+        "finance_manager",
+        "finance_operator"
+      ]
+    }
+  ]
+}

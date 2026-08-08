@@ -1,0 +1,27 @@
+{
+  "name": "@pige360/timeclock-app",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "3.5.13",
+    "vue-router": "4.5.0",
+    "pinia": "2.3.1",
+    "echarts": "5.6.0",
+    "@pige360/auth": "1.0.0"
+  },
+  "devDependencies": {
+    "vite": "6.1.0",
+    "typescript": "5.8.3",
+    "@vitejs/plugin-vue": "5.2.2",
+    "vite-plugin-pwa": "0.21.1",
+    "vue-tsc": "2.2.0",
+    "@tauri-apps/cli": "2.3.1"
+  }
+}

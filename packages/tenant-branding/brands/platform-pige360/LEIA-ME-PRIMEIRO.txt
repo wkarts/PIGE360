@@ -1,0 +1,9 @@
+PIGE360 BRANDING COMPLETO
+
+Marca: PIGE360 School Platform
+Descrição: PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL
+Tagline: Toda a instituição. Uma única plataforma.
+
+Use 00_MASTER/BRAND_GUIDELINES.md como referência principal.
+Os arquivos em 10_SOURCE_REFERENCES preservam os anexos originais do projeto.
+Os arquivos em 08_RECONSTRUCTED_REFERENCES aplicam a nova marca PIGE360 sobre as referências.

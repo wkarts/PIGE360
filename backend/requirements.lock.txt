@@ -1,0 +1,14 @@
+# Dependências observadas e validadas no runtime local da entrega.
+fastapi==0.128.2
+pydantic==2.13.4
+sqlalchemy==2.0.50
+alembic==1.18.4
+uvicorn==0.48.0
+httpx==0.28.1
+pytest==9.0.2
+cryptography==46.0.4
+reportlab==4.4.9
+PyYAML==6.0.3
+Pillow==12.2.0
+asn1crypto==1.5.1
+pypdf==5.9.0
