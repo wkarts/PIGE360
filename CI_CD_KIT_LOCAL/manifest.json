@@ -39,8 +39,8 @@
     },
     {
       "path": "workflows/30-build-web.yml",
-      "sha256": "7ea5ef6913c66b267012ffb9ceea74111f6202c994cec98c7b5bf285ba78fcff",
-      "bytes": 736
+      "sha256": "3e9abe58e7fddaad2ec9d7930da67440de2ac42cb37d63f066d25b0335bd6ea7",
+      "bytes": 866
     },
     {
       "path": "workflows/31-build-desktop.yml",
