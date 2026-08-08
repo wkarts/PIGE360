@@ -57,8 +57,8 @@ def main()->int:
       ('project-validation',[sys.executable,'scripts/validation/validate_project.py','--output','release/project-validation.json'],None,None),
     ]
     if args.ci:
-        commands.insert(6,('frontend-install',['bash','scripts/frontend/install-dependencies.sh'],None,None))
-        commands.insert(8,('frontend-build',['npm','run','build:web'],None,None))
+        commands.insert(5,('frontend-install',['bash','scripts/frontend/install-dependencies.sh'],None,None))
+        commands.insert(7,('frontend-build',['npm','run','build:web'],None,None))
     records=[]
     for name,cmd,cwd,env in commands:
         result=run(name,cmd,cwd,env);records.append(result)
