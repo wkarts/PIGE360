@@ -74,7 +74,7 @@ jobs:
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title "PIGE360 1.0.0" --notes-file CHANGELOG.md
           fi
-          gh release upload "$TAG" release/output/* --repo "$GITHUB_REPOSITORY" --clobber
+          bash scripts/release/upload-release-assets.sh "$TAG" release/output
 
   web-release:
     needs: package
@@ -92,7 +92,8 @@ jobs:
           tar -czf release/output/PIGE360-1.0.0-web-pwa.tar.gz apps/*/dist
           sha256sum release/output/PIGE360-1.0.0-web-pwa.tar.gz > release/output/PIGE360-1.0.0-web-pwa.sha256
       - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
-        run: gh release upload "$TAG" release/output/PIGE360-1.0.0-web-pwa.tar.gz release/output/PIGE360-1.0.0-web-pwa.sha256 --repo "$GITHUB_REPOSITORY" --clobber
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/output/PIGE360-1.0.0-web-pwa.tar.gz release/output/PIGE360-1.0.0-web-pwa.sha256
 
   desktop-release:
     needs: package
@@ -118,34 +119,56 @@ jobs:
       - if: runner.os == 'Linux'
         shell: bash
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
-      - shell: bash
+      - name: Build instaladores desktop
+        shell: bash
         run: bash scripts/desktop/build-all.sh "${{ matrix.target }}"
-      - shell: bash
+      - name: Checksums dos instaladores
+        shell: bash
         run: |
           cd release/artifacts/desktop
           for f in *; do [ -f "$f" ] && sha256sum "$f" > "$f.sha256"; done
-      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+      - name: Publicar instaladores desktop com retry idempotente
+        env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
         shell: bash
-        run: gh release upload "$TAG" release/artifacts/desktop/* --repo "$GITHUB_REPOSITORY" --clobber
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/desktop
 
   android-release:
     needs: package
     if: needs.package.outputs.release_enabled == 'true'
-    runs-on: ubuntu-24.04
     permissions: {contents: write}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        app:
+          - family-app
+          - teacher-app
+          - student-app
+          - admin-app
+          - pos-app
+          - kiosk-app
+          - timeclock-app
+    runs-on: ubuntu-24.04
+    env:
+      PIGE360_MOBILE_APPS: ${{ matrix.app }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: {distribution: temurin, java-version: '21'}
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
       - uses: dtolnay/rust-toolchain@stable
-      - run: bash scripts/mobile/build-android.sh
-      - run: |
+      - name: Build APK/AAB
+        run: bash scripts/mobile/build-android.sh
+      - name: Checksums Android
+        shell: bash
+        run: |
           cd release/artifacts/android
           for f in *.apk *.aab; do [ -f "$f" ] && sha256sum "$f" > "$f.sha256"; done
-      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
-        run: gh release upload "$TAG" release/artifacts/android/* --repo "$GITHUB_REPOSITORY" --clobber
+      - name: Publicar APK/AAB com retry idempotente
+        env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/android
 
   ios-release:
     needs: package
@@ -162,7 +185,8 @@ jobs:
           cd release/artifacts/ios
           for f in *.ipa; do [ -f "$f" ] && shasum -a 256 "$f" > "$f.sha256"; done
       - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
-        run: gh release upload "$TAG" release/artifacts/ios/* --repo "$GITHUB_REPOSITORY" --clobber
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/ios
 
   oci-release:
     needs: package
@@ -191,7 +215,8 @@ jobs:
           docker image inspect "${images[@]}" > release/output/PIGE360-1.0.0-runtime-images-inspect.json
           sha256sum release/output/PIGE360-1.0.0-runtime-images.tar.gz release/output/PIGE360-1.0.0-runtime-images-inspect.json > release/output/PIGE360-1.0.0-runtime-images.sha256
       - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
-        run: gh release upload "$TAG" release/output/PIGE360-1.0.0-runtime-images.tar.gz release/output/PIGE360-1.0.0-runtime-images-inspect.json release/output/PIGE360-1.0.0-runtime-images.sha256 --repo "$GITHUB_REPOSITORY" --clobber
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/output/PIGE360-1.0.0-runtime-images.tar.gz release/output/PIGE360-1.0.0-runtime-images-inspect.json release/output/PIGE360-1.0.0-runtime-images.sha256
 
   finalize-release:
     needs: [package, web-release, desktop-release, android-release, ios-release, oci-release]

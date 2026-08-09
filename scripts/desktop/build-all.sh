@@ -30,6 +30,7 @@ fi
 
 bash scripts/frontend/install-dependencies.sh
 mkdir -p release/artifacts/desktop
+rm -f release/artifacts/desktop/* 2>/dev/null || true
 
 apps="${PIGE360_DESKTOP_APPS:-desktop-admin pos-app}"
 for app in $apps; do
@@ -39,18 +40,38 @@ for app in $apps; do
   }
   echo "Compilando $app para $target"
   (cd "apps/$app" && npx --no-install tauri build --target "$target")
+
+  bundle_dir="apps/$app/src-tauri/target/$target/release/bundle"
   found=0
+  case "$target" in
+    *windows*)
+      files="$(find "$bundle_dir" -type f \( -name '*.exe' -o -name '*.msi' \) 2>/dev/null | sort)"
+      ;;
+    *linux*)
+      files="$(find "$bundle_dir" -type f \( -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' \) 2>/dev/null | sort)"
+      ;;
+    *apple-darwin*)
+      files="$(find "$bundle_dir" -type f -name '*.dmg' 2>/dev/null | sort)"
+      ;;
+    *)
+      echo "Target desktop não suportado para coleta de bundle: $target" >&2
+      exit 4
+      ;;
+  esac
+
   while IFS= read -r file; do
     [ -n "$file" ] || continue
     found=1
     cp "$file" "release/artifacts/desktop/${app}-${target}-$(basename "$file")"
   done <<EOF
-$(find "apps/$app/src-tauri/target/$target/release/bundle" -type f 2>/dev/null | sort)
+$files
 EOF
+
   [ "$found" -eq 1 ] || {
-    echo "Nenhum bundle desktop gerado para $app / $target" >&2
+    echo "Nenhum instalador final gerado para $app / $target" >&2
     exit 5
   }
 done
 
+echo "Artefatos desktop finais:"
 find release/artifacts/desktop -maxdepth 1 -type f -print | sort

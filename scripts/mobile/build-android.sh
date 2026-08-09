@@ -36,17 +36,10 @@ export AR="$ndk_bin/llvm-ar"
 export RANLIB="$ndk_bin/llvm-ranlib"
 export PATH="$alias_dir:$ndk_bin:$PATH"
 
-# Reutiliza os artefatos Rust entre aplicativos e ABIs no mesmo runner.
-# O build anterior criava um target isolado por app e recompilava Tauri,
-# OpenSSL, SQLite e dependências compartilhadas repetidamente.
-export CARGO_TARGET_DIR="${PIGE360_ANDROID_CARGO_TARGET_DIR:-$ROOT/.pige360-build/android-target}"
-mkdir -p "$CARGO_TARGET_DIR"
-
 echo "Android SDK: $ANDROID_HOME"
 echo "Android NDK: $NDK_HOME"
 echo "Android LLVM: $ndk_bin"
 echo "Android ranlib: $(command -v aarch64-linux-android-ranlib)"
-echo "Cargo target compartilhado: $CARGO_TARGET_DIR"
 
 bash scripts/frontend/install-dependencies.sh
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
@@ -54,19 +47,34 @@ mkdir -p release/artifacts/android
 rm -f release/artifacts/android/*.apk release/artifacts/android/*.aab 2>/dev/null || true
 
 apps="${PIGE360_MOBILE_APPS:-family-app teacher-app student-app admin-app pos-app kiosk-app timeclock-app}"
+target_root="${PIGE360_ANDROID_CARGO_TARGET_ROOT:-$ROOT/.pige360-build/android-target}"
+mkdir -p "$target_root"
+
 for app in $apps; do
   [ -d "apps/$app/src-tauri" ] || { echo "Aplicação Tauri ausente: $app" >&2; exit 4; }
+
+  # O codegen Android do Tauri produz TauriActivity/WryActivity com package
+  # específico do aplicativo. Não é seguro compartilhar CARGO_TARGET_DIR entre
+  # apps diferentes: Cargo pode reaproveitar o build-script do primeiro app e
+  # deixar o segundo sem TauriActivity.kt.
+  app_target_dir="$target_root/$app"
+  mkdir -p "$app_target_dir"
   (
+    export CARGO_TARGET_DIR="$app_target_dir"
     cd "apps/$app"
-    if [ ! -f src-tauri/gen/android/gradlew ]; then
-      echo "Inicializando projeto Android Tauri para $app"
-      rm -rf src-tauri/gen/android
-      CI=true npx --no-install tauri android init --ci
-    fi
+
+    # Sempre gere o projeto Android a partir da CLI da árvore atual. O diretório
+    # gen é artefato efêmero e não deve carregar codegen de execução anterior.
+    echo "Inicializando projeto Android Tauri para $app"
+    rm -rf src-tauri/gen/android
+    CI=true npx --no-install tauri android init --ci
     test -f src-tauri/gen/android/gradlew
+
     echo "Compilando APK/AAB: $app"
+    echo "Cargo target isolado: $CARGO_TARGET_DIR"
     CI=true npx --no-install tauri android build --ci
   )
+
   found=0
   while IFS= read -r file; do
     [ -n "$file" ] || continue
