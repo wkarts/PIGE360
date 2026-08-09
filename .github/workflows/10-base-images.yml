@@ -1,5 +1,6 @@
 name: 10 · Imagens base OCI
 'on':
+  pull_request:
   workflow_dispatch:
     inputs:
       enable_remote_registry:
@@ -21,10 +22,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - run: docker buildx build --load --provenance=true --sbom=true -f infra/docker/base/Dockerfile.${ matrix.image } -t pige360-base-${ matrix.image }:1.0.0 .
-      - run: docker image inspect pige360-base-${ matrix.image }:1.0.0 > release/base-${ matrix.image }-inspect.json
+      - run: docker buildx build --load --provenance=true --sbom=true -f infra/docker/base/Dockerfile.${{ matrix.image }} -t pige360-base-${{ matrix.image }}:1.0.0 .
+      - run: docker image inspect pige360-base-${{ matrix.image }}:1.0.0 > release/base-${{ matrix.image }}-inspect.json
   remote-publish-disabled:
-    if: ${{ inputs.enable_remote_registry == true && vars.REMOTE_REGISTRY_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_remote_registry == true && vars.REMOTE_REGISTRY_ENABLED == 'true' }}
     needs: build-local
     runs-on: ubuntu-24.04
     environment: remote-registry
