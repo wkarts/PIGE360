@@ -4,6 +4,16 @@ command -v cargo >/dev/null 2>&1 || { echo 'Rust/cargo não disponível.' >&2; e
 command -v npm >/dev/null 2>&1 || { echo 'npm não disponível.' >&2; exit 3; }
 [ -n "${ANDROID_HOME:-}" ] || { echo 'ANDROID_HOME não configurado.' >&2; exit 3; }
 
+NDK_HOME="${NDK_HOME:-${ANDROID_NDK_HOME:-${ANDROID_NDK_ROOT:-${ANDROID_NDK:-}}}}"
+[ -n "$NDK_HOME" ] && [ -d "$NDK_HOME" ] || { echo 'Android NDK não encontrado no runner.' >&2; exit 3; }
+export NDK_HOME
+export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-$NDK_HOME}"
+export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$NDK_HOME}"
+export ANDROID_NDK="${ANDROID_NDK:-$NDK_HOME}"
+
+echo "Android SDK: $ANDROID_HOME"
+echo "Android NDK: $NDK_HOME"
+
 bash scripts/frontend/install-dependencies.sh
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 mkdir -p release/artifacts/android
@@ -19,6 +29,7 @@ for app in $apps; do
       rm -rf src-tauri/gen/android
       CI=true npx --no-install tauri android init --ci
     fi
+    test -f src-tauri/gen/android/gradlew
     echo "Compilando APK/AAB: $app"
     CI=true npx --no-install tauri android build --ci
   )
@@ -34,4 +45,4 @@ EOF
 done
 
 test -n "$(find release/artifacts/android -type f \( -name '*.apk' -o -name '*.aab' \) -print -quit)"
-find release/artifacts/android -type f -maxdepth 1 -print | sort
+find release/artifacts/android -maxdepth 1 -type f -print | sort

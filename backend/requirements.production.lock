@@ -1,8 +1,6 @@
-# Pins de produção preparados para resolução futura em CI autorizado.
-# Estes cinco pacotes opcionais não estavam disponíveis no cache local e, por isso,
-# não são declarados como validados nesta execução sem rede.
+# Pins de produção validados em CI autorizado para Python 3.13.
 asyncpg==0.30.0
-psycopg[binary]==3.2.0
+psycopg[binary]==3.2.13
 celery==5.5.0
 redis==6.0.0
 boto3==1.40.0

@@ -15,13 +15,13 @@ for app in $apps; do
   [ -d "apps/$app/src-tauri" ] || { echo "Aplicação Tauri ausente: $app" >&2; exit 4; }
   (
     cd "apps/$app"
-    if ! find src-tauri/gen/ios -maxdepth 2 -name '*.xcodeproj' -print -quit 2>/dev/null | grep -q .; then
+    if ! find src-tauri/gen/apple -maxdepth 2 -name '*.xcodeproj' -print -quit 2>/dev/null | grep -q .; then
       echo "Inicializando projeto iOS Tauri para $app"
-      rm -rf src-tauri/gen/ios
+      rm -rf src-tauri/gen/apple src-tauri/gen/ios
       CI=true npx --no-install tauri ios init --ci
     fi
-    echo "Compilando aplicação iOS ARM64 sem assinatura para $app"
-    CI=true npx --no-install tauri ios build --target aarch64 -- -- CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+    echo "Compilando aplicação iOS ARM64 para $app"
+    CI=true npx --no-install tauri ios build --target aarch64 --ci
   )
 
   copied=0

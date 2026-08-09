@@ -23,7 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+      - run: python -m pip install -r backend/requirements.lock.txt
       - id: matrix
         shell: bash
         run: python scripts/validation/tenant_app_manifest.py "$TENANT_MANIFEST" --github-output
@@ -36,7 +37,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+      - run: python -m pip install -r backend/requirements.lock.txt
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
       - uses: actions/setup-java@v4
