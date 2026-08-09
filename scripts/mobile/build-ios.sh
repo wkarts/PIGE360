@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+ROOT="$(pwd)"
 command -v xcodebuild >/dev/null 2>&1 || { echo 'Xcode/xcodebuild não disponível.' >&2; exit 3; }
 command -v cargo >/dev/null 2>&1 || { echo 'Rust/cargo não disponível.' >&2; exit 3; }
 command -v npm >/dev/null 2>&1 || { echo 'npm não disponível.' >&2; exit 3; }
@@ -38,7 +39,7 @@ EOF
       tmp="$(mktemp -d)"
       mkdir -p "$tmp/Payload"
       cp -R "$app_bundle" "$tmp/Payload/"
-      (cd "$tmp" && /usr/bin/zip -qry "$OLDPWD/release/artifacts/ios/${app}-unsigned.ipa" Payload)
+      (cd "$tmp" && /usr/bin/zip -qry "$ROOT/release/artifacts/ios/${app}-unsigned.ipa" Payload)
       rm -rf "$tmp"
       copied=1
     fi
