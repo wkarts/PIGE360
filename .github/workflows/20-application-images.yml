@@ -1,5 +1,6 @@
 name: 20 · Imagens de aplicação
 'on':
+  pull_request:
   workflow_dispatch:
     inputs:
       enable_remote_registry: {type: boolean, required: false, default: false}
@@ -17,10 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - run: docker buildx build --load --provenance=true --sbom=true -f infra/docker/Dockerfile.${ matrix.target } -t pige360-${ matrix.target }:1.0.0 .
-      - run: docker image inspect pige360-${ matrix.target }:1.0.0 > release/${ matrix.target }-inspect.json
+      - run: docker buildx build --load --provenance=true --sbom=true -f infra/docker/Dockerfile.${{ matrix.target }} -t pige360-${{ matrix.target }}:1.0.0 .
+      - run: docker image inspect pige360-${{ matrix.target }}:1.0.0 > release/${{ matrix.target }}-inspect.json
   remote-publish-disabled:
-    if: ${{ inputs.enable_remote_registry == true && vars.REMOTE_REGISTRY_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_remote_registry == true && vars.REMOTE_REGISTRY_ENABLED == 'true' }}
     needs: build
     runs-on: ubuntu-24.04
     environment: remote-registry
