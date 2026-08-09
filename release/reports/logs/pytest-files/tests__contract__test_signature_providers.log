@@ -1,0 +1,4 @@
+$ /opt/pyvenv/bin/python -m pytest -q --disable-warnings tests/contract/test_signature_providers.py
+
+.......                                                                  [100%]
+7 passed in 6.55s

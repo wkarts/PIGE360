@@ -1,0 +1,79 @@
+{
+  "module": "contracts",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "contracts",
+      "path": "contracts",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "generated",
+          "cancelled"
+        ],
+        "generated": [
+          "under_internal_review",
+          "approved",
+          "cancelled"
+        ],
+        "under_internal_review": [
+          "approved",
+          "draft",
+          "cancelled"
+        ],
+        "approved": [
+          "awaiting_signatures",
+          "cancelled"
+        ],
+        "awaiting_signatures": [
+          "partially_signed",
+          "signed",
+          "cancelled"
+        ],
+        "partially_signed": [
+          "signed",
+          "cancelled"
+        ],
+        "signed": [
+          "active"
+        ],
+        "active": [
+          "suspended",
+          "expired",
+          "terminated",
+          "rescinded",
+          "superseded"
+        ],
+        "suspended": [
+          "active",
+          "terminated"
+        ],
+        "expired": [
+          "archived"
+        ],
+        "terminated": [
+          "archived"
+        ],
+        "rescinded": [
+          "archived"
+        ],
+        "superseded": [
+          "archived"
+        ],
+        "cancelled": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Contract",
+      "roles": [
+        "tenant_owner",
+        "secretary",
+        "finance_manager",
+        "hr_manager"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+$ /opt/pyvenv/bin/python -m pytest -q --disable-warnings tests/contract/test_contract_lifecycle.py
+
+..                                                                       [100%]
+2 passed in 1.84s

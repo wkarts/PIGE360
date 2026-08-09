@@ -1,0 +1,2384 @@
+{
+  "schema_version": 1,
+  "baseline_kind": "initial-local-baseline",
+  "screens": 40,
+  "screenshots": 132,
+  "records": [
+    {
+      "screen": "control-plane-dashboard",
+      "number": 1,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/control-plane-dashboard/desktop-1366x768-light.png",
+      "sha256": "21a48ba7dbd4eabb5d7cf509c735a98feaaedcc198c8c32faf3eccc265c5b3b4",
+      "bytes": 174218
+    },
+    {
+      "screen": "control-plane-dashboard",
+      "number": 1,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/control-plane-dashboard/desktop-1366x768-dark.png",
+      "sha256": "0084feb20597312efe32116e26dc09d63e8cc2374a1553da2ec3c2822a19d0b1",
+      "bytes": 177094
+    },
+    {
+      "screen": "control-plane-dashboard",
+      "number": 1,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/control-plane-dashboard/desktop-1920x1080-light.png",
+      "sha256": "1479bb9617dc584a40405e514cf06d01ef712f743e04eb4d66e805e123ea59ea",
+      "bytes": 196077
+    },
+    {
+      "screen": "tenant-admin-dashboard",
+      "number": 2,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tenant-admin-dashboard/desktop-1366x768-light.png",
+      "sha256": "8398b06deb6c41475dede0afac5f00b700d6c7793fb7bede1eab447d7eb67d62",
+      "bytes": 180405
+    },
+    {
+      "screen": "tenant-admin-dashboard",
+      "number": 2,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tenant-admin-dashboard/desktop-1366x768-dark.png",
+      "sha256": "a6cf2862e2d971b4ba632e432ff3e34cc398ecb68ce0bd1206cb240d8e1a9c5a",
+      "bytes": 181995
+    },
+    {
+      "screen": "tenant-admin-dashboard",
+      "number": 2,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tenant-admin-dashboard/desktop-1920x1080-light.png",
+      "sha256": "7a69200d35be5b594f8a914e93c656475f87cac3c89b88577ac53638558b2b99",
+      "bytes": 202530
+    },
+    {
+      "screen": "public-school-portal",
+      "number": 3,
+      "context": "tenant",
+      "app": "public-portal",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/public-portal/public-school-portal/desktop-1366x768-light.png",
+      "sha256": "dbb58ac41992173f0e2ab9af6af538437c2a3171fa103f496d54b57ea1bc009f",
+      "bytes": 176847
+    },
+    {
+      "screen": "public-school-portal",
+      "number": 3,
+      "context": "tenant",
+      "app": "public-portal",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/public-portal/public-school-portal/desktop-1366x768-dark.png",
+      "sha256": "3cdb172f4382f4eed655692bdd909598ae3c34ad88a7006ce4cc56c23ea0912d",
+      "bytes": 178636
+    },
+    {
+      "screen": "public-school-portal",
+      "number": 3,
+      "context": "tenant",
+      "app": "public-portal",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/public-portal/public-school-portal/mobile-390x844-light.png",
+      "sha256": "144c80345803c0680b5344c09023f6bbd18f039b5a8666cb46ee163182a307f6",
+      "bytes": 74650
+    },
+    {
+      "screen": "public-school-portal",
+      "number": 3,
+      "context": "tenant",
+      "app": "public-portal",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/public-portal/public-school-portal/mobile-390x844-dark.png",
+      "sha256": "fbd861e69b43e4a38e1e6949c68d888f9813972a0bc5d7a9cb9486082200d077",
+      "bytes": 75006
+    },
+    {
+      "screen": "family-mobile-home",
+      "number": 4,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-mobile-home/desktop-1366x768-light.png",
+      "sha256": "923e4c893f0307af208c24b2137db72b762686ef2bb1d2df86fb04ade81d9632",
+      "bytes": 174864
+    },
+    {
+      "screen": "family-mobile-home",
+      "number": 4,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-mobile-home/desktop-1366x768-dark.png",
+      "sha256": "8408f91746adc7d577f0c1a5b00725f967c905e30271b77e2ae7ec9c93c71408",
+      "bytes": 176432
+    },
+    {
+      "screen": "family-mobile-home",
+      "number": 4,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-mobile-home/mobile-390x844-light.png",
+      "sha256": "21fbbb4949b438fe2dcac622b01124f0bd865cb52fc4e6cb9ddc1e2079be27fe",
+      "bytes": 73981
+    },
+    {
+      "screen": "family-mobile-home",
+      "number": 4,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-mobile-home/mobile-390x844-dark.png",
+      "sha256": "67e6b5dd31f81a93f8ee378125920958d9a38afdf413532cc60e3e0acb5164bf",
+      "bytes": 73947
+    },
+    {
+      "screen": "family-finance-and-canteen",
+      "number": 5,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-finance-and-canteen/desktop-1366x768-light.png",
+      "sha256": "bf009c436e4112ae0ff5706f6c90e17da10a381916327d9f94dcdcdbcae10f10",
+      "bytes": 177391
+    },
+    {
+      "screen": "family-finance-and-canteen",
+      "number": 5,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-finance-and-canteen/desktop-1366x768-dark.png",
+      "sha256": "cbfac8fcfabbc4ba603f441d3f4bb883ff0b4004b6f89b7530caeacf800b1b65",
+      "bytes": 179134
+    },
+    {
+      "screen": "family-finance-and-canteen",
+      "number": 5,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-finance-and-canteen/mobile-390x844-light.png",
+      "sha256": "c265235df7360d9ace2f45d8646bcd315fe7602302e5e01c0438ffd396058dcc",
+      "bytes": 80749
+    },
+    {
+      "screen": "family-finance-and-canteen",
+      "number": 5,
+      "context": "tenant",
+      "app": "family-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/family-app/family-finance-and-canteen/mobile-390x844-dark.png",
+      "sha256": "66af4d261aded16106982ee669364ff7230ff7226b8f4d6286720e7565836bb0",
+      "bytes": 81320
+    },
+    {
+      "screen": "teacher-mobile-diary",
+      "number": 6,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-mobile-diary/desktop-1366x768-light.png",
+      "sha256": "13329fb3d55814ec5b5ca6643f7f0061eeba516c3653de28a92ab6c0cbf68ae9",
+      "bytes": 171419
+    },
+    {
+      "screen": "teacher-mobile-diary",
+      "number": 6,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-mobile-diary/desktop-1366x768-dark.png",
+      "sha256": "4319ef25f0883bec55ffa761eb814f6300270451c6b1fb2a4a1b7b423a1a8520",
+      "bytes": 173171
+    },
+    {
+      "screen": "teacher-mobile-diary",
+      "number": 6,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-mobile-diary/mobile-390x844-light.png",
+      "sha256": "6601416bc6e9bce9a09a77cd36cfbd779e624a18da397422c8cbd086e662583c",
+      "bytes": 72470
+    },
+    {
+      "screen": "teacher-mobile-diary",
+      "number": 6,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-mobile-diary/mobile-390x844-dark.png",
+      "sha256": "ec84286760a60e49f512689e39f727674204433290d69710d21f805224a47a5a",
+      "bytes": 72761
+    },
+    {
+      "screen": "teacher-attendance-offline",
+      "number": 7,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-attendance-offline/desktop-1366x768-light.png",
+      "sha256": "11e456756742c9887e39a57687c1571f57ad799e4a24bfddf0155f0152afbcdf",
+      "bytes": 173833
+    },
+    {
+      "screen": "teacher-attendance-offline",
+      "number": 7,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-attendance-offline/desktop-1366x768-dark.png",
+      "sha256": "50123a69aed19330d5ca683413b47f8a04131c958f2b3d0e64f9a7a7eeb72f0e",
+      "bytes": 175220
+    },
+    {
+      "screen": "teacher-attendance-offline",
+      "number": 7,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-attendance-offline/mobile-390x844-light.png",
+      "sha256": "2c3b3f5d8eddeb05b605a634d0e7d22245091b6b03970eba7f83cd3a5789294b",
+      "bytes": 76090
+    },
+    {
+      "screen": "teacher-attendance-offline",
+      "number": 7,
+      "context": "tenant",
+      "app": "teacher-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/teacher-app/teacher-attendance-offline/mobile-390x844-dark.png",
+      "sha256": "abbef4bec7cac250417dc92800b33e61a5f5e2ac0d45bea0aff5a4a5d28979ba",
+      "bytes": 76182
+    },
+    {
+      "screen": "student-mobile-home",
+      "number": 8,
+      "context": "tenant",
+      "app": "student-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/student-app/student-mobile-home/desktop-1366x768-light.png",
+      "sha256": "943ec73b4c8f3771097629ded3a4c203d417b08cbc99c96ffbe2915ecba37953",
+      "bytes": 172955
+    },
+    {
+      "screen": "student-mobile-home",
+      "number": 8,
+      "context": "tenant",
+      "app": "student-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/student-app/student-mobile-home/desktop-1366x768-dark.png",
+      "sha256": "804580ea4bc8be4fc5051e0d20b496296961cb9b7c19a4da8eb8a6ca3e15881e",
+      "bytes": 174857
+    },
+    {
+      "screen": "student-mobile-home",
+      "number": 8,
+      "context": "tenant",
+      "app": "student-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/student-app/student-mobile-home/mobile-390x844-light.png",
+      "sha256": "3260df6f46a00620ea3b7cbd167ef382e77d0c9d060f3fe3fdf2cc64568161a1",
+      "bytes": 72388
+    },
+    {
+      "screen": "student-mobile-home",
+      "number": 8,
+      "context": "tenant",
+      "app": "student-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/student-app/student-mobile-home/mobile-390x844-dark.png",
+      "sha256": "6b1223c97490701b5d1594ed0789952c75a7a845d8c9f9b709f4a79d11c6f258",
+      "bytes": 72265
+    },
+    {
+      "screen": "admin-mobile-dashboard",
+      "number": 9,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/admin-mobile-dashboard/desktop-1366x768-light.png",
+      "sha256": "764e124206e5bfaee857d537eb265320ce4bf201905809b95966798b59f92ab9",
+      "bytes": 171417
+    },
+    {
+      "screen": "admin-mobile-dashboard",
+      "number": 9,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/admin-mobile-dashboard/desktop-1366x768-dark.png",
+      "sha256": "f80bd6b0c0b9097c1147e828a3e8734c3d6f347e3e1688973c983da90b0f2678",
+      "bytes": 173511
+    },
+    {
+      "screen": "admin-mobile-dashboard",
+      "number": 9,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/admin-mobile-dashboard/mobile-390x844-light.png",
+      "sha256": "7439bb66aa93b8f06cbc5f54695e7010e8e54cd8caf61f3e8daa4fb7a191d218",
+      "bytes": 73790
+    },
+    {
+      "screen": "admin-mobile-dashboard",
+      "number": 9,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/admin-mobile-dashboard/mobile-390x844-dark.png",
+      "sha256": "84a68c4985349ac4f7c342723d450f0430c44b63b2d5b4c3e4a7a05d0234267f",
+      "bytes": 74457
+    },
+    {
+      "screen": "pos-canteen-sale",
+      "number": 10,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-canteen-sale/desktop-1366x768-light.png",
+      "sha256": "e251d0c9178bf5779f89e9373720dcd773b26872de0bbdbb486fcbd2c9e4cab0",
+      "bytes": 171504
+    },
+    {
+      "screen": "pos-canteen-sale",
+      "number": 10,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-canteen-sale/desktop-1366x768-dark.png",
+      "sha256": "8d242cfabd763e56bda1f82adc6df21938ce9afbefb6f1e96019b5c3d4ce214e",
+      "bytes": 173361
+    },
+    {
+      "screen": "pos-canteen-sale",
+      "number": 10,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-canteen-sale/mobile-390x844-light.png",
+      "sha256": "2af546a35726898364afa58856ff53383eb9f22446058d1d2d98e863ac99cd18",
+      "bytes": 73797
+    },
+    {
+      "screen": "pos-canteen-sale",
+      "number": 10,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-canteen-sale/mobile-390x844-dark.png",
+      "sha256": "fb7aa437e5e45a3cf28505f7e329d1db3c51599e4b719f999f9553a66d67f21c",
+      "bytes": 74448
+    },
+    {
+      "screen": "pos-products-and-nfce",
+      "number": 11,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-products-and-nfce/desktop-1366x768-light.png",
+      "sha256": "5cf9fa8057d4262d53d92f39a22bb537523e10a39a88036a1c8ec81488ad39bd",
+      "bytes": 175615
+    },
+    {
+      "screen": "pos-products-and-nfce",
+      "number": 11,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-products-and-nfce/desktop-1366x768-dark.png",
+      "sha256": "22689a33017d57796f5c362b2507128bd5323b2e4a7e3f136e3c3cdef7b96215",
+      "bytes": 177297
+    },
+    {
+      "screen": "pos-products-and-nfce",
+      "number": 11,
+      "context": "tenant",
+      "app": "pos-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/pos-app/pos-products-and-nfce/desktop-1920x1080-light.png",
+      "sha256": "dcf4c9e367b34c9473a8dcf6af2bd92c2c92c218b313543e05183466e71b5f10",
+      "bytes": 198177
+    },
+    {
+      "screen": "kiosk-self-service",
+      "number": 12,
+      "context": "tenant",
+      "app": "kiosk-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/kiosk-app/kiosk-self-service/desktop-1366x768-light.png",
+      "sha256": "d4040b1cf83059d9207ca60cbf01921e19e6cf29375e9e2732bbd9a084005f9c",
+      "bytes": 171593
+    },
+    {
+      "screen": "kiosk-self-service",
+      "number": 12,
+      "context": "tenant",
+      "app": "kiosk-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/kiosk-app/kiosk-self-service/desktop-1366x768-dark.png",
+      "sha256": "881df02b4f01eb3bdd54019eb36be5f6fafc9f00f1ee499c822f297bfc9bbf48",
+      "bytes": 174079
+    },
+    {
+      "screen": "kiosk-self-service",
+      "number": 12,
+      "context": "tenant",
+      "app": "kiosk-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/kiosk-app/kiosk-self-service/mobile-390x844-light.png",
+      "sha256": "efbbc7435f0431c8a52410ecb0f40368b131685bebcecdc6a45b17a3cba7eeae",
+      "bytes": 72725
+    },
+    {
+      "screen": "kiosk-self-service",
+      "number": 12,
+      "context": "tenant",
+      "app": "kiosk-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/kiosk-app/kiosk-self-service/mobile-390x844-dark.png",
+      "sha256": "7eb3b0c937c4f172e1479034b7046c05531be2721b17448c38e9964704d18dc8",
+      "bytes": 73284
+    },
+    {
+      "screen": "timeclock-terminal",
+      "number": 13,
+      "context": "tenant",
+      "app": "timeclock-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/timeclock-app/timeclock-terminal/desktop-1366x768-light.png",
+      "sha256": "9a017e9bf47b7a7fe57aa9fcd48b01bf0e704721f2318d8ebebf741dbb533cf1",
+      "bytes": 173441
+    },
+    {
+      "screen": "timeclock-terminal",
+      "number": 13,
+      "context": "tenant",
+      "app": "timeclock-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/timeclock-app/timeclock-terminal/desktop-1366x768-dark.png",
+      "sha256": "97e64fd24ee49622903cbe706d4ded66ace7ea026e732ec79119ea83444eeef8",
+      "bytes": 175189
+    },
+    {
+      "screen": "timeclock-terminal",
+      "number": 13,
+      "context": "tenant",
+      "app": "timeclock-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/timeclock-app/timeclock-terminal/mobile-390x844-light.png",
+      "sha256": "15dc9faddc14936a5f1bf7c811ad99104efbbb2717247c0c84a914e528424003",
+      "bytes": 75201
+    },
+    {
+      "screen": "timeclock-terminal",
+      "number": 13,
+      "context": "tenant",
+      "app": "timeclock-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/timeclock-app/timeclock-terminal/mobile-390x844-dark.png",
+      "sha256": "64ff6aed11c9e850bdf27f248c384510036afcde2431833530d3460e511a2a08",
+      "bytes": 75718
+    },
+    {
+      "screen": "academic-secretary",
+      "number": 14,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/academic-secretary/desktop-1366x768-light.png",
+      "sha256": "16c52450d1fc9de13b956e6bc30a9ee285b242a77540f48421a09add099b0d50",
+      "bytes": 174451
+    },
+    {
+      "screen": "academic-secretary",
+      "number": 14,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/academic-secretary/desktop-1366x768-dark.png",
+      "sha256": "d246029424dc73610982cabb567d7c3f9114b9310d18eb59391ab8c9e362c767",
+      "bytes": 175808
+    },
+    {
+      "screen": "academic-secretary",
+      "number": 14,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/academic-secretary/desktop-1920x1080-light.png",
+      "sha256": "9d39fd9e3c79de781d34de7e53df6500f951b8b27c481b6fc9e1496c1e7ad266",
+      "bytes": 196966
+    },
+    {
+      "screen": "enrollment-workflow",
+      "number": 15,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/enrollment-workflow/desktop-1366x768-light.png",
+      "sha256": "d126d64dd50e116c14ea1360809a729553c8ad8e8d59f838138bdc6621ba9d99",
+      "bytes": 176963
+    },
+    {
+      "screen": "enrollment-workflow",
+      "number": 15,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/enrollment-workflow/desktop-1366x768-dark.png",
+      "sha256": "dd9a5d617004a3dde41c7f7e4640037d763243a2b67bbc6433a682e640e95439",
+      "bytes": 178909
+    },
+    {
+      "screen": "enrollment-workflow",
+      "number": 15,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/enrollment-workflow/desktop-1920x1080-light.png",
+      "sha256": "8d6c197eab5f9e7a42c692f37f199cb9e10fe6df27feccb3421ff6e6719844db",
+      "bytes": 199562
+    },
+    {
+      "screen": "pedagogical-dashboard",
+      "number": 16,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/pedagogical-dashboard/desktop-1366x768-light.png",
+      "sha256": "ee17e2045c7d071689403ec5acd04133e291d3edb8a619c65d70ecef5533109b",
+      "bytes": 171007
+    },
+    {
+      "screen": "pedagogical-dashboard",
+      "number": 16,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/pedagogical-dashboard/desktop-1366x768-dark.png",
+      "sha256": "1f537a204fd87453f0fdc37d98c1d312fb7e2d46d386cb923725f7288a0d63c6",
+      "bytes": 172742
+    },
+    {
+      "screen": "pedagogical-dashboard",
+      "number": 16,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/pedagogical-dashboard/desktop-1920x1080-light.png",
+      "sha256": "d83a744453a2bb25ac5799903903fada69634460030fe306e5ba3feeace83ee1",
+      "bytes": 192950
+    },
+    {
+      "screen": "financial-dashboard",
+      "number": 17,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/financial-dashboard/desktop-1366x768-light.png",
+      "sha256": "a457261d19dea9d438ac01fb9b72a0855e48f21c39523d8a016edb53ddf38293",
+      "bytes": 177468
+    },
+    {
+      "screen": "financial-dashboard",
+      "number": 17,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/financial-dashboard/desktop-1366x768-dark.png",
+      "sha256": "1730145de40315e0a588610ff0c94d91645dcd23c9b34db73876f28ceecd3eef",
+      "bytes": 179497
+    },
+    {
+      "screen": "financial-dashboard",
+      "number": 17,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/financial-dashboard/desktop-1920x1080-light.png",
+      "sha256": "a11f7a0ace3dc4854878b998c5953483b1252df99a7bdbb795afd2d74325562d",
+      "bytes": 200695
+    },
+    {
+      "screen": "fiscal-nfe-nfce-nfse",
+      "number": 18,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/fiscal-nfe-nfce-nfse/desktop-1366x768-light.png",
+      "sha256": "52826bebaeb6a9165e1632b1aab864cb006c7d3c66bfa059398025bcf2b2fdb5",
+      "bytes": 176214
+    },
+    {
+      "screen": "fiscal-nfe-nfce-nfse",
+      "number": 18,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/fiscal-nfe-nfce-nfse/desktop-1366x768-dark.png",
+      "sha256": "d31e1f90a7aa4fd8ebe7a7d76ca739c11b672aebd28446251712793977ebc9a1",
+      "bytes": 177661
+    },
+    {
+      "screen": "fiscal-nfe-nfce-nfse",
+      "number": 18,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/fiscal-nfe-nfce-nfse/desktop-1920x1080-light.png",
+      "sha256": "91b87a0ca7f5cdb63bdb94958a4b2a4b0e5213427f2c95ba9aa800976b7ef4bc",
+      "bytes": 198947
+    },
+    {
+      "screen": "tax-reform-ibs-cbs",
+      "number": 19,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tax-reform-ibs-cbs/desktop-1366x768-light.png",
+      "sha256": "6749083fbf4de26606fa90103fb66114d249e8a748a419277780d405ab86974f",
+      "bytes": 177088
+    },
+    {
+      "screen": "tax-reform-ibs-cbs",
+      "number": 19,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tax-reform-ibs-cbs/desktop-1366x768-dark.png",
+      "sha256": "5a773c4213ce5af8d3929966bcc20ccc0e8ba724c32eb48270eae2aa1925fc2c",
+      "bytes": 178937
+    },
+    {
+      "screen": "tax-reform-ibs-cbs",
+      "number": 19,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/tax-reform-ibs-cbs/desktop-1920x1080-light.png",
+      "sha256": "07668f45c1ca680b90f7148b748eaec3c4ecf66393a29ba1caf2fc571d8bbefd",
+      "bytes": 200036
+    },
+    {
+      "screen": "contracts-and-signatures",
+      "number": 20,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/contracts-and-signatures/desktop-1366x768-light.png",
+      "sha256": "67d5c6c93f86a013e2ed566f098eeea8d7a007a7d3bc2f852310df919b35dc9c",
+      "bytes": 177947
+    },
+    {
+      "screen": "contracts-and-signatures",
+      "number": 20,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/contracts-and-signatures/desktop-1366x768-dark.png",
+      "sha256": "78d561bc2d9f2a88d9e0930613bfc7046fd43bb94533d8d17a10b7a93253598c",
+      "bytes": 179971
+    },
+    {
+      "screen": "contracts-and-signatures",
+      "number": 20,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/contracts-and-signatures/desktop-1920x1080-light.png",
+      "sha256": "452f41c7897fbebda6106d8cce33c782b56d64e5e6a3a032e838f501263224a9",
+      "bytes": 200162
+    },
+    {
+      "screen": "govbr-signature-flow",
+      "number": 21,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/govbr-signature-flow/desktop-1366x768-light.png",
+      "sha256": "f3edff3a7f5ace5668252cdf8effe912eb782f94c69f77756336a96a7e444c2d",
+      "bytes": 184978
+    },
+    {
+      "screen": "govbr-signature-flow",
+      "number": 21,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/govbr-signature-flow/desktop-1366x768-dark.png",
+      "sha256": "d7f234815638802b00528355563fd85df7e6b7abfef676450233ca8c842ce383",
+      "bytes": 186237
+    },
+    {
+      "screen": "govbr-signature-flow",
+      "number": 21,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/govbr-signature-flow/desktop-1920x1080-light.png",
+      "sha256": "97ff8a55dc23635e9f17675f884fb7cf583878baf5e5650b5ce5b87f81d53f16",
+      "bytes": 208388
+    },
+    {
+      "screen": "mailcow-inbox",
+      "number": 22,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/mailcow-inbox/desktop-1366x768-light.png",
+      "sha256": "1abcf0c3a6853b2a67c53249c13660a3ae6aa4d09ee4f366b5109217da8d090d",
+      "bytes": 175192
+    },
+    {
+      "screen": "mailcow-inbox",
+      "number": 22,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/mailcow-inbox/desktop-1366x768-dark.png",
+      "sha256": "7d83b004f29e622e86463726987a40268004b84c1d8cbba4d931ae30bb837536",
+      "bytes": 177288
+    },
+    {
+      "screen": "mailcow-inbox",
+      "number": 22,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/mailcow-inbox/desktop-1920x1080-light.png",
+      "sha256": "0a2606f0839cac548d198b7f9b36758dd51390f97a31f056e74befc2a6f78c72",
+      "bytes": 197930
+    },
+    {
+      "screen": "employee-and-hr",
+      "number": 23,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/employee-and-hr/desktop-1366x768-light.png",
+      "sha256": "fb5a225cc5be1898cdd33ec0c55e216f5ab8b731c28247e1feb57be280753492",
+      "bytes": 173488
+    },
+    {
+      "screen": "employee-and-hr",
+      "number": 23,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/employee-and-hr/desktop-1366x768-dark.png",
+      "sha256": "cbaf6badc888389c0490f5518659eb09aecc6c9d4fe8a81cdf03fac9ec95130c",
+      "bytes": 175423
+    },
+    {
+      "screen": "employee-and-hr",
+      "number": 23,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/employee-and-hr/desktop-1920x1080-light.png",
+      "sha256": "3f8e66115e39cdd033b4fba81e68fdaf9216c5ed097b2370c1188ae7732e394d",
+      "bytes": 195668
+    },
+    {
+      "screen": "payroll",
+      "number": 24,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/payroll/desktop-1366x768-light.png",
+      "sha256": "bd5bba461518140209a494b1f4e20c511de50bb1d0930cc94a36bae67e6dff3a",
+      "bytes": 176247
+    },
+    {
+      "screen": "payroll",
+      "number": 24,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/payroll/desktop-1366x768-dark.png",
+      "sha256": "795194fe179ad1f2c7f71c7647d9e91d228096a39f4161fc4174a8255c3de8b9",
+      "bytes": 177854
+    },
+    {
+      "screen": "payroll",
+      "number": 24,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/payroll/desktop-1920x1080-light.png",
+      "sha256": "346dfef92ceebe504e049c3c5b992c684c746943f6c7440931d8817c0f9491ac",
+      "bytes": 199830
+    },
+    {
+      "screen": "timekeeping",
+      "number": 25,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/timekeeping/desktop-1366x768-light.png",
+      "sha256": "995c7b31ce001b8820270eeb36541136a0424b6b008ba25eac7c2794059d0668",
+      "bytes": 173273
+    },
+    {
+      "screen": "timekeeping",
+      "number": 25,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/timekeeping/desktop-1366x768-dark.png",
+      "sha256": "2fc45ebc2d49d23b8c785b553156f5968ff605dbcfdd83a9be60ca03d71778a0",
+      "bytes": 174739
+    },
+    {
+      "screen": "timekeeping",
+      "number": 25,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/timekeeping/desktop-1920x1080-light.png",
+      "sha256": "b29c8be4d92c83e151ebeb0efccefa9789cc9cd25954833b50d4c279c6669930",
+      "bytes": 196082
+    },
+    {
+      "screen": "events-and-travel",
+      "number": 26,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/events-and-travel/desktop-1366x768-light.png",
+      "sha256": "d63279c548dc77c1e67aec34fa179b75025fbc0aeccfd313c87975389e586876",
+      "bytes": 176356
+    },
+    {
+      "screen": "events-and-travel",
+      "number": 26,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/events-and-travel/desktop-1366x768-dark.png",
+      "sha256": "b9f5f3f03586ff7f3fac18d5ade2596293b19c10ea51690ef055b3a840806774",
+      "bytes": 177679
+    },
+    {
+      "screen": "events-and-travel",
+      "number": 26,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/events-and-travel/desktop-1920x1080-light.png",
+      "sha256": "0cefef2fc98c953df33d71164257a914178f45f11a285e758f887e0ef007da2c",
+      "bytes": 198654
+    },
+    {
+      "screen": "notices",
+      "number": 27,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/notices/desktop-1366x768-light.png",
+      "sha256": "39e0b842fc9214317874a51075f9a9cf82beae1a60ea1c0c2dd60e0dab854143",
+      "bytes": 175264
+    },
+    {
+      "screen": "notices",
+      "number": 27,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/notices/desktop-1366x768-dark.png",
+      "sha256": "f008657fcf7c0c808ced6ab928d7e1de93e9f124996673233c11a429ddd2e848",
+      "bytes": 177199
+    },
+    {
+      "screen": "notices",
+      "number": 27,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/notices/desktop-1920x1080-light.png",
+      "sha256": "18e4ee8166c84d6ddf2b176bcc2454f091c1886dba036ca3660bb491851c9b8f",
+      "bytes": 197964
+    },
+    {
+      "screen": "service-requests",
+      "number": 28,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/service-requests/desktop-1366x768-light.png",
+      "sha256": "726d0cf994749039e907f7dbef1d76844dc3bda668ff6bb90a2587175e0f2ce0",
+      "bytes": 178750
+    },
+    {
+      "screen": "service-requests",
+      "number": 28,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/service-requests/desktop-1366x768-dark.png",
+      "sha256": "0d818c9fc0af2cfc535501ffb44778f46c0f286505b82386aeb48e6429919bcc",
+      "bytes": 180194
+    },
+    {
+      "screen": "service-requests",
+      "number": 28,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/service-requests/desktop-1920x1080-light.png",
+      "sha256": "7d60e24d9345d4f1aa69dcb56300d16bb60f8f8ab6762bd288ecc4b456f92da4",
+      "bytes": 201572
+    },
+    {
+      "screen": "inventory",
+      "number": 29,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/inventory/desktop-1366x768-light.png",
+      "sha256": "6efb604ebfdeba0b7640038cee7e63e42738b7850e6f6772903224e43f3d7114",
+      "bytes": 175302
+    },
+    {
+      "screen": "inventory",
+      "number": 29,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/inventory/desktop-1366x768-dark.png",
+      "sha256": "7bb7e24fdd63ef9af617b6271ae38f4eee904719dad27333d98e63ce18a8bca9",
+      "bytes": 176679
+    },
+    {
+      "screen": "inventory",
+      "number": 29,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/inventory/desktop-1920x1080-light.png",
+      "sha256": "7b5639630692f65f00aa273ed6215bbf351d10869e27c2c8bcc40c5aa18873ff",
+      "bytes": 196796
+    },
+    {
+      "screen": "library",
+      "number": 30,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/library/desktop-1366x768-light.png",
+      "sha256": "f0e62782629555dba0dc95a2d04c3c3c7c2b16460f6e7d9124121448e5f74595",
+      "bytes": 171330
+    },
+    {
+      "screen": "library",
+      "number": 30,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/library/desktop-1366x768-dark.png",
+      "sha256": "da09b5325599061721b6d97c2113eeab1290ea81064db987985b409041bfba0f",
+      "bytes": 173185
+    },
+    {
+      "screen": "library",
+      "number": 30,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/library/desktop-1920x1080-light.png",
+      "sha256": "24098b36d84b34bc760f577228558b56970b4c3f25d8d486889b3aeefd07067a",
+      "bytes": 193386
+    },
+    {
+      "screen": "transportation",
+      "number": 31,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/transportation/desktop-1366x768-light.png",
+      "sha256": "c58a97ff45a23b12c3f660153e03d90d0843eddadf8aa69df35fde0a2c67302a",
+      "bytes": 173691
+    },
+    {
+      "screen": "transportation",
+      "number": 31,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/transportation/desktop-1366x768-dark.png",
+      "sha256": "7584b81b64a94707194b51457d2593cfb9aee8ad232d4ba31430c989d055a15c",
+      "bytes": 175506
+    },
+    {
+      "screen": "transportation",
+      "number": 31,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/transportation/desktop-1920x1080-light.png",
+      "sha256": "331a21fd657b1b3ff2f0a4e6705e887ea544a855a93d257b95387c488b77cb62",
+      "bytes": 195155
+    },
+    {
+      "screen": "cloudflare-domain-provisioning",
+      "number": 32,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/cloudflare-domain-provisioning/desktop-1366x768-light.png",
+      "sha256": "2cb3e1679dfde04584da0625aaadb15e4737f3ed98adee2a43549735f3dfa084",
+      "bytes": 177494
+    },
+    {
+      "screen": "cloudflare-domain-provisioning",
+      "number": 32,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/cloudflare-domain-provisioning/desktop-1366x768-dark.png",
+      "sha256": "2346eb67e64bca0e194ed157433dd78d5a8b84e6409ca88b8958f1c34fca597b",
+      "bytes": 180516
+    },
+    {
+      "screen": "cloudflare-domain-provisioning",
+      "number": 32,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/cloudflare-domain-provisioning/desktop-1920x1080-light.png",
+      "sha256": "9a8b1da304e62e7b9beeb86d7b583b871d91b91c3a07a0b09ca72ba80fb0553f",
+      "bytes": 200161
+    },
+    {
+      "screen": "tenant-branding-studio",
+      "number": 33,
+      "context": "tenant",
+      "app": "branding-studio",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/branding-studio/tenant-branding-studio/desktop-1366x768-light.png",
+      "sha256": "ec1a8fdde5b447107bac3077f81e49513ddc0840197f856e37bf83444632fbdf",
+      "bytes": 174619
+    },
+    {
+      "screen": "tenant-branding-studio",
+      "number": 33,
+      "context": "tenant",
+      "app": "branding-studio",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/branding-studio/tenant-branding-studio/desktop-1366x768-dark.png",
+      "sha256": "5073ae889e9d74a33bdde7e165e5b2893571c1b54faa4500b5d806690ba6eb1d",
+      "bytes": 176239
+    },
+    {
+      "screen": "tenant-branding-studio",
+      "number": 33,
+      "context": "tenant",
+      "app": "branding-studio",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/branding-studio/tenant-branding-studio/desktop-1920x1080-light.png",
+      "sha256": "ba140fefccc119e1f64e41af92b3c5faa1b6779ce0e74e6c860c84f274dc1d31",
+      "bytes": 196851
+    },
+    {
+      "screen": "tenant-app-factory",
+      "number": 34,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/tenant-app-factory/desktop-1366x768-light.png",
+      "sha256": "f5b98f82c4319a97d406e4acfff9e366cf062ec42e6fcb3490f1984e0a34b817",
+      "bytes": 172312
+    },
+    {
+      "screen": "tenant-app-factory",
+      "number": 34,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/tenant-app-factory/desktop-1366x768-dark.png",
+      "sha256": "17ea2bb4aa310ada5ae1042b550fd1077da2d9f736bea712c059075eb225fbd0",
+      "bytes": 174797
+    },
+    {
+      "screen": "tenant-app-factory",
+      "number": 34,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/tenant-app-factory/desktop-1920x1080-light.png",
+      "sha256": "0abff458b5b89c2229a05bb36e4cb485060929575ec0e551a192125982c461b2",
+      "bytes": 195776
+    },
+    {
+      "screen": "tenant-download-center",
+      "number": 35,
+      "context": "tenant",
+      "app": "tenant-download-center",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-download-center/tenant-download-center/desktop-1366x768-light.png",
+      "sha256": "83ff5569a286763a63c07cd1d433d5759363b8eaebbb7d2b3c8f60f66171ff32",
+      "bytes": 177223
+    },
+    {
+      "screen": "tenant-download-center",
+      "number": 35,
+      "context": "tenant",
+      "app": "tenant-download-center",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-download-center/tenant-download-center/desktop-1366x768-dark.png",
+      "sha256": "e5c08d93a8f9bd916b72d2401792b8c1c191e22edc5b2032719c9e745003d080",
+      "bytes": 178318
+    },
+    {
+      "screen": "tenant-download-center",
+      "number": 35,
+      "context": "tenant",
+      "app": "tenant-download-center",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-download-center/tenant-download-center/mobile-390x844-light.png",
+      "sha256": "e338da4bda949cf3c438cb8ea009d3bed27ca1554c106ec27717481aea1ff80b",
+      "bytes": 78005
+    },
+    {
+      "screen": "tenant-download-center",
+      "number": 35,
+      "context": "tenant",
+      "app": "tenant-download-center",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-download-center/tenant-download-center/mobile-390x844-dark.png",
+      "sha256": "f259dc385fc6626f70d6041443ada3479049cf247961492d521b7fb170a779b8",
+      "bytes": 78276
+    },
+    {
+      "screen": "platform-health-and-observability",
+      "number": 36,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/platform-health-and-observability/desktop-1366x768-light.png",
+      "sha256": "5753d8019b733187f87de712468aacd5b6f408d2d95f6fd765a8c0a197e84f2a",
+      "bytes": 173545
+    },
+    {
+      "screen": "platform-health-and-observability",
+      "number": 36,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/platform-health-and-observability/desktop-1366x768-dark.png",
+      "sha256": "e1e69fa8570905375d705281d3f66086c44e43b08e5c7f17e39274956ec05743",
+      "bytes": 176112
+    },
+    {
+      "screen": "platform-health-and-observability",
+      "number": 36,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/platform-health-and-observability/desktop-1920x1080-light.png",
+      "sha256": "2844e645ed186c20b984f471585b308be7352cb6fd7c386f5ea0e991c49223a3",
+      "bytes": 195690
+    },
+    {
+      "screen": "reports-and-print-preview",
+      "number": 37,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/reports-and-print-preview/desktop-1366x768-light.png",
+      "sha256": "a77e32db76c7343ff2f508394649fb3c51d74b9829ecf1a0ac92ba7b2cbc2816",
+      "bytes": 175333
+    },
+    {
+      "screen": "reports-and-print-preview",
+      "number": 37,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/reports-and-print-preview/desktop-1366x768-dark.png",
+      "sha256": "e0805b0299ac7f676ee19652bdbf18880bb9128b5182d0cb6a11b854bff37356",
+      "bytes": 176863
+    },
+    {
+      "screen": "reports-and-print-preview",
+      "number": 37,
+      "context": "tenant",
+      "app": "tenant-admin-web",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/tenant-admin-web/reports-and-print-preview/desktop-1920x1080-light.png",
+      "sha256": "0f39daf0af9474fe154d3d941cfbee728fddf2d39134464334a516230052ee52",
+      "bytes": 197826
+    },
+    {
+      "screen": "desktop-admin",
+      "number": 38,
+      "context": "tenant",
+      "app": "desktop-admin",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/desktop-admin/desktop-admin/desktop-1366x768-light.png",
+      "sha256": "1e4fcf4463818daa076b6cffe5808bd7ad3a372307193b6b6d4d41549e762a26",
+      "bytes": 176936
+    },
+    {
+      "screen": "desktop-admin",
+      "number": 38,
+      "context": "tenant",
+      "app": "desktop-admin",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/desktop-admin/desktop-admin/desktop-1366x768-dark.png",
+      "sha256": "090412836991e63a061d9eda38ff7af0c1ad5995f0076219bba92ce81796ecea",
+      "bytes": 178799
+    },
+    {
+      "screen": "desktop-admin",
+      "number": 38,
+      "context": "tenant",
+      "app": "desktop-admin",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/tenant/desktop-admin/desktop-admin/desktop-1920x1080-light.png",
+      "sha256": "88ac199e0c6cccfdfc2198e5fdb456377aaceec142dcb6b71d0373ce8f430ed5",
+      "bytes": 198975
+    },
+    {
+      "screen": "mobile-app-suite",
+      "number": 39,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/mobile-app-suite/desktop-1366x768-light.png",
+      "sha256": "66f144f69b152567ce518b83359bdb4d5c08a8e13ac6e5fc7c349f02a1de4dde",
+      "bytes": 172584
+    },
+    {
+      "screen": "mobile-app-suite",
+      "number": 39,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/mobile-app-suite/desktop-1366x768-dark.png",
+      "sha256": "d8440b32c3f0a18a8f88ea34a9f2c653149339c0880bc121127ff04a2de08189",
+      "bytes": 174547
+    },
+    {
+      "screen": "mobile-app-suite",
+      "number": 39,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "light",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/mobile-app-suite/mobile-390x844-light.png",
+      "sha256": "8143106a81e670eb7055cf24d2aeeb11058d879d95bfb2506f2f6bdff5ea327f",
+      "bytes": 74472
+    },
+    {
+      "screen": "mobile-app-suite",
+      "number": 39,
+      "context": "tenant",
+      "app": "admin-app",
+      "theme": "dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "actual_dimensions": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "docs/design/generated-previews/tenant/admin-app/mobile-app-suite/mobile-390x844-dark.png",
+      "sha256": "2ae9293b1bdac2c2d61bf3dd6e9257c7e107845298c0a8772a90c2461200f580",
+      "bytes": 74945
+    },
+    {
+      "screen": "full-product-architecture-board",
+      "number": 40,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/full-product-architecture-board/desktop-1366x768-light.png",
+      "sha256": "2e660e8b0d6db60ca903ecfb6610a8f69794778713ea00d977786cf6464be757",
+      "bytes": 185771
+    },
+    {
+      "screen": "full-product-architecture-board",
+      "number": 40,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "dark",
+      "viewport": {
+        "width": 1366,
+        "height": 768
+      },
+      "actual_dimensions": {
+        "width": 1366,
+        "height": 768
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/full-product-architecture-board/desktop-1366x768-dark.png",
+      "sha256": "e3dbec50f1a9a658bfb581170886d736c5deeea4ca7b2dc5ac4feb617cf468c0",
+      "bytes": 188447
+    },
+    {
+      "screen": "full-product-architecture-board",
+      "number": 40,
+      "context": "platform",
+      "app": "platform-console",
+      "theme": "light",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "actual_dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "path": "docs/design/generated-previews/platform/platform-console/full-product-architecture-board/desktop-1920x1080-light.png",
+      "sha256": "dc76ca4f740ce4087b43e8ce682e77367edfb14190ab6da78eb45a77170c233a",
+      "bytes": 208887
+    }
+  ]
+}

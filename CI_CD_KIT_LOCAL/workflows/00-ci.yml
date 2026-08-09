@@ -1,0 +1,23 @@
+name: 00 · CI local reproduzível
+'on':
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - run: python -m pip install -r backend/requirements.lock.txt
+      - run: bash scripts/ci/run-all.sh --ci

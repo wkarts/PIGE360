@@ -1,0 +1,38 @@
+{
+  "module": "hr",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "hr_candidates",
+      "path": "hr/candidates",
+      "initial_state": "applied",
+      "transitions": {
+        "applied": [
+          "screening",
+          "rejected"
+        ],
+        "screening": [
+          "interview",
+          "rejected"
+        ],
+        "interview": [
+          "approved",
+          "rejected"
+        ],
+        "approved": [
+          "hired"
+        ],
+        "hired": [
+          "archived"
+        ]
+      },
+      "event_prefix": "HrCandidate",
+      "roles": [
+        "hr_manager"
+      ]
+    }
+  ]
+}

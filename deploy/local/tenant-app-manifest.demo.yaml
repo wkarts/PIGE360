@@ -1,0 +1,30 @@
+schema_version: 1
+tenant_id: 01900000-0000-7000-8000-000000000001
+tenant_code: demo-horizonte
+brand_version: 1
+manifest_version: 1
+release_channel: stable
+apps:
+  family:
+    enabled: true
+    display_name: Horizonte Família
+    identifier: br.com.colegiohorizonte.family
+    api_url: https://api.demo.example.invalid
+    web_url: https://familia.demo.example.invalid
+    update_url: https://apps.demo.example.invalid/family
+    features: {canteen: true, finance: true, transport: true}
+    platforms: [android, ios, windows, linux, macos, pwa]
+  teacher:
+    enabled: true
+    display_name: Horizonte Professor
+    identifier: br.com.colegiohorizonte.teacher
+    api_url: https://api.demo.example.invalid
+    web_url: https://professor.demo.example.invalid
+    update_url: https://apps.demo.example.invalid/teacher
+    features: {lesson_planning: true, attendance_offline: true, diary: true}
+    platforms: [android, ios, windows, linux, macos, pwa]
+signing:
+  android_secret_ref: secrets/tenants/demo-horizonte/android
+  ios_secret_ref: secrets/tenants/demo-horizonte/ios
+  desktop_secret_ref: secrets/tenants/demo-horizonte/desktop
+remote_distribution_enabled: false

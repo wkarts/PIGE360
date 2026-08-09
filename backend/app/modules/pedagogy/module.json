@@ -1,0 +1,69 @@
+{
+  "module": "pedagogy",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "evaluations",
+      "path": "pedagogy/evaluations",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "scheduled",
+          "cancelled"
+        ],
+        "scheduled": [
+          "applied",
+          "cancelled"
+        ],
+        "applied": [
+          "graded"
+        ],
+        "graded": [
+          "published"
+        ],
+        "published": [
+          "reopened"
+        ],
+        "reopened": [
+          "published"
+        ]
+      },
+      "event_prefix": "Evaluation",
+      "roles": [
+        "teacher",
+        "academic_coordinator"
+      ]
+    },
+    {
+      "name": "grades",
+      "path": "pedagogy/grades",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "submitted"
+        ],
+        "submitted": [
+          "published",
+          "changes_requested"
+        ],
+        "changes_requested": [
+          "submitted"
+        ],
+        "published": [
+          "reopened"
+        ],
+        "reopened": [
+          "published"
+        ]
+      },
+      "event_prefix": "Grade",
+      "roles": [
+        "teacher",
+        "academic_coordinator"
+      ]
+    }
+  ]
+}

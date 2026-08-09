@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/sales/test_sales_inventory_procurement.py::test_purchase_order_rejects_foreign_product
+
+.PIGE360_NODE_RESULT=PASS

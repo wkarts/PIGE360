@@ -1,0 +1,8 @@
+FROM pige360-api:1.0.0
+ARG VERSION=1.0.0
+LABEL org.opencontainers.image.title="pige360-migrations" org.opencontainers.image.version="$VERSION"
+USER root
+COPY infra /opt/pige360/infra
+RUN chmod +x /opt/pige360/infra/scripts/*.sh
+USER 10001:10001
+CMD ["/opt/pige360/infra/scripts/app-init.sh"]

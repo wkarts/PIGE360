@@ -1,0 +1,9 @@
+{
+  "name": "Portal da Família",
+  "short_name": "Portal da Fa",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F2F4F7",
+  "theme_color": "#174C4F",
+  "icons": []
+}

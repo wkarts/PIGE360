@@ -1,0 +1,25 @@
+name: 30 · Web e PWA
+'on':
+  pull_request:
+    paths: ['apps/**','packages/**','scripts/frontend/**','.github/workflows/30-build-web.yml','CI_CD_KIT_LOCAL/workflows/30-build-web.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0'}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: bash scripts/frontend/install-dependencies.sh
+      - run: npm run validate:ts
+      - run: npm run build:web
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with: {name: pige360-web-pwa, path: 'apps/*/dist', if-no-files-found: error}

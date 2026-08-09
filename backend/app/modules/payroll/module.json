@@ -1,0 +1,42 @@
+{
+  "module": "payroll",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "payroll_runs",
+      "path": "payroll/runs",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "calculated",
+          "cancelled"
+        ],
+        "calculated": [
+          "under_review",
+          "draft"
+        ],
+        "under_review": [
+          "approved",
+          "calculated"
+        ],
+        "approved": [
+          "closed"
+        ],
+        "closed": [
+          "reopened"
+        ],
+        "reopened": [
+          "closed"
+        ]
+      },
+      "event_prefix": "PayrollRun",
+      "roles": [
+        "payroll_operator",
+        "personnel_operator"
+      ]
+    }
+  ]
+}

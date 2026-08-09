@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/academic/test_education_stage_progress.py::test_early_childhood_daily_agenda_guardian_access_and_pickup
+
+.PIGE360_NODE_RESULT=PASS

@@ -1,0 +1,35 @@
+{
+  "module": "assets",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "assets",
+      "path": "assets",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "maintenance",
+          "loaned",
+          "retired"
+        ],
+        "maintenance": [
+          "active",
+          "retired"
+        ],
+        "loaned": [
+          "active"
+        ],
+        "retired": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Asset",
+      "roles": [
+        "inventory_manager"
+      ]
+    }
+  ]
+}

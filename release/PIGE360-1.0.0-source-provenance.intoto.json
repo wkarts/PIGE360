@@ -1,0 +1,68 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "pige360-source-tree",
+      "digest": {
+        "sha256": "c1787b47523f4fe7b74e67417d830bff9a2bd65c985b067cea8097bc84e78eda"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://pige360.local/build/v8",
+      "externalParameters": {
+        "version": "1.0.0",
+        "mode": "local-only",
+        "remote_ci_enabled": false,
+        "remote_registry_enabled": false,
+        "remote_release_enabled": false,
+        "remote_deploy_enabled": false
+      },
+      "internalParameters": {
+        "workspace": "/mnt/data/pige360-work",
+        "vcs_commit": null,
+        "network_used": false
+      },
+      "resolvedDependencies": [
+        {
+          "uri": "file:PROMPT_FINAL_COMPLETO_PIGE360_V8_LOCAL_SEM_REPOSITORIO.md",
+          "digest": {
+            "sha256": "33d177211b3cfd4b80a19a61f351d5bd02950003bf2cda1d448a369e6686bc27"
+          }
+        },
+        {
+          "uri": "file:PIGE360_BRANDING_COMPLETO.zip",
+          "digest": {
+            "sha256": "9cc110eddc20c82b7176580f0aff09f16471cb0650d4ba32a2fe059f3d76f2ef"
+          }
+        }
+      ]
+    },
+    "runDetails": {
+      "builder": {
+        "id": "local://openai/gpt-5.6-pro"
+      },
+      "metadata": {
+        "invocationId": "7663df8b-aae1-53b9-884a-239865640a61",
+        "startedOn": "2026-08-08T17:59:06.726971+00:00",
+        "finishedOn": "2026-08-08T17:59:06.726971+00:00"
+      },
+      "byproducts": [
+        {
+          "name": "release/reports/local-ci-report.json",
+          "digest": {
+            "sha256": "21a923d08b413e65d5bcf9bfe6fc5b2d7bd91caace78057a80e1787da70bb186"
+          }
+        },
+        {
+          "name": "release/toolchain-inventory.json",
+          "digest": {
+            "sha256": "c0d935766c73e38c72c6ab81f2eb972f1676fb7b73e61fed7b41d611b5f1a217"
+          }
+        }
+      ]
+    }
+  }
+}

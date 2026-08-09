@@ -1,0 +1,6 @@
+$ /opt/pyvenv/bin/python3 scripts/frontend/build_static_apps.py
+
+STDOUT
+{"apps": 13, "version": "1.0.0", "status": "generated"}
+
+STDERR

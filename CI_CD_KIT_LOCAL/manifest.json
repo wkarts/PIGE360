@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "remote_execution": false,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "883d31cbc41b19facaf6b90be5b46cab660dbe2a2f51ac1f1c82288696f3d63e",
+      "bytes": 170
+    },
+    {
+      "path": "scripts/deploy/deploy-saas-ssh.sh",
+      "sha256": "1d32bc47d70c09c16c8f5753d2c82521b35f216b13daebb5c8ad56b224cf4689",
+      "bytes": 2420
+    },
+    {
+      "path": "scripts/release/publish-github-release.sh",
+      "sha256": "a72fef2a67f40b9b6722353eb76b2db2c837c6bb629a85fb7714518cd077c95f",
+      "bytes": 1082
+    },
+    {
+      "path": "workflows/00-ci.yml",
+      "sha256": "eaa5f244e5ac13578893434dc6e3116157f6faee9ad61ce5f4012ae9f9c19320",
+      "bytes": 672
+    },
+    {
+      "path": "workflows/05-pedagogy-attendance.yml",
+      "sha256": "cdcd1ef47256f137b88eac2086fa1eb409986ef1ff1df27e7019e8fe7bb18dbf",
+      "bytes": 756
+    },
+    {
+      "path": "workflows/10-base-images.yml",
+      "sha256": "f2a65e7f96f125db339a2d35f5f338cb9c0f24b2f4975cb3565d80426c36510d",
+      "bytes": 1141
+    },
+    {
+      "path": "workflows/20-application-images.yml",
+      "sha256": "19b264a838051a7a222b65de9d29f4107060269a3ff1cd43af68bcc1d0c8e8df",
+      "bytes": 1048
+    },
+    {
+      "path": "workflows/30-build-web.yml",
+      "sha256": "3e9abe58e7fddaad2ec9d7930da67440de2ac42cb37d63f066d25b0335bd6ea7",
+      "bytes": 866
+    },
+    {
+      "path": "workflows/31-build-desktop.yml",
+      "sha256": "4afe0942f4966fb1977330360afd84c1e18840e2786ea664485dcae03994352c",
+      "bytes": 1153
+    },
+    {
+      "path": "workflows/32-build-android.yml",
+      "sha256": "51eaa8bbd6deb17c575a4f44adb6f29df9ea32115bc2dfae83235ff88e77eec1",
+      "bytes": 911
+    },
+    {
+      "path": "workflows/33-build-ios.yml",
+      "sha256": "90bfa32865f75cabf5c250c64bb84a2580e94f29eb0a191c0733256335c07b90",
+      "bytes": 818
+    },
+    {
+      "path": "workflows/34-build-tenant-apps.yml",
+      "sha256": "d85f86cb1d10868bca9fb4ab37ce2aae5853ead18482db53a8ac69f2cf587c5e",
+      "bytes": 1523
+    },
+    {
+      "path": "workflows/40-security.yml",
+      "sha256": "89ddd8289b6198d1e4e40f307ef28630b9f1538393c964a69f629e4f56b655ac",
+      "bytes": 975
+    },
+    {
+      "path": "workflows/50-release.yml",
+      "sha256": "a3122cf3ecdacad3fd2d807a91c543f636feda01d54dcd311415f60ba1e7367a",
+      "bytes": 1199
+    },
+    {
+      "path": "workflows/60-deploy-saas.yml",
+      "sha256": "8100271755be943090946e92f678ff6a0dc03e283b7b5d09cfef6d9d898d7eab",
+      "bytes": 1694
+    },
+    {
+      "path": "workflows/61-self-hosted-bundle.yml",
+      "sha256": "34ae2e783b9e1344f70fca75dcad0c6f3400a3892c9f4bb93cdcc551a51d6621",
+      "bytes": 545
+    },
+    {
+      "path": "workflows/70-backup-restore-test.yml",
+      "sha256": "5c8fd700fcd1525b75f897471a4fdc75e2154c7135cc8b43e6750e7c20f13d10",
+      "bytes": 612
+    },
+    {
+      "path": "workflows/80-dependency-maintenance.yml",
+      "sha256": "8847a4bb7579877d6a7db109cd5ad96d46a3060cec316434ea27b296ff6163e7",
+      "bytes": 698
+    }
+  ]
+}

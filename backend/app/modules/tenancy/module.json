@@ -1,0 +1,8 @@
+{
+  "module": "tenancy",
+  "architecture": "modular-monolith",
+  "tenant_scoped": false,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": []
+}

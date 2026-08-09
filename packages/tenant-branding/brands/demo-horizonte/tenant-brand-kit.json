@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "tenant_code": "demo-horizonte",
+  "legal_name": "Colégio Horizonte Demonstrativo Ltda.",
+  "trade_name": "Colégio Horizonte",
+  "short_name": "Horizonte",
+  "app_display_name": "Horizonte Escola",
+  "publisher_name": "Colégio Horizonte",
+  "support_name": "Atendimento Horizonte",
+  "support_email": "suporte@example.invalid",
+  "support_phone": "+55 00 00000-0000",
+  "website": "https://example.invalid",
+  "privacy_policy_url": "https://example.invalid/privacidade",
+  "terms_url": "https://example.invalid/termos",
+  "primary_domain": "demo.pige360.local",
+  "secondary_domains": [],
+  "primary_color": "#174C4F",
+  "secondary_color": "#2B7A78",
+  "accent_color": "#F4A261",
+  "semantic_colors": {
+    "success": "#2E7D32",
+    "warning": "#ED6C02",
+    "error": "#D32F2F",
+    "info": "#0288D1"
+  },
+  "typography_family": "Inter",
+  "typography_fallbacks": [
+    "Arial",
+    "Helvetica",
+    "sans-serif"
+  ],
+  "border_radius_scale": {
+    "sm": "6px",
+    "md": "10px",
+    "lg": "16px"
+  },
+  "icon_style": "rounded-line",
+  "illustration_style": "institutional",
+  "photography_style": "documentary-educational",
+  "light_theme": true,
+  "dark_theme": true,
+  "co_branding_policy": "disabled",
+  "demo_only": true
+}

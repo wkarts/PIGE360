@@ -1,0 +1,16 @@
+[package]
+name = "pige360-sync-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Políticas de outbox/inbox, revisão e conflitos explícitos."
+
+[lints]
+workspace = true
+
+[dependencies]
+pige360-offline-database = { path = "../offline-database" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

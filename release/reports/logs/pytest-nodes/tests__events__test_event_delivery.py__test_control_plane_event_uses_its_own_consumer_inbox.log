@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/events/test_event_delivery.py::test_control_plane_event_uses_its_own_consumer_inbox
+
+.PIGE360_NODE_RESULT=PASS

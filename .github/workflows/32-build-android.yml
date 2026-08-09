@@ -1,0 +1,32 @@
+name: 32 · Android APK/AAB
+'on':
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      sign: {type: boolean, required: false, default: false}
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    env:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '21'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - uses: dtolnay/rust-toolchain@stable
+      - run: bash scripts/mobile/build-android.sh
+      - name: Assinar quando solicitado
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.sign == true }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          bash scripts/mobile/sign-android.sh
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with: {name: android-apk-aab, path: release/artifacts/android/**, if-no-files-found: error}

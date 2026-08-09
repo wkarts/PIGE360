@@ -1,0 +1,9 @@
+{
+  "name": "PDV e Cantina",
+  "short_name": "PDV e Cantin",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F2F4F7",
+  "theme_color": "#174C4F",
+  "icons": []
+}

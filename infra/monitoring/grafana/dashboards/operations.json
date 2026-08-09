@@ -1,0 +1,39 @@
+{
+  "title": "PIGE360 — Operações",
+  "uid": "pige360-operations",
+  "schemaVersion": 40,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API disponível",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"pige360-api\"}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latência p95",
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_seconds_bucket[5m])) by (le))"
+        }
+      ]
+    }
+  ]
+}

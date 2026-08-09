@@ -1,0 +1,34 @@
+{
+  "module": "students",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "students",
+      "path": "students",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "suspended",
+          "transferred",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ],
+        "transferred": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Student",
+      "roles": [
+        "tenant_owner",
+        "secretary",
+        "academic_coordinator"
+      ]
+    }
+  ]
+}

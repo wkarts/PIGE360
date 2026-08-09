@@ -1,0 +1,37 @@
+{
+  "module": "employees",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "employees",
+      "path": "employees",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "cancelled"
+        ],
+        "active": [
+          "suspended",
+          "terminated"
+        ],
+        "suspended": [
+          "active",
+          "terminated"
+        ],
+        "terminated": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Employee",
+      "roles": [
+        "tenant_owner",
+        "hr_manager",
+        "personnel_operator"
+      ]
+    }
+  ]
+}

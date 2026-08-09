@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/reporting/test_reporting.py::test_reporting_catalog_generates_xlsx_pdf_with_integrity_and_tenant_isolation
+
+.PIGE360_NODE_RESULT=PASS

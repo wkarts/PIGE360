@@ -1,0 +1,32 @@
+{
+  "module": "workflows",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "automation_rules",
+      "path": "workflows/rules",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "archived"
+        ],
+        "active": [
+          "paused",
+          "archived"
+        ],
+        "paused": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "AutomationRule",
+      "roles": [
+        "tenant_owner"
+      ]
+    }
+  ]
+}

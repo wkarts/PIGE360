@@ -1,0 +1,38 @@
+{
+  "module": "travel",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "trips",
+      "path": "travel/trips",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "awaiting_authorizations",
+          "cancelled"
+        ],
+        "awaiting_authorizations": [
+          "confirmed",
+          "cancelled"
+        ],
+        "confirmed": [
+          "in_progress",
+          "cancelled"
+        ],
+        "in_progress": [
+          "completed"
+        ],
+        "completed": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Trip",
+      "roles": [
+        "event_manager"
+      ]
+    }
+  ]
+}

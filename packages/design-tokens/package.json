@@ -1,0 +1,9 @@
+{
+  "name": "@pige360/design-tokens",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./tokens.json": "./src/tokens.json"
+  }
+}

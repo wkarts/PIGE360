@@ -1,0 +1,4 @@
+$ /opt/pyvenv/bin/python /mnt/data/pige360-work/scripts/ci/pytest_process.py -q --disable-warnings tests/contract tests/e2e
+
+..............                                                           [100%]
+14 passed in 10.35s

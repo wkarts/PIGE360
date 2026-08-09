@@ -1,0 +1,19 @@
+name: 70 · Backup e restore
+'on':
+  pull_request:
+    paths: ['scripts/backup/**','scripts/restore/**','infra/backup/**','infra/restore/**','backend/app/shared/database/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  isolated-restore:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: python -m pip install -r backend/requirements.lock
+      - run: python scripts/backup/test_backup_restore.py

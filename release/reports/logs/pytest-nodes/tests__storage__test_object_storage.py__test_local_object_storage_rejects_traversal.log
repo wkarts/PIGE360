@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/storage/test_object_storage.py::test_local_object_storage_rejects_traversal
+
+.PIGE360_NODE_RESULT=PASS

@@ -1,0 +1,16 @@
+[package]
+name = "pige360-printing"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Spool de impressão local persistente e idempotente."
+
+[lints]
+workspace = true
+
+[dependencies]
+pige360-offline-database = { path = "../offline-database" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

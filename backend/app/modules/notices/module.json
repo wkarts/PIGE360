@@ -1,0 +1,41 @@
+{
+  "module": "notices",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "notices",
+      "path": "notices",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "under_review",
+          "published",
+          "cancelled"
+        ],
+        "under_review": [
+          "published",
+          "changes_requested"
+        ],
+        "changes_requested": [
+          "under_review"
+        ],
+        "published": [
+          "expired",
+          "cancelled"
+        ],
+        "expired": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Notice",
+      "roles": [
+        "tenant_owner",
+        "institution_director",
+        "teacher"
+      ]
+    }
+  ]
+}

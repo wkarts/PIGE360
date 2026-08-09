@@ -1,0 +1,8 @@
+enabled: false
+api_base_url: ''
+api_key_secret_ref: secrets/evolution/api-key
+webhook_replay_protection: true
+deduplication: true
+mock_allowed_environments:
+- testing
+- homologation

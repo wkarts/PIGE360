@@ -1,0 +1,1 @@
+npm run build:web executado; falhou porque node_modules não existe e vue-tsc/Vite não estão disponíveis no cache local. Rede foi proibida pelo contrato V8. Fontes TypeScript estritas aprovadas.

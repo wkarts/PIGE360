@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/platform/test_control_plane.py::test_tenant_identity_cannot_enter_control_plane
+
+.PIGE360_NODE_RESULT=PASS

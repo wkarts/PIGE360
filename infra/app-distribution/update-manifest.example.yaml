@@ -1,0 +1,12 @@
+schema_version: 1
+tenant_id: 019-demo
+app: family
+channel: stable
+version: 1.0.0
+platform: android
+architecture: universal
+artifact: not-built-in-current-toolchain
+sha256: ''
+signature: ''
+mandatory: false
+revoked: false

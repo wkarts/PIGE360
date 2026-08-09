@@ -1,0 +1,40 @@
+{
+  "module": "integrations",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "integration_connections",
+      "path": "integrations/connections",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "testing",
+          "archived"
+        ],
+        "testing": [
+          "active",
+          "failed"
+        ],
+        "failed": [
+          "testing",
+          "archived"
+        ],
+        "active": [
+          "suspended",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "IntegrationConnection",
+      "roles": [
+        "tenant_owner"
+      ]
+    }
+  ]
+}

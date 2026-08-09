@@ -1,0 +1,35 @@
+{
+  "module": "events",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "events",
+      "path": "events",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "published",
+          "cancelled"
+        ],
+        "published": [
+          "in_progress",
+          "cancelled"
+        ],
+        "in_progress": [
+          "completed",
+          "cancelled"
+        ],
+        "completed": [
+          "archived"
+        ]
+      },
+      "event_prefix": "Event",
+      "roles": [
+        "event_manager"
+      ]
+    }
+  ]
+}

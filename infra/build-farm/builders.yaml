@@ -1,0 +1,29 @@
+remote_publish_enabled: false
+workers:
+  linux:
+    targets:
+    - x86_64-unknown-linux-gnu
+    - aarch64-unknown-linux-gnu
+  windows:
+    targets:
+    - x86_64-pc-windows-msvc
+    - i686-pc-windows-msvc
+    requires: Windows runner
+  macos:
+    targets:
+    - x86_64-apple-darwin
+    - aarch64-apple-darwin
+    requires: macOS runner
+  android:
+    targets:
+    - apk
+    - aab
+    requires: Android SDK/NDK
+  ios:
+    targets:
+    - app
+    - xcarchive
+    - ipa-unsigned
+    requires: macOS + Xcode
+secret_logging: false
+ephemeral_workspace: true

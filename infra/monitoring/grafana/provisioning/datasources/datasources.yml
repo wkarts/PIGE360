@@ -1,0 +1,11 @@
+apiVersion: 1
+datasources:
+- name: Prometheus
+  type: prometheus
+  url: http://pige360-prometheus:9090
+  access: proxy
+  isDefault: true
+- name: Loki
+  type: loki
+  url: http://pige360-loki:3100
+  access: proxy

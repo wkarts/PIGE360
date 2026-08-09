@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/analytics/test_analytics.py::test_analytics_uses_physical_tenant_data_and_isolates_tenants
+
+.PIGE360_NODE_RESULT=PASS

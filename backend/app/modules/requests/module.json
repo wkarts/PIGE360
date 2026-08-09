@@ -1,0 +1,48 @@
+{
+  "module": "requests",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "service_requests",
+      "path": "requests",
+      "initial_state": "open",
+      "transitions": {
+        "open": [
+          "assigned",
+          "cancelled"
+        ],
+        "assigned": [
+          "in_progress",
+          "waiting_customer",
+          "resolved"
+        ],
+        "in_progress": [
+          "waiting_customer",
+          "resolved"
+        ],
+        "waiting_customer": [
+          "in_progress",
+          "cancelled"
+        ],
+        "resolved": [
+          "closed",
+          "reopened"
+        ],
+        "reopened": [
+          "assigned"
+        ]
+      },
+      "event_prefix": "ServiceRequest",
+      "roles": [
+        "tenant_owner",
+        "request_agent",
+        "student",
+        "guardian",
+        "employee"
+      ]
+    }
+  ]
+}

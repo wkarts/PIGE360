@@ -1,0 +1,44 @@
+{
+  "module": "sales",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "sales",
+      "path": "sales",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "confirmed",
+          "cancelled"
+        ],
+        "confirmed": [
+          "paid",
+          "cancelled"
+        ],
+        "paid": [
+          "fulfilled",
+          "refunded"
+        ],
+        "fulfilled": [
+          "closed",
+          "returned"
+        ],
+        "returned": [
+          "refunded"
+        ],
+        "refunded": [
+          "closed"
+        ]
+      },
+      "event_prefix": "Sale",
+      "roles": [
+        "sales_manager",
+        "pos_operator",
+        "finance_manager"
+      ]
+    }
+  ]
+}

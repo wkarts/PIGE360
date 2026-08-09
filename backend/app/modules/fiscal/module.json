@@ -1,0 +1,70 @@
+{
+  "module": "fiscal",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "fiscal_documents",
+      "path": "fiscal/documents",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "requested",
+          "cancelled"
+        ],
+        "requested": [
+          "authorized",
+          "rejected"
+        ],
+        "rejected": [
+          "requested",
+          "cancelled"
+        ],
+        "authorized": [
+          "cancelled",
+          "substituted"
+        ],
+        "cancelled": [
+          "archived"
+        ],
+        "substituted": [
+          "archived"
+        ]
+      },
+      "event_prefix": "FiscalDocument",
+      "roles": [
+        "fiscal_manager"
+      ]
+    },
+    {
+      "name": "tax_rules",
+      "path": "fiscal/tax-rules",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "under_review",
+          "archived"
+        ],
+        "under_review": [
+          "published",
+          "changes_requested"
+        ],
+        "changes_requested": [
+          "under_review"
+        ],
+        "published": [
+          "superseded"
+        ],
+        "superseded": [
+          "archived"
+        ]
+      },
+      "event_prefix": "TaxRule",
+      "roles": [
+        "fiscal_manager"
+      ]
+    }
+  ]
+}

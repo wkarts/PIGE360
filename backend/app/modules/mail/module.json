@@ -1,0 +1,41 @@
+{
+  "module": "mail",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "mailboxes",
+      "path": "mail/mailboxes",
+      "initial_state": "requested",
+      "transitions": {
+        "requested": [
+          "provisioning",
+          "cancelled"
+        ],
+        "provisioning": [
+          "active",
+          "failed"
+        ],
+        "failed": [
+          "provisioning",
+          "cancelled"
+        ],
+        "active": [
+          "suspended",
+          "deleted"
+        ],
+        "suspended": [
+          "active",
+          "deleted"
+        ]
+      },
+      "event_prefix": "Mailbox",
+      "roles": [
+        "mail_admin",
+        "hr_manager"
+      ]
+    }
+  ]
+}

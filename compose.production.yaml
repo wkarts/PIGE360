@@ -1,0 +1,29 @@
+services:
+  pige360-api:
+    environment:
+      APP_ENV: production
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          memory: 512M
+  pige360-web:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+  pige360-postgres-control:
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+  pige360-postgres-tenants:
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G

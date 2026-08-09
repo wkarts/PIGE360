@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/admissions/test_admissions_funnel.py::test_admissions_public_lead_ranking_reservation_and_conversion
+
+.PIGE360_NODE_RESULT=PASS

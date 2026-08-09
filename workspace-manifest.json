@@ -1,0 +1,26 @@
+{
+  "product": "PIGE360",
+  "full_name": "PIGE360 — Plataforma Integrada de Gestão Educacional",
+  "version": "1.0.0",
+  "build_mode": "local-only",
+  "remote_operations": {
+    "ci": false,
+    "registry": false,
+    "release": false,
+    "deploy": false
+  },
+  "inputs": [
+    {
+      "path": "PROMPT_CONTRATO_V8.md",
+      "sha256": "33d177211b3cfd4b80a19a61f351d5bd02950003bf2cda1d448a369e6686bc27"
+    },
+    {
+      "path": "packages/tenant-branding/brands/platform-pige360",
+      "source_archive_sha256": "9cc110eddc20c82b7176580f0aff09f16471cb0650d4ba32a2fe059f3d76f2ef"
+    }
+  ],
+  "missing_requested_inputs": [
+    "CI_CD_KIT_LOCAL",
+    "templates adicionais do workspace"
+  ]
+}

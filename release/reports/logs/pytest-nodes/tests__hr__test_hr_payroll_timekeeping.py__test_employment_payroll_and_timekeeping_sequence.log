@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/hr/test_hr_payroll_timekeeping.py::test_employment_payroll_and_timekeeping_sequence
+
+.PIGE360_NODE_RESULT=PASS

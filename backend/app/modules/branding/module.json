@@ -1,0 +1,8 @@
+{
+  "module": "branding",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": []
+}

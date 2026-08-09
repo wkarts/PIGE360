@@ -1,0 +1,42 @@
+{
+  "family": {
+    "display_name": "PIGE360 Family",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "teacher": {
+    "display_name": "PIGE360 Teacher",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "student": {
+    "display_name": "PIGE360 Student",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "admin": {
+    "display_name": "PIGE360 Admin",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "pos-canteen": {
+    "display_name": "PIGE360 Pos Canteen",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "transport": {
+    "display_name": "PIGE360 Transport",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "timeclock": {
+    "display_name": "PIGE360 Timeclock",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  },
+  "desktop-admin": {
+    "display_name": "PIGE360 Desktop Admin",
+    "brand": "PIGE360",
+    "descriptor": "PLATAFORMA INTEGRADA DE GESTÃO EDUCACIONAL"
+  }
+}

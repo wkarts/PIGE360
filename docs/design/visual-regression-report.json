@@ -1,0 +1,9 @@
+{
+  "status": "baseline_established",
+  "comparison": "Nenhum baseline anterior foi fornecido; esta revisão estabelece a baseline inicial local.",
+  "expected_screens": 40,
+  "generated_screens": 40,
+  "generated_screenshots": 132,
+  "pixel_differences": null,
+  "tenant_brand_leakage": "validated_by_scripts/visual/validate_visual_contract.py"
+}

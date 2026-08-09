@@ -1,0 +1,9 @@
+{
+  "name": "Console Global",
+  "short_name": "Console Glob",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F2F4F7",
+  "theme_color": "#006D77",
+  "icons": []
+}

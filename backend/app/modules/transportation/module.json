@@ -1,0 +1,33 @@
+{
+  "module": "transportation",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "transport_routes",
+      "path": "transportation/routes",
+      "initial_state": "draft",
+      "transitions": {
+        "draft": [
+          "active",
+          "archived"
+        ],
+        "active": [
+          "suspended",
+          "archived"
+        ],
+        "suspended": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "TransportRoute",
+      "roles": [
+        "tenant_owner",
+        "institution_director"
+      ]
+    }
+  ]
+}

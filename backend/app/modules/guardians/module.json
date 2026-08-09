@@ -1,0 +1,29 @@
+{
+  "module": "guardians",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "guardians",
+      "path": "guardians",
+      "initial_state": "active",
+      "transitions": {
+        "active": [
+          "inactive",
+          "archived"
+        ],
+        "inactive": [
+          "active",
+          "archived"
+        ]
+      },
+      "event_prefix": "Guardian",
+      "roles": [
+        "tenant_owner",
+        "secretary"
+      ]
+    }
+  ]
+}

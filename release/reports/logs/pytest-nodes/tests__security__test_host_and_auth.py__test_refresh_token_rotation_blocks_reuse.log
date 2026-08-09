@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/security/test_host_and_auth.py::test_refresh_token_rotation_blocks_reuse
+
+.PIGE360_NODE_RESULT=PASS

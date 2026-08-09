@@ -1,0 +1,16 @@
+[package]
+name = "pige360-device-identity"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Identidade estável do dispositivo por instalação."
+
+[lints]
+workspace = true
+
+[dependencies]
+pige360-secure-storage = { path = "../secure-storage" }
+serde.workspace = true
+thiserror.workspace = true
+uuid.workspace = true

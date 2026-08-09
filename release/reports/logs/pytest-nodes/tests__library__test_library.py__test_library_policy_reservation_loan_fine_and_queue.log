@@ -1,0 +1,3 @@
+$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/library/test_library.py::test_library_policy_reservation_loan_fine_and_queue
+
+.PIGE360_NODE_RESULT=PASS

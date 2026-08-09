@@ -1,0 +1,39 @@
+{
+  "module": "health",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "health_incidents",
+      "path": "health/incidents",
+      "initial_state": "open",
+      "transitions": {
+        "open": [
+          "attended",
+          "referred",
+          "closed"
+        ],
+        "attended": [
+          "referred",
+          "closed"
+        ],
+        "referred": [
+          "closed"
+        ],
+        "closed": [
+          "reopened"
+        ],
+        "reopened": [
+          "closed"
+        ]
+      },
+      "event_prefix": "HealthIncident",
+      "roles": [
+        "tenant_owner",
+        "institution_director"
+      ]
+    }
+  ]
+}

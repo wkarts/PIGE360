@@ -1,0 +1,40 @@
+{
+  "module": "timekeeping",
+  "architecture": "modular-monolith",
+  "tenant_scoped": true,
+  "audit_required": true,
+  "outbox_required": true,
+  "resources": [
+    {
+      "name": "timekeeping_records",
+      "path": "timekeeping/records",
+      "initial_state": "open",
+      "transitions": {
+        "open": [
+          "submitted"
+        ],
+        "submitted": [
+          "approved",
+          "rejected"
+        ],
+        "rejected": [
+          "open"
+        ],
+        "approved": [
+          "closed"
+        ],
+        "closed": [
+          "reopened"
+        ],
+        "reopened": [
+          "closed"
+        ]
+      },
+      "event_prefix": "TimekeepingRecord",
+      "roles": [
+        "timekeeping_operator",
+        "hr_manager"
+      ]
+    }
+  ]
+}
