@@ -22,7 +22,10 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
       - id: matrix
+        shell: bash
         run: python scripts/validation/tenant_app_manifest.py "$TENANT_MANIFEST" --github-output
   build:
     needs: validate-manifest
@@ -32,7 +35,22 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - run: bash scripts/mobile/build-tenant-app.sh "$TENANT_MANIFEST" "${{ matrix.app }}" "${{ matrix.platform }}"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with: {distribution: temurin, java-version: '21'}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform != 'pwa'
+      - name: Dependências Linux Tauri
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - name: Build white-label
+        shell: bash
+        run: bash scripts/mobile/build-tenant-app.sh "$TENANT_MANIFEST" "${{ matrix.app }}" "${{ matrix.platform }}"
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with: {name: 'tenant-${{ matrix.app }}-${{ matrix.platform }}', path: release/artifacts/tenant-apps/**, if-no-files-found: error}
