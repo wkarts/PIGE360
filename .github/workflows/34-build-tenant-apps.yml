@@ -1,5 +1,6 @@
 name: 34 · Apps white-label por tenant
 'on':
+  pull_request:
   workflow_dispatch:
     inputs:
       manifest:
@@ -12,6 +13,8 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  TENANT_MANIFEST: ${{ inputs.manifest || 'deploy/local/tenant-app-manifest.demo.yaml' }}
 jobs:
   validate-manifest:
     runs-on: ubuntu-24.04
@@ -20,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: matrix
-        run: python scripts/validation/tenant_app_manifest.py "${{ inputs.manifest }}" --github-output
+        run: python scripts/validation/tenant_app_manifest.py "$TENANT_MANIFEST" --github-output
   build:
     needs: validate-manifest
     strategy:
@@ -29,13 +32,14 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - run: bash scripts/mobile/build-tenant-app.sh "${{ inputs.manifest }}" "${{ matrix.app }}" "${{ matrix.platform }}"
+      - run: bash scripts/mobile/build-tenant-app.sh "$TENANT_MANIFEST" "${{ matrix.app }}" "${{ matrix.platform }}"
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with: {name: 'tenant-${{ matrix.app }}-${{ matrix.platform }}', path: release/artifacts/tenant-apps/**, if-no-files-found: error}
-  store-publication-disabled:
-    if: ${{ inputs.publish_stores == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+  publish-stores-disabled:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_stores == true && vars.INTEGRATION_REMOTE_ENABLED == 'true' }}
     needs: build
     runs-on: ubuntu-24.04
     environment: app-stores
     steps:
-      - run: echo 'Publicação em lojas permanece condicionada a segredos e aprovação.'
+      - run: echo 'Publicação em lojas permanece condicionada a credenciais e opt-in explícito.'
