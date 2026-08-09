@@ -1,5 +1,8 @@
-name: 50 · Release
+name: 50 · Release completa
 'on':
+  pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       enable_remote_release: {type: boolean, required: false, default: false}
@@ -7,29 +10,219 @@ permissions:
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   package:
     runs-on: ubuntu-24.04
+    permissions: {contents: write}
+    outputs:
+      release_enabled: ${{ steps.release_gate.outputs.enabled }}
+      tag: ${{ steps.release_gate.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+      - run: python -m pip install -r backend/requirements.lock.txt
+      - id: release_gate
+        name: Definir publicação da versão
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ENABLE_REMOTE_RELEASE: ${{ inputs.enable_remote_release || false }}
+        shell: bash
+        run: |
+          version="$(tr -d '[:space:]' < VERSION)"
+          tag="v${version}"
+          enabled=false
+          if [ "$GITHUB_EVENT_NAME" = "push" ] || [ "$ENABLE_REMOTE_RELEASE" = "true" ]; then
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              draft="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
+              [ "$draft" = "true" ] && enabled=true || enabled=false
+            else
+              enabled=true
+            fi
+          fi
+          echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Gerar evidências reproduzíveis da release
+        run: |
+          python scripts/backup/test_backup_restore.py
+          python scripts/oci/build_structural_oci.py
+          python scripts/release/generate_evidence_pdf.py
       - run: bash scripts/release/package-local.sh
-      - uses: actions/upload-artifact@v4
-        with: {name: pige360-release-local, path: release/output/**, if-no-files-found: error}
-  remote-release:
-    if: ${{ inputs.enable_remote_release == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+      - name: Validar pacote local
+        run: |
+          test -s release/output/PIGE360-1.0.0-source.zip
+          test -s release/output/PIGE360-1.0.0-self-hosted.zip
+          test -s release/output/PIGE360-1.0.0-release-bundle.zip
+          test -s release/output/PIGE360-1.0.0-workflows-ci-cd.zip
+          test -s release/output/SHA256SUMS
+          python - <<'PY'
+          import hashlib, pathlib
+          root=pathlib.Path('release/output')
+          for line in (root/'SHA256SUMS').read_text().splitlines():
+              digest,name=line.split('  ',1)
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest, name
+          print('checksums-ok')
+          PY
+      - name: Criar/atualizar release draft e publicar pacotes base
+        if: steps.release_gate.outputs.enabled == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release_gate.outputs.tag }}
+        shell: bash
+        run: |
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title "PIGE360 1.0.0" --notes-file CHANGELOG.md
+          fi
+          bash scripts/release/upload-release-assets.sh "$TAG" release/output
+
+  web-release:
     needs: package
+    if: needs.package.outputs.release_enabled == 'true'
     runs-on: ubuntu-24.04
-    environment: remote-release
     permissions: {contents: write}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with: {name: pige360-release-local, path: release/output}
-      - env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ github.token }}
-          REMOTE_RELEASE_ENABLED: 'true'
-        run: bash scripts/release/publish-github-release.sh release/output
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - run: npm ci --workspaces --include-workspace-root --no-audit --no-fund
+      - run: npm run validate:ts && npm run build:web
+      - run: |
+          mkdir -p release/output
+          tar -czf release/output/PIGE360-1.0.0-web-pwa.tar.gz apps/*/dist
+          sha256sum release/output/PIGE360-1.0.0-web-pwa.tar.gz > release/output/PIGE360-1.0.0-web-pwa.sha256
+      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/output/PIGE360-1.0.0-web-pwa.tar.gz release/output/PIGE360-1.0.0-web-pwa.sha256
+
+  desktop-release:
+    needs: package
+    if: needs.package.outputs.release_enabled == 'true'
+    permissions: {contents: write}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: windows-2025, target: x86_64-pc-windows-msvc}
+          - {os: windows-2025, target: i686-pc-windows-msvc}
+          - {os: ubuntu-24.04, target: x86_64-unknown-linux-gnu}
+          - {os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu}
+          - {os: macos-15, target: x86_64-apple-darwin}
+          - {os: macos-15, target: aarch64-apple-darwin}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - uses: dtolnay/rust-toolchain@stable
+        with: {targets: '${{ matrix.target }}'}
+      - if: runner.os == 'Linux'
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+      - name: Build instaladores desktop
+        shell: bash
+        run: bash scripts/desktop/build-all.sh "${{ matrix.target }}"
+      - name: Checksums dos instaladores
+        shell: bash
+        run: |
+          cd release/artifacts/desktop
+          for f in *; do [ -f "$f" ] && sha256sum "$f" > "$f.sha256"; done
+      - name: Publicar instaladores desktop com retry idempotente
+        env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/desktop
+
+  android-release:
+    needs: package
+    if: needs.package.outputs.release_enabled == 'true'
+    permissions: {contents: write}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        app:
+          - family-app
+          - teacher-app
+          - student-app
+          - admin-app
+          - pos-app
+          - kiosk-app
+          - timeclock-app
+    runs-on: ubuntu-24.04
+    env:
+      PIGE360_MOBILE_APPS: ${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with: {distribution: temurin, java-version: '21'}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build APK/AAB
+        run: bash scripts/mobile/build-android.sh
+      - name: Checksums Android
+        shell: bash
+        run: |
+          cd release/artifacts/android
+          for f in *.apk *.aab; do [ -f "$f" ] && sha256sum "$f" > "$f.sha256"; done
+      - name: Publicar APK/AAB com retry idempotente
+        env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/android
+
+  ios-release:
+    needs: package
+    if: needs.package.outputs.release_enabled == 'true'
+    runs-on: macos-15
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
+      - uses: dtolnay/rust-toolchain@stable
+      - run: bash scripts/mobile/build-ios.sh
+      - run: |
+          cd release/artifacts/ios
+          for f in *.ipa; do [ -f "$f" ] && shasum -a 256 "$f" > "$f.sha256"; done
+      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/artifacts/ios
+
+  oci-release:
+    needs: package
+    if: needs.package.outputs.release_enabled == 'true'
+    runs-on: ubuntu-24.04
+    permissions: {contents: write}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build e empacotar imagens OCI executáveis
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release/output
+          images=()
+          for image in python node rust-tauri runtime; do
+            tag="pige360-base-${image}:1.0.0"
+            docker build -f "infra/docker/base/Dockerfile.${image}" -t "$tag" .
+            images+=("$tag")
+          done
+          for target in api web worker migrations reporting; do
+            tag="pige360-${target}:1.0.0"
+            docker build -f "infra/docker/Dockerfile.${target}" -t "$tag" .
+            images+=("$tag")
+          done
+          docker save "${images[@]}" | gzip -9 > release/output/PIGE360-1.0.0-runtime-images.tar.gz
+          docker image inspect "${images[@]}" > release/output/PIGE360-1.0.0-runtime-images-inspect.json
+          sha256sum release/output/PIGE360-1.0.0-runtime-images.tar.gz release/output/PIGE360-1.0.0-runtime-images-inspect.json > release/output/PIGE360-1.0.0-runtime-images.sha256
+      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        shell: bash
+        run: bash scripts/release/upload-release-assets.sh "$TAG" release/output/PIGE360-1.0.0-runtime-images.tar.gz release/output/PIGE360-1.0.0-runtime-images-inspect.json release/output/PIGE360-1.0.0-runtime-images.sha256
+
+  finalize-release:
+    needs: [package, web-release, desktop-release, android-release, ios-release, oci-release]
+    if: needs.package.outputs.release_enabled == 'true' && !cancelled() && !failure()
+    runs-on: ubuntu-24.04
+    permissions: {contents: write}
+    steps:
+      - env: {GH_TOKEN: '${{ github.token }}', TAG: '${{ needs.package.outputs.tag }}'}
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
