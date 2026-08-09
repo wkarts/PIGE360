@@ -37,21 +37,17 @@ case "$platform" in
     test -n "$(find "$out" -type f -name '*.ipa' -print -quit)"
     ;;
   windows|linux|macos)
-    command -v cargo >/dev/null 2>&1 || { echo 'cargo não disponível.' >&2; exit 3; }
-    command -v npm >/dev/null 2>&1 || { echo 'npm não disponível.' >&2; exit 3; }
-    bash scripts/frontend/install-dependencies.sh
     case "$platform" in
       windows) target="${TAURI_TARGET:-x86_64-pc-windows-msvc}" ;;
       linux) target="${TAURI_TARGET:-x86_64-unknown-linux-gnu}" ;;
       macos) target="${TAURI_TARGET:-aarch64-apple-darwin}" ;;
     esac
-    rustup target add "$target"
-    (cd "$app_dir" && npx --no-install tauri build --target "$target")
+    PIGE360_DESKTOP_APPS="$app_name" bash scripts/desktop/build-all.sh "$target"
     while IFS= read -r file; do
       [ -n "$file" ] || continue
       cp "$file" "$out/$(basename "$file")"
     done <<EOF
-$(find "$app_dir/src-tauri/target/$target/release/bundle" -type f 2>/dev/null | sort)
+$(find release/artifacts/desktop -maxdepth 1 -type f -name "${app_name}-${target}-*" 2>/dev/null | sort)
 EOF
     test -n "$(find "$out" -type f -print -quit)"
     ;;

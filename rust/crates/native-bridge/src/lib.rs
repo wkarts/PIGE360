@@ -39,21 +39,25 @@ fn database(app: &AppHandle, tenant_id: &str, user_id: &str) -> Result<OfflineDa
 
 /// Armazena a sessão autenticada no credential vault do SO e registra o usuário ativo.
 #[tauri::command]
-pub fn secure_session_put(tenant_id: String, user_id: String, value: String) -> Result<(), String> {
+fn secure_session_put(tenant_id: String, user_id: String, value: String) -> Result<(), String> {
     put(&scope(&tenant_id, &user_id, "session")?, &value).map_err(|e| e.to_string())?;
     put(&scope(&tenant_id, "_app", "active-user")?, &user_id).map_err(|e| e.to_string())
 }
 
 /// Recupera a sessão ativa do tenant sem exigir que o WebView persista o `user_id`.
 #[tauri::command]
-pub fn secure_session_get(tenant_id: String) -> Result<Option<String>, String> {
-    let Some(user_id) = get(&scope(&tenant_id, "_app", "active-user")?).map_err(|e| e.to_string())? else { return Ok(None); };
+fn secure_session_get(tenant_id: String) -> Result<Option<String>, String> {
+    let Some(user_id) =
+        get(&scope(&tenant_id, "_app", "active-user")?).map_err(|e| e.to_string())?
+    else {
+        return Ok(None);
+    };
     get(&scope(&tenant_id, &user_id, "session")?).map_err(|e| e.to_string())
 }
 
 /// Remove a sessão ativa e o ponteiro do usuário no cofre nativo.
 #[tauri::command]
-pub fn secure_session_delete(tenant_id: String) -> Result<(), String> {
+fn secure_session_delete(tenant_id: String) -> Result<(), String> {
     let pointer = scope(&tenant_id, "_app", "active-user")?;
     if let Some(user_id) = get(&pointer).map_err(|e| e.to_string())? {
         delete(&scope(&tenant_id, &user_id, "session")?).map_err(|e| e.to_string())?;
@@ -63,65 +67,170 @@ pub fn secure_session_delete(tenant_id: String) -> Result<(), String> {
 
 /// Inicializa SQLCipher e devolve a identidade do dispositivo.
 #[tauri::command]
-pub fn offline_initialize(app: AppHandle, tenant_id: String, user_id: String) -> Result<NativeOfflineContext, String> {
+fn offline_initialize(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+) -> Result<NativeOfflineContext, String> {
     let db = database(&app, &tenant_id, &user_id)?;
     let identity = get_or_create_device(&tenant_id, &user_id).map_err(|e| e.to_string())?;
-    Ok(NativeOfflineContext { device_id: identity.device_id, database_path: db.path().display().to_string() })
+    Ok(NativeOfflineContext {
+        device_id: identity.device_id,
+        database_path: db.path().display().to_string(),
+    })
 }
 
 /// Enfileira alteração offline usando a mesma chave idempotente que será enviada à API.
 #[tauri::command]
-pub fn offline_outbox_enqueue(app: AppHandle, tenant_id: String, user_id: String, idempotency_key: String, aggregate_type: String, aggregate_id: String, base_revision: i64, payload: Value) -> Result<(), String> {
-    database(&app,&tenant_id,&user_id)?.outbox_enqueue(&idempotency_key,&aggregate_type,&aggregate_id,base_revision,&payload).map_err(|e| e.to_string())
+fn offline_outbox_enqueue(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    idempotency_key: String,
+    aggregate_type: String,
+    aggregate_id: String,
+    base_revision: i64,
+    payload: Value,
+) -> Result<(), String> {
+    database(&app, &tenant_id, &user_id)?
+        .outbox_enqueue(
+            &idempotency_key,
+            &aggregate_type,
+            &aggregate_id,
+            base_revision,
+            &payload,
+        )
+        .map_err(|e| e.to_string())
 }
 
 /// Lista o próximo lote da outbox.
 #[tauri::command]
-pub fn offline_outbox_pending(app: AppHandle, tenant_id: String, user_id: String, limit: usize) -> Result<Value, String> {
-    let items = pending(&database(&app,&tenant_id,&user_id)?, limit).map_err(|e| e.to_string())?;
+fn offline_outbox_pending(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    limit: usize,
+) -> Result<Value, String> {
+    let items =
+        pending(&database(&app, &tenant_id, &user_id)?, limit).map_err(|e| e.to_string())?;
     serde_json::to_value(items).map_err(|e| e.to_string())
 }
 
 /// Aplica resultado de sincronização e preserva conflito explicitamente.
 #[tauri::command]
-pub fn offline_outbox_apply_result(app: AppHandle, tenant_id: String, user_id: String, idempotency_key: String, result: PushResult) -> Result<String, String> {
-    let db=database(&app,&tenant_id,&user_id)?;
-    let operation=db.outbox_pending(500).map_err(|e|e.to_string())?.into_iter().find(|x|x.idempotency_key==idempotency_key).ok_or_else(||"operação offline não localizada".to_string())?;
-    let action=apply_result(&db,&operation,result).map_err(|e|e.to_string())?;
-    serde_json::to_string(&action).map_err(|e|e.to_string())
+fn offline_outbox_apply_result(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    idempotency_key: String,
+    result: PushResult,
+) -> Result<String, String> {
+    let db = database(&app, &tenant_id, &user_id)?;
+    let operation = db
+        .outbox_pending(500)
+        .map_err(|e| e.to_string())?
+        .into_iter()
+        .find(|x| x.idempotency_key == idempotency_key)
+        .ok_or_else(|| "operação offline não localizada".to_string())?;
+    let action = apply_result(&db, &operation, result).map_err(|e| e.to_string())?;
+    serde_json::to_string(&action).map_err(|e| e.to_string())
 }
 
 /// Lê item do cache autorizado.
 #[tauri::command]
-pub fn offline_cache_get(app: AppHandle, tenant_id: String, user_id: String, cache_key: String) -> Result<Option<Value>, String> {
-    database(&app,&tenant_id,&user_id)?.cache_get(&cache_key).map_err(|e|e.to_string())
+fn offline_cache_get(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    cache_key: String,
+) -> Result<Option<Value>, String> {
+    database(&app, &tenant_id, &user_id)?
+        .cache_get(&cache_key)
+        .map_err(|e| e.to_string())
 }
 
 /// Grava item do cache autorizado.
 #[tauri::command]
-pub fn offline_cache_put(app: AppHandle, tenant_id: String, user_id: String, cache_key: String, payload: Value, server_revision: i64, expires_at: Option<String>) -> Result<(), String> {
-    database(&app,&tenant_id,&user_id)?.cache_put(&cache_key,&payload,server_revision,expires_at.as_deref()).map_err(|e|e.to_string())
+fn offline_cache_put(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    cache_key: String,
+    payload: Value,
+    server_revision: i64,
+    expires_at: Option<String>,
+) -> Result<(), String> {
+    database(&app, &tenant_id, &user_id)?
+        .cache_put(
+            &cache_key,
+            &payload,
+            server_revision,
+            expires_at.as_deref(),
+        )
+        .map_err(|e| e.to_string())
 }
 
 /// Valida um snapshot fiscal assinado antes de usá-lo em operação offline.
 #[tauri::command]
-pub fn fiscal_snapshot_verify(snapshot: FiscalSnapshot, expected_tenant: String, public_key_base64: String) -> Result<bool, String> {
-    verify_snapshot(&snapshot,&expected_tenant,&public_key_base64).map(|_|true).map_err(|e|e.to_string())
+fn fiscal_snapshot_verify(
+    snapshot: FiscalSnapshot,
+    expected_tenant: String,
+    public_key_base64: String,
+) -> Result<bool, String> {
+    verify_snapshot(&snapshot, &expected_tenant, &public_key_base64)
+        .map(|_| true)
+        .map_err(|e| e.to_string())
 }
 
 /// Persiste um trabalho de impressão na outbox local.
 #[tauri::command]
-pub fn print_enqueue(app: AppHandle, tenant_id: String, user_id: String, idempotency_key: String, document_type: String, payload: Value) -> Result<(), String> {
-    enqueue_print(&database(&app,&tenant_id,&user_id)?,&PrintJob{idempotency_key,document_type,payload}).map_err(|e|e.to_string())
+fn print_enqueue(
+    app: AppHandle,
+    tenant_id: String,
+    user_id: String,
+    idempotency_key: String,
+    document_type: String,
+    payload: Value,
+) -> Result<(), String> {
+    enqueue_print(
+        &database(&app, &tenant_id, &user_id)?,
+        &PrintJob {
+            idempotency_key,
+            document_type,
+            payload,
+        },
+    )
+    .map_err(|e| e.to_string())
 }
 
 /// Elimina banco e segredos locais no logout quando a política do app exigir wipe.
 #[tauri::command]
-pub fn native_wipe_user(app: AppHandle, tenant_id: String, user_id: String) -> Result<(), String> {
-    let db=database(&app,&tenant_id,&user_id)?;
-    db.purge().map_err(|e|e.to_string())?;
-    for name in ["session","offline-db-key","device-id"] {
-        delete(&scope(&tenant_id,&user_id,name)?).map_err(|e|e.to_string())?;
+fn native_wipe_user(app: AppHandle, tenant_id: String, user_id: String) -> Result<(), String> {
+    let db = database(&app, &tenant_id, &user_id)?;
+    db.purge().map_err(|e| e.to_string())?;
+    for name in ["session", "offline-db-key", "device-id"] {
+        delete(&scope(&tenant_id, &user_id, name)?).map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+
+/// Registra, dentro desta crate, os comandos Tauri compartilhados.
+///
+/// Os comandos permanecem privados porque `#[tauri::command]` em `lib.rs` não pode
+/// ser combinado com `pub` sem duplicar os símbolos auxiliares gerados pela macro.
+pub fn configure<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
+    builder.invoke_handler(tauri::generate_handler![
+        secure_session_put,
+        secure_session_get,
+        secure_session_delete,
+        offline_initialize,
+        offline_outbox_enqueue,
+        offline_outbox_pending,
+        offline_outbox_apply_result,
+        offline_cache_get,
+        offline_cache_put,
+        fiscal_snapshot_verify,
+        print_enqueue,
+        native_wipe_user,
+    ])
 }
