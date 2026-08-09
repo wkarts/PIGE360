@@ -15,9 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+      - run: python -m pip install -r backend/requirements.lock.txt
+      - name: Gerar evidências reproduzíveis da release
+        run: |
+          python scripts/backup/test_backup_restore.py
+          python scripts/oci/build_structural_oci.py
+          python scripts/release/generate_evidence_pdf.py
       - run: bash scripts/release/package-local.sh
-      - run: test -n "$(find release/output -maxdepth 1 -type f -print -quit)"
+      - run: |
+          test -s release/output/PIGE360-1.0.0-source.zip
+          test -s release/output/PIGE360-1.0.0-self-hosted.zip
+          test -s release/output/PIGE360-1.0.0-release-bundle.zip
+          test -s release/output/PIGE360-1.0.0-workflows-ci-cd.zip
+          test -s release/output/SHA256SUMS
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with: {name: pige360-release-local, path: release/output/**, if-no-files-found: error}
