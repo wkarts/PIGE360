@@ -17,12 +17,13 @@ jobs:
   build-local:
     runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         image: [python,node,rust-tauri,runtime]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - run: docker buildx build --load --provenance=true --sbom=true -f infra/docker/base/Dockerfile.${{ matrix.image }} -t pige360-base-${{ matrix.image }}:1.0.0 .
+      - run: docker buildx build --load --provenance=false --sbom=false -f infra/docker/base/Dockerfile.${{ matrix.image }} -t pige360-base-${{ matrix.image }}:1.0.0 .
       - run: docker image inspect pige360-base-${{ matrix.image }}:1.0.0 > release/base-${{ matrix.image }}-inspect.json
   remote-publish-disabled:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_remote_registry == true && vars.REMOTE_REGISTRY_ENABLED == 'true' }}
