@@ -1,5 +1,6 @@
 name: 50 · Release
 'on':
+  pull_request:
   workflow_dispatch:
     inputs:
       enable_remote_release: {type: boolean, required: false, default: false}
@@ -16,10 +17,12 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
       - run: bash scripts/release/package-local.sh
+      - run: test -n "$(find release/output -maxdepth 1 -type f -print -quit)"
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with: {name: pige360-release-local, path: release/output/**, if-no-files-found: error}
   remote-release:
-    if: ${{ inputs.enable_remote_release == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.enable_remote_release == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
     needs: package
     runs-on: ubuntu-24.04
     environment: remote-release
