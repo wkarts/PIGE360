@@ -1,5 +1,6 @@
 name: 61 · Bundle self-hosted
 'on':
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,5 +15,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
       - run: bash scripts/release/build-self-hosted.sh
+      - run: test -n "$(find release/output -maxdepth 1 -type f -name '*self-hosted.zip' -print -quit)"
       - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
         with: {name: pige360-self-hosted, path: release/output/*self-hosted.zip, if-no-files-found: error}
