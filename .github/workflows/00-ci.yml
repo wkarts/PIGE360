@@ -5,7 +5,7 @@ name: 00 · CI local reproduzível
     branches: [main]
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,25 +15,9 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
       - uses: actions/setup-python@v5
         with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
-      - name: Gerar e versionar package-lock raiz quando ausente
-        if: github.event_name == 'pull_request' && hashFiles('package-lock.json') == '' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          npm install --package-lock-only --workspaces --include-workspace-root --ignore-scripts --no-audit --no-fund
-          test -s package-lock.json
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package-lock.json
-          git commit -m 'chore(deps): versionar package-lock raiz reproduzível'
-          git push origin "HEAD:$HEAD_REF"
-          echo 'package-lock.json versionado; a nova execução da PR validará npm ci.'
-          exit 0
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
       - run: python -m pip install -r backend/requirements.lock.txt
       - run: bash scripts/ci/run-all.sh --ci
