@@ -36,10 +36,17 @@ export AR="$ndk_bin/llvm-ar"
 export RANLIB="$ndk_bin/llvm-ranlib"
 export PATH="$alias_dir:$ndk_bin:$PATH"
 
+# Reutiliza os artefatos Rust entre aplicativos e ABIs no mesmo runner.
+# O build anterior criava um target isolado por app e recompilava Tauri,
+# OpenSSL, SQLite e dependências compartilhadas repetidamente.
+export CARGO_TARGET_DIR="${PIGE360_ANDROID_CARGO_TARGET_DIR:-$ROOT/.pige360-build/android-target}"
+mkdir -p "$CARGO_TARGET_DIR"
+
 echo "Android SDK: $ANDROID_HOME"
 echo "Android NDK: $NDK_HOME"
 echo "Android LLVM: $ndk_bin"
 echo "Android ranlib: $(command -v aarch64-linux-android-ranlib)"
+echo "Cargo target compartilhado: $CARGO_TARGET_DIR"
 
 bash scripts/frontend/install-dependencies.sh
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android

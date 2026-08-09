@@ -14,7 +14,7 @@
     },
     {
       "path": "scripts/release/publish-github-release.sh",
-      "sha256": "a72fef2a67f40b9b6722353eb76b2db2c837c6bb629a85fb7714518cd077c95f",
+      "sha256": "a72fef2a67f40b9b6722353eb76b2c837c6bb629a85fb7714518cd077c95f",
       "bytes": 1082
     },
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "51eaa8bbd6deb17c575a4f44adb6f29df9ea32115bc2dfae83235ff88e77eec1",
-      "bytes": 911
+      "sha256": "c91fcb14b6e5a0d4f26bba8546e80188eef7ef65e6f81c5a8294de7144a4f1aa",
+      "bytes": 1202
     },
     {
       "path": "workflows/33-build-ios.yml",
