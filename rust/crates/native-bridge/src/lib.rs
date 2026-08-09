@@ -214,11 +214,9 @@ fn native_wipe_user(app: AppHandle, tenant_id: String, user_id: String) -> Resul
     Ok(())
 }
 
-/// Registra, dentro desta crate, os comandos Tauri compartilhados.
-///
-/// Os comandos permanecem privados porque `#[tauri::command]` em `lib.rs` não pode
-/// ser combinado com `pub` sem duplicar os símbolos auxiliares gerados pela macro.
-pub fn configure<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
+/// Registra, dentro desta crate, os comandos Tauri compartilhados usando o
+/// runtime Wry, que é o runtime das aplicações desktop e mobile do PIGE360.
+pub fn configure(builder: tauri::Builder<tauri::Wry>) -> tauri::Builder<tauri::Wry> {
     builder.invoke_handler(tauri::generate_handler![
         secure_session_put,
         secure_session_get,
