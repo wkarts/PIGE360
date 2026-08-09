@@ -24,16 +24,15 @@ jobs:
       - name: Gerar e versionar package-lock raiz quando ausente
         if: github.event_name == 'pull_request' && hashFiles('package-lock.json') == '' && github.event.pull_request.head.repo.full_name == github.repository
         env:
-          GH_TOKEN: ${{ github.token }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
           npm install --package-lock-only --workspaces --include-workspace-root --ignore-scripts --no-audit --no-fund
           test -s package-lock.json
-          CONTENT="$(base64 -w0 package-lock.json)"
-          gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/package-lock.json" \
-            -f message='chore(deps): versionar package-lock raiz reproduzível' \
-            -f content="$CONTENT" \
-            -f branch="$HEAD_REF"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          git commit -m 'chore(deps): versionar package-lock raiz reproduzível'
+          git push origin "HEAD:$HEAD_REF"
           echo 'package-lock.json versionado; a nova execução da PR validará npm ci.'
           exit 0
       - run: python -m pip install -r backend/requirements.lock.txt
