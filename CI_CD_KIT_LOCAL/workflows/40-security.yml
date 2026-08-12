@@ -15,6 +15,7 @@ jobs:
         with: {fetch-depth: 1}
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
+      - run: python -m pip install -r backend/requirements.lock
       - run: python scripts/validation/secret_scan.py
       - run: python scripts/supply-chain/generate_sbom.py --check
       - run: python scripts/validation/validate_project.py --security-only
