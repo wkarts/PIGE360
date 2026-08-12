@@ -49,7 +49,7 @@ function message(error: unknown): string {
   return candidate.problem?.detail || (error instanceof Error ? error.message : "Erro inesperado");
 }
 function idempotency(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
-async function request<T = Row>(path: string, init: RequestInit = {}): Promise<T> { return props.api.request<T>(path, init); }
+async function request<T = Row>(path: string, init: RequestInit = {}): Promise<T> { return props.api.request(path, init) as Promise<T>; }
 async function post<T = Row>(path: string, body: unknown, key?: string): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (key) headers["Idempotency-Key"] = key;

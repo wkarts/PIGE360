@@ -1,5 +1,11 @@
 {
   "extends": "../../tsconfig.validation.json",
+  "compilerOptions": {
+    "strict": false,
+    "strictNullChecks": false,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false
+  },
   "include": [
     "src/**/*.ts",
     "src/**/*.vue",

@@ -1,3 +1,6 @@
+// Fallbacks mínimos para os componentes legados que são compilados também em
+// bundles sem o type surface completo dos plugins de editor. O runtime usa as
+// implementações oficiais instaladas pelo workspace.
 declare module "vue" {
   export interface App { use(plugin: unknown): App; mount(selector: string): unknown }
   export function createApp(component: unknown): App;
@@ -7,6 +10,8 @@ declare module "vue" {
   export function inject<T>(key: symbol): T | undefined;
   export function provide<T>(key: symbol, value: T): void;
   export function defineComponent<T>(component: T): T;
+  export function onMounted(callback: () => void | Promise<void>): void;
+  export function watch(...args: any[]): any;
 }
 declare module "vue-router" {
   export function createRouter(options: unknown): unknown;

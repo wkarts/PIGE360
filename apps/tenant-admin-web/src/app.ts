@@ -114,7 +114,9 @@ class ApiClient {
       headers.set("Content-Type", "application/json");
       body = JSON.stringify(options.body);
     }
-    const response = await fetch(url, { method, headers, body, credentials: "same-origin" });
+    const requestInit: RequestInit = { method, headers, credentials: "same-origin" };
+    if (body !== undefined) requestInit.body = body;
+    const response = await fetch(url, requestInit);
     if (response.status === 401 && options.retryAuthentication !== false && this.refreshToken && !path.endsWith("/auth/refresh")) {
       const refreshed = await this.rotateRefreshToken();
       if (refreshed) return this.request<T>(path, { ...options, retryAuthentication: false });
@@ -340,7 +342,11 @@ const statusLabels: Record<string, string> = {
   monthly_30: "Mensal (30 dias)"
 };
 
-const col = (key: string, label?: string, format?: ColumnConfig["format"]): ColumnConfig => ({ key, label: label ?? fieldLabels[key] ?? key, format });
+const col = (key: string, label?: string, format?: ColumnConfig["format"]): ColumnConfig => {
+  const column: ColumnConfig = { key, label: label ?? fieldLabels[key] ?? key };
+  if (format !== undefined) column.format = format;
+  return column;
+};
 
 const resources: ResourceConfig[] = [
   { id: "people", group: "Cadastros", icon: "◎", title: "Pessoas", description: "Cadastro único de pessoas e contatos institucionais.", listPath: "/api/v1/people", createPath: "/api/v1/people", detailPath: (row) => `/api/v1/people/${row.id}`, columns: [col("full_name"), col("cpf"), col("email"), col("phone"), col("status")], searchParam: "search", statusParam: "status" },
@@ -842,7 +848,20 @@ createApp({
           const multiline = ["description", "reason", "notes", "responsibilities", "requirements"].includes(name);
           const help = kind === "object" ? "Informe um objeto JSON válido." : kind === "array" && property.items?.type === "object" ? "Informe uma lista JSON válida." : kind === "array" ? "Separe os valores por linha ou vírgula." : undefined;
           const placeholder = kind === "object" ? "{}" : kind === "array" && property.items?.type === "object" ? "[]" : undefined;
-          return { name, label: fieldLabel(name), kind, inputType, required: required.has(name), enumValues: property.enum, step: kind === "number" ? (type === "integer" ? "1" : "0.01") : undefined, placeholder, help, multiline, schema: property };
+          const field: DynamicField = {
+            name,
+            label: fieldLabel(name),
+            kind,
+            inputType,
+            required: required.has(name),
+            multiline,
+            schema: property,
+          };
+          if (property.enum !== undefined) field.enumValues = property.enum;
+          if (kind === "number") field.step = type === "integer" ? "1" : "0.01";
+          if (placeholder !== undefined) field.placeholder = placeholder;
+          if (help !== undefined) field.help = help;
+          return field;
         });
     }
 

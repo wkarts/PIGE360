@@ -3,6 +3,7 @@ import { computed,onMounted,reactive,ref } from "vue";
 import { Pige360SessionClient,type ApiProblem } from "@pige360/auth";
 
 type Row=Record<string,any>;
+type CartLine=Row & { quantity:number; line:number };
 type Mode="pos"|"canteen";
 const api=new Pige360SessionClient();
 const ready=ref(false),auth=ref(false),busy=ref(false),error=ref(""),notice=ref("");
@@ -16,7 +17,7 @@ const cart=reactive<Record<string,number>>({});
 
 const school=computed(()=>brand.value.short_name||brand.value.trade_name||brand.value.legal_name||"Instituição");
 const visibleProducts=computed(()=>products.value.filter(p=>!query.value||`${p.name} ${p.sku} ${p.barcode||""}`.toLowerCase().includes(query.value.toLowerCase())));
-const cartLines=computed(()=>products.value.filter(p=>(cart[p.id]||0)>0).map(p=>({...p,quantity:cart[p.id],line:Number(p.sale_price)*(cart[p.id]||0)})));
+const cartLines=computed<CartLine[]>(()=>products.value.filter(p=>(cart[p.id]||0)>0).map(p=>({...p,quantity:cart[p.id]||0,line:Number(p.sale_price)*(cart[p.id]||0)})));
 const grossTotal=computed(()=>cartLines.value.reduce((a,b)=>a+b.line,0));
 const dueTotal=computed(()=>mode.value==="canteen"&&quote.value?Number(quote.value.customer_due||0):grossTotal.value);
 const selectedStudentRow=computed(()=>students.value.find(x=>x.id===selectedStudent.value));

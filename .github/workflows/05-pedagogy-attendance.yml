@@ -16,4 +16,4 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.13'}
       - run: python -m pip install -r backend/requirements.lock
-      - run: cd backend && PYTHONPATH=. pytest -q tests/test_planning.py tests/test_attendance.py
+      - run: cd backend && PYTHONPATH=. pytest -q tests/pedagogy/test_lesson_planning.py tests/attendance/test_attendance.py

@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 
 type Row = Record<string, any>;
+type TaxLine = { tax: string; incidence: string; base: unknown; rate_pct: unknown; amount: unknown };
 type ScopeForm = { operation_type: string; item_kind: string; recipient_scope: string; document_type: string };
 type ApiSessionClient = { request<T = unknown>(path: string, init?: RequestInit): Promise<T>; response(path: string, init?: RequestInit): Promise<Response> };
 
@@ -29,6 +30,7 @@ const catalogImportFile = ref<File | null>(null);
 const classificationRules = ref<Row[]>([]);
 const taxRuleSets = ref<Row[]>([]);
 const taxCalculation = ref<Row | null>(null);
+const taxLines = computed<TaxLine[]>(() => Object.values((taxCalculation.value?.taxes ?? {}) as Record<string, TaxLine>));
 const legalSources = ref<Row[]>([]);
 const strategyRules = ref<Row[]>([]);
 const ibptStatus = ref<Row | null>(null);
@@ -125,7 +127,7 @@ function message(error: unknown): string {
 }
 function idempotency(prefix: string): string { return `${prefix}-${crypto.randomUUID()}`; }
 function nullable(value: string): string | null { return value.trim() ? value.trim() : null; }
-async function request<T = Row>(path: string, init: RequestInit = {}): Promise<T> { return props.api.request<T>(path, init); }
+async function request<T = Row>(path: string, init: RequestInit = {}): Promise<T> { return props.api.request(path, init) as Promise<T>; }
 async function post<T = Row>(path: string, body: unknown, key?: string): Promise<T> {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (key) headers["Idempotency-Key"] = key;
@@ -834,7 +836,7 @@ onMounted(load);
           <div class="cols"><label>Outros<input v-model="taxSimulationForm.other_amount" type="number" step="0.01" min="0" /></label><label>Desconto<input v-model="taxSimulationForm.discount" type="number" step="0.01" min="0" /></label></div>
           <button class="primary">Simular cálculo</button>
         </form>
-        <div class="panel"><div class="panel-title"><h2>Resultado do motor</h2><strong v-if="taxCalculation">{{ taxCalculation.tax_total }}</strong></div><template v-if="taxCalculation"><div class="details"><span><b>Regra:</b> {{ taxCalculation.rule_set?.code }}</span><span><b>Versão:</b> {{ taxCalculation.rule_set?.version?.version_label }}</span><span><b>Regime:</b> {{ taxCalculation.context?.tax_regime }}</span><span><b>RTC:</b> {{ taxCalculation.context?.rtc_mode }}</span></div><table><thead><tr><th>Tributo</th><th>Incidência</th><th>Base</th><th>Alíquota</th><th>Valor</th></tr></thead><tbody><tr v-for="row in Object.values(taxCalculation.taxes ?? {})" :key="row.tax"><td>{{ row.tax }}</td><td>{{ row.incidence }}</td><td>{{ row.base }}</td><td>{{ row.rate_pct }}%</td><td>{{ row.amount }}</td></tr></tbody></table><p><b>Snapshot:</b> <code>{{ taxCalculation.snapshot_sha256 }}</code></p><p v-if="taxCalculation.divergences?.length" class="warn-text">{{ taxCalculation.divergences.length }} divergência(s) encontrada(s).</p></template><div v-else class="empty">Configure uma regra e execute uma simulação. Nenhuma alíquota é assumida globalmente.</div></div>
+        <div class="panel"><div class="panel-title"><h2>Resultado do motor</h2><strong v-if="taxCalculation">{{ taxCalculation.tax_total }}</strong></div><template v-if="taxCalculation"><div class="details"><span><b>Regra:</b> {{ taxCalculation.rule_set?.code }}</span><span><b>Versão:</b> {{ taxCalculation.rule_set?.version?.version_label }}</span><span><b>Regime:</b> {{ taxCalculation.context?.tax_regime }}</span><span><b>RTC:</b> {{ taxCalculation.context?.rtc_mode }}</span></div><table><thead><tr><th>Tributo</th><th>Incidência</th><th>Base</th><th>Alíquota</th><th>Valor</th></tr></thead><tbody><tr v-for="row in taxLines" :key="row.tax"><td>{{ row.tax }}</td><td>{{ row.incidence }}</td><td>{{ row.base }}</td><td>{{ row.rate_pct }}%</td><td>{{ row.amount }}</td></tr></tbody></table><p><b>Snapshot:</b> <code>{{ taxCalculation.snapshot_sha256 }}</code></p><p v-if="taxCalculation.divergences?.length" class="warn-text">{{ taxCalculation.divergences.length }} divergência(s) encontrada(s).</p></template><div v-else class="empty">Configure uma regra e execute uma simulação. Nenhuma alíquota é assumida globalmente.</div></div>
       </section>
       <section class="panel"><div class="panel-title"><h2>Conjuntos tributários</h2><span>{{ taxRuleSets.length }}</span></div><table><thead><tr><th>Código</th><th>Escopo</th><th>Regime</th><th>RTC</th><th>Versão ativa</th></tr></thead><tbody><tr v-for="row in taxRuleSets" :key="row.id"><td>{{ row.code }}</td><td>{{ row.operation_type }} · {{ row.item_kind }} · {{ row.establishment_code ?? 'geral' }}</td><td>{{ row.tax_regime }}</td><td>{{ row.rtc_mode }}</td><td>{{ row.active_version?.version_label ?? '—' }}</td></tr><tr v-if="!taxRuleSets.length"><td colspan="5" class="empty">Nenhum conjunto tributário configurado.</td></tr></tbody></table></section>
     </template>
