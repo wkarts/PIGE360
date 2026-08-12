@@ -1,0 +1,14 @@
+BEGIN;
+
+-- Running downgrade 0034_fiscal_tax_calculation_engine -> 0033_fiscal_catalogs_classifications
+
+DROP TABLE IF EXISTS "fiscal_tax_calculations" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_tax_rule_versions" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_tax_rule_sets" CASCADE;
+
+UPDATE alembic_version SET version_num='0033_fiscal_catalogs_classifications' WHERE alembic_version.version_num = '0034_fiscal_tax_calculation_engine';
+
+COMMIT;
+

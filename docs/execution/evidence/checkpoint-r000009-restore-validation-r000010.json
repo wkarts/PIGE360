@@ -1,0 +1,18 @@
+{
+  "validated_at": "2026-08-10T14:55:02Z",
+  "checkpoint": "release/checkpoints/PIGE360-workspace-checkpoint-1.0.0-r000009-20260810T120037Z.zip",
+  "checkpoint_sha256": "3ba507dbe58f12413e0342d22ffa8d3e57496661b8e815d1ce02bee9bde93cc7",
+  "expected_sha256": "3ba507dbe58f12413e0342d22ffa8d3e57496661b8e815d1ce02bee9bde93cc7",
+  "sha256_matches": true,
+  "zip_entries": 2515,
+  "duplicate_entries": 0,
+  "testzip": null,
+  "manifest_files": 2514,
+  "manifest_uncompressed_bytes": 74449861,
+  "restored_files_missing_now": 0,
+  "restored_files_modified_now": 20,
+  "note": "Ausências e modificações são avaliadas após o incremento fiscal; arquivos modificados pelo incremento são esperados.",
+  "preserved_overlays": [
+    "/mnt/data/pige360.remounted-overlay-20260810T142123Z"
+  ]
+}

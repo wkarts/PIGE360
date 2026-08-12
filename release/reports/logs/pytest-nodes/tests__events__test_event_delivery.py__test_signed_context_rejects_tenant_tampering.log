@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/events/test_event_delivery.py::test_signed_context_rejects_tenant_tampering
-
-.PIGE360_NODE_RESULT=PASS

@@ -1,0 +1,25 @@
+{
+  "start": 51,
+  "end": 53,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 15.93,
+  "results": [
+    {
+      "index": 51,
+      "file": "backend/tests/migrations/test_services_procurement_assets_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.78s\n\n"
+    },
+    {
+      "index": 52,
+      "file": "backend/tests/pedagogy/test_grading_report_card.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 4.26s\n\n"
+    }
+  ]
+}

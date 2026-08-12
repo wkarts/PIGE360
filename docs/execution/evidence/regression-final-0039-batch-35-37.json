@@ -1,0 +1,25 @@
+{
+  "start": 35,
+  "end": 37,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 7,
+  "failed_files": 0,
+  "duration_seconds": 12.56,
+  "results": [
+    {
+      "index": 35,
+      "file": "backend/tests/frontend/test_tenant_admin_vertical_modules.py",
+      "exit_code": 0,
+      "passed": 5,
+      "output": ".....                                                                    [100%]\n5 passed in 0.05s\n\n"
+    },
+    {
+      "index": 36,
+      "file": "backend/tests/government_education/test_government_education.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 2.87s\n\n"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "start": 55,
+  "end": 57,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 6,
+  "failed_files": 0,
+  "duration_seconds": 19.58,
+  "results": [
+    {
+      "index": 55,
+      "file": "backend/tests/portals/test_portal_scope.py",
+      "exit_code": 0,
+      "passed": 4,
+      "output": "....                                                                     [100%]\n4 passed in 6.40s\n\n"
+    },
+    {
+      "index": 56,
+      "file": "backend/tests/reporting/test_reporting.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 2.77s\n\n"
+    }
+  ]
+}

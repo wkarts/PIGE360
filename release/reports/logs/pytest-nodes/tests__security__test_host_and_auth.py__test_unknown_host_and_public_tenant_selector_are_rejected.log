@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/security/test_host_and_auth.py::test_unknown_host_and_public_tenant_selector_are_rejected
-
-.PIGE360_NODE_RESULT=PASS

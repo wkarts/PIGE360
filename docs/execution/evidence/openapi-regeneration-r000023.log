@@ -1,0 +1,5 @@
+paths 542
+operations 667
+schemas 361
+duplicate_operation_ids 0
+{"schemas": 361, "operations": 667, "output": "packages/api-sdk/src/generated"}

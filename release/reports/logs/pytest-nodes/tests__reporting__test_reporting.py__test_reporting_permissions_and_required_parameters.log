@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/reporting/test_reporting.py::test_reporting_permissions_and_required_parameters
-
-.PIGE360_NODE_RESULT=PASS

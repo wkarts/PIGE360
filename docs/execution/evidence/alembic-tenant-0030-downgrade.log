@@ -1,0 +1,258 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0030_services_procurement_assets_vertical -> 0029_admissions_funnel, Serviços, compras, lotes, reservas e patrimônio em fluxos verticais completos.
+-- Running downgrade 0030_services_procurement_assets_vertical -> 0029_admissions_funnel
+
+DROP TABLE IF EXISTS "asset_depreciations" CASCADE;
+
+DROP TABLE IF EXISTS "asset_loans" CASCADE;
+
+DROP TABLE IF EXISTS "asset_maintenances" CASCADE;
+
+DROP TABLE IF EXISTS "asset_movements" CASCADE;
+
+DROP TABLE IF EXISTS "asset_locations" CASCADE;
+
+DROP TABLE IF EXISTS "inventory_reservations" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_return_items" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_returns" CASCADE;
+
+DROP TABLE IF EXISTS "inventory_lots" CASCADE;
+
+DROP TABLE IF EXISTS "goods_receipt_items" CASCADE;
+
+DROP TABLE IF EXISTS "goods_receipts" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_supplier_items" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_suppliers" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_items" CASCADE;
+
+DROP TABLE IF EXISTS "requests_for_quotation" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_requisition_items" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_requisitions" CASCADE;
+
+DROP TABLE IF EXISTS "supplier_contacts" CASCADE;
+
+DROP TABLE IF EXISTS "product_barcodes" CASCADE;
+
+DROP TABLE IF EXISTS "product_variants" CASCADE;
+
+DROP TABLE IF EXISTS "accounts_receivable" CASCADE;
+
+DROP TABLE IF EXISTS "charge_items" CASCADE;
+
+DROP TABLE IF EXISTS "charges" CASCADE;
+
+DROP TABLE IF EXISTS "service_fiscal_events" CASCADE;
+
+DROP TABLE IF EXISTS "service_competencies" CASCADE;
+
+DROP TABLE IF EXISTS "service_executions" CASCADE;
+
+DROP TABLE IF EXISTS "service_subscriptions" CASCADE;
+
+DROP TABLE IF EXISTS "service_billing_rules" CASCADE;
+
+DROP TABLE IF EXISTS "service_price_tables" CASCADE;
+
+DROP TABLE IF EXISTS "service_fiscal_profiles" CASCADE;
+
+DROP TABLE IF EXISTS "service_variants" CASCADE;
+
+DROP TABLE IF EXISTS "service_catalogs" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "metadata_json" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "taxable" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "cost_center_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "default_duration_minutes" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "unit_of_measure" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "recurrence_type" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "service_type" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "catalog_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cancellation_reason" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cancelled_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "completed_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "started_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "confirmed_by" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "confirmed_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "fiscal_status" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "charge_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "installment_count" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "due_date" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subtotal" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "currency" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cost_center_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "competence_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subscription_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subscriber_person_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "order_number" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "executed_quantity" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "execution_status" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "fiscal_profile_snapshot_json" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "competence_end" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "competence_start" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "description" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "variant_id" CASCADE;
+
+ALTER TABLE "stock_movements" DROP COLUMN IF EXISTS "balance_after" CASCADE;
+
+ALTER TABLE "stock_movements" DROP COLUMN IF EXISTS "lot_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "fiscal_profile_json" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "payment_terms_json" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "rating" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "code" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "closed_at" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "approved_by" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "approved_at" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "freight_amount" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "subtotal" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "currency" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "requisition_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "quotation_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "warehouse_id" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "fiscal_profile_snapshot_json" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "total_amount" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "returned_quantity" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "snapshot_json" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "started_at" CASCADE;
+
+ALTER TABLE "inventory_count_items" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "inventory_count_items" DROP COLUMN IF EXISTS "lot_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "metadata_json" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "warranty_until" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "accumulated_depreciation" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "residual_value" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "useful_life_months" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "serial_number" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "receipt_item_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "product_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "location_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "name" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "tag" CASCADE;
+
+UPDATE alembic_version SET version_num='0029_admissions_funnel' WHERE alembic_version.version_num = '0030_services_procurement_assets_vertical';
+
+COMMIT;
+
+
+alembic_exit=0

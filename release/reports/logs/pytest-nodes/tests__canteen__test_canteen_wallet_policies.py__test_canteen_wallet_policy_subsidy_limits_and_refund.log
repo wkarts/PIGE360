@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/canteen/test_canteen_wallet_policies.py::test_canteen_wallet_policy_subsidy_limits_and_refund
-
-.PIGE360_NODE_RESULT=PASS

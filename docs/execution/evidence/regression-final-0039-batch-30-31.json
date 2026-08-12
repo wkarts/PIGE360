@@ -1,0 +1,18 @@
+{
+  "start": 30,
+  "end": 31,
+  "total_files": 67,
+  "completed_files": 1,
+  "passed": 7,
+  "failed_files": 0,
+  "duration_seconds": 14.71,
+  "results": [
+    {
+      "index": 30,
+      "file": "backend/tests/fiscal/test_fiscal_document_routing_assembly.py",
+      "exit_code": 0,
+      "passed": 7,
+      "output": ".......                                                                  [100%]\n7 passed in 9.56s\n\n"
+    }
+  ]
+}

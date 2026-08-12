@@ -1,0 +1,5 @@
+started_at=2026-08-10T14:43:54Z
+$ python -m compileall -q backend/app backend/tests scripts/execution scripts/frontend scripts/api
+compileall_exit=0
+$ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=backend python -m pytest -q backend/tests
+..........

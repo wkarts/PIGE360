@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/tenancy/test_isolation.py::test_relational_students_and_physical_databases_are_isolated
-
-.PIGE360_NODE_RESULT=PASS

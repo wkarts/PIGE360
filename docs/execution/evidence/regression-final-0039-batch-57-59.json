@@ -1,0 +1,25 @@
+{
+  "start": 57,
+  "end": 59,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 3,
+  "failed_files": 0,
+  "duration_seconds": 15.3,
+  "results": [
+    {
+      "index": 57,
+      "file": "backend/tests/sales/test_inventory_reorder_suggestions.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.23s\n\n"
+    },
+    {
+      "index": 58,
+      "file": "backend/tests/sales/test_procurement_assets_vertical.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.85s\n\n"
+    }
+  ]
+}

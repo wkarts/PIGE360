@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/branding/test_branding.py::test_brand_asset_is_hashed_and_stored_in_tenant_boundary
-
-.PIGE360_NODE_RESULT=PASS

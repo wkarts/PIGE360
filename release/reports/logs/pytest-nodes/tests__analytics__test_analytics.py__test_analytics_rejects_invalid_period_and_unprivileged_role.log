@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/analytics/test_analytics.py::test_analytics_rejects_invalid_period_and_unprivileged_role
-
-.PIGE360_NODE_RESULT=PASS

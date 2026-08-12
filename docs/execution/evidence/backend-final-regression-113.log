@@ -1,0 +1,7 @@
+started_at_utc=2026-08-10T11:37:41Z
+$ PYTHONPATH=backend python -m pytest -q -p no:ddtrace backend/tests
+........................................................................ [ 63%]
+.........................................                                [100%]
+113 passed in 231.25s (0:03:51)
+finished_at_utc=2026-08-10T11:41:37Z
+pytest_exit=0

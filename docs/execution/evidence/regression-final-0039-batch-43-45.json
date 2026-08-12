@@ -1,0 +1,25 @@
+{
+  "start": 43,
+  "end": 45,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 13.32,
+  "results": [
+    {
+      "index": 43,
+      "file": "backend/tests/migrations/test_fiscal_catalogs_classifications_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.81s\n\n"
+    },
+    {
+      "index": 44,
+      "file": "backend/tests/migrations/test_fiscal_context_versioning_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.75s\n\n"
+    }
+  ]
+}

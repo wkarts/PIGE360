@@ -1,0 +1,12 @@
+started_at=2026-08-10T14:47:33Z
+$ python -m compileall -q backend/app backend/tests scripts/execution scripts/frontend scripts/api
+compileall_exit=0
+$ PYTHONPATH=backend python -m pytest -q -p no:ddtrace backend/tests
+........................................................................ [ 60%]
+...............................................                          [100%]
+119 passed in 242.85s (0:04:02)
+real 249.52
+user 166.40
+sys 13.21
+pytest_exit=0
+finished_at=2026-08-10T14:51:43Z

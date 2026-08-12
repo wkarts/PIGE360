@@ -1,0 +1,53 @@
+PIGE360 — estratégias tributárias/RTC + resiliência IBPT
+
+Regressão canônica pós-reconciliação:
+- arquivos: 61
+- testes aprovados: 134
+- arquivos falhos: 0
+- evidência: docs/execution/evidence/backend-regression-post-ibpt-current.json
+
+Validações direcionadas:
+- estratégias/RTC + migrations 0035/0036: 6 passed
+- frequência após correção timezone: 2 passed
+- frontend tenant-admin vertical: 4 passed
+- compileall backend/app + backend/tests: exit 0
+- OpenAPI: 524 paths, 645 operações, 349 schemas, 0 operationId duplicado
+
+Estratégias comprovadas diretamente por teste:
+- withholding
+- presumed_credit
+- DIFAL BA -> SP para consumidor final
+- RTC optional_emit em 2026
+- RTC required_emit em 2027
+- contexto Simples Nacional 2026 sem bloqueio pela ausência de IBS/CBS na simulação testada
+
+Estratégias implementadas pelo motor versionado, mas sem cenário dedicado individual neste checkpoint:
+- return
+- transfer
+- adjustment
+- reversal
+- import
+- export
+- specific_regime
+- RTC disabled
+- RTC simulation_only
+
+IBPT comprovado por regressão:
+- 27 UFs enfileiradas sem acesso remoto no teste
+- sincronização manual por UF
+- parser CSV e normalização
+- versão/vigência
+- SHA-256
+- snapshot original em object storage
+- diff entre snapshots
+- publicação ativa/superseded
+- rollback auditado
+- quarentena de payload inválido
+- alerta de quarentena
+- pacote offline determinístico com SHA-256
+- lookup local para transparência/vTotTrib com tax_calculation_source=false
+
+Limites honestos:
+- fallback externo não foi comprovado neste checkpoint
+- execução em PostgreSQL real permanece indisponível no host
+- build Vite integral permanece bloqueado por ausência local de node_modules/package-lock/vue-tsc

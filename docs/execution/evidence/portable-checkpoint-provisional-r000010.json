@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "result": {
+    "bundle": "/mnt/data/pige360/release/checkpoints/PIGE360-portable-checkpoint-r000010-20260810T145941Z.zip",
+    "bytes": 174166,
+    "checksum": "c305b41d9a983e494ca3a14230250b0443e617473d6b5563f16d13522b854d4f",
+    "checksum_file": "/mnt/data/pige360/release/checkpoints/PIGE360-portable-checkpoint-r000010-20260810T145941Z.zip.sha256",
+    "files": 5
+  }
+}

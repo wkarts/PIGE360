@@ -1,0 +1,869 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0030_services_procurement_assets_vertical -> 0029_admissions_funnel, Serviços, compras, lotes, reservas e patrimônio em fluxos verticais completos.
+-- Running downgrade 0030_services_procurement_assets_vertical -> 0029_admissions_funnel
+
+DROP TABLE IF EXISTS "asset_depreciations" CASCADE;
+
+DROP TABLE IF EXISTS "asset_loans" CASCADE;
+
+DROP TABLE IF EXISTS "asset_maintenances" CASCADE;
+
+DROP TABLE IF EXISTS "asset_movements" CASCADE;
+
+DROP TABLE IF EXISTS "asset_locations" CASCADE;
+
+DROP TABLE IF EXISTS "inventory_reservations" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_return_items" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_returns" CASCADE;
+
+DROP TABLE IF EXISTS "inventory_lots" CASCADE;
+
+DROP TABLE IF EXISTS "goods_receipt_items" CASCADE;
+
+DROP TABLE IF EXISTS "goods_receipts" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_supplier_items" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_suppliers" CASCADE;
+
+DROP TABLE IF EXISTS "quotation_items" CASCADE;
+
+DROP TABLE IF EXISTS "requests_for_quotation" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_requisition_items" CASCADE;
+
+DROP TABLE IF EXISTS "purchase_requisitions" CASCADE;
+
+DROP TABLE IF EXISTS "supplier_contacts" CASCADE;
+
+DROP TABLE IF EXISTS "product_barcodes" CASCADE;
+
+DROP TABLE IF EXISTS "product_variants" CASCADE;
+
+DROP TABLE IF EXISTS "accounts_receivable" CASCADE;
+
+DROP TABLE IF EXISTS "charge_items" CASCADE;
+
+DROP TABLE IF EXISTS "charges" CASCADE;
+
+DROP TABLE IF EXISTS "service_fiscal_events" CASCADE;
+
+DROP TABLE IF EXISTS "service_competencies" CASCADE;
+
+DROP TABLE IF EXISTS "service_executions" CASCADE;
+
+DROP TABLE IF EXISTS "service_subscriptions" CASCADE;
+
+DROP TABLE IF EXISTS "service_billing_rules" CASCADE;
+
+DROP TABLE IF EXISTS "service_price_tables" CASCADE;
+
+DROP TABLE IF EXISTS "service_fiscal_profiles" CASCADE;
+
+DROP TABLE IF EXISTS "service_variants" CASCADE;
+
+DROP TABLE IF EXISTS "service_catalogs" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "metadata_json" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "taxable" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "cost_center_id" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "default_duration_minutes" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "unit_of_measure" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "recurrence_type" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "service_type" CASCADE;
+
+ALTER TABLE "services" DROP COLUMN IF EXISTS "catalog_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cancellation_reason" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cancelled_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "completed_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "started_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "confirmed_by" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "confirmed_at" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "fiscal_status" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "charge_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "installment_count" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "due_date" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subtotal" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "currency" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "cost_center_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "competence_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subscription_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "subscriber_person_id" CASCADE;
+
+ALTER TABLE "service_orders" DROP COLUMN IF EXISTS "order_number" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "executed_quantity" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "execution_status" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "fiscal_profile_snapshot_json" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "competence_end" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "competence_start" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "description" CASCADE;
+
+ALTER TABLE "service_order_items" DROP COLUMN IF EXISTS "variant_id" CASCADE;
+
+ALTER TABLE "stock_movements" DROP COLUMN IF EXISTS "balance_after" CASCADE;
+
+ALTER TABLE "stock_movements" DROP COLUMN IF EXISTS "lot_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "fiscal_profile_json" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "payment_terms_json" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "rating" CASCADE;
+
+ALTER TABLE "suppliers" DROP COLUMN IF EXISTS "code" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "closed_at" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "approved_by" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "approved_at" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "freight_amount" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "subtotal" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "currency" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "requisition_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "quotation_id" CASCADE;
+
+ALTER TABLE "purchase_orders" DROP COLUMN IF EXISTS "warehouse_id" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "fiscal_profile_snapshot_json" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "total_amount" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "discount_amount" CASCADE;
+
+ALTER TABLE "purchase_order_items" DROP COLUMN IF EXISTS "returned_quantity" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "snapshot_json" CASCADE;
+
+ALTER TABLE "inventory_counts" DROP COLUMN IF EXISTS "started_at" CASCADE;
+
+ALTER TABLE "inventory_count_items" DROP COLUMN IF EXISTS "notes" CASCADE;
+
+ALTER TABLE "inventory_count_items" DROP COLUMN IF EXISTS "lot_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "version" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "unit_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "institution_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "metadata_json" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "warranty_until" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "accumulated_depreciation" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "residual_value" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "useful_life_months" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "serial_number" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "receipt_item_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "product_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "location_id" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "name" CASCADE;
+
+ALTER TABLE "assets" DROP COLUMN IF EXISTS "tag" CASCADE;
+
+UPDATE alembic_version SET version_num='0029_admissions_funnel' WHERE alembic_version.version_num = '0030_services_procurement_assets_vertical';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0029_admissions_funnel -> 0028_government_education_operations, Captação/admissões: campanhas, leads, processo seletivo, ranking e reserva de vaga.
+-- Running downgrade 0029_admissions_funnel -> 0028_government_education_operations
+
+DROP TABLE IF EXISTS "admission_vacancy_reservations" CASCADE;
+
+DROP TABLE IF EXISTS "admission_assessment_results" CASCADE;
+
+DROP TABLE IF EXISTS "admission_applications" CASCADE;
+
+DROP TABLE IF EXISTS "admission_assessments" CASCADE;
+
+DROP TABLE IF EXISTS "admission_processes" CASCADE;
+
+DROP TABLE IF EXISTS "admission_leads" CASCADE;
+
+DROP TABLE IF EXISTS "admission_campaigns" CASCADE;
+
+UPDATE alembic_version SET version_num='0028_government_education_operations' WHERE alembic_version.version_num = '0029_admissions_funnel';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0028_government_education_operations -> 0027_compliance_lgpd, Integrações educacionais governamentais: validação, importação e fila de transmissão.
+-- Running downgrade 0028_government_education_operations -> 0027_compliance_lgpd
+
+DROP TABLE IF EXISTS "government_transmission_events" CASCADE;
+
+DROP TABLE IF EXISTS "government_transmissions" CASCADE;
+
+DROP TABLE IF EXISTS "government_imports" CASCADE;
+
+DROP TABLE IF EXISTS "government_validation_issues" CASCADE;
+
+DROP TABLE IF EXISTS "government_validation_runs" CASCADE;
+
+UPDATE alembic_version SET version_num='0027_compliance_lgpd' WHERE alembic_version.version_num = '0028_government_education_operations';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0027_compliance_lgpd -> 0026_education_stage_progress, Compliance/LGPD: avisos, consentimentos, direitos do titular, retenção e legal hold.
+-- Running downgrade 0027_compliance_lgpd -> 0026_education_stage_progress
+
+DROP TABLE IF EXISTS "legal_holds" CASCADE;
+
+DROP TABLE IF EXISTS "retention_policies" CASCADE;
+
+DROP TABLE IF EXISTS "data_subject_request_events" CASCADE;
+
+DROP TABLE IF EXISTS "data_subject_requests" CASCADE;
+
+DROP TABLE IF EXISTS "consent_records" CASCADE;
+
+DROP TABLE IF EXISTS "processing_activities" CASCADE;
+
+DROP TABLE IF EXISTS "privacy_notices" CASCADE;
+
+UPDATE alembic_version SET version_num='0026_education_stage_progress' WHERE alembic_version.version_num = '0027_compliance_lgpd';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0026_education_stage_progress -> 0025_grading_assessments, Educação infantil, pré-requisitos, estágio, atividades complementares e TCC.
+-- Running downgrade 0026_education_stage_progress -> 0025_grading_assessments
+
+DROP TABLE IF EXISTS "thesis_events" CASCADE;
+
+DROP TABLE IF EXISTS "theses" CASCADE;
+
+DROP TABLE IF EXISTS "complementary_activities" CASCADE;
+
+DROP TABLE IF EXISTS "internship_hour_logs" CASCADE;
+
+DROP TABLE IF EXISTS "internships" CASCADE;
+
+DROP TABLE IF EXISTS "student_component_completions" CASCADE;
+
+DROP TABLE IF EXISTS "component_prerequisites" CASCADE;
+
+DROP TABLE IF EXISTS "student_pickup_records" CASCADE;
+
+DROP TABLE IF EXISTS "early_childhood_daily_records" CASCADE;
+
+UPDATE alembic_version SET version_num='0025_grading_assessments' WHERE alembic_version.version_num = '0026_education_stage_progress';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0025_grading_assessments -> 0024_canteen_sale_location, Avaliações, notas, recuperação, resultados e fechamento pedagógico.
+-- Running downgrade 0025_grading_assessments -> 0024_canteen_sale_location
+
+DROP TABLE IF EXISTS "grade_period_closures" CASCADE;
+
+DROP TABLE IF EXISTS "period_results" CASCADE;
+
+DROP TABLE IF EXISTS "assessment_grade_events" CASCADE;
+
+DROP TABLE IF EXISTS "assessment_grades" CASCADE;
+
+DROP TABLE IF EXISTS "assessments" CASCADE;
+
+DROP TABLE IF EXISTS "grading_policies" CASCADE;
+
+UPDATE alembic_version SET version_num='0024_canteen_sale_location' WHERE alembic_version.version_num = '0025_grading_assessments';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0024_canteen_sale_location -> 0023_events_travel_operations, Vincula venda de cantina ao ponto de venda/cardápio físico.
+-- Running downgrade 0024_canteen_sale_location -> 0023_events_travel_operations
+
+DROP INDEX IF EXISTS ix_sales_canteen_location;
+
+ALTER TABLE sales DROP COLUMN IF EXISTS canteen_location_id;
+
+UPDATE alembic_version SET version_num='0023_events_travel_operations' WHERE alembic_version.version_num = '0024_canteen_sale_location';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0023_events_travel_operations -> 0022_canteen_wallet_policies, Eventos/viagens com inscrições, autorizações, passageiros, checkpoints e ocorrências.
+-- Running downgrade 0023_events_travel_operations -> 0022_canteen_wallet_policies
+
+DROP TABLE IF EXISTS "trip_incidents" CASCADE;
+
+DROP TABLE IF EXISTS "trip_checkpoints" CASCADE;
+
+DROP TABLE IF EXISTS "trip_passengers" CASCADE;
+
+DROP TABLE IF EXISTS "event_authorizations" CASCADE;
+
+DROP TABLE IF EXISTS "event_registrations" CASCADE;
+
+DROP TABLE IF EXISTS "event_schedule_items" CASCADE;
+
+ALTER TABLE events DROP COLUMN IF EXISTS authorization_required;
+
+ALTER TABLE events DROP COLUMN IF EXISTS registration_fee;
+
+UPDATE alembic_version SET version_num='0022_canteen_wallet_policies' WHERE alembic_version.version_num = '0023_events_travel_operations';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0022_canteen_wallet_policies -> 0021_secretary_enrollment_lifecycle, Canteen menus, student wallets, restrictions and subsidies.
+-- Running downgrade 0022_canteen_wallet_policies -> 0021_secretary_enrollment_lifecycle
+
+DROP TABLE canteen_subsidies;
+
+DROP TABLE student_food_policies;
+
+DROP TABLE wallet_transactions;
+
+DROP TABLE student_wallets;
+
+DROP TABLE canteen_menu_items;
+
+DROP TABLE canteen_menus;
+
+DROP TABLE canteen_locations;
+
+UPDATE alembic_version SET version_num='0021_secretary_enrollment_lifecycle' WHERE alembic_version.version_num = '0022_canteen_wallet_policies';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0021_secretary_enrollment_lifecycle -> 0020_banking_reconciliation, Secretary admission and enrollment lifecycle history.
+-- Running downgrade 0021_secretary_enrollment_lifecycle -> 0020_banking_reconciliation
+
+DROP INDEX ix_enrollment_movements;
+
+DROP INDEX ix_admission_candidate_events;
+
+DROP TABLE enrollment_movements;
+
+DROP TABLE admission_candidate_events;
+
+UPDATE alembic_version SET version_num='0020_banking_reconciliation' WHERE alembic_version.version_num = '0021_secretary_enrollment_lifecycle';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0020_banking_reconciliation -> 0019_financial_lifecycle, Bank transaction reconciliation metadata.
+-- Running downgrade 0020_banking_reconciliation -> 0019_financial_lifecycle
+
+DROP INDEX ix_bank_transactions_reconciliation;
+
+ALTER TABLE bank_transactions DROP COLUMN reconciliation_reason;
+
+ALTER TABLE bank_transactions DROP COLUMN matched_by;
+
+ALTER TABLE bank_transactions DROP COLUMN matched_at;
+
+UPDATE alembic_version SET version_num='0019_financial_lifecycle' WHERE alembic_version.version_num = '0020_banking_reconciliation';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0019_financial_lifecycle -> 0018_sales_inventory_operations, Refunds, financial renegotiation and bank reconciliation support.
+-- Running downgrade 0019_financial_lifecycle -> 0018_sales_inventory_operations
+
+DROP TABLE IF EXISTS financial_renegotiations CASCADE;
+
+DROP TABLE IF EXISTS payment_refund_allocations CASCADE;
+
+DROP TABLE IF EXISTS payment_refunds CASCADE;
+
+UPDATE alembic_version SET version_num='0018_sales_inventory_operations' WHERE alembic_version.version_num = '0019_financial_lifecycle';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0018_sales_inventory_operations -> 0017_personnel_timekeeping, Operações avançadas de estoque, vendas, PDV, compras e patrimônio.
+-- Running downgrade 0018_sales_inventory_operations -> 0017_personnel_timekeeping
+
+DROP TABLE IF EXISTS asset_events CASCADE;
+
+DROP TABLE IF EXISTS purchase_receipt_items CASCADE;
+
+DROP TABLE IF EXISTS purchase_receipts CASCADE;
+
+DROP TABLE IF EXISTS cash_movements CASCADE;
+
+DROP TABLE IF EXISTS sale_refunds CASCADE;
+
+DROP TABLE IF EXISTS sale_return_items CASCADE;
+
+DROP TABLE IF EXISTS sale_returns CASCADE;
+
+DROP TABLE IF EXISTS inventory_count_items CASCADE;
+
+DROP TABLE IF EXISTS inventory_counts CASCADE;
+
+DROP TABLE IF EXISTS stock_transfer_items CASCADE;
+
+DROP TABLE IF EXISTS stock_transfers CASCADE;
+
+UPDATE alembic_version SET version_num='0017_personnel_timekeeping' WHERE alembic_version.version_num = '0018_sales_inventory_operations';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0017_personnel_timekeeping -> 0016_student_services, Departamento pessoal, férias, benefícios e fechamento/ajustes do ponto.
+-- Running downgrade 0017_personnel_timekeeping -> 0016_student_services
+
+DROP TABLE IF EXISTS timekeeping_period_closures CASCADE;
+
+DROP TABLE IF EXISTS timekeeping_adjustments CASCADE;
+
+DROP TABLE IF EXISTS vacation_periods CASCADE;
+
+DROP TABLE IF EXISTS personnel_leaves CASCADE;
+
+DROP TABLE IF EXISTS employee_benefits CASCADE;
+
+UPDATE alembic_version SET version_num='0016_student_services' WHERE alembic_version.version_num = '0017_personnel_timekeeping';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0016_student_services -> 0015_workflows, Library circulation policies, transportation operations and health care records.
+-- Running downgrade 0016_student_services -> 0015_workflows
+
+DROP TABLE IF EXISTS medication_administrations CASCADE;
+
+DROP TABLE IF EXISTS medication_authorizations CASCADE;
+
+DROP TABLE IF EXISTS health_incidents CASCADE;
+
+DROP TABLE IF EXISTS transport_occurrences CASCADE;
+
+DROP TABLE IF EXISTS transport_trip_events CASCADE;
+
+DROP TABLE IF EXISTS transport_route_schedules CASCADE;
+
+DROP TABLE IF EXISTS library_loan_events CASCADE;
+
+DROP TABLE IF EXISTS library_fines CASCADE;
+
+DROP TABLE IF EXISTS library_reservations CASCADE;
+
+DROP TABLE IF EXISTS library_policies CASCADE;
+
+ALTER TABLE library_loans DROP COLUMN IF EXISTS policy_version;
+
+UPDATE alembic_version SET version_num='0015_workflows' WHERE alembic_version.version_num = '0016_student_services';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0015_workflows -> 0014_engagement, Versioned human workflows, instances, tasks and request integration.
+-- Running downgrade 0015_workflows -> 0014_engagement
+
+DROP TABLE IF EXISTS workflow_events CASCADE;
+
+DROP TABLE IF EXISTS workflow_tasks CASCADE;
+
+DROP TABLE IF EXISTS workflow_instances CASCADE;
+
+DROP TABLE IF EXISTS workflow_definition_versions CASCADE;
+
+DROP TABLE IF EXISTS workflow_definitions CASCADE;
+
+ALTER TABLE service_requests DROP COLUMN IF EXISTS workflow_instance_id;
+
+UPDATE alembic_version SET version_num='0014_engagement' WHERE alembic_version.version_num = '0015_workflows';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0014_engagement -> 0013_communication, Versioned notices and configurable service request forms/history.
+-- Running downgrade 0014_engagement -> 0013_communication
+
+DROP TABLE IF EXISTS service_request_comments CASCADE;
+
+DROP TABLE IF EXISTS service_request_events CASCADE;
+
+DROP TABLE IF EXISTS request_type_versions CASCADE;
+
+DROP TABLE IF EXISTS request_type_definitions CASCADE;
+
+DROP TABLE IF EXISTS notice_receipts CASCADE;
+
+DROP TABLE IF EXISTS notice_versions CASCADE;
+
+ALTER TABLE service_requests DROP COLUMN IF EXISTS form_data_json;
+
+ALTER TABLE service_requests DROP COLUMN IF EXISTS request_type_version;
+
+ALTER TABLE notices DROP COLUMN IF EXISTS version;
+
+UPDATE alembic_version SET version_num='0013_communication' WHERE alembic_version.version_num = '0014_engagement';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0013_communication -> 0012_reporting, Communication templates, preferences and notification delivery history.
+-- Running downgrade 0013_communication -> 0012_reporting
+
+DROP TABLE IF EXISTS notification_events CASCADE;
+
+DROP TABLE IF EXISTS communication_preferences CASCADE;
+
+DROP TABLE IF EXISTS communication_template_versions CASCADE;
+
+DROP TABLE IF EXISTS communication_templates CASCADE;
+
+UPDATE alembic_version SET version_num='0012_reporting' WHERE alembic_version.version_num = '0013_communication';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0012_reporting -> 0011_mail_metadata, Reporting runs and immutable artifacts.
+-- Running downgrade 0012_reporting -> 0011_mail_metadata
+
+DROP TABLE IF EXISTS report_artifacts;
+
+DROP TABLE IF EXISTS report_runs;
+
+UPDATE alembic_version SET version_num='0011_mail_metadata' WHERE alembic_version.version_num = '0012_reporting';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0011_mail_metadata -> 0010_ibpt_catalogs, Mail account, sync metadata, drafts and delegations.
+-- Running downgrade 0011_mail_metadata -> 0010_ibpt_catalogs
+
+DROP TABLE IF EXISTS mail_delegations;
+
+DROP TABLE IF EXISTS mail_sync_runs;
+
+DROP TABLE IF EXISTS mail_drafts;
+
+DROP TABLE IF EXISTS mail_message_metadata;
+
+DROP TABLE IF EXISTS mail_folders;
+
+DROP TABLE IF EXISTS mail_accounts;
+
+UPDATE alembic_version SET version_num='0010_ibpt_catalogs' WHERE alembic_version.version_num = '0011_mail_metadata';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0010_ibpt_catalogs -> 0009_signature_otp_delivery, IBPT WWSoftwares versioned catalogs.
+-- Running downgrade 0010_ibpt_catalogs -> 0009_signature_otp_delivery
+
+DROP TABLE IF EXISTS ibpt_rates;
+
+DROP TABLE IF EXISTS ibpt_snapshots;
+
+DROP TABLE IF EXISTS ibpt_sync_runs;
+
+UPDATE alembic_version SET version_num='0009_signature_otp_delivery' WHERE alembic_version.version_num = '0010_ibpt_catalogs';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0009_signature_otp_delivery -> 0008_fiscal_provider_delivery, Delivery metadata for one-time signature challenges.
+-- Running downgrade 0009_signature_otp_delivery -> 0008_fiscal_provider_delivery
+
+ALTER TABLE signature_otp_challenges DROP COLUMN IF EXISTS delivered_at;
+
+ALTER TABLE signature_otp_challenges DROP COLUMN IF EXISTS delivery_error_code;
+
+ALTER TABLE signature_otp_challenges DROP COLUMN IF EXISTS delivery_message_id;
+
+ALTER TABLE signature_otp_challenges DROP COLUMN IF EXISTS delivery_provider;
+
+ALTER TABLE signature_otp_challenges DROP COLUMN IF EXISTS delivery_state;
+
+UPDATE alembic_version SET version_num='0008_fiscal_provider_delivery' WHERE alembic_version.version_num = '0009_signature_otp_delivery';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0008_fiscal_provider_delivery -> 0007_event_delivery, Fiscal provider delivery state and immutable fiscal events.
+-- Running downgrade 0008_fiscal_provider_delivery -> 0007_event_delivery
+
+DROP TABLE IF EXISTS fiscal_document_events;
+
+ALTER TABLE fiscal_documents DROP COLUMN IF EXISTS last_attempt_at;
+
+ALTER TABLE fiscal_documents DROP COLUMN IF EXISTS attempts;
+
+ALTER TABLE fiscal_documents DROP COLUMN IF EXISTS provider_status;
+
+ALTER TABLE fiscal_documents DROP COLUMN IF EXISTS provider_document_id;
+
+ALTER TABLE fiscal_documents DROP COLUMN IF EXISTS provider_connection_id;
+
+ALTER TABLE fiscal_profiles DROP COLUMN IF EXISTS provider_connection_id;
+
+UPDATE alembic_version SET version_num='0007_event_delivery' WHERE alembic_version.version_num = '0008_fiscal_provider_delivery';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0007_event_delivery -> 0006_pades_signed_document, Outbox delivery metadata and consumer inbox.
+-- Running downgrade 0007_event_delivery -> 0006_pades_signed_document
+
+DROP TABLE IF EXISTS inbox_events;
+
+ALTER TABLE outbox_events DROP COLUMN IF EXISTS next_attempt_at;
+
+ALTER TABLE outbox_events DROP COLUMN IF EXISTS last_error;
+
+UPDATE alembic_version SET version_num='0006_pades_signed_document' WHERE alembic_version.version_num = '0007_event_delivery';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0006_pades_signed_document -> 0005_contract_lifecycle, PAdES embedded signed-document revision fields.
+-- Running downgrade 0006_pades_signed_document -> 0005_contract_lifecycle
+
+ALTER TABLE contract_versions DROP COLUMN IF EXISTS signature_profile;
+
+ALTER TABLE contract_versions DROP COLUMN IF EXISTS signed_document_storage_key;
+
+ALTER TABLE contract_versions DROP COLUMN IF EXISTS signed_document_sha256;
+
+ALTER TABLE legal_contracts DROP COLUMN IF EXISTS signature_profile;
+
+ALTER TABLE legal_contracts DROP COLUMN IF EXISTS signed_document_storage_key;
+
+ALTER TABLE legal_contracts DROP COLUMN IF EXISTS signed_document_sha256;
+
+UPDATE alembic_version SET version_num='0005_contract_lifecycle' WHERE alembic_version.version_num = '0006_pades_signed_document';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0005_contract_lifecycle -> 0004_integration_operation_keys, Ciclo completo de contratos e evidências de assinatura.
+-- Running downgrade 0005_contract_lifecycle -> 0004_integration_operation_keys
+
+DROP TABLE IF EXISTS signature_evidence_packages;
+
+DROP TABLE IF EXISTS signature_artifacts;
+
+DROP TABLE IF EXISTS signature_validations;
+
+DROP TABLE IF EXISTS signature_attempts;
+
+DROP TABLE IF EXISTS signature_otp_challenges;
+
+DROP TABLE IF EXISTS contract_relationships;
+
+DROP TABLE IF EXISTS contract_amendments;
+
+DROP TABLE IF EXISTS contract_versions;
+
+UPDATE alembic_version SET version_num='0004_integration_operation_keys' WHERE alembic_version.version_num = '0005_contract_lifecycle';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0004_integration_operation_keys -> 0003_academic_periods, Idempotência durável das operações em providers externos.
+-- Running downgrade 0004_integration_operation_keys -> 0003_academic_periods
+
+DROP TABLE IF EXISTS integration_operation_keys;
+
+UPDATE alembic_version SET version_num='0003_academic_periods' WHERE alembic_version.version_num = '0004_integration_operation_keys';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0003_academic_periods -> 0002_guardian_link_audit, Períodos acadêmicos reais e compatibilidade com planos alpha.
+-- Running downgrade 0003_academic_periods -> 0002_guardian_link_audit
+
+ALTER TABLE teaching_plans DROP CONSTRAINT IF EXISTS fk_teaching_plans_academic_period;
+
+DROP TABLE IF EXISTS academic_periods;
+
+UPDATE alembic_version SET version_num='0002_guardian_link_audit' WHERE alembic_version.version_num = '0003_academic_periods';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0002_guardian_link_audit -> 0001_tenant, Adiciona updated_at auditável aos vínculos responsável-aluno.
+-- Running downgrade 0002_guardian_link_audit -> 0001_tenant
+
+ALTER TABLE guardian_students DROP COLUMN IF EXISTS updated_at;
+
+UPDATE alembic_version SET version_num='0001_tenant' WHERE alembic_version.version_num = '0002_guardian_link_audit';
+
+COMMIT;
+
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0001_tenant -> , Tenant Plane físico e relacional do PIGE360.
+-- Running downgrade 0001_tenant -> 
+
+Traceback (most recent call last):
+  File "/opt/pyvenv/bin/alembic", line 8, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/config.py", line 1047, in main
+    CommandLine(prog=prog).main(argv=argv)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/config.py", line 1037, in main
+    self.run_cmd(cfg, options)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/config.py", line 971, in run_cmd
+    fn(
+    ~~^
+        config,
+        ^^^^^^^
+        *[getattr(options, k, None) for k in positional],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **{k: getattr(options, k, None) for k in kwarg},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/command.py", line 530, in downgrade
+    script.run_env()
+    ~~~~~~~~~~~~~~^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/script/base.py", line 545, in run_env
+    util.load_python_file(self.dir, "env.py")
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/util/pyfiles.py", line 116, in load_python_file
+    module = load_module_py(module_id, path)
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/util/pyfiles.py", line 136, in load_module_py
+    spec.loader.exec_module(module)  # type: ignore
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "/mnt/data/pige360/backend/alembic_tenant/env.py", line 42, in <module>
+    run_migrations_offline()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/mnt/data/pige360/backend/alembic_tenant/env.py", line 28, in run_migrations_offline
+    context.run_migrations()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<string>", line 8, in run_migrations
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/runtime/environment.py", line 969, in run_migrations
+    self.get_context().run_migrations(**kw)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/opt/pyvenv/lib/python3.13/site-packages/alembic/runtime/migration.py", line 626, in run_migrations
+    step.migration_fn(**kw)
+    ~~~~~~~~~~~~~~~~~^^^^^^
+  File "/mnt/data/pige360/backend/alembic_tenant/versions/0001_tenant_plane.py", line 1234, in downgrade
+    raise RuntimeError("Downgrade destrutivo do Tenant Plane não é suportado; use restore validado.")
+RuntimeError: Downgrade destrutivo do Tenant Plane não é suportado; use restore validado.
+
+alembic_exit=1

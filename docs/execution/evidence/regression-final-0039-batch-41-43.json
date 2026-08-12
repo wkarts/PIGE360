@@ -1,0 +1,25 @@
+{
+  "start": 41,
+  "end": 43,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 15.94,
+  "results": [
+    {
+      "index": 41,
+      "file": "backend/tests/mail/test_mail_client.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 4.22s\n\n"
+    },
+    {
+      "index": 42,
+      "file": "backend/tests/migrations/test_fiscal_catalog_governance_imports_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.80s\n\n"
+    }
+  ]
+}

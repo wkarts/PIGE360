@@ -1,0 +1,20 @@
+.......                                                                  [100%]
+============================= slowest 20 durations =============================
+2.71s setup    tests/admissions/test_admissions_funnel.py::test_admission_campaign_and_process_date_validation
+2.47s setup    tests/academic/test_education_stage_progress.py::test_higher_education_prerequisites_internship_activity_thesis_and_integralization
+2.38s setup    tests/academic/test_secretary_lifecycle.py::test_secretary_enrollment_history_capacity_and_renewal
+2.30s setup    tests/admissions/test_admissions_funnel.py::test_admissions_public_lead_ranking_reservation_and_conversion
+2.30s setup    tests/academic/test_secretary_lifecycle.py::test_admission_selection_history_and_conversion
+2.23s setup    tests/academic/test_education_stage_progress.py::test_early_childhood_daily_agenda_guardian_access_and_pickup
+1.95s setup    tests/analytics/test_analytics.py::test_analytics_uses_physical_tenant_data_and_isolates_tenants
+1.31s call     tests/academic/test_education_stage_progress.py::test_higher_education_prerequisites_internship_activity_thesis_and_integralization
+1.05s call     tests/admissions/test_admissions_funnel.py::test_admissions_public_lead_ranking_reservation_and_conversion
+0.79s call     tests/academic/test_education_stage_progress.py::test_early_childhood_daily_agenda_guardian_access_and_pickup
+0.51s call     tests/academic/test_secretary_lifecycle.py::test_secretary_enrollment_history_capacity_and_renewal
+0.35s call     tests/academic/test_secretary_lifecycle.py::test_admission_selection_history_and_conversion
+0.28s call     tests/analytics/test_analytics.py::test_analytics_uses_physical_tenant_data_and_isolates_tenants
+0.20s call     tests/admissions/test_admissions_funnel.py::test_admission_campaign_and_process_date_validation
+0.01s teardown tests/admissions/test_admissions_funnel.py::test_admission_campaign_and_process_date_validation
+
+(5 durations < 0.005s hidden.  Use -vv to show these durations.)
+7 passed in 20.91s

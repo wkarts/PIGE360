@@ -1,0 +1,78 @@
+{
+  "files": 10,
+  "passed": 23,
+  "failed_files": 0,
+  "seconds": 28.67,
+  "results": [
+    {
+      "file": "backend/tests/communication/test_notification_delivery.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 13.78,
+      "tail": "..                                                                       [100%]\n2 passed in 4.97s"
+    },
+    {
+      "file": "backend/tests/compliance/test_lgpd.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 16.0,
+      "tail": "...                                                                      [100%]\n3 passed in 9.14s"
+    },
+    {
+      "file": "backend/tests/contract/test_contract_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 12.52,
+      "tail": "..                                                                       [100%]\n2 passed in 6.16s"
+    },
+    {
+      "file": "backend/tests/contract/test_contracts.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 8.8,
+      "tail": ".                                                                        [100%]\n1 passed in 2.81s"
+    },
+    {
+      "file": "backend/tests/contract/test_openapi.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 9.81,
+      "tail": ".                                                                        [100%]\n1 passed in 3.85s"
+    },
+    {
+      "file": "backend/tests/contract/test_otp_delivery.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 10.6,
+      "tail": ".                                                                        [100%]\n1 passed in 2.63s"
+    },
+    {
+      "file": "backend/tests/contract/test_pades_engine.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.15,
+      "tail": "..                                                                       [100%]\n2 passed in 0.58s"
+    },
+    {
+      "file": "backend/tests/contract/test_signature_providers.py",
+      "exit_code": 0,
+      "passed": 7,
+      "seconds": 18.86,
+      "tail": ".......                                                                  [100%]\n7 passed in 13.12s"
+    },
+    {
+      "file": "backend/tests/database/test_postgres_sql_contract.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 5.72,
+      "tail": "...                                                                      [100%]\n3 passed in 0.01s"
+    },
+    {
+      "file": "backend/tests/e2e/test_operational_flow.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 7.41,
+      "tail": ".                                                                        [100%]\n1 passed in 1.82s"
+    }
+  ]
+}

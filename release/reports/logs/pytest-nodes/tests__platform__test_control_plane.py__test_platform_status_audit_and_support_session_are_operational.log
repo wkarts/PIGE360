@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/platform/test_control_plane.py::test_platform_status_audit_and_support_session_are_operational
-
-.PIGE360_NODE_RESULT=PASS

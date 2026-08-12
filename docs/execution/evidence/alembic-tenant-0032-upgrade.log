@@ -1,0 +1,139 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running upgrade 0031_inventory_reorder_suggestions -> 0032_fiscal_context_versioning, Contexto fiscal versionado por estabelecimento, vigência e operação.
+-- Running upgrade 0031_inventory_reorder_suggestions -> 0032_fiscal_context_versioning
+
+CREATE TABLE IF NOT EXISTS fiscal_contexts (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  code TEXT NOT NULL,
+  establishment_name TEXT NOT NULL,
+  legal_name TEXT,
+  cnpj TEXT NOT NULL,
+  institution_id TEXT REFERENCES institutions(id),
+  unit_id TEXT REFERENCES units(id),
+  state_registration TEXT,
+  municipal_registration TEXT,
+  provider_connection_id TEXT REFERENCES integration_connections(id),
+  metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  state TEXT NOT NULL DEFAULT 'active',
+  active_version_id TEXT,
+  latest_version_number INTEGER NOT NULL DEFAULT 0,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  CONSTRAINT ck_fiscal_context_state CHECK (state IN ('active','inactive','archived')),
+  CONSTRAINT ck_fiscal_context_cnpj CHECK (cnpj ~ '^[0-9]{14}$'),
+  UNIQUE(tenant_id,code),
+  UNIQUE(tenant_id,cnpj)
+);
+
+CREATE TABLE IF NOT EXISTS fiscal_context_versions (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  version_number INTEGER NOT NULL,
+  tax_regime TEXT NOT NULL,
+  uf TEXT NOT NULL,
+  municipality_code TEXT NOT NULL,
+  valid_from DATE NOT NULL,
+  valid_until DATE,
+  environment TEXT NOT NULL DEFAULT 'homologation',
+  rtc_mode TEXT NOT NULL DEFAULT 'simulation_only',
+  layout_version TEXT,
+  schema_version TEXT,
+  technical_note_version TEXT,
+  ruleset_version TEXT,
+  configuration_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+  notes TEXT,
+  state TEXT NOT NULL DEFAULT 'draft',
+  published_at TIMESTAMPTZ,
+  published_by TEXT,
+  superseded_by_version_id TEXT REFERENCES fiscal_context_versions(id),
+  version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  CONSTRAINT ck_fiscal_context_version_period CHECK (valid_until IS NULL OR valid_until >= valid_from),
+  CONSTRAINT ck_fiscal_context_version_uf CHECK (uf ~ '^[A-Z]{2}$'),
+  CONSTRAINT ck_fiscal_context_version_municipality CHECK (municipality_code ~ '^[0-9]{7}$'),
+  CONSTRAINT ck_fiscal_context_version_environment CHECK (environment IN ('homologation','production')),
+  CONSTRAINT ck_fiscal_context_version_rtc CHECK (rtc_mode IN ('disabled','simulation_only','optional_emit','required_emit')),
+  CONSTRAINT ck_fiscal_context_version_state CHECK (state IN ('draft','scheduled','published','superseded','archived')),
+  UNIQUE(tenant_id,fiscal_context_id,version_number)
+);
+
+CREATE TABLE IF NOT EXISTS fiscal_context_operation_scopes (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  fiscal_context_version_id TEXT NOT NULL REFERENCES fiscal_context_versions(id),
+  operation_type TEXT NOT NULL,
+  item_kind TEXT NOT NULL DEFAULT 'any',
+  recipient_scope TEXT NOT NULL DEFAULT 'any',
+  document_type TEXT NOT NULL DEFAULT 'any',
+  created_at TIMESTAMPTZ NOT NULL,
+  CONSTRAINT ck_fiscal_context_scope_item CHECK (item_kind IN ('any','product','service','mixed')),
+  CONSTRAINT ck_fiscal_context_scope_recipient CHECK (recipient_scope IN ('any','individual','company','government','foreign')),
+  CONSTRAINT ck_fiscal_context_scope_document CHECK (document_type IN ('any','NF-e','NFC-e','NFS-e')),
+  UNIQUE(tenant_id,fiscal_context_version_id,operation_type,item_kind,recipient_scope,document_type)
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'fk_fiscal_context_active_version'
+  ) THEN
+    ALTER TABLE fiscal_contexts
+      ADD CONSTRAINT fk_fiscal_context_active_version
+      FOREIGN KEY (active_version_id) REFERENCES fiscal_context_versions(id);
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS ix_fiscal_contexts_scope
+  ON fiscal_contexts(tenant_id,state,institution_id,unit_id,cnpj);
+CREATE INDEX IF NOT EXISTS ix_fiscal_context_versions_effective
+  ON fiscal_context_versions(tenant_id,fiscal_context_id,state,valid_from,valid_until);
+CREATE INDEX IF NOT EXISTS ix_fiscal_context_scopes_resolution
+  ON fiscal_context_operation_scopes(tenant_id,operation_type,item_kind,recipient_scope,document_type);
+
+ALTER TABLE fiscal_documents
+  ADD COLUMN IF NOT EXISTS fiscal_context_id TEXT REFERENCES fiscal_contexts(id);
+ALTER TABLE fiscal_documents
+  ADD COLUMN IF NOT EXISTS fiscal_context_version_id TEXT REFERENCES fiscal_context_versions(id);
+ALTER TABLE fiscal_documents
+  ADD COLUMN IF NOT EXISTS fiscal_context_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+CREATE INDEX IF NOT EXISTS ix_fiscal_documents_context
+  ON fiscal_documents(tenant_id,fiscal_context_id,fiscal_context_version_id,created_at);;
+
+ALTER TABLE "fiscal_contexts" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "fiscal_contexts" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS fiscal_contexts_tenant_isolation ON "fiscal_contexts";
+
+CREATE POLICY fiscal_contexts_tenant_isolation ON "fiscal_contexts" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "fiscal_context_versions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "fiscal_context_versions" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS fiscal_context_versions_tenant_isolation ON "fiscal_context_versions";
+
+CREATE POLICY fiscal_context_versions_tenant_isolation ON "fiscal_context_versions" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "fiscal_context_operation_scopes" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "fiscal_context_operation_scopes" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS fiscal_context_operation_scopes_tenant_isolation ON "fiscal_context_operation_scopes";
+
+CREATE POLICY fiscal_context_operation_scopes_tenant_isolation ON "fiscal_context_operation_scopes" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+UPDATE alembic_version SET version_num='0032_fiscal_context_versioning' WHERE alembic_version.version_num = '0031_inventory_reorder_suggestions';
+
+COMMIT;
+

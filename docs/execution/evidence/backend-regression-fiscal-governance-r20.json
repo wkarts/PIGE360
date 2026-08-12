@@ -1,0 +1,449 @@
+{
+  "files": 63,
+  "passed": 140,
+  "failed_files": 0,
+  "seconds": 460.55,
+  "results": [
+    {
+      "file": "backend/tests/academic/test_education_stage_progress.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 8.11,
+      "tail": "..                                                                       [100%]\n2 passed in 3.77s"
+    },
+    {
+      "file": "backend/tests/academic/test_secretary_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.21,
+      "tail": "..                                                                       [100%]\n2 passed in 2.94s"
+    },
+    {
+      "file": "backend/tests/admissions/test_admissions_funnel.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.75,
+      "tail": "..                                                                       [100%]\n2 passed in 3.43s"
+    },
+    {
+      "file": "backend/tests/analytics/test_analytics.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.39,
+      "tail": "..                                                                       [100%]\n2 passed in 3.11s"
+    },
+    {
+      "file": "backend/tests/app_factory/test_app_factory.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.14,
+      "tail": "..                                                                       [100%]\n2 passed in 2.96s"
+    },
+    {
+      "file": "backend/tests/attendance/test_attendance.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.52,
+      "tail": "..                                                                       [100%]\n2 passed in 3.38s"
+    },
+    {
+      "file": "backend/tests/branding/test_branding.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.1,
+      "tail": "..                                                                       [100%]\n2 passed in 2.74s"
+    },
+    {
+      "file": "backend/tests/branding/test_official_asset_import.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 4.34,
+      "tail": "...                                                                      [100%]\n3 passed in 0.19s"
+    },
+    {
+      "file": "backend/tests/canteen/test_canteen_wallet_policies.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.59,
+      "tail": ".                                                                        [100%]\n1 passed in 1.80s"
+    },
+    {
+      "file": "backend/tests/communication/test_communication.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 8.33,
+      "tail": "...                                                                      [100%]\n3 passed in 3.89s"
+    },
+    {
+      "file": "backend/tests/communication/test_notification_delivery.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.3,
+      "tail": "..                                                                       [100%]\n2 passed in 2.96s"
+    },
+    {
+      "file": "backend/tests/compliance/test_lgpd.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 9.32,
+      "tail": "...                                                                      [100%]\n3 passed in 4.74s"
+    },
+    {
+      "file": "backend/tests/contract/test_contract_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.19,
+      "tail": "..                                                                       [100%]\n2 passed in 3.00s"
+    },
+    {
+      "file": "backend/tests/contract/test_contracts.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.72,
+      "tail": ".                                                                        [100%]\n1 passed in 1.28s"
+    },
+    {
+      "file": "backend/tests/contract/test_openapi.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.59,
+      "tail": ".                                                                        [100%]\n1 passed in 2.25s"
+    },
+    {
+      "file": "backend/tests/contract/test_otp_delivery.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.7,
+      "tail": ".                                                                        [100%]\n1 passed in 1.36s"
+    },
+    {
+      "file": "backend/tests/contract/test_pades_engine.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 4.51,
+      "tail": "..                                                                       [100%]\n2 passed in 0.33s"
+    },
+    {
+      "file": "backend/tests/contract/test_signature_providers.py",
+      "exit_code": 0,
+      "passed": 7,
+      "seconds": 16.34,
+      "tail": ".......                                                                  [100%]\n7 passed in 11.38s"
+    },
+    {
+      "file": "backend/tests/database/test_postgres_sql_contract.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 4.26,
+      "tail": "...                                                                      [100%]\n3 passed in 0.01s"
+    },
+    {
+      "file": "backend/tests/e2e/test_operational_flow.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.96,
+      "tail": ".                                                                        [100%]\n1 passed in 1.50s"
+    },
+    {
+      "file": "backend/tests/engagement/test_notices_requests.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.33,
+      "tail": "..                                                                       [100%]\n2 passed in 2.92s"
+    },
+    {
+      "file": "backend/tests/events/test_event_delivery.py",
+      "exit_code": 0,
+      "passed": 5,
+      "seconds": 11.59,
+      "tail": ".....                                                                    [100%]\n5 passed in 7.06s"
+    },
+    {
+      "file": "backend/tests/events/test_event_travel_lifecycle.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.4,
+      "tail": ".                                                                        [100%]\n1 passed in 1.89s"
+    },
+    {
+      "file": "backend/tests/execution/test_portable_checkpoint_builder.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 4.79,
+      "tail": ".                                                                        [100%]\n1 passed in 0.57s"
+    },
+    {
+      "file": "backend/tests/finance/test_finance_banking_services.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 8.57,
+      "tail": "...                                                                      [100%]\n3 passed in 3.92s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_catalog_classifications.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 8.01,
+      "tail": "..                                                                       [100%]\n2 passed in 3.68s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_catalog_governance.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 11.47,
+      "tail": "....                                                                     [100%]\n4 passed in 6.47s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_context_versioning.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 8.71,
+      "tail": "...                                                                      [100%]\n3 passed in 4.32s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_delivery.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.43,
+      "tail": "..                                                                       [100%]\n2 passed in 3.12s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_strategies_rtc.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.98,
+      "tail": ".                                                                        [100%]\n1 passed in 1.75s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_tax_calculation_engine.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 9.44,
+      "tail": "...                                                                      [100%]\n3 passed in 4.40s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_ibpt_operational_resilience.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.7,
+      "tail": ".                                                                        [100%]\n1 passed in 1.38s"
+    },
+    {
+      "file": "backend/tests/fiscal/test_ibpt_sync.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.5,
+      "tail": "..                                                                       [100%]\n2 passed in 3.11s"
+    },
+    {
+      "file": "backend/tests/frontend/test_tenant_admin_vertical_modules.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 4.35,
+      "tail": "....                                                                     [100%]\n4 passed in 0.03s"
+    },
+    {
+      "file": "backend/tests/government_education/test_government_education.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.49,
+      "tail": "..                                                                       [100%]\n2 passed in 3.14s"
+    },
+    {
+      "file": "backend/tests/health/test_health.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.11,
+      "tail": ".                                                                        [100%]\n1 passed in 1.42s"
+    },
+    {
+      "file": "backend/tests/hr/test_hr_payroll_timekeeping.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 8.25,
+      "tail": "..                                                                       [100%]\n2 passed in 3.54s"
+    },
+    {
+      "file": "backend/tests/integrations/test_external_providers.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 9.43,
+      "tail": "....                                                                     [100%]\n4 passed in 4.97s"
+    },
+    {
+      "file": "backend/tests/library/test_library.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.74,
+      "tail": ".                                                                        [100%]\n1 passed in 1.29s"
+    },
+    {
+      "file": "backend/tests/mail/test_mail_client.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.82,
+      "tail": "..                                                                       [100%]\n2 passed in 3.42s"
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_catalog_governance_imports_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.16,
+      "tail": "..                                                                       [100%]\n2 passed in 1.71s"
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_catalogs_classifications_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.33,
+      "tail": "..                                                                       [100%]\n2 passed in 1.87s"
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_context_versioning_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.2,
+      "tail": "..                                                                       [100%]\n2 passed in 1.75s"
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_strategies_rtc_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.15,
+      "tail": "..                                                                       [100%]\n2 passed in 1.79s"
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_tax_calculation_engine_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.05,
+      "tail": "..                                                                       [100%]\n2 passed in 1.79s"
+    },
+    {
+      "file": "backend/tests/migrations/test_ibpt_operational_resilience_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 5.95,
+      "tail": "..                                                                       [100%]\n2 passed in 1.72s"
+    },
+    {
+      "file": "backend/tests/migrations/test_inventory_reorder_suggestions_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.74,
+      "tail": "..                                                                       [100%]\n2 passed in 1.90s"
+    },
+    {
+      "file": "backend/tests/migrations/test_services_procurement_assets_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.65,
+      "tail": "..                                                                       [100%]\n2 passed in 1.91s"
+    },
+    {
+      "file": "backend/tests/pedagogy/test_grading_report_card.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.87,
+      "tail": "..                                                                       [100%]\n2 passed in 3.60s"
+    },
+    {
+      "file": "backend/tests/pedagogy/test_lesson_planning.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.72,
+      "tail": "..                                                                       [100%]\n2 passed in 3.56s"
+    },
+    {
+      "file": "backend/tests/platform/test_control_plane.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.0,
+      "tail": "..                                                                       [100%]\n2 passed in 2.64s"
+    },
+    {
+      "file": "backend/tests/portals/test_portal_scope.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 10.69,
+      "tail": "....                                                                     [100%]\n4 passed in 6.23s"
+    },
+    {
+      "file": "backend/tests/reporting/test_reporting.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.08,
+      "tail": "..                                                                       [100%]\n2 passed in 2.75s"
+    },
+    {
+      "file": "backend/tests/sales/test_inventory_reorder_suggestions.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 8.4,
+      "tail": "..                                                                       [100%]\n2 passed in 3.94s"
+    },
+    {
+      "file": "backend/tests/sales/test_procurement_assets_vertical.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 5.98,
+      "tail": ".                                                                        [100%]\n1 passed in 1.64s"
+    },
+    {
+      "file": "backend/tests/sales/test_sales_inventory_procurement.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 10.89,
+      "tail": "....                                                                     [100%]\n4 passed in 6.02s"
+    },
+    {
+      "file": "backend/tests/security/test_host_and_auth.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 8.77,
+      "tail": "...                                                                      [100%]\n3 passed in 4.19s"
+    },
+    {
+      "file": "backend/tests/services/test_services_vertical.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.03,
+      "tail": ".                                                                        [100%]\n1 passed in 1.54s"
+    },
+    {
+      "file": "backend/tests/storage/test_object_storage.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 4.26,
+      "tail": "..                                                                       [100%]\n2 passed in 0.01s"
+    },
+    {
+      "file": "backend/tests/tenancy/test_isolation.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 7.07,
+      "tail": "..                                                                       [100%]\n2 passed in 2.64s"
+    },
+    {
+      "file": "backend/tests/transportation/test_transportation.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 6.26,
+      "tail": ".                                                                        [100%]\n1 passed in 1.47s"
+    },
+    {
+      "file": "backend/tests/unit/test_ids_and_passwords.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 4.71,
+      "tail": "..                                                                       [100%]\n2 passed in 0.24s"
+    },
+    {
+      "file": "backend/tests/workflows/test_workflows.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 10.13,
+      "tail": "....                                                                     [100%]\n4 passed in 5.71s"
+    }
+  ]
+}

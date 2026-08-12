@@ -1,0 +1,25 @@
+{
+  "start": 31,
+  "end": 33,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 15.78,
+  "results": [
+    {
+      "index": 31,
+      "file": "backend/tests/fiscal/test_fiscal_strategies_rtc.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.45s\n\n"
+    },
+    {
+      "index": 32,
+      "file": "backend/tests/fiscal/test_fiscal_tax_calculation_engine.py",
+      "exit_code": 0,
+      "passed": 3,
+      "output": "...                                                                      [100%]\n3 passed in 4.37s\n\n"
+    }
+  ]
+}

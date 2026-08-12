@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/events/test_event_delivery.py::test_operational_event_retry_clears_backoff_without_replaying_completed
-
-.PIGE360_NODE_RESULT=PASS

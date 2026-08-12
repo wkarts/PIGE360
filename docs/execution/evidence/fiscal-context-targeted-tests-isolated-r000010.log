@@ -1,0 +1,10 @@
+===== backend/tests/migrations/test_fiscal_context_versioning_migration.py =====
+..                                                                       [100%]
+2 passed in 4.28s
+exit=0
+===== backend/tests/frontend/test_tenant_admin_vertical_modules.py =====
+....                                                                     [100%]
+4 passed in 0.16s
+exit=0
+===== backend/tests/fiscal/test_fiscal_context_versioning.py =====
+...                                                                      [100%]

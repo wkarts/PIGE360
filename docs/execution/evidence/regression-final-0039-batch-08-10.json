@@ -1,0 +1,25 @@
+{
+  "start": 8,
+  "end": 10,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 18.45,
+  "results": [
+    {
+      "index": 8,
+      "file": "backend/tests/canteen/test_canteen_wallet_policies.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 2.07s\n\n"
+    },
+    {
+      "index": 9,
+      "file": "backend/tests/communication/test_communication.py",
+      "exit_code": 0,
+      "passed": 3,
+      "output": "...                                                                      [100%]\n3 passed in 5.71s\n\n"
+    }
+  ]
+}

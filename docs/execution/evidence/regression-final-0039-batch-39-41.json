@@ -1,0 +1,25 @@
+{
+  "start": 39,
+  "end": 41,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 5,
+  "failed_files": 0,
+  "duration_seconds": 17.17,
+  "results": [
+    {
+      "index": 39,
+      "file": "backend/tests/integrations/test_external_providers.py",
+      "exit_code": 0,
+      "passed": 4,
+      "output": "....                                                                     [100%]\n4 passed in 5.14s\n\n"
+    },
+    {
+      "index": 40,
+      "file": "backend/tests/library/test_library.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.79s\n\n"
+    }
+  ]
+}

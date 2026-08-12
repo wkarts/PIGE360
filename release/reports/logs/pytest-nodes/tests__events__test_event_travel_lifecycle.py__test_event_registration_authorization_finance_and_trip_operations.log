@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/events/test_event_travel_lifecycle.py::test_event_registration_authorization_finance_and_trip_operations
-
-.PIGE360_NODE_RESULT=PASS

@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/compliance/test_lgpd.py::test_dsar_export_retention_legal_hold_and_controlled_anonymization
-
-.PIGE360_NODE_RESULT=PASS

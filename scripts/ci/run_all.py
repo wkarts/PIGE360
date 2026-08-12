@@ -44,7 +44,7 @@ def main()->int:
       ('pytest',[sys.executable,'scripts/ci/run_pytest_isolated.py'],None,None),
       ('openapi-export',[sys.executable,'scripts/api/export_openapi.py'],None,None),
       ('sdk-generation',[sys.executable,'scripts/api/generate_typescript_sdk.py'],None,None),
-      ('typescript-strict',['npx','--no-install','tsc','-p','tsconfig.validation.json','--noEmit'],None,None),
+      ('typescript-strict',['npm','run','--silent','validate:ts'],None,None),
       ('migration-control-sql',['alembic','-c','backend/alembic_control/alembic.ini','upgrade','head','--sql'],None,None),
       ('migration-tenant-sql',['alembic','-c','backend/alembic_tenant/alembic.ini','upgrade','head','--sql'],None,None),
       ('visual-contract',[sys.executable,'scripts/visual/validate_visual_contract.py'],None,None),
@@ -57,6 +57,9 @@ def main()->int:
       ('project-validation',[sys.executable,'scripts/validation/validate_project.py','--output','release/project-validation.json'],None,None),
     ]
     if args.ci:
+        # O type-check raiz usa o TypeScript instalado no package-lock. A
+        # instalação precisa ocorrer antes dele para que o npm não tente
+        # resolver o pacote legado `tsc` pela rede.
         commands.insert(5,('frontend-install',['bash','scripts/frontend/install-dependencies.sh'],None,None))
         commands.insert(7,('frontend-build',['npm','run','build:web'],None,None))
     records=[]

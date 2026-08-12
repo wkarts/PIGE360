@@ -1,0 +1,6 @@
+PIGE360 regressão consolidada pós-IBPT
+61 arquivos canônicos atuais
+134 passed in 477.31s
+0 failed files
+Execução: pytest por arquivo em processo limpo com -p no:ddtrace, sem omitir arquivo canônico.
+Fonte: docs/execution/evidence/backend-regression-post-ibpt-current.json

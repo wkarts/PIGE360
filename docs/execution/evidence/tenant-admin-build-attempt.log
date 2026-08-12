@@ -1,0 +1,7 @@
+
+> @pige360/tenant-admin-web@1.0.0 build
+> vue-tsc -b && vite build
+
+sh: 1: vue-tsc: not found
+
+build_exit=127

@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/mail/test_mail_client.py::test_mail_sync_read_send_draft_and_no_body_persistence
-
-.PIGE360_NODE_RESULT=PASS

@@ -1,0 +1,3 @@
+backend/tests/academic/test_education_stage_progress.py exit=0 passed=2 seconds=8.52
+backend/tests/academic/test_secretary_lifecycle.py exit=0 passed=2 seconds=7.96
+backend/tests/admissions/test_admissions_funnel.py exit=0 passed=2 seconds=8.97

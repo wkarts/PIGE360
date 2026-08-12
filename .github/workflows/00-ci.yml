@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock.txt}
+        with: {python-version: '3.13', cache: pip, cache-dependency-path: backend/requirements.lock}
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
-      - run: python -m pip install -r backend/requirements.lock.txt
+        with: {node-version: '22.16.0'}
+      - run: python -m pip install -r backend/requirements.lock
       - run: bash scripts/ci/run-all.sh --ci

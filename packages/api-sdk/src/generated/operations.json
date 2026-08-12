@@ -464,6 +464,54 @@
     ]
   },
   {
+    "operationId": "return_asset_loan",
+    "method": "POST",
+    "path": "/api/v1/asset-loans/{loan_id}/return",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "list_asset_locations",
+    "method": "GET",
+    "path": "/api/v1/asset-locations",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "create_asset_location",
+    "method": "POST",
+    "path": "/api/v1/asset-locations",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "get_asset_location",
+    "method": "GET",
+    "path": "/api/v1/asset-locations/{location_id}",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "complete_asset_maintenance",
+    "method": "POST",
+    "path": "/api/v1/asset-maintenances/{maintenance_id}/complete",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "start_asset_maintenance",
+    "method": "POST",
+    "path": "/api/v1/asset-maintenances/{maintenance_id}/start",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
     "operationId": "list_assets_relational",
     "method": "GET",
     "path": "/api/v1/assets",
@@ -488,9 +536,41 @@
     ]
   },
   {
+    "operationId": "calculate_asset_depreciation",
+    "method": "POST",
+    "path": "/api/v1/assets/{asset_id}/depreciations",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
     "operationId": "register_asset_event",
     "method": "POST",
     "path": "/api/v1/assets/{asset_id}/events",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "create_asset_loan",
+    "method": "POST",
+    "path": "/api/v1/assets/{asset_id}/loans",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "create_asset_maintenance",
+    "method": "POST",
+    "path": "/api/v1/assets/{asset_id}/maintenances",
+    "tags": [
+      "assets"
+    ]
+  },
+  {
+    "operationId": "transfer_asset",
+    "method": "POST",
+    "path": "/api/v1/assets/{asset_id}/transfers",
     "tags": [
       "assets"
     ]
@@ -1728,6 +1808,318 @@
     ]
   },
   {
+    "operationId": "get_fiscal_catalog_governance_health",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalog-governance/health",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_catalog_imports",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalog-imports",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_catalog_import",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalog-imports/{run_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_catalog_import",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalog-imports/{run_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_catalog_quarantine",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalog-quarantine",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "resolve_fiscal_catalog_quarantine",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalog-quarantine/{quarantine_id}/resolve",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_catalog_sources",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalog-sources",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_catalogs",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalogs",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_catalog",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_catalog",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "import_fiscal_catalog_snapshot",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/imports",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "resolve_fiscal_catalog_code",
+    "method": "GET",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/resolve/{code}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_catalog_source",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/sources",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_catalog_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/versions",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_catalog_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/versions/{version_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "rollback_fiscal_catalog_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/catalogs/{catalog_id}/versions/{version_id}/rollback",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_certificates",
+    "method": "GET",
+    "path": "/api/v1/fiscal/certificates",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_certificate_metadata",
+    "method": "POST",
+    "path": "/api/v1/fiscal/certificates",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_classification_rules",
+    "method": "GET",
+    "path": "/api/v1/fiscal/classification-rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_classification_rule",
+    "method": "POST",
+    "path": "/api/v1/fiscal/classification-rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "update_fiscal_classification_rule",
+    "method": "PATCH",
+    "path": "/api/v1/fiscal/classification-rules/{rule_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_classification_rule",
+    "method": "POST",
+    "path": "/api/v1/fiscal/classification-rules/{rule_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_contexts",
+    "method": "GET",
+    "path": "/api/v1/fiscal/contexts",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_context",
+    "method": "POST",
+    "path": "/api/v1/fiscal/contexts",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "resolve_fiscal_context",
+    "method": "POST",
+    "path": "/api/v1/fiscal/contexts/resolve",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_context",
+    "method": "GET",
+    "path": "/api/v1/fiscal/contexts/{context_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "update_fiscal_context",
+    "method": "PATCH",
+    "path": "/api/v1/fiscal/contexts/{context_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_context_versions",
+    "method": "GET",
+    "path": "/api/v1/fiscal/contexts/{context_id}/versions",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_context_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/contexts/{context_id}/versions",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_context_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/contexts/{context_id}/versions/{version_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_delivery_policies",
+    "method": "GET",
+    "path": "/api/v1/fiscal/delivery-policies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_delivery_policy",
+    "method": "POST",
+    "path": "/api/v1/fiscal/delivery-policies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_delivery_policy",
+    "method": "POST",
+    "path": "/api/v1/fiscal/delivery-policies/{policy_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_document_assemblies",
+    "method": "GET",
+    "path": "/api/v1/fiscal/document-assemblies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "assemble_fiscal_documents",
+    "method": "POST",
+    "path": "/api/v1/fiscal/document-assemblies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_document_assembly",
+    "method": "GET",
+    "path": "/api/v1/fiscal/document-assemblies/{assembly_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_document_schemas",
+    "method": "GET",
+    "path": "/api/v1/fiscal/document-schemas",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_document_schema",
+    "method": "POST",
+    "path": "/api/v1/fiscal/document-schemas",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_document_schema",
+    "method": "POST",
+    "path": "/api/v1/fiscal/document-schemas/{schema_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
     "operationId": "list_fiscal_documents_relational",
     "method": "GET",
     "path": "/api/v1/fiscal/documents",
@@ -1739,6 +2131,14 @@
     "operationId": "request_fiscal_document_relational",
     "method": "POST",
     "path": "/api/v1/fiscal/documents",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_document_detail",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}",
     "tags": [
       "fiscal"
     ]
@@ -1760,9 +2160,129 @@
     ]
   },
   {
+    "operationId": "request_fiscal_document_provider_event",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/events",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "query_fiscal_document_provider",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/query",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_document_rejection",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/rejection",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "render_fiscal_document_local",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/render",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_document_artifacts",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/artifacts",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "download_fiscal_document_artifact",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
     "operationId": "retry_fiscal_document",
     "method": "POST",
     "path": "/api/v1/fiscal/documents/{document_id}/retry",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "substitute_fiscal_document_provider",
+    "method": "POST",
+    "path": "/api/v1/fiscal/documents/{document_id}/substitute",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_document_tax_transparency",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/transparency",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_emission_trigger_runs",
+    "method": "GET",
+    "path": "/api/v1/fiscal/emission-trigger-runs",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "evaluate_fiscal_emission_trigger",
+    "method": "POST",
+    "path": "/api/v1/fiscal/emission-trigger-runs/evaluate",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_ibpt_offline_package",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/offline/{uf}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_ibpt_operational_status",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/operational-status",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_ibpt_provider_profiles",
+    "method": "GET",
+    "path": "/api/v1/fiscal/ibpt/provider-profiles",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_ibpt_provider_profile",
+    "method": "POST",
+    "path": "/api/v1/fiscal/ibpt/provider-profiles",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_ibpt_provider_profile",
+    "method": "POST",
+    "path": "/api/v1/fiscal/ibpt/provider-profiles/{profile_id}/publish",
     "tags": [
       "fiscal"
     ]
@@ -1779,6 +2299,14 @@
     "operationId": "list_ibpt_snapshots",
     "method": "GET",
     "path": "/api/v1/fiscal/ibpt/snapshots",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "rollback_ibpt_snapshot",
+    "method": "POST",
+    "path": "/api/v1/fiscal/ibpt/snapshots/{snapshot_id}/rollback",
     "tags": [
       "fiscal"
     ]
@@ -1808,6 +2336,38 @@
     ]
   },
   {
+    "operationId": "list_fiscal_inutilizations",
+    "method": "GET",
+    "path": "/api/v1/fiscal/inutilizations",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_inutilization",
+    "method": "POST",
+    "path": "/api/v1/fiscal/inutilizations",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_legal_sources",
+    "method": "GET",
+    "path": "/api/v1/fiscal/legal-sources",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_legal_source",
+    "method": "POST",
+    "path": "/api/v1/fiscal/legal-sources",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
     "operationId": "list_fiscal_profiles",
     "method": "GET",
     "path": "/api/v1/fiscal/profiles",
@@ -1819,6 +2379,86 @@
     "operationId": "create_fiscal_profile",
     "method": "POST",
     "path": "/api/v1/fiscal/profiles",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_provider_configurations",
+    "method": "GET",
+    "path": "/api/v1/fiscal/providers",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_provider_configuration",
+    "method": "POST",
+    "path": "/api/v1/fiscal/providers",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "patch_fiscal_provider_configuration",
+    "method": "PATCH",
+    "path": "/api/v1/fiscal/providers/{configuration_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "check_fiscal_provider_health",
+    "method": "POST",
+    "path": "/api/v1/fiscal/providers/{configuration_id}/health",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_readiness",
+    "method": "GET",
+    "path": "/api/v1/fiscal/readiness",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_routing_policies",
+    "method": "GET",
+    "path": "/api/v1/fiscal/routing-policies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_routing_policy",
+    "method": "POST",
+    "path": "/api/v1/fiscal/routing-policies",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_routing_policy",
+    "method": "POST",
+    "path": "/api/v1/fiscal/routing-policies/{policy_id}/publish",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_rtc_schedule",
+    "method": "POST",
+    "path": "/api/v1/fiscal/rtc-schedules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "resolve_fiscal_rtc_schedule",
+    "method": "GET",
+    "path": "/api/v1/fiscal/rtc/resolve",
     "tags": [
       "fiscal"
     ]
@@ -1843,6 +2483,78 @@
     "operationId": "simulate_fiscal_operation",
     "method": "POST",
     "path": "/api/v1/fiscal/simulate",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_strategy_rules",
+    "method": "GET",
+    "path": "/api/v1/fiscal/strategy-rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_strategy_rule",
+    "method": "POST",
+    "path": "/api/v1/fiscal/strategy-rules",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "simulate_versioned_fiscal_tax_calculation",
+    "method": "POST",
+    "path": "/api/v1/fiscal/tax-calculations/simulate",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_versioned_fiscal_tax_calculation",
+    "method": "GET",
+    "path": "/api/v1/fiscal/tax-calculations/{calculation_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "list_fiscal_tax_rule_sets",
+    "method": "GET",
+    "path": "/api/v1/fiscal/tax-rule-sets",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_tax_rule_set",
+    "method": "POST",
+    "path": "/api/v1/fiscal/tax-rule-sets",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "get_fiscal_tax_rule_set",
+    "method": "GET",
+    "path": "/api/v1/fiscal/tax-rule-sets/{rule_set_id}",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "create_fiscal_tax_rule_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/tax-rule-sets/{rule_set_id}/versions",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "publish_fiscal_tax_rule_version",
+    "method": "POST",
+    "path": "/api/v1/fiscal/tax-rule-sets/{rule_set_id}/versions/{version_id}/publish",
     "tags": [
       "fiscal"
     ]
@@ -2216,6 +2928,22 @@
     ]
   },
   {
+    "operationId": "get_inventory_count_detail",
+    "method": "GET",
+    "path": "/api/v1/inventory/counts/{count_id}",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
+    "operationId": "complete_inventory_count",
+    "method": "POST",
+    "path": "/api/v1/inventory/counts/{count_id}/complete",
+    "tags": [
+      "inventory"
+    ]
+  },
+  {
     "operationId": "finalize_inventory_count",
     "method": "POST",
     "path": "/api/v1/inventory/counts/{count_id}/finalize",
@@ -2224,11 +2952,139 @@
     ]
   },
   {
+    "operationId": "list_inventory_lots",
+    "method": "GET",
+    "path": "/api/v1/inventory/lots",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
     "operationId": "list_stock_movements",
     "method": "GET",
     "path": "/api/v1/inventory/movements",
     "tags": [
       "inventory"
+    ]
+  },
+  {
+    "operationId": "create_inventory_product_barcode",
+    "method": "POST",
+    "path": "/api/v1/inventory/product-barcodes",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_inventory_product_variant",
+    "method": "POST",
+    "path": "/api/v1/inventory/product-variants",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_inventory_purchase_suggestions",
+    "method": "GET",
+    "path": "/api/v1/inventory/purchase-suggestions",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "generate_inventory_purchase_suggestions",
+    "method": "POST",
+    "path": "/api/v1/inventory/purchase-suggestions/generate",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_inventory_purchase_suggestion",
+    "method": "GET",
+    "path": "/api/v1/inventory/purchase-suggestions/{suggestion_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "convert_inventory_purchase_suggestion",
+    "method": "POST",
+    "path": "/api/v1/inventory/purchase-suggestions/{suggestion_id}/convert",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "dismiss_inventory_purchase_suggestion",
+    "method": "POST",
+    "path": "/api/v1/inventory/purchase-suggestions/{suggestion_id}/dismiss",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_inventory_reorder_policies",
+    "method": "GET",
+    "path": "/api/v1/inventory/reorder-policies",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_inventory_reorder_policy",
+    "method": "POST",
+    "path": "/api/v1/inventory/reorder-policies",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_inventory_reorder_policy",
+    "method": "GET",
+    "path": "/api/v1/inventory/reorder-policies/{policy_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "update_inventory_reorder_policy",
+    "method": "PATCH",
+    "path": "/api/v1/inventory/reorder-policies/{policy_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_inventory_reservations",
+    "method": "GET",
+    "path": "/api/v1/inventory/reservations",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_inventory_reservation",
+    "method": "POST",
+    "path": "/api/v1/inventory/reservations",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "consume_inventory_reservation",
+    "method": "POST",
+    "path": "/api/v1/inventory/reservations/{reservation_id}/consume",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "release_inventory_reservation",
+    "method": "POST",
+    "path": "/api/v1/inventory/reservations/{reservation_id}/release",
+    "tags": [
+      "procurement"
     ]
   },
   {
@@ -3328,6 +4184,150 @@
     ]
   },
   {
+    "operationId": "list_procurement_orders",
+    "method": "GET",
+    "path": "/api/v1/procurement/orders",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_procurement_order",
+    "method": "POST",
+    "path": "/api/v1/procurement/orders",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_procurement_order",
+    "method": "GET",
+    "path": "/api/v1/procurement/orders/{order_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "approve_procurement_order",
+    "method": "POST",
+    "path": "/api/v1/procurement/orders/{order_id}/approve",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "receive_procurement_order",
+    "method": "POST",
+    "path": "/api/v1/procurement/orders/{order_id}/receipts",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "return_procurement_order",
+    "method": "POST",
+    "path": "/api/v1/procurement/orders/{order_id}/returns",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_procurement_quotations",
+    "method": "GET",
+    "path": "/api/v1/procurement/quotations",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_procurement_quotation",
+    "method": "POST",
+    "path": "/api/v1/procurement/quotations",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_procurement_quotation",
+    "method": "GET",
+    "path": "/api/v1/procurement/quotations/{quotation_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "award_procurement_quotation",
+    "method": "POST",
+    "path": "/api/v1/procurement/quotations/{quotation_id}/award",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "submit_supplier_quotation_proposal",
+    "method": "POST",
+    "path": "/api/v1/procurement/quotations/{quotation_id}/suppliers/{supplier_id}/proposal",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "list_purchase_requisitions",
+    "method": "GET",
+    "path": "/api/v1/procurement/requisitions",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "create_purchase_requisition",
+    "method": "POST",
+    "path": "/api/v1/procurement/requisitions",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_purchase_requisition",
+    "method": "GET",
+    "path": "/api/v1/procurement/requisitions/{requisition_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "approve_purchase_requisition",
+    "method": "POST",
+    "path": "/api/v1/procurement/requisitions/{requisition_id}/approve",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "cancel_purchase_requisition",
+    "method": "POST",
+    "path": "/api/v1/procurement/requisitions/{requisition_id}/cancel",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "reject_purchase_requisition",
+    "method": "POST",
+    "path": "/api/v1/procurement/requisitions/{requisition_id}/reject",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "submit_purchase_requisition",
+    "method": "POST",
+    "path": "/api/v1/procurement/requisitions/{requisition_id}/submit",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
     "operationId": "list_products_relational",
     "method": "GET",
     "path": "/api/v1/products",
@@ -3544,6 +4544,86 @@
     ]
   },
   {
+    "operationId": "list_service_catalogs",
+    "method": "GET",
+    "path": "/api/v1/service-catalogs",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_catalog",
+    "method": "POST",
+    "path": "/api/v1/service-catalogs",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_service_catalog",
+    "method": "GET",
+    "path": "/api/v1/service-catalogs/{catalog_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "update_service_catalog",
+    "method": "PATCH",
+    "path": "/api/v1/service-catalogs/{catalog_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "list_service_executions",
+    "method": "GET",
+    "path": "/api/v1/service-executions",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "cancel_service_execution",
+    "method": "POST",
+    "path": "/api/v1/service-executions/{execution_id}/cancel",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "complete_service_execution",
+    "method": "POST",
+    "path": "/api/v1/service-executions/{execution_id}/complete",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "start_service_execution",
+    "method": "POST",
+    "path": "/api/v1/service-executions/{execution_id}/start",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "list_service_fiscal_events",
+    "method": "GET",
+    "path": "/api/v1/service-fiscal-events",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "publish_service_fiscal_profile",
+    "method": "POST",
+    "path": "/api/v1/service-fiscal-profiles/{profile_id}/publish",
+    "tags": [
+      "services"
+    ]
+  },
+  {
     "operationId": "list_service_orders",
     "method": "GET",
     "path": "/api/v1/service-orders",
@@ -3555,6 +4635,54 @@
     "operationId": "create_service_order",
     "method": "POST",
     "path": "/api/v1/service-orders",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_service_order",
+    "method": "GET",
+    "path": "/api/v1/service-orders/{order_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "cancel_service_order",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/cancel",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "complete_service_order",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/complete",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "confirm_service_order",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/confirm",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_execution",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/executions",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "start_service_order",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/start",
     "tags": [
       "services"
     ]
@@ -3600,6 +4728,78 @@
     ]
   },
   {
+    "operationId": "list_service_subscriptions",
+    "method": "GET",
+    "path": "/api/v1/service-subscriptions",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_subscription",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_service_subscription",
+    "method": "GET",
+    "path": "/api/v1/service-subscriptions/{subscription_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "activate_service_subscription",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions/{subscription_id}/activate",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "cancel_service_subscription",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions/{subscription_id}/cancel",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "generate_service_competence",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions/{subscription_id}/competencies",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "resume_service_subscription",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions/{subscription_id}/resume",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "suspend_service_subscription",
+    "method": "POST",
+    "path": "/api/v1/service-subscriptions/{subscription_id}/suspend",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "update_service_variant",
+    "method": "PATCH",
+    "path": "/api/v1/service-variants/{variant_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
     "operationId": "list_services_relational",
     "method": "GET",
     "path": "/api/v1/services",
@@ -3611,6 +4811,62 @@
     "operationId": "create_service_relational",
     "method": "POST",
     "path": "/api/v1/services",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_services_dashboard",
+    "method": "GET",
+    "path": "/api/v1/services-dashboard",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_service_detail",
+    "method": "GET",
+    "path": "/api/v1/services/{service_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "update_service",
+    "method": "PATCH",
+    "path": "/api/v1/services/{service_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_billing_rule",
+    "method": "POST",
+    "path": "/api/v1/services/{service_id}/billing-rules",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_fiscal_profile",
+    "method": "POST",
+    "path": "/api/v1/services/{service_id}/fiscal-profiles",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_price_table",
+    "method": "POST",
+    "path": "/api/v1/services/{service_id}/price-tables",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_variant",
+    "method": "POST",
+    "path": "/api/v1/services/{service_id}/variants",
     "tags": [
       "services"
     ]
@@ -3755,6 +5011,22 @@
     "operationId": "create_supplier_relational",
     "method": "POST",
     "path": "/api/v1/suppliers",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "get_supplier_detail",
+    "method": "GET",
+    "path": "/api/v1/suppliers/{supplier_id}",
+    "tags": [
+      "procurement"
+    ]
+  },
+  {
+    "operationId": "update_supplier",
+    "method": "PATCH",
+    "path": "/api/v1/suppliers/{supplier_id}",
     "tags": [
       "procurement"
     ]

@@ -1,0 +1,32 @@
+{
+  "start": 0,
+  "end": 3,
+  "total_files": 67,
+  "completed_files": 3,
+  "passed": 6,
+  "failed_files": 0,
+  "duration_seconds": 29.06,
+  "results": [
+    {
+      "index": 0,
+      "file": "backend/tests/academic/test_education_stage_progress.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 5.09s\n\n"
+    },
+    {
+      "index": 1,
+      "file": "backend/tests/academic/test_secretary_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.43s\n\n"
+    },
+    {
+      "index": 2,
+      "file": "backend/tests/admissions/test_admissions_funnel.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 4.15s\n\n"
+    }
+  ]
+}

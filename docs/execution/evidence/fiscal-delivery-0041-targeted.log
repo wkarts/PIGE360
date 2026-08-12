@@ -1,0 +1,8 @@
+PIGE360 Fiscal 0041 — targeted validation
+- fiscal delivery/rejection/rendering: 3 passed
+- migration 0041 contracts: 2 passed
+- frontend/OpenAPI contracts: 2 passed
+- FiscalPanel.vue SFC/TypeScript strict: passed
+- OpenAPI: 557 paths / 687 operations / 375 schemas / 0 duplicate operationId
+- Alembic 0041 upgrade SQL offline: passed
+- Alembic 0041 downgrade SQL offline: passed

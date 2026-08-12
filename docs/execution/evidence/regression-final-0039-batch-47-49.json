@@ -1,0 +1,25 @@
+{
+  "start": 47,
+  "end": 49,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 13.52,
+  "results": [
+    {
+      "index": 47,
+      "file": "backend/tests/migrations/test_fiscal_strategies_rtc_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.96s\n\n"
+    },
+    {
+      "index": 48,
+      "file": "backend/tests/migrations/test_fiscal_tax_calculation_engine_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.71s\n\n"
+    }
+  ]
+}

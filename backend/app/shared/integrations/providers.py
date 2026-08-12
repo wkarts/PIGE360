@@ -500,6 +500,69 @@ class FiscalApiProvider(BaseProvider):
             result["state"] = "cancelled"
         return result
 
+    def query_document(self, *, provider_document_id: str, access_key: str | None = None) -> dict[str, Any]:
+        template = str(self.config.get("query_path") or "/v1/fiscal/documents/{id}")
+        path = template.replace("{id}", urllib.parse.quote(provider_document_id, safe=""))
+        status, payload = self.transport.request_json(
+            "GET", f"{self.base}{path}", headers=self.headers, body=None, retries=2,
+        )
+        return self._normalize(payload, http_status=status)
+
+    def substitute_document(self, *, provider_document_id: str, document_type: str, document: dict[str, Any], reason: str) -> dict[str, Any]:
+        template = str(self.config.get("substitute_path") or "/v1/fiscal/documents/{id}/substitute")
+        path = template.replace("{id}", urllib.parse.quote(provider_document_id, safe=""))
+        status, payload = self.transport.request_json(
+            "POST", f"{self.base}{path}", headers=self.headers,
+            body={"document_type": document_type, "document": document, "reason": reason}, retries=0,
+        )
+        return self._normalize(payload, http_status=status)
+
+    def inutilize_numbers(self, *, document_type: str, year: int, series: str, start_number: int, end_number: int, reason: str) -> dict[str, Any]:
+        path = str(self.config.get("inutilize_path") or "/v1/fiscal/inutilizations")
+        status, payload = self.transport.request_json(
+            "POST", f"{self.base}{path}", headers=self.headers,
+            body={"document_type": document_type, "year": year, "series": series, "start_number": start_number, "end_number": end_number, "reason": reason}, retries=0,
+        )
+        data = payload if isinstance(payload, dict) else {}
+        raw_state = str(data.get("state") or data.get("status") or "").lower()
+        if raw_state in {"authorized", "approved", "success", "succeeded", "inutilized", "inutilizado"}:
+            state = "authorized"
+        elif raw_state in {"rejected", "denied", "error", "failed", "rejeitado"} or status >= 400:
+            state = "rejected"
+        else:
+            state = "processing"
+        return {
+            "state": state, "protocol": data.get("protocol") or data.get("protocolo"),
+            "provider_request_id": data.get("id") or data.get("request_id"),
+            "error_code": data.get("error_code") or data.get("code") if state == "rejected" else None,
+            "error_message": data.get("error_message") or data.get("message") if state == "rejected" else None,
+            "raw": data,
+        }
+
+    def register_event(self, *, provider_document_id: str, event_type: str, payload: dict[str, Any], reason: str) -> dict[str, Any]:
+        template = str(self.config.get("event_path") or "/v1/fiscal/documents/{id}/events")
+        path = template.replace("{id}", urllib.parse.quote(provider_document_id, safe=""))
+        status, response = self.transport.request_json(
+            "POST", f"{self.base}{path}", headers=self.headers,
+            body={"event_type": event_type, "payload": payload, "reason": reason}, retries=0,
+        )
+        data = response if isinstance(response, dict) else {}
+        raw_state = str(data.get("state") or data.get("status") or "").lower()
+        if raw_state in {"authorized", "accepted", "approved", "success", "succeeded"}:
+            state = "authorized"
+        elif raw_state in {"rejected", "denied", "error", "failed"} or status >= 400:
+            state = "rejected"
+        else:
+            state = "processing"
+        return {
+            "state": state, "protocol": data.get("protocol") or data.get("protocolo"),
+            "provider_event_id": data.get("event_id") or data.get("id"),
+            "xml": data.get("xml"), "xml_base64": data.get("xml_base64"),
+            "error_code": data.get("error_code") or data.get("code") if state == "rejected" else None,
+            "error_message": data.get("error_message") or data.get("message") if state == "rejected" else None,
+            "raw": data,
+        }
+
 
 
 

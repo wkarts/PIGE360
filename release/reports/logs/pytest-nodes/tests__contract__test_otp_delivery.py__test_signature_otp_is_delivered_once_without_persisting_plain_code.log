@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_otp_delivery.py::test_signature_otp_is_delivered_once_without_persisting_plain_code
-
-.PIGE360_NODE_RESULT=PASS

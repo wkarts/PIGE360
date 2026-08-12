@@ -13,9 +13,13 @@ import EventsTravelPanel from "./components/EventsTravelPanel.vue";
 import AcademicProgressPanel from "./components/AcademicProgressPanel.vue";
 import CompliancePanel from "./components/CompliancePanel.vue";
 import GovernmentEducationPanel from "./components/GovernmentEducationPanel.vue";
+import ServicesPanel from "./components/ServicesPanel.vue";
+import ProcurementPanel from "./components/ProcurementPanel.vue";
+import AssetsPanel from "./components/AssetsPanel.vue";
+import FiscalPanel from "./components/FiscalPanel.vue";
 
 type Row = Record<string, any>;
-type Area = "dashboard"|"analytics"|"students"|"academic_progress"|"planning"|"attendance"|"finance"|"sales"|"canteen"|"events"|"fiscal"|"hr"|"requests"|"workflows"|"communication"|"reports"|"mail"|"integrations"|"student_services"|"compliance"|"government_education"|"audit";
+type Area = "dashboard"|"analytics"|"students"|"academic_progress"|"planning"|"attendance"|"finance"|"services"|"sales"|"procurement"|"assets"|"canteen"|"events"|"fiscal"|"hr"|"requests"|"workflows"|"communication"|"reports"|"mail"|"integrations"|"student_services"|"compliance"|"government_education"|"audit";
 
 const api = new Pige360SessionClient();
 const ready = ref(false); const busy = ref(false); const error = ref(""); const notice = ref("");
@@ -32,7 +36,10 @@ const nav = computed(() => [
   ["planning","Planejamento","▤",can("tenant_owner","institution_director","academic_coordinator","teacher","assistant_teacher")],
   ["attendance","Frequência","✓",can("tenant_owner","institution_director","academic_coordinator","teacher","assistant_teacher")],
   ["finance","Financeiro","$",can("tenant_owner","institution_director","finance_manager","finance_operator")],
+  ["services","Serviços","◉",can("tenant_owner","institution_director","unit_manager","finance_manager","finance_operator","fiscal_manager","secretary")],
   ["sales","Vendas e estoque","▦",can("tenant_owner","institution_director","canteen_manager","pos_operator","inventory_manager")],
+  ["procurement","Compras","◫",can("tenant_owner","institution_director","unit_manager","inventory_manager","finance_manager","finance_operator")],
+  ["assets","Patrimônio","◇",can("tenant_owner","institution_director","unit_manager","inventory_manager","finance_manager","auditor")],
   ["canteen","Cantina","◈",can("tenant_owner","institution_director","canteen_manager","finance_manager","finance_operator","secretary")],
   ["events","Eventos e viagens","☆",can("tenant_owner","institution_director","unit_manager","event_manager")],
   ["fiscal","Fiscal","N",can("tenant_owner","institution_director","fiscal_manager","finance_manager")],
@@ -70,13 +77,13 @@ async function loadBase(){
 }
 async function selectArea(area:Area){active.value=area;error.value="";notice.value="";busy.value=true;try{
   if(area==="dashboard"){dashboard.value=await request<Row>("/dashboard/operations");setBrand();rows.value=dashboard.value.recent_audit||[];secondary.value=dashboard.value.recent_outbox||[];}
-  if(area==="analytics"||area==="reports"||area==="communication"||area==="workflows"||area==="canteen"||area==="events"||area==="academic_progress"){rows.value=[];secondary.value=[];}
+  if(area==="analytics"||area==="reports"||area==="communication"||area==="workflows"||area==="canteen"||area==="events"||area==="academic_progress"||area==="services"||area==="procurement"||area==="assets"){rows.value=[];secondary.value=[];}
   if(area==="students"){rows.value=(await request<Row>("/students")).items||[];secondary.value=(await request<Row>("/enrollments")).items||[];}
   if(area==="planning"){rows.value=(await request<Row>("/teaching-plans")).items||[];secondary.value=(await request<Row>("/teacher-assignments")).items||[];}
   if(area==="attendance"){rows.value=(await request<Row>("/class-sessions?limit=100")).items||[];policies.value=(await request<Row>("/attendance/policies")).items||[];secondary.value=(await request<Row>("/attendance/risks")).items||[];}
   if(area==="finance"){rows.value=(await request<Row>("/finance/contracts")).items||[];secondary.value=(await request<Row>("/finance/installments")).items||[];}
   if(area==="sales"){rows.value=(await request<Row>("/products")).items||[];secondary.value=(await request<Row>("/sales")).items||[];}
-  if(area==="fiscal"){rows.value=(await request<Row>("/fiscal/documents")).items||[];secondary.value=(await request<Row>("/fiscal/rules")).items||[];}
+  if(area==="fiscal"){rows.value=[];secondary.value=[];}
   if(area==="hr"){rows.value=(await request<Row>("/hr/employment-contracts")).items||[];secondary.value=(await request<Row>("/payroll/runs")).items||[];}
   if(area==="requests"){rows.value=(await request<Row>("/service-requests")).items||[];secondary.value=(await request<Row>("/notices")).items||[];}
   if(area==="mail"||area==="student_services"||area==="compliance"||area==="government_education"){rows.value=[];secondary.value=[];}
@@ -162,17 +169,20 @@ onMounted(boot);
         <section class="panel"><table><thead><tr><th>Contrato</th><th>Aluno/Matrícula</th><th>Valor</th><th>Estado</th></tr></thead><tbody><tr v-for="r in rows" :key="r.id"><td>{{r.description}}</td><td>{{r.enrollment_id||'—'}}</td><td>{{money(r.total_amount)}}</td><td><span class="pill">{{r.state}}</span></td></tr></tbody></table></section>
       </template>
 
+      <template v-else-if="active==='services'"><ServicesPanel :api="api" @error="m=>error=m" @notice="m=>notice=m" /></template>
+
       <template v-else-if="active==='sales'">
         <section class="grid-2 forms"><form class="panel" @submit.prevent="createProduct"><h2>Novo produto</h2><div class="cols"><label>SKU<input v-model="productForm.sku" required /></label><label>Código de barras<input v-model="productForm.barcode" /></label></div><label>Produto<input v-model="productForm.name" required /></label><div class="cols"><label>NCM<input v-model="productForm.ncm" /></label><label>Unidade<input v-model="productForm.unit" /></label></div><div class="cols"><label>Custo<input v-model="productForm.cost" type="number" step="0.01" /></label><label>Venda<input v-model="productForm.sale_price" type="number" step="0.01" required /></label></div><button class="primary">Cadastrar produto</button></form><div class="panel"><h2>Vendas recentes</h2><div class="big-number">{{secondary.length}}</div><p>Venda integra pagamento, estoque, solicitação fiscal e auditoria.</p></div></section>
         <section class="panel"><table><thead><tr><th>Produto</th><th>SKU</th><th>Preço</th><th>Estoque</th><th>Estado</th></tr></thead><tbody><tr v-for="r in rows" :key="r.id"><td>{{r.name}}</td><td>{{r.sku}}</td><td>{{money(r.sale_price)}}</td><td>{{r.stock_quantity??0}}</td><td>{{r.state}}</td></tr></tbody></table></section>
       </template>
 
+      <template v-else-if="active==='procurement'"><ProcurementPanel :api="api" @error="m=>error=m" @notice="m=>notice=m" /></template>
+      <template v-else-if="active==='assets'"><AssetsPanel :api="api" @error="m=>error=m" @notice="m=>notice=m" /></template>
+
       <template v-else-if="active==='canteen'"><CanteenPanel :api="api" @error="m=>error=m" /></template>
       <template v-else-if="active==='events'"><EventsTravelPanel :api="api" @error="m=>error=m" /></template>
 
-      <template v-else-if="active==='fiscal'">
-        <section class="metrics"><article><span>Documentos</span><strong>{{rows.length}}</strong><small>eventos fiscais persistidos</small></article><article><span>Regras vigentes</span><strong>{{secondary.length}}</strong><small>rulesets versionados</small></article><article><span>Ambiente</span><strong>Por perfil</strong><small>homologação/produção</small></article></section><section class="panel"><table><thead><tr><th>Documento</th><th>Origem</th><th>Ambiente</th><th>Estado</th><th>Atualização</th></tr></thead><tbody><tr v-for="r in rows" :key="r.id"><td>{{r.document_type}}</td><td>{{r.source_type}} / {{r.source_id}}</td><td>{{r.environment}}</td><td><span class="pill">{{r.state}}</span></td><td>{{dateBR(r.updated_at)}}</td></tr></tbody></table></section>
-      </template>
+      <template v-else-if="active==='fiscal'"><FiscalPanel :api="api" @error="m=>error=m" @notice="m=>notice=m" /></template>
 
       <template v-else-if="active==='hr'">
         <section class="metrics"><article><span>Contratos ativos</span><strong>{{rows.filter(x=>x.state==='active').length}}</strong><small>vínculos de trabalho</small></article><article><span>Folhas</span><strong>{{secondary.length}}</strong><small>competências processadas</small></article><article><span>Última competência</span><strong>{{secondary[0]?.competence||'—'}}</strong><small>{{secondary[0]?.state||'sem processamento'}}</small></article></section><section class="panel"><table><thead><tr><th>Colaborador</th><th>Tipo</th><th>Início</th><th>Salário</th><th>Estado</th></tr></thead><tbody><tr v-for="r in rows" :key="r.id"><td>{{r.employee_name||r.employee_id}}</td><td>{{r.contract_type}}</td><td>{{r.starts_on}}</td><td>{{money(r.salary)}}</td><td>{{r.state}}</td></tr></tbody></table></section>

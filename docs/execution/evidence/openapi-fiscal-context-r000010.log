@@ -1,0 +1,5 @@
+$ python scripts/api/export_openapi.py
+{"paths": 502, "operations": 618, "schemas": 334, "duplicate_operation_ids": []}
+$ python scripts/api/generate_typescript_sdk.py
+{"schemas": 334, "operations": 618, "output": "packages/api-sdk/src/generated"}
+exit_code=0

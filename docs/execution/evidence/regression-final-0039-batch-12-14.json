@@ -1,0 +1,25 @@
+{
+  "start": 12,
+  "end": 14,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 3,
+  "failed_files": 0,
+  "duration_seconds": 14.46,
+  "results": [
+    {
+      "index": 12,
+      "file": "backend/tests/contract/test_contract_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.18s\n\n"
+    },
+    {
+      "index": 13,
+      "file": "backend/tests/contract/test_contracts.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.30s\n\n"
+    }
+  ]
+}

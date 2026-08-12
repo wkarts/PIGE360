@@ -1,0 +1,32 @@
+{
+  "start": 3,
+  "end": 6,
+  "total_files": 67,
+  "completed_files": 3,
+  "passed": 6,
+  "failed_files": 0,
+  "duration_seconds": 25.71,
+  "results": [
+    {
+      "index": 3,
+      "file": "backend/tests/analytics/test_analytics.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.03s\n\n"
+    },
+    {
+      "index": 4,
+      "file": "backend/tests/app_factory/test_app_factory.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.39s\n\n"
+    },
+    {
+      "index": 5,
+      "file": "backend/tests/attendance/test_attendance.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.93s\n\n"
+    }
+  ]
+}

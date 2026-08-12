@@ -1,0 +1,25 @@
+{
+  "start": 24,
+  "end": 26,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 5,
+  "failed_files": 0,
+  "duration_seconds": 19.42,
+  "results": [
+    {
+      "index": 24,
+      "file": "backend/tests/finance/test_finance_banking_services.py",
+      "exit_code": 0,
+      "passed": 3,
+      "output": "...                                                                      [100%]\n3 passed in 4.24s\n\n"
+    },
+    {
+      "index": 25,
+      "file": "backend/tests/fiscal/test_fiscal_catalog_classifications.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 4.42s\n\n"
+    }
+  ]
+}

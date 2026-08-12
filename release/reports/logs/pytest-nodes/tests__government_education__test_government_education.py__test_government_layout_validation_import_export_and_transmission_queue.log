@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/government_education/test_government_education.py::test_government_layout_validation_import_export_and_transmission_queue
-
-.PIGE360_NODE_RESULT=PASS

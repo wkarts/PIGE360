@@ -7,6 +7,11 @@ from fastapi import APIRouter, Depends, Header, Request, Response
 from pydantic import BaseModel, Field
 
 from app.modules.operations.common import SALES_ROLES, dumps, require, tenant
+from app.modules.procurement.application import vertical_service as procurement_service
+from app.modules.procurement.presentation.vertical_schemas import (
+    InventoryCountComplete,
+    InventoryCountCreate,
+)
 from app.shared.application.idempotency import get_idempotent, save_idempotent
 from app.shared.domain.ids import iso_now, uuid7
 from app.shared.domain.money import money, money_str
@@ -316,22 +321,104 @@ def transfer_stock(
 
 
 @router.post("/inventory/counts", status_code=201, operation_id="create_inventory_count")
-def create_inventory_count(data: InventoryCountInput, request: Request, user: CurrentUser = Depends(current_user)):
-    require(user, SALES_ROLES); tid=tenant(user); count_id=uuid7(); now=iso_now()
-    seen:set[str]=set(); rows=[]
+def create_inventory_count(
+    data: InventoryCountInput | InventoryCountCreate,
+    request: Request,
+    response: Response,
+    idempotency_key: str | None = Header(
+        default=None, alias="Idempotency-Key", min_length=8, max_length=200
+    ),
+    user: CurrentUser = Depends(current_user),
+):
+    require(user, SALES_ROLES)
+    tid = tenant(user)
+    if isinstance(data, InventoryCountCreate):
+        status_code, result = procurement_service.create_inventory_count(
+            request, tid, user, data, idempotency_key
+        )
+        response.status_code = status_code
+        return result
+
+    count_id = uuid7()
+    now = iso_now()
+    seen: set[str] = set()
+    rows = []
     for item in data.items:
-        if item.product_id in seen:raise DomainError("DUPLICATE_COUNT_ITEM","Produto repetido no inventário.",422)
+        if item.product_id in seen:
+            raise DomainError("DUPLICATE_COUNT_ITEM", "Produto repetido no inventário.", 422)
         seen.add(item.product_id)
-        product=request.state.store.fetch_one("SELECT id FROM products WHERE tenant_id=? AND id=? AND state='active'",(tid,item.product_id))
-        if not product:raise DomainError("PRODUCT_NOT_FOUND","Produto não localizado.",404)
-        balance=request.state.store.fetch_one("SELECT quantity FROM stock_balances WHERE tenant_id=? AND product_id=? AND warehouse=?",(tid,item.product_id,data.warehouse));expected=money(balance["quantity"] if balance else 0);rows.append((item,expected))
+        product = request.state.store.fetch_one(
+            "SELECT id FROM products WHERE tenant_id=? AND id=? AND state='active'",
+            (tid, item.product_id),
+        )
+        if not product:
+            raise DomainError("PRODUCT_NOT_FOUND", "Produto não localizado.", 404)
+        balance = request.state.store.fetch_one(
+            "SELECT quantity FROM stock_balances WHERE tenant_id=? AND product_id=? AND warehouse=?",
+            (tid, item.product_id, data.warehouse),
+        )
+        expected = money(balance["quantity"] if balance else 0)
+        rows.append((item, expected))
     with request.state.store.transaction() as conn:
-        conn.execute("INSERT INTO inventory_counts(id,tenant_id,warehouse,state,created_by,created_at) VALUES(?,?,?,?,?,?)",(count_id,tid,data.warehouse,"draft",user.id,now))
-        for item,expected in rows:
-            diff=item.counted_quantity-expected
-            conn.execute("INSERT INTO inventory_count_items(id,tenant_id,inventory_count_id,product_id,expected_quantity,counted_quantity,difference,created_at) VALUES(?,?,?,?,?,?,?,?)",(uuid7(),tid,count_id,item.product_id,str(expected),str(item.counted_quantity),str(diff),now))
-        result={"id":count_id,"warehouse":data.warehouse,"state":"draft","items":len(rows)};add_audit(conn,tenant_id=tid,actor_id=user.id,action="create",aggregate_type="inventory_count",aggregate_id=count_id,correlation_id=request.state.correlation_id,after=result)
+        conn.execute(
+            "INSERT INTO inventory_counts(id,tenant_id,warehouse,state,created_by,created_at) VALUES(?,?,?,?,?,?)",
+            (count_id, tid, data.warehouse, "draft", user.id, now),
+        )
+        for item, expected in rows:
+            diff = item.counted_quantity - expected
+            conn.execute(
+                "INSERT INTO inventory_count_items(id,tenant_id,inventory_count_id,product_id,expected_quantity,counted_quantity,difference,created_at) VALUES(?,?,?,?,?,?,?,?)",
+                (
+                    uuid7(),
+                    tid,
+                    count_id,
+                    item.product_id,
+                    str(expected),
+                    str(item.counted_quantity),
+                    str(diff),
+                    now,
+                ),
+            )
+        result = {
+            "id": count_id,
+            "warehouse": data.warehouse,
+            "state": "draft",
+            "items": len(rows),
+        }
+        add_audit(
+            conn,
+            tenant_id=tid,
+            actor_id=user.id,
+            action="create",
+            aggregate_type="inventory_count",
+            aggregate_id=count_id,
+            correlation_id=request.state.correlation_id,
+            after=result,
+        )
     return result
+
+
+@router.get("/inventory/counts/{count_id}", operation_id="get_inventory_count_detail")
+def get_inventory_count(
+    count_id: str,
+    request: Request,
+    user: CurrentUser = Depends(current_user),
+):
+    require(user, SALES_ROLES | {"finance_manager", "auditor"})
+    return procurement_service.inventory_count_detail(request, tenant(user), count_id)
+
+
+@router.post("/inventory/counts/{count_id}/complete", operation_id="complete_inventory_count")
+def complete_inventory_count(
+    count_id: str,
+    data: InventoryCountComplete,
+    request: Request,
+    user: CurrentUser = Depends(current_user),
+):
+    require(user, SALES_ROLES)
+    return procurement_service.complete_inventory_count(
+        request, tenant(user), user, count_id, data
+    )
 
 
 @router.post("/inventory/counts/{count_id}/finalize", operation_id="finalize_inventory_count")

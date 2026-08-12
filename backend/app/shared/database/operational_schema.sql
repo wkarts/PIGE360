@@ -165,18 +165,31 @@ CREATE TABLE IF NOT EXISTS services (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, code TEXT NOT NULL, name TEXT NOT NULL, description TEXT,
   price NUMERIC NOT NULL DEFAULT 0, recurrence TEXT, nbs TEXT, lc116_code TEXT, municipal_code TEXT, cnae TEXT,
   fiscal_profile_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'active',
-  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id, code)
+  catalog_id TEXT, service_type TEXT NOT NULL DEFAULT 'other', recurrence_type TEXT NOT NULL DEFAULT 'one_time',
+  unit_of_measure TEXT NOT NULL DEFAULT 'unit', default_duration_minutes INTEGER, cost_center_id TEXT,
+  taxable INTEGER NOT NULL DEFAULT 1, metadata_json TEXT NOT NULL DEFAULT '{}', institution_id TEXT, unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, code)
 );
 CREATE TABLE IF NOT EXISTS service_orders (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, enrollment_id TEXT REFERENCES enrollments(id),
   responsible_guardian_id TEXT REFERENCES guardians(id), competence TEXT, state TEXT NOT NULL DEFAULT 'draft',
   total_amount NUMERIC NOT NULL DEFAULT 0, financial_contract_id TEXT REFERENCES financial_contracts(id),
-  fiscal_document_id TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+  fiscal_document_id TEXT, order_number TEXT, subscriber_person_id TEXT REFERENCES people(id), subscription_id TEXT,
+  competence_id TEXT, cost_center_id TEXT, currency TEXT NOT NULL DEFAULT 'BRL', subtotal NUMERIC NOT NULL DEFAULT 0,
+  discount_amount NUMERIC NOT NULL DEFAULT 0, due_date TEXT, installment_count INTEGER NOT NULL DEFAULT 1,
+  charge_id TEXT, fiscal_status TEXT NOT NULL DEFAULT 'pending', notes TEXT, confirmed_at TEXT, confirmed_by TEXT,
+  started_at TEXT, completed_at TEXT, cancelled_at TEXT, cancellation_reason TEXT, institution_id TEXT, unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, order_number)
 );
 CREATE TABLE IF NOT EXISTS service_order_items (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, service_order_id TEXT NOT NULL REFERENCES service_orders(id),
   service_id TEXT NOT NULL REFERENCES services(id), quantity NUMERIC NOT NULL, unit_price NUMERIC NOT NULL,
-  total_amount NUMERIC NOT NULL, created_at TEXT NOT NULL
+  total_amount NUMERIC NOT NULL, variant_id TEXT, description TEXT, discount_amount NUMERIC NOT NULL DEFAULT 0,
+  competence_start TEXT, competence_end TEXT, fiscal_profile_snapshot_json TEXT NOT NULL DEFAULT '{}',
+  execution_status TEXT NOT NULL DEFAULT 'pending', executed_quantity NUMERIC NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -194,7 +207,7 @@ CREATE TABLE IF NOT EXISTS stock_balances (
 CREATE TABLE IF NOT EXISTS stock_movements (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), warehouse TEXT NOT NULL DEFAULT 'default',
   movement_type TEXT NOT NULL, quantity NUMERIC NOT NULL, unit_cost NUMERIC, reference_type TEXT, reference_id TEXT,
-  reason TEXT, occurred_at TEXT NOT NULL, created_by TEXT
+  reason TEXT, occurred_at TEXT NOT NULL, created_by TEXT, lot_id TEXT, balance_after NUMERIC
 );
 CREATE TABLE IF NOT EXISTS cash_sessions (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, terminal_code TEXT NOT NULL, operator_user_id TEXT NOT NULL,
@@ -219,25 +232,36 @@ CREATE TABLE IF NOT EXISTS sale_payments (
 );
 CREATE TABLE IF NOT EXISTS suppliers (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, legal_name TEXT NOT NULL, trade_name TEXT, cnpj TEXT,
-  email TEXT, phone TEXT, state TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
-  UNIQUE(tenant_id, cnpj)
+  email TEXT, phone TEXT, state TEXT NOT NULL DEFAULT 'active', code TEXT, rating NUMERIC,
+  payment_terms_json TEXT NOT NULL DEFAULT '{}', fiscal_profile_json TEXT NOT NULL DEFAULT '{}', notes TEXT,
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, cnpj), UNIQUE(tenant_id, code)
 );
 CREATE TABLE IF NOT EXISTS purchase_orders (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, supplier_id TEXT NOT NULL REFERENCES suppliers(id),
   order_number TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'draft', total_amount NUMERIC NOT NULL DEFAULT 0,
-  expected_on TEXT, received_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
-  UNIQUE(tenant_id, order_number)
+  expected_on TEXT, received_at TEXT, warehouse_id TEXT NOT NULL DEFAULT 'default', quotation_id TEXT,
+  requisition_id TEXT, currency TEXT NOT NULL DEFAULT 'BRL', subtotal NUMERIC NOT NULL DEFAULT 0,
+  freight_amount NUMERIC NOT NULL DEFAULT 0, discount_amount NUMERIC NOT NULL DEFAULT 0, notes TEXT,
+  approved_at TEXT, approved_by TEXT, closed_at TEXT, institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id, order_number)
 );
 CREATE TABLE IF NOT EXISTS purchase_order_items (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, purchase_order_id TEXT NOT NULL REFERENCES purchase_orders(id),
   product_id TEXT NOT NULL REFERENCES products(id), quantity NUMERIC NOT NULL, unit_cost NUMERIC NOT NULL,
-  received_quantity NUMERIC NOT NULL DEFAULT 0, created_at TEXT NOT NULL
+  received_quantity NUMERIC NOT NULL DEFAULT 0, returned_quantity NUMERIC NOT NULL DEFAULT 0,
+  discount_amount NUMERIC NOT NULL DEFAULT 0, total_amount NUMERIC NOT NULL DEFAULT 0,
+  fiscal_profile_snapshot_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS assets (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, asset_number TEXT NOT NULL, description TEXT NOT NULL,
   acquisition_date TEXT, acquisition_cost NUMERIC, location TEXT, responsible_person_id TEXT REFERENCES people(id),
-  state TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
-  UNIQUE(tenant_id, asset_number)
+  state TEXT NOT NULL DEFAULT 'active', tag TEXT, name TEXT, location_id TEXT, product_id TEXT,
+  receipt_item_id TEXT, serial_number TEXT, useful_life_months INTEGER, residual_value NUMERIC NOT NULL DEFAULT 0,
+  accumulated_depreciation NUMERIC NOT NULL DEFAULT 0, warranty_until TEXT, metadata_json TEXT NOT NULL DEFAULT '{}',
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, asset_number), UNIQUE(tenant_id, tag)
 );
 
 CREATE TABLE IF NOT EXISTS fiscal_profiles (
@@ -247,6 +271,41 @@ CREATE TABLE IF NOT EXISTS fiscal_profiles (
   state TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
   UNIQUE(tenant_id, cnpj)
 );
+CREATE TABLE IF NOT EXISTS fiscal_contexts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, code TEXT NOT NULL, establishment_name TEXT NOT NULL,
+  legal_name TEXT, cnpj TEXT NOT NULL, institution_id TEXT REFERENCES institutions(id), unit_id TEXT REFERENCES units(id),
+  state_registration TEXT, municipal_registration TEXT,
+  provider_connection_id TEXT REFERENCES integration_connections(id), metadata_json TEXT NOT NULL DEFAULT '{}',
+  state TEXT NOT NULL DEFAULT 'active', active_version_id TEXT,
+  latest_version_number INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,code), UNIQUE(tenant_id,cnpj)
+);
+CREATE TABLE IF NOT EXISTS fiscal_context_versions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  version_number INTEGER NOT NULL, tax_regime TEXT NOT NULL, uf TEXT NOT NULL, municipality_code TEXT NOT NULL,
+  valid_from TEXT NOT NULL, valid_until TEXT, environment TEXT NOT NULL DEFAULT 'homologation',
+  rtc_mode TEXT NOT NULL DEFAULT 'simulation_only', layout_version TEXT, schema_version TEXT,
+  technical_note_version TEXT, ruleset_version TEXT, configuration_json TEXT NOT NULL DEFAULT '{}', notes TEXT,
+  state TEXT NOT NULL DEFAULT 'draft', published_at TEXT, published_by TEXT,
+  superseded_by_version_id TEXT REFERENCES fiscal_context_versions(id), version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_context_id,version_number)
+);
+CREATE TABLE IF NOT EXISTS fiscal_context_operation_scopes (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL,
+  fiscal_context_version_id TEXT NOT NULL REFERENCES fiscal_context_versions(id),
+  operation_type TEXT NOT NULL, item_kind TEXT NOT NULL DEFAULT 'any',
+  recipient_scope TEXT NOT NULL DEFAULT 'any', document_type TEXT NOT NULL DEFAULT 'any', created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_context_version_id,operation_type,item_kind,recipient_scope,document_type)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_contexts_scope
+  ON fiscal_contexts(tenant_id,state,institution_id,unit_id,cnpj);
+CREATE INDEX IF NOT EXISTS ix_fiscal_context_versions_effective
+  ON fiscal_context_versions(tenant_id,fiscal_context_id,state,valid_from,valid_until);
+CREATE INDEX IF NOT EXISTS ix_fiscal_context_scopes_resolution
+  ON fiscal_context_operation_scopes(tenant_id,operation_type,item_kind,recipient_scope,document_type);
+
 CREATE TABLE IF NOT EXISTS fiscal_rules (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_profile_id TEXT NOT NULL REFERENCES fiscal_profiles(id),
   operation_type TEXT NOT NULL, item_kind TEXT NOT NULL, classification_key TEXT,
@@ -255,12 +314,18 @@ CREATE TABLE IF NOT EXISTS fiscal_rules (
 );
 CREATE TABLE IF NOT EXISTS fiscal_documents (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_profile_id TEXT REFERENCES fiscal_profiles(id),
+  fiscal_context_id TEXT REFERENCES fiscal_contexts(id),
+  fiscal_context_version_id TEXT REFERENCES fiscal_context_versions(id),
+  fiscal_context_snapshot_json TEXT NOT NULL DEFAULT '{}',
   document_type TEXT NOT NULL, source_type TEXT NOT NULL, source_id TEXT NOT NULL, environment TEXT NOT NULL,
   state TEXT NOT NULL DEFAULT 'requested', access_key TEXT, protocol TEXT, number TEXT, series TEXT,
   provider_connection_id TEXT REFERENCES integration_connections(id), provider_document_id TEXT, provider_status TEXT NOT NULL DEFAULT 'not_configured',
   attempts INTEGER NOT NULL DEFAULT 0, last_attempt_at TEXT,
   totals_json TEXT NOT NULL DEFAULT '{}', request_json TEXT NOT NULL DEFAULT '{}', response_json TEXT NOT NULL DEFAULT '{}',
   xml_storage_key TEXT, pdf_storage_key TEXT, xml_sha256 TEXT, error_code TEXT, error_message TEXT,
+  replacement_of_document_id TEXT, substituted_by_document_id TEXT, contingency_mode TEXT,
+  delivery_policy_id TEXT, retry_count INTEGER NOT NULL DEFAULT 0, next_retry_at TEXT,
+  authorized_at TEXT, cancelled_at TEXT,
   created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id, document_type, source_type, source_id)
 );
 CREATE TABLE IF NOT EXISTS fiscal_document_events (
@@ -270,6 +335,82 @@ CREATE TABLE IF NOT EXISTS fiscal_document_events (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_fiscal_document_events_document ON fiscal_document_events(tenant_id,fiscal_document_id,created_at);
+
+
+-- 0038: ciclo de vida de documentos fiscais e providers condicionais.
+CREATE TABLE IF NOT EXISTS fiscal_certificate_metadata (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, certificate_type TEXT NOT NULL DEFAULT 'a1',
+  subject_name TEXT NOT NULL, subject_document TEXT, serial_number TEXT NOT NULL, issuer_name TEXT NOT NULL,
+  valid_from TEXT NOT NULL, valid_until TEXT NOT NULL, fingerprint_sha256 TEXT NOT NULL, secret_ref TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active', metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fingerprint_sha256)
+);
+CREATE TABLE IF NOT EXISTS fiscal_provider_configurations (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, provider_code TEXT NOT NULL, display_name TEXT NOT NULL,
+  document_type TEXT NOT NULL, environment TEXT NOT NULL DEFAULT 'homologation', endpoint_url TEXT, secret_ref TEXT,
+  certificate_metadata_id TEXT REFERENCES fiscal_certificate_metadata(id), capabilities_json TEXT NOT NULL DEFAULT '[]',
+  settings_json TEXT NOT NULL DEFAULT '{}', enabled INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'not_configured',
+  last_health_status TEXT NOT NULL DEFAULT 'not_checked', last_health_at TEXT, last_health_detail TEXT,
+  webhook_tolerance_seconds INTEGER NOT NULL DEFAULT 300, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,provider_code,document_type,environment)
+);
+CREATE TABLE IF NOT EXISTS fiscal_document_attempts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  provider_connection_id TEXT, operation TEXT NOT NULL, attempt_number INTEGER NOT NULL, state TEXT NOT NULL,
+  request_sha256 TEXT NOT NULL, request_json TEXT NOT NULL DEFAULT '{}', response_json TEXT NOT NULL DEFAULT '{}',
+  error_code TEXT, retryable INTEGER NOT NULL DEFAULT 0, started_at TEXT NOT NULL, finished_at TEXT, created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_document_id,operation,attempt_number)
+);
+CREATE TABLE IF NOT EXISTS fiscal_document_artifacts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  artifact_type TEXT NOT NULL, content_type TEXT NOT NULL, storage_key TEXT NOT NULL, sha256 TEXT NOT NULL,
+  bytes_count INTEGER NOT NULL, provider_event_id TEXT, created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_document_id,artifact_type,sha256)
+);
+CREATE TABLE IF NOT EXISTS fiscal_inutilization_requests (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_profile_id TEXT NOT NULL,
+  provider_configuration_id TEXT NOT NULL REFERENCES fiscal_provider_configurations(id), document_type TEXT NOT NULL,
+  environment TEXT NOT NULL, year INTEGER NOT NULL, series TEXT NOT NULL, start_number INTEGER NOT NULL, end_number INTEGER NOT NULL,
+  reason TEXT NOT NULL, state TEXT NOT NULL, provider_status TEXT NOT NULL, protocol TEXT, provider_request_id TEXT,
+  attempts INTEGER NOT NULL DEFAULT 0, error_code TEXT, error_message TEXT, created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,document_type,environment,year,series,start_number,end_number)
+);
+CREATE TABLE IF NOT EXISTS fiscal_provider_event_requests (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  event_type TEXT NOT NULL, payload_json TEXT NOT NULL DEFAULT '{}', reason TEXT NOT NULL, state TEXT NOT NULL,
+  provider_status TEXT NOT NULL, protocol TEXT, provider_event_id TEXT, attempts INTEGER NOT NULL DEFAULT 0,
+  error_code TEXT, error_message TEXT, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_provider_config_status ON fiscal_provider_configurations(tenant_id,document_type,environment,status);
+CREATE INDEX IF NOT EXISTS ix_fiscal_attempt_document ON fiscal_document_attempts(tenant_id,fiscal_document_id,operation,created_at);
+CREATE INDEX IF NOT EXISTS ix_fiscal_artifact_document ON fiscal_document_artifacts(tenant_id,fiscal_document_id,artifact_type,created_at);
+CREATE INDEX IF NOT EXISTS ix_fiscal_inutilization_status ON fiscal_inutilization_requests(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_fiscal_provider_event_status ON fiscal_provider_event_requests(tenant_id,fiscal_document_id,state,created_at);
+
+
+-- 0041: resiliência de entrega fiscal, rejeições explicáveis e renderer local.
+CREATE TABLE IF NOT EXISTS fiscal_document_delivery_policies (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, code TEXT NOT NULL, name TEXT NOT NULL,
+  document_type TEXT NOT NULL DEFAULT 'any', provider_code TEXT, environment TEXT NOT NULL DEFAULT 'any',
+  valid_from TEXT NOT NULL, valid_until TEXT, priority INTEGER NOT NULL DEFAULT 100,
+  max_attempts INTEGER NOT NULL DEFAULT 3, base_delay_seconds INTEGER NOT NULL DEFAULT 30,
+  max_delay_seconds INTEGER NOT NULL DEFAULT 1800, backoff_multiplier NUMERIC NOT NULL DEFAULT 2,
+  jitter_seconds INTEGER NOT NULL DEFAULT 0, auto_retry INTEGER NOT NULL DEFAULT 1,
+  contingency_after_attempts INTEGER, contingency_mode TEXT, notes TEXT,
+  state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL,
+  published_by TEXT, published_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,code,version)
+);
+CREATE TABLE IF NOT EXISTS fiscal_document_rejections (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  attempt_id TEXT REFERENCES fiscal_document_attempts(id), delivery_policy_id TEXT REFERENCES fiscal_document_delivery_policies(id),
+  error_code TEXT, error_message TEXT, category TEXT NOT NULL, retryable INTEGER NOT NULL DEFAULT 0,
+  provider_status TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', next_retry_at TEXT,
+  explanation_json TEXT NOT NULL DEFAULT '{}', resolution TEXT, resolved_at TEXT, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_delivery_policy_effective ON fiscal_document_delivery_policies(tenant_id,state,document_type,environment,valid_from,valid_until,priority);
+CREATE INDEX IF NOT EXISTS ix_fiscal_rejection_document ON fiscal_document_rejections(tenant_id,fiscal_document_id,state,created_at);
 
 CREATE TABLE IF NOT EXISTS employment_contracts (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, employee_id TEXT NOT NULL REFERENCES employees(id),
@@ -724,12 +865,15 @@ CREATE TABLE IF NOT EXISTS stock_transfer_items (
 );
 CREATE TABLE IF NOT EXISTS inventory_counts (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, warehouse TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'draft',
-  reason TEXT, created_by TEXT NOT NULL, approved_by TEXT, created_at TEXT NOT NULL, finalized_at TEXT
+  reason TEXT, created_by TEXT NOT NULL, approved_by TEXT, created_at TEXT NOT NULL, finalized_at TEXT,
+  started_at TEXT, snapshot_json TEXT NOT NULL DEFAULT '{}', institution_id TEXT, unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS inventory_count_items (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, inventory_count_id TEXT NOT NULL REFERENCES inventory_counts(id),
   product_id TEXT NOT NULL REFERENCES products(id), expected_quantity NUMERIC NOT NULL, counted_quantity NUMERIC NOT NULL,
-  difference NUMERIC NOT NULL, movement_id TEXT, created_at TEXT NOT NULL, UNIQUE(inventory_count_id, product_id)
+  difference NUMERIC NOT NULL, movement_id TEXT, lot_id TEXT, notes TEXT, created_at TEXT NOT NULL,
+  UNIQUE(inventory_count_id, product_id, lot_id)
 );
 CREATE TABLE IF NOT EXISTS sale_returns (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, sale_id TEXT NOT NULL REFERENCES sales(id),
@@ -1083,3 +1227,432 @@ CREATE TABLE IF NOT EXISTS admission_vacancy_reservations (
 CREATE INDEX IF NOT EXISTS ix_admission_leads_state ON admission_leads(tenant_id,state,created_at);
 CREATE INDEX IF NOT EXISTS ix_admission_applications_process ON admission_applications(tenant_id,process_id,state,rank_position);
 CREATE INDEX IF NOT EXISTS ix_admission_reservations_capacity ON admission_vacancy_reservations(tenant_id,class_group_id,state,expires_at);
+
+
+-- Incremento vertical: catálogo de serviços, compras, lotes, reservas e patrimônio detalhado.
+CREATE TABLE IF NOT EXISTS service_catalogs (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, code TEXT NOT NULL, name TEXT NOT NULL, description TEXT,
+  valid_from TEXT, valid_until TEXT, state TEXT NOT NULL DEFAULT 'active', institution_id TEXT, unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,code)
+);
+CREATE TABLE IF NOT EXISTS service_variants (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, service_id TEXT NOT NULL REFERENCES services(id), code TEXT NOT NULL,
+  name TEXT NOT NULL, description TEXT, duration_minutes INTEGER, capacity INTEGER, state TEXT NOT NULL DEFAULT 'active',
+  metadata_json TEXT NOT NULL DEFAULT '{}', institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,service_id,code)
+);
+CREATE TABLE IF NOT EXISTS service_fiscal_profiles (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, service_id TEXT NOT NULL REFERENCES services(id), variant_id TEXT,
+  valid_from TEXT NOT NULL, valid_until TEXT, nbs_code TEXT, lc116_code TEXT, municipal_service_code TEXT, cnae_code TEXT,
+  iss_rate NUMERIC NOT NULL DEFAULT 0, ibs_rate NUMERIC NOT NULL DEFAULT 0, cbs_rate NUMERIC NOT NULL DEFAULT 0,
+  cclass_trib TEXT, fiscal_trigger TEXT NOT NULL DEFAULT 'billing', withholding_json TEXT NOT NULL DEFAULT '{}',
+  rules_snapshot_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'draft', classification_status TEXT NOT NULL DEFAULT 'incomplete',
+  published_at TEXT, published_by TEXT, institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS service_price_tables (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, service_id TEXT NOT NULL REFERENCES services(id), variant_id TEXT,
+  name TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT, currency TEXT NOT NULL DEFAULT 'BRL',
+  amount NUMERIC NOT NULL, billing_frequency TEXT NOT NULL DEFAULT 'one_time', state TEXT NOT NULL DEFAULT 'active',
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS service_billing_rules (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, service_id TEXT NOT NULL REFERENCES services(id), variant_id TEXT,
+  code TEXT NOT NULL, name TEXT NOT NULL, billing_trigger TEXT NOT NULL DEFAULT 'competence', due_day INTEGER NOT NULL DEFAULT 10,
+  installment_count INTEGER NOT NULL DEFAULT 1, interval_months INTEGER NOT NULL DEFAULT 1,
+  recognition_policy TEXT NOT NULL DEFAULT 'competence', fiscal_trigger TEXT NOT NULL DEFAULT 'competence',
+  proration_policy TEXT NOT NULL DEFAULT 'none', state TEXT NOT NULL DEFAULT 'active', config_json TEXT NOT NULL DEFAULT '{}',
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,service_id,code)
+);
+CREATE TABLE IF NOT EXISTS service_subscriptions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, subscription_number TEXT NOT NULL, service_id TEXT NOT NULL REFERENCES services(id),
+  variant_id TEXT, subscriber_person_id TEXT NOT NULL REFERENCES people(id), enrollment_id TEXT REFERENCES enrollments(id),
+  financial_contract_id TEXT REFERENCES financial_contracts(id), billing_rule_id TEXT NOT NULL REFERENCES service_billing_rules(id),
+  starts_on TEXT NOT NULL, ends_on TEXT, quantity NUMERIC NOT NULL DEFAULT 1, unit_price NUMERIC NOT NULL,
+  discount_amount NUMERIC NOT NULL DEFAULT 0, cycle_amount NUMERIC NOT NULL, next_competence_on TEXT NOT NULL,
+  auto_renew INTEGER NOT NULL DEFAULT 0, state TEXT NOT NULL DEFAULT 'draft', suspended_at TEXT, cancelled_at TEXT,
+  cancellation_reason TEXT, institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,subscription_number)
+);
+CREATE TABLE IF NOT EXISTS service_executions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, execution_number TEXT NOT NULL, service_order_id TEXT NOT NULL REFERENCES service_orders(id),
+  service_order_item_id TEXT NOT NULL REFERENCES service_order_items(id), subscription_id TEXT, scheduled_at TEXT, started_at TEXT,
+  completed_at TEXT, quantity NUMERIC NOT NULL, state TEXT NOT NULL DEFAULT 'scheduled', performer_person_id TEXT REFERENCES people(id),
+  notes TEXT, evidence_json TEXT NOT NULL DEFAULT '{}', institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,execution_number)
+);
+CREATE TABLE IF NOT EXISTS service_competencies (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, subscription_id TEXT NOT NULL REFERENCES service_subscriptions(id),
+  competence_key TEXT NOT NULL, period_start TEXT NOT NULL, period_end TEXT NOT NULL, due_date TEXT NOT NULL, amount NUMERIC NOT NULL,
+  service_order_id TEXT, charge_id TEXT, state TEXT NOT NULL DEFAULT 'pending', billed_at TEXT,
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,subscription_id,competence_key)
+);
+CREATE TABLE IF NOT EXISTS service_fiscal_events (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, event_key TEXT NOT NULL, service_order_id TEXT NOT NULL REFERENCES service_orders(id),
+  service_order_item_id TEXT, competence_id TEXT, trigger_type TEXT NOT NULL, document_type TEXT NOT NULL DEFAULT 'nfse',
+  provider_code TEXT, state TEXT NOT NULL DEFAULT 'not_configured', payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
+  requested_at TEXT NOT NULL, completed_at TEXT, failure_code TEXT, failure_message TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,event_key)
+);
+CREATE TABLE IF NOT EXISTS charges (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, charge_number TEXT NOT NULL, financial_contract_id TEXT REFERENCES financial_contracts(id),
+  enrollment_id TEXT REFERENCES enrollments(id), responsible_person_id TEXT REFERENCES people(id), origin_type TEXT NOT NULL, origin_id TEXT NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'BRL', total_amount NUMERIC NOT NULL, paid_amount NUMERIC NOT NULL DEFAULT 0,
+  refunded_amount NUMERIC NOT NULL DEFAULT 0, outstanding_amount NUMERIC NOT NULL, due_date TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'open', generated_at TEXT NOT NULL, cancelled_at TEXT, cancellation_reason TEXT,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,charge_number), UNIQUE(tenant_id,origin_type,origin_id)
+);
+CREATE TABLE IF NOT EXISTS charge_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, charge_id TEXT NOT NULL REFERENCES charges(id), description TEXT NOT NULL,
+  quantity NUMERIC NOT NULL DEFAULT 1, unit_amount NUMERIC NOT NULL, discount_amount NUMERIC NOT NULL DEFAULT 0,
+  total_amount NUMERIC NOT NULL, accounting_code TEXT, metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS accounts_receivable (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, receivable_number TEXT NOT NULL, installment_id TEXT REFERENCES installments(id),
+  charge_id TEXT REFERENCES charges(id), responsible_person_id TEXT REFERENCES people(id), cost_center_id TEXT, amount NUMERIC NOT NULL,
+  paid_amount NUMERIC NOT NULL DEFAULT 0, refunded_amount NUMERIC NOT NULL DEFAULT 0, outstanding_amount NUMERIC NOT NULL,
+  due_date TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,receivable_number)
+);
+
+CREATE TABLE IF NOT EXISTS product_variants (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), sku TEXT NOT NULL, name TEXT NOT NULL,
+  attributes_json TEXT NOT NULL DEFAULT '{}', sale_price NUMERIC, cost_price NUMERIC, state TEXT NOT NULL DEFAULT 'active',
+  institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,sku)
+);
+CREATE TABLE IF NOT EXISTS product_barcodes (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), variant_id TEXT, barcode TEXT NOT NULL,
+  barcode_type TEXT NOT NULL DEFAULT 'ean13', is_primary INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,barcode)
+);
+CREATE TABLE IF NOT EXISTS supplier_contacts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, supplier_id TEXT NOT NULL REFERENCES suppliers(id), name TEXT NOT NULL, email TEXT,
+  phone TEXT, role TEXT, is_primary INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS purchase_requisitions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, requisition_number TEXT NOT NULL, requester_user_id TEXT NOT NULL, department_id TEXT,
+  cost_center_id TEXT, needed_by TEXT, justification TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'draft', submitted_at TEXT, submitted_by TEXT,
+  approved_at TEXT, approved_by TEXT, rejected_at TEXT, rejected_by TEXT, rejection_reason TEXT, cancelled_at TEXT, cancelled_by TEXT,
+  cancellation_reason TEXT, institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,requisition_number)
+);
+CREATE TABLE IF NOT EXISTS purchase_requisition_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, requisition_id TEXT NOT NULL REFERENCES purchase_requisitions(id), product_id TEXT NOT NULL REFERENCES products(id),
+  quantity NUMERIC NOT NULL, approved_quantity NUMERIC NOT NULL DEFAULT 0, estimated_unit_price NUMERIC NOT NULL DEFAULT 0,
+  notes TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS requests_for_quotation (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, quotation_number TEXT NOT NULL, requisition_id TEXT REFERENCES purchase_requisitions(id),
+  response_deadline TEXT, currency TEXT NOT NULL DEFAULT 'BRL', state TEXT NOT NULL DEFAULT 'open', selected_supplier_id TEXT REFERENCES suppliers(id),
+  selection_reason TEXT, awarded_at TEXT, awarded_by TEXT, institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,quotation_number)
+);
+CREATE TABLE IF NOT EXISTS quotation_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, quotation_id TEXT NOT NULL REFERENCES requests_for_quotation(id),
+  product_id TEXT NOT NULL REFERENCES products(id), quantity NUMERIC NOT NULL, specifications_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS quotation_suppliers (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, quotation_id TEXT NOT NULL REFERENCES requests_for_quotation(id),
+  supplier_id TEXT NOT NULL REFERENCES suppliers(id), state TEXT NOT NULL DEFAULT 'invited', invited_at TEXT NOT NULL, submitted_at TEXT,
+  delivery_days INTEGER, payment_terms_json TEXT NOT NULL DEFAULT '{}', notes TEXT, total_amount NUMERIC NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,quotation_id,supplier_id)
+);
+CREATE TABLE IF NOT EXISTS quotation_supplier_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, quotation_supplier_id TEXT NOT NULL REFERENCES quotation_suppliers(id),
+  quotation_item_id TEXT NOT NULL REFERENCES quotation_items(id), unit_price NUMERIC NOT NULL, quantity_available NUMERIC NOT NULL,
+  brand TEXT, notes TEXT, created_at TEXT NOT NULL, UNIQUE(tenant_id,quotation_supplier_id,quotation_item_id)
+);
+CREATE TABLE IF NOT EXISTS goods_receipts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, receipt_number TEXT NOT NULL, purchase_order_id TEXT NOT NULL REFERENCES purchase_orders(id),
+  supplier_id TEXT NOT NULL REFERENCES suppliers(id), warehouse_id TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'confirmed',
+  received_at TEXT NOT NULL, received_by TEXT NOT NULL, supplier_document_number TEXT, supplier_document_key TEXT,
+  total_amount NUMERIC NOT NULL DEFAULT 0, notes TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,receipt_number)
+);
+CREATE TABLE IF NOT EXISTS goods_receipt_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, goods_receipt_id TEXT NOT NULL REFERENCES goods_receipts(id),
+  purchase_order_item_id TEXT NOT NULL REFERENCES purchase_order_items(id), product_id TEXT NOT NULL REFERENCES products(id),
+  quantity NUMERIC NOT NULL, unit_cost NUMERIC NOT NULL, lot_id TEXT, stock_movement_id TEXT, expires_on TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS inventory_lots (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), warehouse_id TEXT NOT NULL,
+  lot_number TEXT NOT NULL, manufactured_on TEXT, expires_on TEXT, quantity NUMERIC NOT NULL DEFAULT 0, reserved_quantity NUMERIC NOT NULL DEFAULT 0,
+  unit_cost NUMERIC NOT NULL DEFAULT 0, state TEXT NOT NULL DEFAULT 'active', created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,product_id,warehouse_id,lot_number)
+);
+CREATE TABLE IF NOT EXISTS purchase_returns (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, return_number TEXT NOT NULL, purchase_order_id TEXT NOT NULL REFERENCES purchase_orders(id),
+  supplier_id TEXT NOT NULL REFERENCES suppliers(id), warehouse_id TEXT NOT NULL, reason TEXT NOT NULL, total_amount NUMERIC NOT NULL DEFAULT 0,
+  state TEXT NOT NULL DEFAULT 'confirmed', returned_at TEXT NOT NULL, returned_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,return_number)
+);
+CREATE TABLE IF NOT EXISTS purchase_return_items (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, purchase_return_id TEXT NOT NULL REFERENCES purchase_returns(id),
+  purchase_order_item_id TEXT NOT NULL REFERENCES purchase_order_items(id), product_id TEXT NOT NULL REFERENCES products(id),
+  lot_id TEXT, quantity NUMERIC NOT NULL, unit_cost NUMERIC NOT NULL, stock_movement_id TEXT, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS inventory_reservations (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), warehouse_id TEXT NOT NULL, lot_id TEXT,
+  source_type TEXT NOT NULL, source_id TEXT NOT NULL, quantity NUMERIC NOT NULL, consumed_quantity NUMERIC NOT NULL DEFAULT 0,
+  state TEXT NOT NULL DEFAULT 'active', expires_at TEXT, released_at TEXT, consumed_at TEXT, institution_id TEXT, unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,source_type,source_id,product_id,warehouse_id,lot_id)
+);
+
+CREATE TABLE IF NOT EXISTS inventory_reorder_policies (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id),
+  warehouse_id TEXT NOT NULL DEFAULT 'default', minimum_quantity NUMERIC NOT NULL, target_quantity NUMERIC NOT NULL,
+  lead_time_days INTEGER NOT NULL DEFAULT 0, preferred_supplier_id TEXT REFERENCES suppliers(id),
+  state TEXT NOT NULL DEFAULT 'active', institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,product_id,warehouse_id)
+);
+CREATE TABLE IF NOT EXISTS purchase_suggestions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, policy_id TEXT NOT NULL REFERENCES inventory_reorder_policies(id),
+  product_id TEXT NOT NULL REFERENCES products(id), warehouse_id TEXT NOT NULL,
+  preferred_supplier_id TEXT REFERENCES suppliers(id), physical_quantity NUMERIC NOT NULL DEFAULT 0,
+  reserved_quantity NUMERIC NOT NULL DEFAULT 0, available_quantity NUMERIC NOT NULL DEFAULT 0,
+  open_purchase_quantity NUMERIC NOT NULL DEFAULT 0, projected_quantity NUMERIC NOT NULL DEFAULT 0,
+  minimum_quantity NUMERIC NOT NULL, target_quantity NUMERIC NOT NULL, suggested_quantity NUMERIC NOT NULL,
+  estimated_unit_cost NUMERIC NOT NULL DEFAULT 0, estimated_total NUMERIC NOT NULL DEFAULT 0,
+  reason TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', requisition_id TEXT REFERENCES purchase_requisitions(id),
+  generated_at TEXT NOT NULL, generated_by TEXT NOT NULL, converted_at TEXT, converted_by TEXT,
+  closed_at TEXT, closed_by TEXT, closure_reason TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_inventory_reorder_policies_state
+  ON inventory_reorder_policies(tenant_id,state,warehouse_id,product_id);
+CREATE INDEX IF NOT EXISTS ix_purchase_suggestions_state
+  ON purchase_suggestions(tenant_id,state,generated_at);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_purchase_suggestions_open_policy
+  ON purchase_suggestions(tenant_id,policy_id) WHERE state='open';
+
+CREATE TABLE IF NOT EXISTS asset_locations (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, code TEXT NOT NULL, name TEXT NOT NULL, parent_id TEXT REFERENCES asset_locations(id),
+  state TEXT NOT NULL DEFAULT 'active', institution_id TEXT, unit_id TEXT, version INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,code)
+);
+CREATE TABLE IF NOT EXISTS asset_movements (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, asset_id TEXT NOT NULL REFERENCES assets(id), movement_type TEXT NOT NULL,
+  from_location_id TEXT, to_location_id TEXT, from_responsible_person_id TEXT, to_responsible_person_id TEXT,
+  reason TEXT NOT NULL, occurred_at TEXT NOT NULL, occurred_by TEXT NOT NULL, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS asset_maintenances (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, asset_id TEXT NOT NULL REFERENCES assets(id), maintenance_number TEXT NOT NULL,
+  maintenance_type TEXT NOT NULL, scheduled_on TEXT, supplier_id TEXT REFERENCES suppliers(id), estimated_cost NUMERIC NOT NULL DEFAULT 0,
+  actual_cost NUMERIC, description TEXT NOT NULL, result_notes TEXT, state TEXT NOT NULL DEFAULT 'scheduled', started_at TEXT,
+  completed_at TEXT, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,maintenance_number)
+);
+CREATE TABLE IF NOT EXISTS asset_loans (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, asset_id TEXT NOT NULL REFERENCES assets(id), loan_number TEXT NOT NULL,
+  borrower_person_id TEXT NOT NULL REFERENCES people(id), loaned_at TEXT NOT NULL, expected_return_at TEXT, returned_at TEXT,
+  condition_out TEXT, condition_in TEXT, state TEXT NOT NULL DEFAULT 'active', created_by TEXT NOT NULL, returned_by TEXT,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,loan_number)
+);
+CREATE TABLE IF NOT EXISTS asset_depreciations (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, asset_id TEXT NOT NULL REFERENCES assets(id), competence TEXT NOT NULL,
+  opening_book_value NUMERIC NOT NULL, depreciation_amount NUMERIC NOT NULL, accumulated_depreciation NUMERIC NOT NULL,
+  closing_book_value NUMERIC NOT NULL, method TEXT NOT NULL DEFAULT 'linear', calculated_at TEXT NOT NULL, calculated_by TEXT NOT NULL,
+  created_at TEXT NOT NULL, UNIQUE(tenant_id,asset_id,competence)
+);
+
+CREATE INDEX IF NOT EXISTS ix_service_prices_validity ON service_price_tables(tenant_id,service_id,variant_id,valid_from,valid_until,state);
+CREATE INDEX IF NOT EXISTS ix_service_subscriptions_status ON service_subscriptions(tenant_id,state,next_competence_on);
+CREATE INDEX IF NOT EXISTS ix_service_orders_status ON service_orders(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_requisitions_status ON purchase_requisitions(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_quotations_status ON requests_for_quotation(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_inventory_lots_expiry ON inventory_lots(tenant_id,warehouse_id,expires_on,state);
+CREATE INDEX IF NOT EXISTS ix_inventory_reservations_product ON inventory_reservations(tenant_id,product_id,warehouse_id,state);
+CREATE INDEX IF NOT EXISTS ix_asset_movements_asset ON asset_movements(tenant_id,asset_id,occurred_at);
+
+CREATE TABLE IF NOT EXISTS fiscal_catalogs (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, kind TEXT NOT NULL, name TEXT NOT NULL, description TEXT,
+  normalization TEXT NOT NULL DEFAULT 'upper_alnum', code_pattern TEXT, metadata_json TEXT NOT NULL DEFAULT '{}',
+  state TEXT NOT NULL DEFAULT 'active', active_version_id TEXT, latest_version_number INTEGER NOT NULL DEFAULT 0,
+  version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,kind)
+);
+CREATE TABLE IF NOT EXISTS fiscal_catalog_versions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_catalog_id TEXT NOT NULL REFERENCES fiscal_catalogs(id),
+  version_number INTEGER NOT NULL, version_label TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT,
+  source_name TEXT NOT NULL, source_reference TEXT, source_sha256 TEXT NOT NULL, schema_version TEXT, notes TEXT,
+  state TEXT NOT NULL DEFAULT 'draft', published_at TEXT, published_by TEXT, entries_count INTEGER NOT NULL DEFAULT 0,
+  version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_catalog_id,version_number)
+);
+CREATE TABLE IF NOT EXISTS fiscal_catalog_entries (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_catalog_version_id TEXT NOT NULL REFERENCES fiscal_catalog_versions(id),
+  code TEXT NOT NULL, description TEXT NOT NULL, parent_code TEXT, metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_catalog_version_id,code)
+);
+CREATE TABLE IF NOT EXISTS fiscal_classification_rules (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  establishment_code TEXT, item_kind TEXT NOT NULL, item_id TEXT, operation_type TEXT NOT NULL,
+  valid_from TEXT NOT NULL, valid_until TEXT, priority INTEGER NOT NULL DEFAULT 100,
+  ncm TEXT, nbs TEXT, lc116 TEXT, cfop TEXT, cest TEXT, cst TEXT, csosn TEXT, cst_ibs_cbs TEXT,
+  cclasstrib TEXT, cbenef TEXT, municipal_code TEXT, cnae TEXT, tax_configuration_json TEXT NOT NULL DEFAULT '{}',
+  notes TEXT, state TEXT NOT NULL DEFAULT 'draft', published_at TEXT, published_by TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_catalog_versions_effective
+  ON fiscal_catalog_versions(tenant_id,fiscal_catalog_id,state,valid_from,valid_until);
+CREATE INDEX IF NOT EXISTS ix_fiscal_catalog_entries_code
+  ON fiscal_catalog_entries(tenant_id,fiscal_catalog_version_id,code);
+CREATE INDEX IF NOT EXISTS ix_fiscal_classification_rules_resolution
+  ON fiscal_classification_rules(tenant_id,fiscal_context_id,item_kind,operation_type,state,valid_from,valid_until,priority);
+
+CREATE TABLE IF NOT EXISTS fiscal_tax_rule_sets (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  code TEXT NOT NULL, name TEXT NOT NULL, description TEXT, establishment_code TEXT,
+  operation_type TEXT NOT NULL DEFAULT 'sale', item_kind TEXT NOT NULL DEFAULT 'any', tax_regime TEXT NOT NULL DEFAULT 'any', rtc_mode TEXT NOT NULL DEFAULT 'any',
+  priority INTEGER NOT NULL DEFAULT 100, state TEXT NOT NULL DEFAULT 'active', active_version_id TEXT,
+  latest_version_number INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,code)
+);
+CREATE TABLE IF NOT EXISTS fiscal_tax_rule_versions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_tax_rule_set_id TEXT NOT NULL REFERENCES fiscal_tax_rule_sets(id),
+  version_number INTEGER NOT NULL, version_label TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT,
+  source_name TEXT NOT NULL, source_reference TEXT, source_sha256 TEXT NOT NULL, legal_basis_json TEXT NOT NULL DEFAULT '[]',
+  components_json TEXT NOT NULL DEFAULT '[]', notes TEXT, state TEXT NOT NULL DEFAULT 'draft', published_at TEXT, published_by TEXT,
+  version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_tax_rule_set_id,version_number)
+);
+CREATE TABLE IF NOT EXISTS fiscal_tax_calculations (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  fiscal_context_version_id TEXT NOT NULL REFERENCES fiscal_context_versions(id), fiscal_tax_rule_set_id TEXT NOT NULL REFERENCES fiscal_tax_rule_sets(id),
+  fiscal_tax_rule_version_id TEXT NOT NULL REFERENCES fiscal_tax_rule_versions(id), item_kind TEXT NOT NULL, item_id TEXT,
+  operation_type TEXT NOT NULL, occurred_on TEXT NOT NULL, input_json TEXT NOT NULL, result_json TEXT NOT NULL,
+  snapshot_sha256 TEXT NOT NULL, tax_total NUMERIC NOT NULL DEFAULT 0, has_divergence INTEGER NOT NULL DEFAULT 0,
+  created_by TEXT NOT NULL, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_tax_rule_sets_resolution ON fiscal_tax_rule_sets(tenant_id,fiscal_context_id,state,establishment_code,operation_type,item_kind,tax_regime,rtc_mode,priority);
+CREATE INDEX IF NOT EXISTS ix_fiscal_tax_rule_versions_effective ON fiscal_tax_rule_versions(tenant_id,fiscal_tax_rule_set_id,state,valid_from,valid_until);
+CREATE INDEX IF NOT EXISTS ix_fiscal_tax_calculations_lookup ON fiscal_tax_calculations(tenant_id,fiscal_context_id,occurred_on,operation_type,item_kind);
+
+-- Estratégias tributárias e cronograma RTC versionado.
+CREATE TABLE IF NOT EXISTS fiscal_legal_source_artifacts (id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, kind TEXT NOT NULL, title TEXT NOT NULL, version_label TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT, source_reference TEXT, source_sha256 TEXT NOT NULL, metadata_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'published', created_by TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS fiscal_strategy_rules (id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id), establishment_code TEXT, strategy_type TEXT NOT NULL, operation_type TEXT NOT NULL, tax_regime TEXT NOT NULL, rtc_mode TEXT NOT NULL, origin_uf TEXT, destination_uf TEXT, valid_from TEXT NOT NULL, valid_until TEXT, priority INTEGER NOT NULL DEFAULT 100, parameters_json TEXT NOT NULL DEFAULT '{}', legal_source_id TEXT REFERENCES fiscal_legal_source_artifacts(id), state TEXT NOT NULL DEFAULT 'published', version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_fiscal_strategy_resolution ON fiscal_strategy_rules(tenant_id,fiscal_context_id,state,valid_from,valid_until,priority);
+CREATE TABLE IF NOT EXISTS fiscal_rtc_schedules (id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id), establishment_code TEXT, tax_regime TEXT NOT NULL, mode TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT, legal_source_id TEXT REFERENCES fiscal_legal_source_artifacts(id), notes TEXT, state TEXT NOT NULL DEFAULT 'published', version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_fiscal_rtc_resolution ON fiscal_rtc_schedules(tenant_id,fiscal_context_id,state,valid_from,valid_until);
+CREATE TABLE IF NOT EXISTS ibpt_quarantine_items (id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, sync_run_id TEXT NOT NULL, uf TEXT NOT NULL, source_url TEXT, sha256 TEXT NOT NULL, storage_key TEXT NOT NULL, bytes_count INTEGER NOT NULL, reason_code TEXT NOT NULL, reason_message TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL, resolved_at TEXT, resolved_by TEXT, UNIQUE(tenant_id,sync_run_id,sha256));
+CREATE INDEX IF NOT EXISTS ix_ibpt_quarantine_open ON ibpt_quarantine_items(tenant_id,state,uf,created_at);
+
+
+-- 0037 fiscal catalog governance/imports (SQLite local/test profile)
+CREATE TABLE IF NOT EXISTS fiscal_catalog_source_profiles (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_catalog_id TEXT NOT NULL, provider_type TEXT NOT NULL,
+  provider_key TEXT NOT NULL, provider_version TEXT NOT NULL, import_format TEXT NOT NULL, source_reference TEXT,
+  encoding TEXT NOT NULL DEFAULT 'utf-8', delimiter TEXT NOT NULL DEFAULT ';', max_age_days INTEGER NOT NULL DEFAULT 90,
+  mapping_json TEXT NOT NULL DEFAULT '{}', schema_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'ready',
+  last_import_at TEXT, last_success_at TEXT, last_error TEXT, version INTEGER NOT NULL DEFAULT 1, notes TEXT,
+  created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id,fiscal_catalog_id,provider_key,provider_version)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_catalog_sources_catalog ON fiscal_catalog_source_profiles(tenant_id,fiscal_catalog_id,state,provider_key);
+
+CREATE TABLE IF NOT EXISTS fiscal_catalog_import_runs (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_catalog_id TEXT NOT NULL, source_profile_id TEXT NOT NULL,
+  provider_key TEXT NOT NULL, provider_version TEXT NOT NULL, import_format TEXT NOT NULL, original_filename TEXT NOT NULL,
+  source_sha256 TEXT NOT NULL, storage_key TEXT NOT NULL, bytes_count INTEGER NOT NULL, state TEXT NOT NULL,
+  version_label TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT, schema_version TEXT, entries_count INTEGER NOT NULL DEFAULT 0,
+  diff_json TEXT NOT NULL DEFAULT '{}', catalog_version_id TEXT, error_code TEXT, error_detail TEXT, idempotency_key TEXT,
+  requested_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, completed_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_catalog_import_runs_catalog ON fiscal_catalog_import_runs(tenant_id,fiscal_catalog_id,state,created_at);
+
+CREATE TABLE IF NOT EXISTS fiscal_catalog_quarantine (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, import_run_id TEXT NOT NULL, source_profile_id TEXT NOT NULL,
+  fiscal_catalog_id TEXT NOT NULL, reason_code TEXT NOT NULL, reason_detail TEXT NOT NULL, storage_key TEXT NOT NULL,
+  source_sha256 TEXT NOT NULL, bytes_count INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'open', created_at TEXT NOT NULL,
+  resolved_at TEXT, resolved_by TEXT, resolution_reason TEXT, UNIQUE(tenant_id,import_run_id,source_sha256)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_catalog_quarantine_open ON fiscal_catalog_quarantine(tenant_id,state,fiscal_catalog_id,created_at);
+
+-- 0039 fiscal document routing and assembly ---------------------------------
+CREATE TABLE IF NOT EXISTS fiscal_document_schema_versions (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, document_type TEXT NOT NULL, schema_code TEXT NOT NULL,
+  version_label TEXT NOT NULL, valid_from TEXT NOT NULL, valid_until TEXT, root_element TEXT NOT NULL,
+  namespace_uri TEXT, source_reference TEXT, xsd_storage_key TEXT NOT NULL, xsd_sha256 TEXT NOT NULL,
+  metadata_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, published_by TEXT, published_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, schema_code, version_label)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_document_schema_effective ON fiscal_document_schema_versions(tenant_id,document_type,state,valid_from,valid_until);
+CREATE TABLE IF NOT EXISTS fiscal_document_routing_policies (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id),
+  code TEXT NOT NULL, name TEXT NOT NULL, operation_type TEXT NOT NULL, recipient_scope TEXT NOT NULL DEFAULT 'any',
+  channel_scope TEXT NOT NULL DEFAULT 'any', product_document_type TEXT, service_document_type TEXT NOT NULL DEFAULT 'NFS-e',
+  trigger_types_json TEXT NOT NULL DEFAULT '[]', valid_from TEXT NOT NULL, valid_until TEXT, priority INTEGER NOT NULL DEFAULT 100,
+  settings_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, published_by TEXT, published_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_routing_effective ON fiscal_document_routing_policies(tenant_id,fiscal_context_id,state,operation_type,valid_from,valid_until,priority);
+CREATE TABLE IF NOT EXISTS fiscal_document_assemblies (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, source_type TEXT NOT NULL, source_id TEXT NOT NULL,
+  fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id), fiscal_context_version_id TEXT NOT NULL REFERENCES fiscal_context_versions(id),
+  routing_policy_id TEXT REFERENCES fiscal_document_routing_policies(id), fiscal_profile_id TEXT NOT NULL REFERENCES fiscal_profiles(id),
+  occurred_on TEXT NOT NULL, operation_type TEXT NOT NULL, recipient_scope TEXT NOT NULL, channel TEXT NOT NULL, trigger_type TEXT NOT NULL,
+  state TEXT NOT NULL, input_snapshot_json TEXT NOT NULL, input_sha256 TEXT NOT NULL, routing_decision_json TEXT NOT NULL,
+  output_snapshot_json TEXT NOT NULL DEFAULT '{}', output_sha256 TEXT, created_by TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_assembly_source ON fiscal_document_assemblies(tenant_id,source_type,source_id,created_at);
+CREATE TABLE IF NOT EXISTS fiscal_document_builds (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, assembly_id TEXT NOT NULL REFERENCES fiscal_document_assemblies(id),
+  document_type TEXT NOT NULL, relationship TEXT NOT NULL, schema_version_id TEXT REFERENCES fiscal_document_schema_versions(id),
+  payload_json TEXT NOT NULL, xml_storage_key TEXT, xml_sha256 TEXT, validation_state TEXT NOT NULL,
+  validation_errors_json TEXT NOT NULL DEFAULT '[]', total_amount NUMERIC NOT NULL, item_count INTEGER NOT NULL,
+  fiscal_document_id TEXT REFERENCES fiscal_documents(id), created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_build_assembly ON fiscal_document_builds(tenant_id,assembly_id,document_type);
+CREATE TABLE IF NOT EXISTS fiscal_document_links (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, assembly_id TEXT NOT NULL REFERENCES fiscal_document_assemblies(id),
+  build_id TEXT NOT NULL REFERENCES fiscal_document_builds(id), fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  source_type TEXT NOT NULL, source_id TEXT NOT NULL, relationship TEXT NOT NULL, created_at TEXT NOT NULL,
+  UNIQUE(tenant_id, build_id, fiscal_document_id)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_document_links_source ON fiscal_document_links(tenant_id,source_type,source_id);
+CREATE TABLE IF NOT EXISTS fiscal_emission_trigger_runs (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, event_type TEXT NOT NULL, aggregate_id TEXT NOT NULL,
+  source_type TEXT, source_id TEXT, trigger_type TEXT NOT NULL, routing_policy_id TEXT REFERENCES fiscal_document_routing_policies(id),
+  state TEXT NOT NULL, payload_json TEXT NOT NULL DEFAULT '{}', error_detail TEXT, assembly_id TEXT REFERENCES fiscal_document_assemblies(id),
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,event_type,aggregate_id)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_trigger_runs_state ON fiscal_emission_trigger_runs(tenant_id,state,created_at);
+CREATE TABLE IF NOT EXISTS fiscal_document_financial_links (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id),
+  source_type TEXT NOT NULL, source_id TEXT NOT NULL, financial_contract_id TEXT, charge_id TEXT, payment_id TEXT,
+  adjustment_state TEXT NOT NULL DEFAULT 'linked', adjustment_ledger_entry_id TEXT REFERENCES ledger_entries(id),
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id,fiscal_document_id,source_type,source_id)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_financial_links_charge ON fiscal_document_financial_links(tenant_id,charge_id,adjustment_state);
+
+
+-- 0040 IBPT por tenant e transparência tributária ---------------------------
+CREATE TABLE IF NOT EXISTS fiscal_ibpt_provider_profiles (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, provider_code TEXT NOT NULL, mode TEXT NOT NULL,
+  valid_from TEXT NOT NULL, valid_until TEXT, sync_enabled INTEGER NOT NULL DEFAULT 0,
+  fallback_enabled INTEGER NOT NULL DEFAULT 1, fallback_max_age_days INTEGER NOT NULL DEFAULT 90,
+  stale_after_days INTEGER NOT NULL DEFAULT 120, base_url TEXT NOT NULL, uf_path TEXT NOT NULL,
+  notes TEXT, state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL, published_by TEXT, published_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  CHECK(mode IN ('disabled','local_snapshot','remote_sync')),
+  CHECK(state IN ('draft','published','superseded','archived')),
+  CHECK(valid_until IS NULL OR valid_until>=valid_from)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_ibpt_profile_effective
+  ON fiscal_ibpt_provider_profiles(tenant_id,state,valid_from,valid_until,version);
+
+CREATE TABLE IF NOT EXISTS fiscal_document_tax_transparency (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, build_id TEXT NOT NULL REFERENCES fiscal_document_builds(id),
+  fiscal_document_id TEXT REFERENCES fiscal_documents(id), real_taxes_json TEXT NOT NULL DEFAULT '{}',
+  approximate_ibpt_json TEXT NOT NULL DEFAULT '{}', vtottrib NUMERIC NOT NULL DEFAULT 0,
+  ibpt_provider_profile_id TEXT REFERENCES fiscal_ibpt_provider_profiles(id), created_at TEXT NOT NULL,
+  UNIQUE(tenant_id,build_id)
+);
+CREATE INDEX IF NOT EXISTS ix_fiscal_tax_transparency_document
+  ON fiscal_document_tax_transparency(tenant_id,fiscal_document_id,created_at);

@@ -1,0 +1,16 @@
+BEGIN;
+
+-- Running downgrade 0033_fiscal_catalogs_classifications -> 0032_fiscal_context_versioning
+
+DROP TABLE IF EXISTS "fiscal_classification_rules" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_catalog_entries" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_catalog_versions" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_catalogs" CASCADE;
+
+UPDATE alembic_version SET version_num='0032_fiscal_context_versioning' WHERE alembic_version.version_num = '0033_fiscal_catalogs_classifications';
+
+COMMIT;
+

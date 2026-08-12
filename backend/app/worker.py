@@ -14,12 +14,15 @@ import hashlib
 import hmac
 import json
 import os
+from datetime import date
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import quote
 
 from app.bootstrap.config import Settings
 from app.modules.fiscal.application.ibpt import UFS, queue_ibpt_sync
+from app.modules.fiscal.application.transparency_service import resolve_ibpt_profile
+from app.modules.fiscal.application.document_delivery_service import FiscalRetryScheduled
 from app.shared.database.router import DataRouter
 from app.shared.events.dispatcher import (
     DomainEventDispatcher,
@@ -251,26 +254,36 @@ def mark_overdue_workflow_tasks(*, router: DataRouter) -> dict[str, Any]:
     return {"status": "processed" if not errors else "partial", "tenants": len(tenants), "breached": breached, "errors": errors}
 
 def schedule_ibpt_for_active_tenants(*, router: DataRouter) -> dict[str, Any]:
-    """Cria solicitações idempotentes de sincronização para as 27 UFs.
+    """Agenda IBPT apenas para tenants com perfil publicado ``remote_sync``.
 
-    A rotina apenas grava outbox. O download continua ocorrendo no consumer e,
-    portanto, herda retry/DLQ/inbox sem misturar I/O externo com o scheduler.
+    O Beat permanece registrado continuamente. A decisão de executar é interna e
+    por tenant, portanto ativar/publicar um perfil não exige reiniciar workers.
+    O scheduler grava somente outbox; download e retry continuam no consumer.
     """
-    if not router.settings.ibpt_sync_enabled:
-        return {"status": "disabled", "tenants": 0, "runs": 0}
     tenants = router.control.fetch_all("SELECT id FROM platform_tenants WHERE status='active' ORDER BY id")
-    runs = 0; errors: list[dict[str, str]] = []
+    runs = 0
+    eligible = 0
+    skipped = 0
+    errors: list[dict[str, str]] = []
+    today = date.today()
     for item in tenants:
         tenant_id = str(item["id"])
         try:
-            created = queue_ibpt_sync(
-                router.tenant_store(tenant_id), tenant_id=tenant_id, ufs=list(UFS),
-                actor_id=None, correlation_id=None,
-            )
+            store = router.tenant_store(tenant_id)
+            profile = resolve_ibpt_profile(store, tenant_id, today)
+            if not profile or profile["mode"] != "remote_sync" or not profile["sync_enabled"]:
+                skipped += 1
+                continue
+            eligible += 1
+            created = queue_ibpt_sync(store, tenant_id=tenant_id, ufs=list(UFS), actor_id=None, correlation_id=None)
             runs += len(created)
         except Exception as exc:
             errors.append({"tenant_id": tenant_id, "error": f"{type(exc).__name__}: {str(exc)[:300]}"})
-    return {"status": "queued" if not errors else "partial", "tenants": len(tenants), "runs": runs, "errors": errors}
+    return {
+        "status": "queued" if not errors else "partial",
+        "tenants": len(tenants), "eligible_tenants": eligible, "skipped_tenants": skipped,
+        "runs": runs, "errors": errors,
+    }
 
 
 if Celery is not None:
@@ -309,11 +322,10 @@ if Celery is not None:
             }
         },
     )
-    if Settings.from_env().ibpt_sync_enabled:
-        celery_app.conf.beat_schedule["daily-ibpt-sync"] = {
-            "task": "pige360.schedule_ibpt_sync",
-            "schedule": float(os.getenv("IBPT_SYNC_INTERVAL_SECONDS", "86400")),
-        }
+    celery_app.conf.beat_schedule["daily-ibpt-sync"] = {
+        "task": "pige360.schedule_ibpt_sync",
+        "schedule": float(os.getenv("IBPT_SYNC_INTERVAL_SECONDS", "86400")),
+    }
 
     @celery_app.task(
         bind=True,
@@ -325,7 +337,16 @@ if Celery is not None:
     )
     def process_event(self: Any, envelope: dict[str, Any]) -> dict[str, Any]:
         secret = _secret("WORKER_CONTEXT_SIGNING_KEY", "WORKER_CONTEXT_SIGNING_KEY_FILE")
-        return handle_event(envelope, router=get_data_router(), signing_secret=secret)
+        try:
+            return handle_event(envelope, router=get_data_router(), signing_secret=secret)
+        except FiscalRetryScheduled as exc:
+            # O countdown e o limite vêm da política fiscal versionada selecionada pelo tenant.
+            # ``max_retries`` é número de novas tentativas, enquanto max_attempts inclui a original.
+            raise self.retry(
+                exc=exc,
+                countdown=exc.delay_seconds,
+                max_retries=max(0, exc.max_attempts - 1),
+            )
 
     @celery_app.task(name="pige360.schedule_ibpt_sync")
     def schedule_ibpt_sync() -> dict[str, Any]:

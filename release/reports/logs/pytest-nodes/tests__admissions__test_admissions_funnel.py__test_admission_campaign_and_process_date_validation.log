@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/admissions/test_admissions_funnel.py::test_admission_campaign_and_process_date_validation
-
-.PIGE360_NODE_RESULT=PASS

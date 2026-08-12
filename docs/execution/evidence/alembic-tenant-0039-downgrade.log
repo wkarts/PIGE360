@@ -1,0 +1,24 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0039_fiscal_document_routing_assembly -> 0038_fiscal_document_lifecycle, fiscal document routing assembly
+-- Running downgrade 0039_fiscal_document_routing_assembly -> 0038_fiscal_document_lifecycle
+
+DROP TABLE IF EXISTS fiscal_emission_trigger_runs CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_links CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_builds CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_assemblies CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_routing_policies CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_schema_versions CASCADE;
+
+UPDATE alembic_version SET version_num='0038_fiscal_document_lifecycle' WHERE alembic_version.version_num = '0039_fiscal_document_routing_assembly';
+
+COMMIT;
+

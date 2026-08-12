@@ -1,1 +1,0 @@
-alembic control upgrade head --sql -> exit 0; 156 linhas SQL

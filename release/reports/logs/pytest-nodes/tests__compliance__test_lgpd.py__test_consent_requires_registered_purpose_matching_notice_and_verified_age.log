@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/compliance/test_lgpd.py::test_consent_requires_registered_purpose_matching_notice_and_verified_age
-
-.PIGE360_NODE_RESULT=PASS
