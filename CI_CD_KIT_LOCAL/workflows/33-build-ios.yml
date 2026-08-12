@@ -17,8 +17,13 @@ jobs:
         with: {node-version: '22.16.0'}
       - uses: dtolnay/rust-toolchain@stable
       - run: bash scripts/mobile/build-ios.sh
-      - name: Assinar quando configurado
-        if: ${{ inputs.sign == true && secrets.APPLE_SIGNING_CERTIFICATE_BASE64 != '' }}
+      - name: Avaliar assinatura iOS (opcional)
+        env:
+          SIGN_REQUESTED: ${{ inputs.sign }}
+          APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+          APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
         run: bash scripts/mobile/sign-ios.sh
       - uses: actions/upload-artifact@v4
         with: {name: ios-app-xcarchive-ipa, path: release/artifacts/ios/**, if-no-files-found: error}

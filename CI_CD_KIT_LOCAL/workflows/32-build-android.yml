@@ -19,8 +19,13 @@ jobs:
         with: {node-version: '22.16.0'}
       - uses: dtolnay/rust-toolchain@stable
       - run: bash scripts/mobile/build-android.sh
-      - name: Assinar quando configurado
-        if: ${{ inputs.sign == true && secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+      - name: Avaliar assinatura Android (opcional)
+        env:
+          SIGN_REQUESTED: ${{ inputs.sign }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: bash scripts/mobile/sign-android.sh
       - uses: actions/upload-artifact@v4
         with: {name: android-apk-aab, path: release/artifacts/android/**, if-no-files-found: error}

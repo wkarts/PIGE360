@@ -19,28 +19,28 @@
     },
     {
       "path": "workflows/00-ci.yml",
-      "sha256": "bf63b615cc7e832c7b4e52491a64f668746acd0595e2b0f721c63009d7d6989d",
-      "bytes": 676
+      "sha256": "3b9d3420ce0e6506fbbe89affe2894cb1e2a35eabb2d3256e183b41dba1a2ecc",
+      "bytes": 664
     },
     {
       "path": "workflows/05-pedagogy-attendance.yml",
-      "sha256": "1144d493714b23eb4a271003976be8dd2fc67096a9426abe7b633c479fa8bf8c",
-      "bytes": 649
+      "sha256": "ee97b9f721ece86904db22c392eabcf40c0ef7ae53485c725f60da930287df77",
+      "bytes": 676
     },
     {
       "path": "workflows/10-base-images.yml",
-      "sha256": "c1b3cc8579fa2fa7fa7196374aee62670ec264ece0ff115834310b64d7acc9c3",
-      "bytes": 1157
+      "sha256": "f2a65e7f96f125db339a2d35f5f338cb9c0f24b2f4975cb3565d80426c36510d",
+      "bytes": 1141
     },
     {
       "path": "workflows/20-application-images.yml",
-      "sha256": "55964f6007dd4b16d56ac6f6162b7aea058a0a130a94cff4bd5601b87f7fbd3e",
-      "bytes": 1064
+      "sha256": "19b264a838051a7a222b65de9d29f4107060269a3ff1cd43af68bcc1d0c8e8df",
+      "bytes": 1048
     },
     {
       "path": "workflows/30-build-web.yml",
-      "sha256": "4598ed8feff57407f3c7aa10785ca3279bdcbe9be04482514df0a070d6abe967",
-      "bytes": 729
+      "sha256": "7ea5ef6913c66b267012ffb9ceea74111f6202c994cec98c7b5bf285ba78fcff",
+      "bytes": 736
     },
     {
       "path": "workflows/31-build-desktop.yml",
@@ -49,13 +49,13 @@
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "51eaa8bbd6deb17c575a4f44adb6f29df9ea32115bc2dfae83235ff88e77eec1",
-      "bytes": 911
+      "sha256": "ad95027277046a7de837de1c1fc71866fe5cafd62618d989ac09a9c24974d787",
+      "bytes": 1182
     },
     {
       "path": "workflows/33-build-ios.yml",
-      "sha256": "90bfa32865f75cabf5c250c64bb84a2580e94f29eb0a191c0733256335c07b90",
-      "bytes": 818
+      "sha256": "67f4ed0e0165d3edbf1170b385028d5b0fd0de09fdfe1a15e5a5430e806b50c5",
+      "bytes": 1148
     },
     {
       "path": "workflows/34-build-tenant-apps.yml",
@@ -64,8 +64,8 @@
     },
     {
       "path": "workflows/40-security.yml",
-      "sha256": "7c79776ff857feb00c75ac4dccc327ddf3ce9b1335bf2bda8f53986fe7aa1793",
-      "bytes": 841
+      "sha256": "c75d0baa1649e49db0c31913c1a09fe92249438d0a31acf21b286dcc05edc000",
+      "bytes": 905
     },
     {
       "path": "workflows/50-release.yml",
