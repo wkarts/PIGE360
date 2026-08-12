@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/engagement/test_notices_requests.py::test_notice_audience_version_read_ack_and_receipts
-
-.PIGE360_NODE_RESULT=PASS

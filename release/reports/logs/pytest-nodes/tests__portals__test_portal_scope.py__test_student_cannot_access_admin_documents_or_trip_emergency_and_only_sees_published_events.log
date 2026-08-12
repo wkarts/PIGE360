@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/portals/test_portal_scope.py::test_student_cannot_access_admin_documents_or_trip_emergency_and_only_sees_published_events
-
-.PIGE360_NODE_RESULT=PASS

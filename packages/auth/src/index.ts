@@ -150,7 +150,7 @@ export class Pige360SessionClient {
     return response;
   }
 
-  async request<T = Record<string, any>>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
+  async request<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
     const response = await this.response(path, init, retry);
     if (response.status === 204) return undefined as T;
     const type = response.headers.get("content-type") ?? "";

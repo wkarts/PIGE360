@@ -55,11 +55,14 @@ def _class_context(local_env, suffix: str = "1", *, create_other_teacher: bool =
     group = _post(local_env, "/api/v1/class-groups", {"unit_id": unit["id"], "academic_year_id": year["id"], "program_id": program["id"], "curriculum_id": curriculum["id"], "code": f"7A-{suffix}", "name": "7º A", "capacity": 30})
 
     students: list[dict] = []
+    enrollment_effective_on: str | None = None
     for index in range(1, 4):
         person = _post(local_env, "/api/v1/people", {"full_name": f"Aluno Frequência {suffix}-{index}", "email": f"freq.{suffix}.{index}@example.com"}, key=f"freq-person-{suffix}-{index}")
         student = _post(local_env, "/api/v1/students", {"person_id": person["id"], "registration_number": f"FREQ-{suffix}-{index}"})
         enrollment = _post(local_env, "/api/v1/enrollments", {"student_id": student["id"], "institution_id": inst["id"], "unit_id": unit["id"], "program_id": program["id"], "curriculum_id": curriculum["id"], "academic_year_id": year["id"], "class_group_id": group["id"], "enrollment_number": f"ENR-FREQ-{suffix}-{index}"}, key=f"freq-enrollment-{suffix}-{index}")
-        _post(local_env, f"/api/v1/enrollments/{enrollment['id']}/activate", {"expected_version": 1, "reason": "Matrícula válida para chamada"}, expected=200)
+        activated = _post(local_env, f"/api/v1/enrollments/{enrollment['id']}/activate", {"expected_version": 1, "reason": "Matrícula válida para chamada"}, expected=200)
+        if enrollment_effective_on is None:
+            enrollment_effective_on = activated["enrolled_on"]
         students.append(student)
 
     teacher_person = _post(local_env, "/api/v1/people", {"full_name": f"Professor Frequência {suffix}", "email": f"prof.freq.{suffix}@example.com"}, key=f"freq-teacher-person-{suffix}")
@@ -73,10 +76,11 @@ def _class_context(local_env, suffix: str = "1", *, create_other_teacher: bool =
         _post(local_env, "/api/v1/employees", {"person_id": other_person["id"], "employee_number": f"OTHER-{suffix}", "department": "Pedagógico", "position": "Professor", "admission_date": "2026-01-05"})
         _, other_token = local_env.create_alpha_user(f"other.{suffix}@alpha.example.com", ["teacher"], person_id=other_person["id"])
 
-    return {"institution": inst, "unit": unit, "year": year, "program": program, "curriculum": curriculum, "component": component, "group": group, "students": students, "teacher": teacher, "teacher_token": teacher_token, "assignment": assignment, "other_token": other_token}
+    return {"institution": inst, "unit": unit, "year": year, "program": program, "curriculum": curriculum, "component": component, "group": group, "students": students, "teacher": teacher, "teacher_token": teacher_token, "assignment": assignment, "other_token": other_token, "session_date": enrollment_effective_on}
 
 
 def _create_session(local_env, policy_id: str, context: dict, suffix: str = "1") -> dict:
+    session_date = context["session_date"]
     response = local_env.client.post(
         "/api/v1/class-sessions",
         headers=local_env.alpha_headers(**{"Idempotency-Key": f"session-create-{suffix}-0001"}),
@@ -86,8 +90,8 @@ def _create_session(local_env, policy_id: str, context: dict, suffix: str = "1")
             "class_group_id": context["group"]["id"],
             "component_id": context["component"]["id"],
             "attendance_policy_id": policy_id,
-            "scheduled_start": "2026-08-10T10:00:00-03:00",
-            "scheduled_end": "2026-08-10T11:40:00-03:00",
+            "scheduled_start": f"{session_date}T10:00:00-03:00",
+            "scheduled_end": f"{session_date}T11:40:00-03:00",
             "modality": "regular",
             "enrolled_student_ids": [student["id"] for student in context["students"]],
             "teacher_ids": [context["teacher"]["id"]],

@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/storage/test_object_storage.py::test_local_object_storage_is_tenant_scoped_and_hashes
-
-.PIGE360_NODE_RESULT=PASS

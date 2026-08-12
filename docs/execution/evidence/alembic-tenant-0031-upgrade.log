@@ -1,0 +1,84 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running upgrade 0030_services_procurement_assets_vertical -> 0031_inventory_reorder_suggestions, Estoque mínimo e sugestões automáticas de compra.
+-- Running upgrade 0030_services_procurement_assets_vertical -> 0031_inventory_reorder_suggestions
+
+CREATE TABLE IF NOT EXISTS inventory_reorder_policies (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  product_id TEXT NOT NULL REFERENCES products(id),
+  warehouse_id TEXT NOT NULL DEFAULT 'default',
+  minimum_quantity NUMERIC NOT NULL,
+  target_quantity NUMERIC NOT NULL,
+  lead_time_days INTEGER NOT NULL DEFAULT 0,
+  preferred_supplier_id TEXT REFERENCES suppliers(id),
+  state TEXT NOT NULL DEFAULT 'active',
+  institution_id TEXT,
+  unit_id TEXT,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_by TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL,
+  UNIQUE(tenant_id,product_id,warehouse_id)
+);
+CREATE TABLE IF NOT EXISTS purchase_suggestions (
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
+  policy_id TEXT NOT NULL REFERENCES inventory_reorder_policies(id),
+  product_id TEXT NOT NULL REFERENCES products(id),
+  warehouse_id TEXT NOT NULL,
+  preferred_supplier_id TEXT REFERENCES suppliers(id),
+  physical_quantity NUMERIC NOT NULL DEFAULT 0,
+  reserved_quantity NUMERIC NOT NULL DEFAULT 0,
+  available_quantity NUMERIC NOT NULL DEFAULT 0,
+  open_purchase_quantity NUMERIC NOT NULL DEFAULT 0,
+  projected_quantity NUMERIC NOT NULL DEFAULT 0,
+  minimum_quantity NUMERIC NOT NULL,
+  target_quantity NUMERIC NOT NULL,
+  suggested_quantity NUMERIC NOT NULL,
+  estimated_unit_cost NUMERIC NOT NULL DEFAULT 0,
+  estimated_total NUMERIC NOT NULL DEFAULT 0,
+  reason TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'open',
+  requisition_id TEXT REFERENCES purchase_requisitions(id),
+  generated_at TIMESTAMPTZ NOT NULL,
+  generated_by TEXT NOT NULL,
+  converted_at TIMESTAMPTZ,
+  converted_by TEXT,
+  closed_at TIMESTAMPTZ,
+  closed_by TEXT,
+  closure_reason TEXT,
+  version INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX IF NOT EXISTS ix_inventory_reorder_policies_state
+  ON inventory_reorder_policies(tenant_id,state,warehouse_id,product_id);
+CREATE INDEX IF NOT EXISTS ix_purchase_suggestions_state
+  ON purchase_suggestions(tenant_id,state,generated_at);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_purchase_suggestions_open_policy
+  ON purchase_suggestions(tenant_id,policy_id) WHERE state='open';;
+
+ALTER TABLE "inventory_reorder_policies" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "inventory_reorder_policies" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS inventory_reorder_policies_tenant_isolation ON "inventory_reorder_policies";
+
+CREATE POLICY inventory_reorder_policies_tenant_isolation ON "inventory_reorder_policies" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "purchase_suggestions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "purchase_suggestions" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS purchase_suggestions_tenant_isolation ON "purchase_suggestions";
+
+CREATE POLICY purchase_suggestions_tenant_isolation ON "purchase_suggestions" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+UPDATE alembic_version SET version_num='0031_inventory_reorder_suggestions' WHERE alembic_version.version_num = '0030_services_procurement_assets_vertical';
+
+COMMIT;
+

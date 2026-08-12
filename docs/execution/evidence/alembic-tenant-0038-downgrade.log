@@ -1,0 +1,24 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0038_fiscal_document_lifecycle -> 0037_fiscal_catalog_governance_imports, Ciclo de vida de documentos fiscais, providers condicionais e artefatos.
+-- Running downgrade 0038_fiscal_document_lifecycle -> 0037_fiscal_catalog_governance_imports
+
+DROP TABLE IF EXISTS "fiscal_provider_event_requests" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_inutilization_requests" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_document_artifacts" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_document_attempts" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_provider_configurations" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_certificate_metadata" CASCADE;
+
+UPDATE alembic_version SET version_num='0037_fiscal_catalog_governance_imports' WHERE alembic_version.version_num = '0038_fiscal_document_lifecycle';
+
+COMMIT;
+

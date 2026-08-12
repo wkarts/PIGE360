@@ -1,0 +1,25 @@
+{
+  "start": 49,
+  "end": 51,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 13.81,
+  "results": [
+    {
+      "index": 49,
+      "file": "backend/tests/migrations/test_ibpt_operational_resilience_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.89s\n\n"
+    },
+    {
+      "index": 50,
+      "file": "backend/tests/migrations/test_inventory_reorder_suggestions_migration.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 1.82s\n\n"
+    }
+  ]
+}

@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_openapi.py::test_openapi_has_unique_operation_ids_and_required_domains
-
-.PIGE360_NODE_RESULT=PASS

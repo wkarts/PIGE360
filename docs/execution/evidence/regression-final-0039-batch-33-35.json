@@ -1,0 +1,25 @@
+{
+  "start": 33,
+  "end": 35,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 3,
+  "failed_files": 0,
+  "duration_seconds": 14.15,
+  "results": [
+    {
+      "index": 33,
+      "file": "backend/tests/fiscal/test_ibpt_operational_resilience.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.43s\n\n"
+    },
+    {
+      "index": 34,
+      "file": "backend/tests/fiscal/test_ibpt_sync.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 2.69s\n\n"
+    }
+  ]
+}

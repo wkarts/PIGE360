@@ -1,0 +1,497 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running upgrade 0029_admissions_funnel -> 0030_services_procurement_assets_vertical, Serviços, compras, lotes, reservas e patrimônio em fluxos verticais completos.
+-- Running upgrade 0029_admissions_funnel -> 0030_services_procurement_assets_vertical
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS catalog_id TEXT;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS service_type TEXT NOT NULL DEFAULT 'other';
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS recurrence_type TEXT NOT NULL DEFAULT 'one_time';
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS unit_of_measure TEXT NOT NULL DEFAULT 'unit';
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS default_duration_minutes INTEGER;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS cost_center_id TEXT;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS taxable BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "services" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS order_number TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS subscriber_person_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS subscription_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS competence_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS cost_center_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'BRL';
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS subtotal NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS discount_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS due_date DATE;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS installment_count INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS charge_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS fiscal_status TEXT NOT NULL DEFAULT 'pending';
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMPTZ;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS confirmed_by TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMPTZ;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS cancellation_reason TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "service_orders" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS variant_id TEXT;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS description TEXT;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS discount_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS competence_start DATE;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS competence_end DATE;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS fiscal_profile_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS execution_status TEXT NOT NULL DEFAULT 'pending';
+
+ALTER TABLE "service_order_items" ADD COLUMN IF NOT EXISTS executed_quantity NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "stock_movements" ADD COLUMN IF NOT EXISTS lot_id TEXT;
+
+ALTER TABLE "stock_movements" ADD COLUMN IF NOT EXISTS balance_after NUMERIC;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS code TEXT;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS rating NUMERIC;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS payment_terms_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS fiscal_profile_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "suppliers" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS warehouse_id TEXT NOT NULL DEFAULT 'default';
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS quotation_id TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS requisition_id TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS currency TEXT NOT NULL DEFAULT 'BRL';
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS subtotal NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS freight_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS discount_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS approved_by TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS closed_at TIMESTAMPTZ;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "purchase_orders" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "purchase_order_items" ADD COLUMN IF NOT EXISTS returned_quantity NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_order_items" ADD COLUMN IF NOT EXISTS discount_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_order_items" ADD COLUMN IF NOT EXISTS total_amount NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "purchase_order_items" ADD COLUMN IF NOT EXISTS fiscal_profile_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "inventory_counts" ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ;
+
+ALTER TABLE "inventory_counts" ADD COLUMN IF NOT EXISTS snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "inventory_counts" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "inventory_counts" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "inventory_counts" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+ALTER TABLE "inventory_count_items" ADD COLUMN IF NOT EXISTS lot_id TEXT;
+
+ALTER TABLE "inventory_count_items" ADD COLUMN IF NOT EXISTS notes TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS tag TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS name TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS location_id TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS product_id TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS receipt_item_id TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS serial_number TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS useful_life_months INTEGER;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS residual_value NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS accumulated_depreciation NUMERIC NOT NULL DEFAULT 0;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS warranty_until DATE;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS institution_id TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS unit_id TEXT;
+
+ALTER TABLE "assets" ADD COLUMN IF NOT EXISTS version INTEGER NOT NULL DEFAULT 1;
+
+CREATE TABLE IF NOT EXISTS service_catalogs(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,code TEXT NOT NULL,name TEXT NOT NULL,description TEXT,valid_from DATE,valid_until DATE,state TEXT NOT NULL DEFAULT 'active',institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,code));
+CREATE TABLE IF NOT EXISTS service_variants(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,service_id TEXT NOT NULL REFERENCES services(id),code TEXT NOT NULL,name TEXT NOT NULL,description TEXT,duration_minutes INTEGER,capacity INTEGER,state TEXT NOT NULL DEFAULT 'active',metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,service_id,code));
+CREATE TABLE IF NOT EXISTS service_fiscal_profiles(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,service_id TEXT NOT NULL REFERENCES services(id),variant_id TEXT,valid_from DATE NOT NULL,valid_until DATE,nbs_code TEXT,lc116_code TEXT,municipal_service_code TEXT,cnae_code TEXT,iss_rate NUMERIC NOT NULL DEFAULT 0,ibs_rate NUMERIC NOT NULL DEFAULT 0,cbs_rate NUMERIC NOT NULL DEFAULT 0,cclass_trib TEXT,fiscal_trigger TEXT NOT NULL DEFAULT 'billing',withholding_json JSONB NOT NULL DEFAULT '{}'::jsonb,rules_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb,state TEXT NOT NULL DEFAULT 'draft',classification_status TEXT NOT NULL DEFAULT 'incomplete',published_at TIMESTAMPTZ,published_by TEXT,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS service_price_tables(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,service_id TEXT NOT NULL REFERENCES services(id),variant_id TEXT,name TEXT NOT NULL,valid_from DATE NOT NULL,valid_until DATE,currency TEXT NOT NULL DEFAULT 'BRL',amount NUMERIC NOT NULL,billing_frequency TEXT NOT NULL DEFAULT 'one_time',state TEXT NOT NULL DEFAULT 'active',institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS service_billing_rules(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,service_id TEXT NOT NULL REFERENCES services(id),variant_id TEXT,code TEXT NOT NULL,name TEXT NOT NULL,billing_trigger TEXT NOT NULL DEFAULT 'competence',due_day INTEGER NOT NULL DEFAULT 10,installment_count INTEGER NOT NULL DEFAULT 1,interval_months INTEGER NOT NULL DEFAULT 1,recognition_policy TEXT NOT NULL DEFAULT 'competence',fiscal_trigger TEXT NOT NULL DEFAULT 'competence',proration_policy TEXT NOT NULL DEFAULT 'none',state TEXT NOT NULL DEFAULT 'active',config_json JSONB NOT NULL DEFAULT '{}'::jsonb,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,service_id,code));
+CREATE TABLE IF NOT EXISTS service_subscriptions(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,subscription_number TEXT NOT NULL,service_id TEXT NOT NULL REFERENCES services(id),variant_id TEXT,subscriber_person_id TEXT NOT NULL REFERENCES people(id),enrollment_id TEXT REFERENCES enrollments(id),financial_contract_id TEXT REFERENCES financial_contracts(id),billing_rule_id TEXT NOT NULL REFERENCES service_billing_rules(id),starts_on DATE NOT NULL,ends_on DATE,quantity NUMERIC NOT NULL DEFAULT 1,unit_price NUMERIC NOT NULL,discount_amount NUMERIC NOT NULL DEFAULT 0,cycle_amount NUMERIC NOT NULL,next_competence_on DATE NOT NULL,auto_renew BOOLEAN NOT NULL DEFAULT FALSE,state TEXT NOT NULL DEFAULT 'draft',suspended_at TIMESTAMPTZ,cancelled_at TIMESTAMPTZ,cancellation_reason TEXT,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,subscription_number));
+CREATE TABLE IF NOT EXISTS service_executions(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,execution_number TEXT NOT NULL,service_order_id TEXT NOT NULL REFERENCES service_orders(id),service_order_item_id TEXT NOT NULL REFERENCES service_order_items(id),subscription_id TEXT,scheduled_at TIMESTAMPTZ,started_at TIMESTAMPTZ,completed_at TIMESTAMPTZ,quantity NUMERIC NOT NULL,state TEXT NOT NULL DEFAULT 'scheduled',performer_person_id TEXT REFERENCES people(id),notes TEXT,evidence_json JSONB NOT NULL DEFAULT '{}'::jsonb,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,execution_number));
+CREATE TABLE IF NOT EXISTS service_competencies(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,subscription_id TEXT NOT NULL REFERENCES service_subscriptions(id),competence_key TEXT NOT NULL,period_start DATE NOT NULL,period_end DATE NOT NULL,due_date DATE NOT NULL,amount NUMERIC NOT NULL,service_order_id TEXT,charge_id TEXT,state TEXT NOT NULL DEFAULT 'pending',billed_at TIMESTAMPTZ,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,subscription_id,competence_key));
+CREATE TABLE IF NOT EXISTS service_fiscal_events(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,event_key TEXT NOT NULL,service_order_id TEXT NOT NULL REFERENCES service_orders(id),service_order_item_id TEXT,competence_id TEXT,trigger_type TEXT NOT NULL,document_type TEXT NOT NULL DEFAULT 'nfse',provider_code TEXT,state TEXT NOT NULL DEFAULT 'not_configured',payload_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb,requested_at TIMESTAMPTZ NOT NULL,completed_at TIMESTAMPTZ,failure_code TEXT,failure_message TEXT,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,event_key));
+CREATE TABLE IF NOT EXISTS charges(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,charge_number TEXT NOT NULL,financial_contract_id TEXT REFERENCES financial_contracts(id),enrollment_id TEXT REFERENCES enrollments(id),responsible_person_id TEXT REFERENCES people(id),origin_type TEXT NOT NULL,origin_id TEXT NOT NULL,currency TEXT NOT NULL DEFAULT 'BRL',total_amount NUMERIC NOT NULL,paid_amount NUMERIC NOT NULL DEFAULT 0,refunded_amount NUMERIC NOT NULL DEFAULT 0,outstanding_amount NUMERIC NOT NULL,due_date DATE NOT NULL,state TEXT NOT NULL DEFAULT 'open',generated_at TIMESTAMPTZ NOT NULL,cancelled_at TIMESTAMPTZ,cancellation_reason TEXT,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,charge_number),UNIQUE(tenant_id,origin_type,origin_id));
+CREATE TABLE IF NOT EXISTS charge_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,charge_id TEXT NOT NULL REFERENCES charges(id),description TEXT NOT NULL,quantity NUMERIC NOT NULL DEFAULT 1,unit_amount NUMERIC NOT NULL,discount_amount NUMERIC NOT NULL DEFAULT 0,total_amount NUMERIC NOT NULL,accounting_code TEXT,metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS accounts_receivable(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,receivable_number TEXT NOT NULL,installment_id TEXT REFERENCES installments(id),charge_id TEXT REFERENCES charges(id),responsible_person_id TEXT REFERENCES people(id),cost_center_id TEXT,amount NUMERIC NOT NULL,paid_amount NUMERIC NOT NULL DEFAULT 0,refunded_amount NUMERIC NOT NULL DEFAULT 0,outstanding_amount NUMERIC NOT NULL,due_date DATE NOT NULL,state TEXT NOT NULL DEFAULT 'open',created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,receivable_number));
+CREATE TABLE IF NOT EXISTS product_variants(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,product_id TEXT NOT NULL REFERENCES products(id),sku TEXT NOT NULL,name TEXT NOT NULL,attributes_json JSONB NOT NULL DEFAULT '{}'::jsonb,sale_price NUMERIC,cost_price NUMERIC,state TEXT NOT NULL DEFAULT 'active',institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,sku));
+CREATE TABLE IF NOT EXISTS product_barcodes(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,product_id TEXT NOT NULL REFERENCES products(id),variant_id TEXT,barcode TEXT NOT NULL,barcode_type TEXT NOT NULL DEFAULT 'ean13',is_primary BOOLEAN NOT NULL DEFAULT FALSE,created_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,barcode));
+CREATE TABLE IF NOT EXISTS supplier_contacts(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,supplier_id TEXT NOT NULL REFERENCES suppliers(id),name TEXT NOT NULL,email TEXT,phone TEXT,role TEXT,is_primary BOOLEAN NOT NULL DEFAULT FALSE,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS purchase_requisitions(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,requisition_number TEXT NOT NULL,requester_user_id TEXT NOT NULL,department_id TEXT,cost_center_id TEXT,needed_by DATE,justification TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'draft',submitted_at TIMESTAMPTZ,submitted_by TEXT,approved_at TIMESTAMPTZ,approved_by TEXT,rejected_at TIMESTAMPTZ,rejected_by TEXT,rejection_reason TEXT,cancelled_at TIMESTAMPTZ,cancelled_by TEXT,cancellation_reason TEXT,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,requisition_number));
+CREATE TABLE IF NOT EXISTS purchase_requisition_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,requisition_id TEXT NOT NULL REFERENCES purchase_requisitions(id),product_id TEXT NOT NULL REFERENCES products(id),quantity NUMERIC NOT NULL,approved_quantity NUMERIC NOT NULL DEFAULT 0,estimated_unit_price NUMERIC NOT NULL DEFAULT 0,notes TEXT,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS requests_for_quotation(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,quotation_number TEXT NOT NULL,requisition_id TEXT REFERENCES purchase_requisitions(id),response_deadline TIMESTAMPTZ,currency TEXT NOT NULL DEFAULT 'BRL',state TEXT NOT NULL DEFAULT 'open',selected_supplier_id TEXT REFERENCES suppliers(id),selection_reason TEXT,awarded_at TIMESTAMPTZ,awarded_by TEXT,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,quotation_number));
+CREATE TABLE IF NOT EXISTS quotation_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,quotation_id TEXT NOT NULL REFERENCES requests_for_quotation(id),product_id TEXT NOT NULL REFERENCES products(id),quantity NUMERIC NOT NULL,specifications_json JSONB NOT NULL DEFAULT '{}'::jsonb,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS quotation_suppliers(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,quotation_id TEXT NOT NULL REFERENCES requests_for_quotation(id),supplier_id TEXT NOT NULL REFERENCES suppliers(id),state TEXT NOT NULL DEFAULT 'invited',invited_at TIMESTAMPTZ NOT NULL,submitted_at TIMESTAMPTZ,delivery_days INTEGER,payment_terms_json JSONB NOT NULL DEFAULT '{}'::jsonb,notes TEXT,total_amount NUMERIC NOT NULL DEFAULT 0,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,quotation_id,supplier_id));
+CREATE TABLE IF NOT EXISTS quotation_supplier_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,quotation_supplier_id TEXT NOT NULL REFERENCES quotation_suppliers(id),quotation_item_id TEXT NOT NULL REFERENCES quotation_items(id),unit_price NUMERIC NOT NULL,quantity_available NUMERIC NOT NULL,brand TEXT,notes TEXT,created_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,quotation_supplier_id,quotation_item_id));
+CREATE TABLE IF NOT EXISTS goods_receipts(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,receipt_number TEXT NOT NULL,purchase_order_id TEXT NOT NULL REFERENCES purchase_orders(id),supplier_id TEXT NOT NULL REFERENCES suppliers(id),warehouse_id TEXT NOT NULL,state TEXT NOT NULL DEFAULT 'confirmed',received_at TIMESTAMPTZ NOT NULL,received_by TEXT NOT NULL,supplier_document_number TEXT,supplier_document_key TEXT,total_amount NUMERIC NOT NULL DEFAULT 0,notes TEXT,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,receipt_number));
+CREATE TABLE IF NOT EXISTS goods_receipt_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,goods_receipt_id TEXT NOT NULL REFERENCES goods_receipts(id),purchase_order_item_id TEXT NOT NULL REFERENCES purchase_order_items(id),product_id TEXT NOT NULL REFERENCES products(id),quantity NUMERIC NOT NULL,unit_cost NUMERIC NOT NULL,lot_id TEXT,stock_movement_id TEXT,expires_on DATE,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS inventory_lots(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,product_id TEXT NOT NULL REFERENCES products(id),warehouse_id TEXT NOT NULL,lot_number TEXT NOT NULL,manufactured_on DATE,expires_on DATE,quantity NUMERIC NOT NULL DEFAULT 0,reserved_quantity NUMERIC NOT NULL DEFAULT 0,unit_cost NUMERIC NOT NULL DEFAULT 0,state TEXT NOT NULL DEFAULT 'active',created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,product_id,warehouse_id,lot_number));
+CREATE TABLE IF NOT EXISTS purchase_returns(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,return_number TEXT NOT NULL,purchase_order_id TEXT NOT NULL REFERENCES purchase_orders(id),supplier_id TEXT NOT NULL REFERENCES suppliers(id),warehouse_id TEXT NOT NULL,reason TEXT NOT NULL,total_amount NUMERIC NOT NULL DEFAULT 0,state TEXT NOT NULL DEFAULT 'confirmed',returned_at TIMESTAMPTZ NOT NULL,returned_by TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,return_number));
+CREATE TABLE IF NOT EXISTS purchase_return_items(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,purchase_return_id TEXT NOT NULL REFERENCES purchase_returns(id),purchase_order_item_id TEXT NOT NULL REFERENCES purchase_order_items(id),product_id TEXT NOT NULL REFERENCES products(id),lot_id TEXT,quantity NUMERIC NOT NULL,unit_cost NUMERIC NOT NULL,stock_movement_id TEXT,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS inventory_reservations(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,product_id TEXT NOT NULL REFERENCES products(id),warehouse_id TEXT NOT NULL,lot_id TEXT,source_type TEXT NOT NULL,source_id TEXT NOT NULL,quantity NUMERIC NOT NULL,consumed_quantity NUMERIC NOT NULL DEFAULT 0,state TEXT NOT NULL DEFAULT 'active',expires_at TIMESTAMPTZ,released_at TIMESTAMPTZ,consumed_at TIMESTAMPTZ,institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,source_type,source_id,product_id,warehouse_id,lot_id));
+CREATE TABLE IF NOT EXISTS asset_locations(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,code TEXT NOT NULL,name TEXT NOT NULL,parent_id TEXT REFERENCES asset_locations(id),state TEXT NOT NULL DEFAULT 'active',institution_id TEXT,unit_id TEXT,version INTEGER NOT NULL DEFAULT 1,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,code));
+CREATE TABLE IF NOT EXISTS asset_movements(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,asset_id TEXT NOT NULL REFERENCES assets(id),movement_type TEXT NOT NULL,from_location_id TEXT,to_location_id TEXT,from_responsible_person_id TEXT,to_responsible_person_id TEXT,reason TEXT NOT NULL,occurred_at TIMESTAMPTZ NOT NULL,occurred_by TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS asset_maintenances(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,asset_id TEXT NOT NULL REFERENCES assets(id),maintenance_number TEXT NOT NULL,maintenance_type TEXT NOT NULL,scheduled_on DATE,supplier_id TEXT REFERENCES suppliers(id),estimated_cost NUMERIC NOT NULL DEFAULT 0,actual_cost NUMERIC,description TEXT NOT NULL,result_notes TEXT,state TEXT NOT NULL DEFAULT 'scheduled',started_at TIMESTAMPTZ,completed_at TIMESTAMPTZ,created_by TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,maintenance_number));
+CREATE TABLE IF NOT EXISTS asset_loans(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,asset_id TEXT NOT NULL REFERENCES assets(id),loan_number TEXT NOT NULL,borrower_person_id TEXT NOT NULL REFERENCES people(id),loaned_at TIMESTAMPTZ NOT NULL,expected_return_at TIMESTAMPTZ,returned_at TIMESTAMPTZ,condition_out TEXT,condition_in TEXT,state TEXT NOT NULL DEFAULT 'active',created_by TEXT NOT NULL,returned_by TEXT,created_at TIMESTAMPTZ NOT NULL,updated_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,loan_number));
+CREATE TABLE IF NOT EXISTS asset_depreciations(id TEXT PRIMARY KEY,tenant_id TEXT NOT NULL,asset_id TEXT NOT NULL REFERENCES assets(id),competence TEXT NOT NULL,opening_book_value NUMERIC NOT NULL,depreciation_amount NUMERIC NOT NULL,accumulated_depreciation NUMERIC NOT NULL,closing_book_value NUMERIC NOT NULL,method TEXT NOT NULL DEFAULT 'linear',calculated_at TIMESTAMPTZ NOT NULL,calculated_by TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL,UNIQUE(tenant_id,asset_id,competence));
+CREATE INDEX IF NOT EXISTS ix_service_prices_validity ON service_price_tables(tenant_id,service_id,variant_id,valid_from,valid_until,state);
+CREATE INDEX IF NOT EXISTS ix_service_subscriptions_status ON service_subscriptions(tenant_id,state,next_competence_on);
+CREATE INDEX IF NOT EXISTS ix_service_orders_status ON service_orders(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_requisitions_status ON purchase_requisitions(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_quotations_status ON requests_for_quotation(tenant_id,state,created_at);
+CREATE INDEX IF NOT EXISTS ix_inventory_lots_expiry ON inventory_lots(tenant_id,warehouse_id,expires_on,state);
+CREATE INDEX IF NOT EXISTS ix_inventory_reservations_product ON inventory_reservations(tenant_id,product_id,warehouse_id,state);
+CREATE INDEX IF NOT EXISTS ix_asset_movements_asset ON asset_movements(tenant_id,asset_id,occurred_at);;
+
+ALTER TABLE "service_catalogs" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_catalogs" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_catalogs_tenant_isolation ON "service_catalogs";
+
+CREATE POLICY service_catalogs_tenant_isolation ON "service_catalogs" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_variants" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_variants" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_variants_tenant_isolation ON "service_variants";
+
+CREATE POLICY service_variants_tenant_isolation ON "service_variants" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_fiscal_profiles" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_fiscal_profiles" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_fiscal_profiles_tenant_isolation ON "service_fiscal_profiles";
+
+CREATE POLICY service_fiscal_profiles_tenant_isolation ON "service_fiscal_profiles" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_price_tables" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_price_tables" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_price_tables_tenant_isolation ON "service_price_tables";
+
+CREATE POLICY service_price_tables_tenant_isolation ON "service_price_tables" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_billing_rules" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_billing_rules" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_billing_rules_tenant_isolation ON "service_billing_rules";
+
+CREATE POLICY service_billing_rules_tenant_isolation ON "service_billing_rules" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_subscriptions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_subscriptions" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_subscriptions_tenant_isolation ON "service_subscriptions";
+
+CREATE POLICY service_subscriptions_tenant_isolation ON "service_subscriptions" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_executions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_executions" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_executions_tenant_isolation ON "service_executions";
+
+CREATE POLICY service_executions_tenant_isolation ON "service_executions" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_competencies" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_competencies" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_competencies_tenant_isolation ON "service_competencies";
+
+CREATE POLICY service_competencies_tenant_isolation ON "service_competencies" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "service_fiscal_events" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "service_fiscal_events" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS service_fiscal_events_tenant_isolation ON "service_fiscal_events";
+
+CREATE POLICY service_fiscal_events_tenant_isolation ON "service_fiscal_events" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "charges" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "charges" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS charges_tenant_isolation ON "charges";
+
+CREATE POLICY charges_tenant_isolation ON "charges" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "charge_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "charge_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS charge_items_tenant_isolation ON "charge_items";
+
+CREATE POLICY charge_items_tenant_isolation ON "charge_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "accounts_receivable" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "accounts_receivable" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS accounts_receivable_tenant_isolation ON "accounts_receivable";
+
+CREATE POLICY accounts_receivable_tenant_isolation ON "accounts_receivable" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "product_variants" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "product_variants" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS product_variants_tenant_isolation ON "product_variants";
+
+CREATE POLICY product_variants_tenant_isolation ON "product_variants" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "product_barcodes" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "product_barcodes" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS product_barcodes_tenant_isolation ON "product_barcodes";
+
+CREATE POLICY product_barcodes_tenant_isolation ON "product_barcodes" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "supplier_contacts" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "supplier_contacts" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS supplier_contacts_tenant_isolation ON "supplier_contacts";
+
+CREATE POLICY supplier_contacts_tenant_isolation ON "supplier_contacts" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "purchase_requisitions" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "purchase_requisitions" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS purchase_requisitions_tenant_isolation ON "purchase_requisitions";
+
+CREATE POLICY purchase_requisitions_tenant_isolation ON "purchase_requisitions" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "purchase_requisition_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "purchase_requisition_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS purchase_requisition_items_tenant_isolation ON "purchase_requisition_items";
+
+CREATE POLICY purchase_requisition_items_tenant_isolation ON "purchase_requisition_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "requests_for_quotation" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "requests_for_quotation" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS requests_for_quotation_tenant_isolation ON "requests_for_quotation";
+
+CREATE POLICY requests_for_quotation_tenant_isolation ON "requests_for_quotation" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "quotation_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "quotation_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS quotation_items_tenant_isolation ON "quotation_items";
+
+CREATE POLICY quotation_items_tenant_isolation ON "quotation_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "quotation_suppliers" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "quotation_suppliers" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS quotation_suppliers_tenant_isolation ON "quotation_suppliers";
+
+CREATE POLICY quotation_suppliers_tenant_isolation ON "quotation_suppliers" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "quotation_supplier_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "quotation_supplier_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS quotation_supplier_items_tenant_isolation ON "quotation_supplier_items";
+
+CREATE POLICY quotation_supplier_items_tenant_isolation ON "quotation_supplier_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "goods_receipts" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "goods_receipts" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS goods_receipts_tenant_isolation ON "goods_receipts";
+
+CREATE POLICY goods_receipts_tenant_isolation ON "goods_receipts" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "goods_receipt_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "goods_receipt_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS goods_receipt_items_tenant_isolation ON "goods_receipt_items";
+
+CREATE POLICY goods_receipt_items_tenant_isolation ON "goods_receipt_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "inventory_lots" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "inventory_lots" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS inventory_lots_tenant_isolation ON "inventory_lots";
+
+CREATE POLICY inventory_lots_tenant_isolation ON "inventory_lots" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "purchase_returns" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "purchase_returns" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS purchase_returns_tenant_isolation ON "purchase_returns";
+
+CREATE POLICY purchase_returns_tenant_isolation ON "purchase_returns" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "purchase_return_items" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "purchase_return_items" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS purchase_return_items_tenant_isolation ON "purchase_return_items";
+
+CREATE POLICY purchase_return_items_tenant_isolation ON "purchase_return_items" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "inventory_reservations" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "inventory_reservations" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS inventory_reservations_tenant_isolation ON "inventory_reservations";
+
+CREATE POLICY inventory_reservations_tenant_isolation ON "inventory_reservations" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "asset_locations" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "asset_locations" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS asset_locations_tenant_isolation ON "asset_locations";
+
+CREATE POLICY asset_locations_tenant_isolation ON "asset_locations" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "asset_movements" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "asset_movements" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS asset_movements_tenant_isolation ON "asset_movements";
+
+CREATE POLICY asset_movements_tenant_isolation ON "asset_movements" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "asset_maintenances" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "asset_maintenances" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS asset_maintenances_tenant_isolation ON "asset_maintenances";
+
+CREATE POLICY asset_maintenances_tenant_isolation ON "asset_maintenances" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "asset_loans" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "asset_loans" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS asset_loans_tenant_isolation ON "asset_loans";
+
+CREATE POLICY asset_loans_tenant_isolation ON "asset_loans" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+ALTER TABLE "asset_depreciations" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "asset_depreciations" FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS asset_depreciations_tenant_isolation ON "asset_depreciations";
+
+CREATE POLICY asset_depreciations_tenant_isolation ON "asset_depreciations" USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true));
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_service_orders_order_number ON service_orders(tenant_id,order_number) WHERE order_number IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_assets_tag ON assets(tenant_id,tag) WHERE tag IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_suppliers_code ON suppliers(tenant_id,code) WHERE code IS NOT NULL;
+
+UPDATE alembic_version SET version_num='0030_services_procurement_assets_vertical' WHERE alembic_version.version_num = '0029_admissions_funnel';
+
+COMMIT;
+
+
+alembic_exit=0

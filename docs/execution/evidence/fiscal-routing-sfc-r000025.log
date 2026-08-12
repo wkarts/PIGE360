@@ -1,0 +1,14 @@
+{
+  "status": "ok",
+  "files": [
+    {
+      "file": "/mnt/data/pige360-r26-work/apps/tenant-admin-web/src/components/FiscalPanel.vue",
+      "bytes": 84940,
+      "template_structure": "ok",
+      "typescript": {
+        "command": "tsc --noEmit --strict --noUncheckedIndexedAccess --exactOptionalPropertyTypes --skipLibCheck --target ES2022 --module ES2022 --moduleResolution Bundler --lib ES2022,DOM <shim> <script>",
+        "exit_code": 0
+      }
+    }
+  ]
+}

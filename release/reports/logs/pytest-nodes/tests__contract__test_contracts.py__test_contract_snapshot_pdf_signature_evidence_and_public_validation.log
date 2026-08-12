@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/contract/test_contracts.py::test_contract_snapshot_pdf_signature_evidence_and_public_validation
-
-.PIGE360_NODE_RESULT=PASS

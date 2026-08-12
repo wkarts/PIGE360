@@ -1,0 +1,25 @@
+{
+  "start": 59,
+  "end": 61,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 7,
+  "failed_files": 0,
+  "duration_seconds": 19.85,
+  "results": [
+    {
+      "index": 59,
+      "file": "backend/tests/sales/test_sales_inventory_procurement.py",
+      "exit_code": 0,
+      "passed": 4,
+      "output": "....                                                                     [100%]\n4 passed in 5.31s\n\n"
+    },
+    {
+      "index": 60,
+      "file": "backend/tests/security/test_host_and_auth.py",
+      "exit_code": 0,
+      "passed": 3,
+      "output": "...                                                                      [100%]\n3 passed in 4.11s\n\n"
+    }
+  ]
+}

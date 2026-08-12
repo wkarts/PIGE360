@@ -1,0 +1,4 @@
+status_summary= {'IMPLEMENTED': 222, 'IMPLEMENTING': 8, 'NOT_STARTED': 3370, 'TESTING': 38, 'VERIFIED': 393}
+verified_requirements= 393
+missing_evidence_references= 0
+exit=0

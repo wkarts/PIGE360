@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/portals/test_portal_scope.py::test_public_context_is_tenant_scoped_and_contains_no_platform_wordmark
-
-.PIGE360_NODE_RESULT=PASS

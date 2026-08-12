@@ -1,0 +1,8 @@
+PIGE360 backend regression — fiscal tax calculation engine increment
+files: 57
+passed: 128
+failed: 0
+ignored: 0
+execution mode: each test file in an isolated pytest process, aggregated with exit-code verification
+reason: avoids cumulative teardown/thread leakage across unrelated files while executing every current test file
+source: docs/execution/evidence/backend-final-regression-r000015.json

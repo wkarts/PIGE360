@@ -1,0 +1,43 @@
+{
+  "files": 5,
+  "passed": 11,
+  "failed_files": 0,
+  "seconds": 12.78,
+  "results": [
+    {
+      "file": "backend/tests/storage/test_object_storage.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.1,
+      "tail": "..                                                                       [100%]\n2 passed in 0.02s"
+    },
+    {
+      "file": "backend/tests/tenancy/test_isolation.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 9.79,
+      "tail": "..                                                                       [100%]\n2 passed in 3.80s"
+    },
+    {
+      "file": "backend/tests/transportation/test_transportation.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 8.42,
+      "tail": ".                                                                        [100%]\n1 passed in 2.34s"
+    },
+    {
+      "file": "backend/tests/unit/test_ids_and_passwords.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 6.46,
+      "tail": "..                                                                       [100%]\n2 passed in 0.57s"
+    },
+    {
+      "file": "backend/tests/workflows/test_workflows.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 12.78,
+      "tail": "....                                                                     [100%]\n4 passed in 7.03s"
+    }
+  ]
+}

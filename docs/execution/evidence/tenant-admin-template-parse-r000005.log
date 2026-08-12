@@ -1,0 +1,6 @@
+apps/tenant-admin-web/src/App.vue: template_parse_ok nodes=100
+apps/tenant-admin-web/src/components/ServicesPanel.vue: template_parse_ok nodes=218
+apps/tenant-admin-web/src/components/ProcurementPanel.vue: template_parse_ok nodes=127
+apps/tenant-admin-web/src/components/AssetsPanel.vue: template_parse_ok nodes=236
+files=4
+exit=0

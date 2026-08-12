@@ -1,0 +1,27 @@
+
+==================================== ERRORS ====================================
+________ ERROR collecting tests/integration/test_procurement_assets.py _________
+ImportError while importing test module '/mnt/data/pige360/backend/tests/integration/test_procurement_assets.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/integration/test_procurement_assets.py:5: in <module>
+    from backend.tests.conftest import TenantClient
+E   ImportError: cannot import name 'TenantClient' from 'backend.tests.conftest' (/mnt/data/pige360/backend/tests/conftest.py)
+_____________ ERROR collecting tests/integration/test_services.py ______________
+ImportError while importing test module '/mnt/data/pige360/backend/tests/integration/test_services.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/integration/test_services.py:5: in <module>
+    from backend.tests.conftest import TenantClient
+E   ImportError: cannot import name 'TenantClient' from 'backend.tests.conftest' (/mnt/data/pige360/backend/tests/conftest.py)
+=========================== short test summary info ============================
+ERROR backend/tests/integration/test_procurement_assets.py
+ERROR backend/tests/integration/test_services.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 0.93s

@@ -1,4 +1,0 @@
-$ /opt/pyvenv/bin/python /mnt/data/pige360-work/scripts/ci/pytest_process.py -q --disable-warnings tests/attendance tests/pedagogy tests/portals
-
-.......                                                                  [100%]
-7 passed in 6.67s

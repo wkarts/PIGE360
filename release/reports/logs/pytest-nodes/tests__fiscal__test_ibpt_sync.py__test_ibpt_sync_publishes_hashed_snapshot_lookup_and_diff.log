@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/fiscal/test_ibpt_sync.py::test_ibpt_sync_publishes_hashed_snapshot_lookup_and_diff
-
-.PIGE360_NODE_RESULT=PASS

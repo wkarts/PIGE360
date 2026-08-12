@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/health/test_health.py::test_health_incident_medication_and_family_privacy
-
-.PIGE360_NODE_RESULT=PASS

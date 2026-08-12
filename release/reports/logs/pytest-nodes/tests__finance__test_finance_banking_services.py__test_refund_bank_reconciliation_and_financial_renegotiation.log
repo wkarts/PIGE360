@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/finance/test_finance_banking_services.py::test_refund_bank_reconciliation_and_financial_renegotiation
-
-.PIGE360_NODE_RESULT=PASS

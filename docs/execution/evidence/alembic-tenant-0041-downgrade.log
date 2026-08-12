@@ -1,0 +1,16 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0041_fiscal_delivery_resilience_rendering -> 0040_fiscal_ibpt_transparency, Fiscal delivery policy, rejection trace and local rendering support.
+-- Running downgrade 0041_fiscal_delivery_resilience_rendering -> 0040_fiscal_ibpt_transparency
+
+DROP TABLE IF EXISTS fiscal_document_rejections CASCADE;
+
+DROP TABLE IF EXISTS fiscal_document_delivery_policies CASCADE;
+
+UPDATE alembic_version SET version_num='0040_fiscal_ibpt_transparency' WHERE alembic_version.version_num = '0041_fiscal_delivery_resilience_rendering';
+
+COMMIT;
+

@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/compliance/test_lgpd.py::test_minor_consent_legal_guardian_revoke_and_tenant_isolation
-
-.PIGE360_NODE_RESULT=PASS

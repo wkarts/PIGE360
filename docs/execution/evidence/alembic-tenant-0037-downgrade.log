@@ -1,0 +1,18 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Generating static SQL
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+BEGIN;
+
+INFO  [alembic.runtime.migration] Running downgrade 0037_fiscal_catalog_governance_imports -> 0036_ibpt_operational_resilience, Governança e importação local dos catálogos fiscais oficiais.
+-- Running downgrade 0037_fiscal_catalog_governance_imports -> 0036_ibpt_operational_resilience
+
+DROP TABLE IF EXISTS "fiscal_catalog_quarantine" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_catalog_import_runs" CASCADE;
+
+DROP TABLE IF EXISTS "fiscal_catalog_source_profiles" CASCADE;
+
+UPDATE alembic_version SET version_num='0036_ibpt_operational_resilience' WHERE alembic_version.version_num = '0037_fiscal_catalog_governance_imports';
+
+COMMIT;
+

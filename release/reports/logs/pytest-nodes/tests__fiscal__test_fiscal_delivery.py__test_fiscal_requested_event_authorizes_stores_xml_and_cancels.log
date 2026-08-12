@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/fiscal/test_fiscal_delivery.py::test_fiscal_requested_event_authorizes_stores_xml_and_cancels
-
-.PIGE360_NODE_RESULT=PASS

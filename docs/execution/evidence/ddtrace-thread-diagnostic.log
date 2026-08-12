@@ -1,0 +1,4 @@
+..........                                                               [100%]
+10 passed in 25.52s
+pytest_return=0
+thread name='MainThread' daemon=False alive=True ident=139642005931904

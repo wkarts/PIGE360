@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/workflows/test_workflows.py::test_parallel_all_approval_requires_every_role
-
-.PIGE360_NODE_RESULT=PASS

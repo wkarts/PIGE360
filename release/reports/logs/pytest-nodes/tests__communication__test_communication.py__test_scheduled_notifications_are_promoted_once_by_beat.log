@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/communication/test_communication.py::test_scheduled_notifications_are_promoted_once_by_beat
-
-.PIGE360_NODE_RESULT=PASS

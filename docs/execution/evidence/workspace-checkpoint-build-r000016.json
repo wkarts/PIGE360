@@ -1,0 +1,9 @@
+{
+  "output": "/mnt/data/pige360/release/checkpoints/PIGE360-workspace-checkpoint-1.0.0-r000016-20260810T191138Z.zip",
+  "sha256": "3042a4a6148678527f66e65d4123703edf4820e7c0d924cd3164e9f01e0b1bd2",
+  "bytes": 65107243,
+  "files": 2721,
+  "uncompressed_bytes": 75899571,
+  "checksum_file": "/mnt/data/pige360/release/checkpoints/PIGE360-workspace-checkpoint-1.0.0-r000016-20260810T191138Z.zip.sha256",
+  "manifest_file": "/mnt/data/pige360/release/checkpoints/PIGE360-workspace-checkpoint-1.0.0-r000016-20260810T191138Z.zip.manifest.json"
+}

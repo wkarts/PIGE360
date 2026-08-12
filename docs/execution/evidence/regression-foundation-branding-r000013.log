@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /opt/pyvenv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.5', 'Platform': 'Linux-6.18.35-x86_64-with-glibc2.41', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'Faker': '40.1.2', 'asyncio': '1.3.0', 'anyio': '4.13.0', 'json-report': '1.5.0', 'cov': '7.0.0', 'metadata': '3.1.1'}, 'PLATFORM': 'linux/amd64', 'CI': 'true'}
+rootdir: /mnt/data/pige360/backend
+configfile: pytest.ini (WARNING: ignoring pytest config in pyproject.toml!)
+plugins: Faker-40.1.2, asyncio-1.3.0, anyio-4.13.0, json-report-1.5.0, cov-7.0.0, metadata-3.1.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 17 items
+
+backend/tests/academic/test_education_stage_progress.py::test_early_childhood_daily_agenda_guardian_access_and_pickup PASSED [  5%]
+backend/tests/academic/test_education_stage_progress.py::test_higher_education_prerequisites_internship_activity_thesis_and_integralization PASSED [ 11%]
+backend/tests/academic/test_secretary_lifecycle.py::test_secretary_enrollment_history_capacity_and_renewal PASSED [ 17%]
+backend/tests/academic/test_secretary_lifecycle.py::test_admission_selection_history_and_conversion PASSED [ 23%]
+backend/tests/admissions/test_admissions_funnel.py::test_admissions_public_lead_ranking_reservation_and_conversion PASSED [ 29%]
+backend/tests/admissions/test_admissions_funnel.py::test_admission_campaign_and_process_date_validation PASSED [ 35%]
+backend/tests/analytics/test_analytics.py::test_analytics_uses_physical_tenant_data_and_isolates_tenants PASSED [ 41%]
+backend/tests/analytics/test_analytics.py::test_analytics_rejects_invalid_period_and_unprivileged_role PASSED [ 47%]
+backend/tests/app_factory/test_app_factory.py::test_operational_build_farm_release_and_download PASSED [ 52%]
+backend/tests/app_factory/test_app_factory.py::test_native_build_without_compatible_agent_stays_queued PASSED [ 58%]
+backend/tests/attendance/test_attendance.py::test_offline_call_submission_correction_reopen_justification_and_risk PASSED [ 64%]
+backend/tests/attendance/test_attendance.py::test_teacher_without_assignment_is_blocked_and_cancelled_session_has_no_absence PASSED [ 70%]
+backend/tests/branding/test_branding.py::test_branding_is_versioned_and_never_leaks_between_tenants PASSED [ 76%]
+backend/tests/branding/test_branding.py::test_brand_asset_is_hashed_and_stored_in_tenant_boundary 

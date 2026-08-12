@@ -1,0 +1,4 @@
+COMMAND=python -m compileall -q backend/app backend/tests
+COMPILE_EXIT_CODE=0
+COMMAND=PYTHONPATH=backend python -m pytest -q
+.......

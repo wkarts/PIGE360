@@ -1,0 +1,2 @@
+$ tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --lib ES2022,DOM --skipLibCheck packages/api-sdk/src/index.ts
+exit=0

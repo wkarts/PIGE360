@@ -1,0 +1,2 @@
+123 passed in 133.81s
+strategy=isolated test-file subprocesses; aggregate group durations; 0 failed

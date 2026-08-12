@@ -1,0 +1,86 @@
+"""fiscal document routing assembly
+
+Revision ID: 0039_fiscal_document_routing_assembly
+Revises: 0038_fiscal_document_lifecycle
+"""
+from alembic import op
+
+revision = "0039_fiscal_document_routing_assembly"
+down_revision = "0038_fiscal_document_lifecycle"
+branch_labels = None
+depends_on = None
+
+TABLES = [
+    "fiscal_document_schema_versions", "fiscal_document_routing_policies", "fiscal_document_assemblies",
+    "fiscal_document_builds", "fiscal_document_links", "fiscal_document_financial_links", "fiscal_emission_trigger_runs",
+]
+
+
+def upgrade() -> None:
+    op.execute("""
+CREATE TABLE fiscal_document_schema_versions (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, document_type TEXT NOT NULL, schema_code TEXT NOT NULL, version_label TEXT NOT NULL,
+ valid_from DATE NOT NULL, valid_until DATE, root_element TEXT NOT NULL, namespace_uri TEXT, source_reference TEXT,
+ xsd_storage_key TEXT NOT NULL, xsd_sha256 TEXT NOT NULL, metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+ state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, published_by TEXT, published_at TIMESTAMPTZ,
+ created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL, UNIQUE(tenant_id,schema_code,version_label),
+ CHECK(document_type IN ('NF-e','NFC-e','NFS-e')), CHECK(state IN ('draft','published','superseded','archived')), CHECK(valid_until IS NULL OR valid_until>=valid_from)
+);
+CREATE TABLE fiscal_document_routing_policies (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id), code TEXT NOT NULL, name TEXT NOT NULL,
+ operation_type TEXT NOT NULL, recipient_scope TEXT NOT NULL DEFAULT 'any', channel_scope TEXT NOT NULL DEFAULT 'any', product_document_type TEXT,
+ service_document_type TEXT NOT NULL DEFAULT 'NFS-e', trigger_types_json JSONB NOT NULL DEFAULT '[]'::jsonb, valid_from DATE NOT NULL, valid_until DATE,
+ priority INTEGER NOT NULL DEFAULT 100, settings_json JSONB NOT NULL DEFAULT '{}'::jsonb, state TEXT NOT NULL DEFAULT 'draft', version INTEGER NOT NULL DEFAULT 1,
+ created_by TEXT NOT NULL, published_by TEXT, published_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL,
+ CHECK(product_document_type IS NULL OR product_document_type IN ('NF-e','NFC-e')), CHECK(service_document_type='NFS-e'),
+ CHECK(state IN ('draft','published','superseded','archived')), CHECK(valid_until IS NULL OR valid_until>=valid_from)
+);
+CREATE TABLE fiscal_document_assemblies (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, source_type TEXT NOT NULL, source_id TEXT NOT NULL,
+ fiscal_context_id TEXT NOT NULL REFERENCES fiscal_contexts(id), fiscal_context_version_id TEXT NOT NULL REFERENCES fiscal_context_versions(id),
+ routing_policy_id TEXT REFERENCES fiscal_document_routing_policies(id), fiscal_profile_id TEXT NOT NULL REFERENCES fiscal_profiles(id), occurred_on DATE NOT NULL,
+ operation_type TEXT NOT NULL, recipient_scope TEXT NOT NULL, channel TEXT NOT NULL, trigger_type TEXT NOT NULL, state TEXT NOT NULL,
+ input_snapshot_json JSONB NOT NULL, input_sha256 TEXT NOT NULL, routing_decision_json JSONB NOT NULL, output_snapshot_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+ output_sha256 TEXT, created_by TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL
+);
+CREATE TABLE fiscal_document_builds (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, assembly_id TEXT NOT NULL REFERENCES fiscal_document_assemblies(id), document_type TEXT NOT NULL,
+ relationship TEXT NOT NULL, schema_version_id TEXT REFERENCES fiscal_document_schema_versions(id), payload_json JSONB NOT NULL, xml_storage_key TEXT,
+ xml_sha256 TEXT, validation_state TEXT NOT NULL, validation_errors_json JSONB NOT NULL DEFAULT '[]'::jsonb, total_amount NUMERIC(18,2) NOT NULL,
+ item_count INTEGER NOT NULL, fiscal_document_id TEXT REFERENCES fiscal_documents(id), created_at TIMESTAMPTZ NOT NULL,
+ CHECK(document_type IN ('NF-e','NFC-e','NFS-e')), CHECK(validation_state IN ('valid','invalid','schema_not_configured'))
+);
+CREATE TABLE fiscal_document_links (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, assembly_id TEXT NOT NULL REFERENCES fiscal_document_assemblies(id),
+ build_id TEXT NOT NULL REFERENCES fiscal_document_builds(id), fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id), source_type TEXT NOT NULL,
+ source_id TEXT NOT NULL, relationship TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL, UNIQUE(tenant_id,build_id,fiscal_document_id)
+);
+CREATE TABLE fiscal_document_financial_links (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, fiscal_document_id TEXT NOT NULL REFERENCES fiscal_documents(id), source_type TEXT NOT NULL, source_id TEXT NOT NULL,
+ financial_contract_id TEXT, charge_id TEXT, payment_id TEXT, adjustment_state TEXT NOT NULL DEFAULT 'linked',
+ adjustment_ledger_entry_id TEXT REFERENCES ledger_entries(id), created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL,
+ UNIQUE(tenant_id,fiscal_document_id,source_type,source_id)
+);
+CREATE TABLE fiscal_emission_trigger_runs (
+ id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, event_type TEXT NOT NULL, aggregate_id TEXT NOT NULL, source_type TEXT, source_id TEXT,
+ trigger_type TEXT NOT NULL, routing_policy_id TEXT REFERENCES fiscal_document_routing_policies(id), state TEXT NOT NULL,
+ payload_json JSONB NOT NULL DEFAULT '{}'::jsonb, error_detail TEXT, assembly_id TEXT REFERENCES fiscal_document_assemblies(id),
+ created_at TIMESTAMPTZ NOT NULL, updated_at TIMESTAMPTZ NOT NULL, UNIQUE(tenant_id,event_type,aggregate_id)
+);
+CREATE INDEX ix_fiscal_document_schema_effective ON fiscal_document_schema_versions(tenant_id,document_type,state,valid_from,valid_until);
+CREATE INDEX ix_fiscal_routing_effective ON fiscal_document_routing_policies(tenant_id,fiscal_context_id,state,operation_type,valid_from,valid_until,priority);
+CREATE INDEX ix_fiscal_assembly_source ON fiscal_document_assemblies(tenant_id,source_type,source_id,created_at);
+CREATE INDEX ix_fiscal_build_assembly ON fiscal_document_builds(tenant_id,assembly_id,document_type);
+CREATE INDEX ix_fiscal_document_links_source ON fiscal_document_links(tenant_id,source_type,source_id);
+CREATE INDEX ix_fiscal_financial_links_charge ON fiscal_document_financial_links(tenant_id,charge_id,adjustment_state);
+CREATE INDEX ix_fiscal_trigger_runs_state ON fiscal_emission_trigger_runs(tenant_id,state,created_at);
+""")
+    for table in TABLES:
+        op.execute(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY")
+        op.execute(f"ALTER TABLE {table} FORCE ROW LEVEL SECURITY")
+        op.execute(f"CREATE POLICY {table}_tenant_isolation ON {table} USING (tenant_id = current_setting('app.tenant_id', true)) WITH CHECK (tenant_id = current_setting('app.tenant_id', true))")
+
+
+def downgrade() -> None:
+    for table in reversed(TABLES):
+        op.execute(f"DROP TABLE IF EXISTS {table} CASCADE")

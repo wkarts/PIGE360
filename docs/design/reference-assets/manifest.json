@@ -1,822 +1,1093 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_locally": true,
-  "source_archive_sha256": "9cc110eddc20c82b7176580f0aff09f16471cb0650d4ba32a2fe059f3d76f2ef",
-  "assets_count": 115,
-  "known_source_integrity_issue": {
-    "description": "O SHA256SUMS do pacote referencia quatro arquivos ausentes em 10_SOURCE_REFERENCES.",
-    "missing": [
-      "10_SOURCE_REFERENCES/source-reference-01.png",
-      "10_SOURCE_REFERENCES/source-reference-02.png",
-      "10_SOURCE_REFERENCES/source-reference-03.png",
-      "10_SOURCE_REFERENCES/source-reference-04.png"
-    ]
+  "source_archive": "docs/design/reference-assets/originals/PIGE360_BRANDING_COMPLETO.zip",
+  "source_archive_sha256": "df59b518bad9f88b607e7ec5d3f429e3e6c09f6369f1ea5b6f7f74451b117a38",
+  "source_archive_bytes": 24370070,
+  "files_count": 119,
+  "assets_count": 118,
+  "active_files_count": 115,
+  "source_only_files_count": 4,
+  "integrity": {
+    "zip_valid": true,
+    "unsafe_entries": 0,
+    "internal_checksum_entries": 118,
+    "internal_checksums_verified": 118,
+    "missing": [],
+    "unexpected": [],
+    "mismatches": []
   },
   "files": [
     {
       "path": "00_MASTER/BRAND_GUIDELINES.md",
       "sha256": "d8713a5d621fbaefc71b1bba063f50379d1d1780a3ae9bf5e309ada1c5a3c518",
       "bytes": 1291,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "text/markdown",
+      "category": "master",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "00_MASTER/BRAND_MANIFEST.json",
       "sha256": "3edd554f969cd6b8375511f3e5fa3b38c32a8db0c7d5d98290cbc4f2583e0b7a",
       "bytes": 690,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "application/json",
+      "category": "master",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-horizontal-1024.png",
       "sha256": "02ef32957388e61f82774b738f4c3ec5281bb34d3d2ded09d4aab1b99c508521",
       "bytes": 41583,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-horizontal-2048.png",
       "sha256": "5738db6300f4f3c03d387d32b4ea519bd7cb664cee8f814bec06df36280c3bb2",
       "bytes": 91556,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-horizontal-512.png",
       "sha256": "6a36303c61829e8b176c117a9c4617d18bf439823a816b35608addfc175733be",
       "bytes": 19429,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-stacked-1024.png",
       "sha256": "d06872da0227d4a4c47b98cb28620cf3dc37ada397bbe78f1a5e1e32bb5634a8",
       "bytes": 77117,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-stacked-256.png",
       "sha256": "ff70a1d64eb20a311acdf8fec6a45873c6a5294ae8317ca8591c2b8c6bef40df",
       "bytes": 15626,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-stacked-512.png",
       "sha256": "0e68f16787ebf9160f21074a5a837cec208f734a9117d583b4891cd3485bcd2a",
       "bytes": 33953,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-symbol-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-symbol-256.png",
       "sha256": "03b1abc2426bb9efc8a1ae9cf0ca6b713f92657e9dc3efd5b1011d5e5061af7b",
       "bytes": 14380,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/PNG/pige360-symbol-512.png",
       "sha256": "79bd7ed8459feedc546fb08a2a6bbfe7e730c48e24ff2fad8507d268fca9b0ea",
       "bytes": 33051,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/SVG/pige360-horizontal.svg",
       "sha256": "c7e89ba26c962d9f126a0073066d43f8d8cedff1be8b2b333bf1709b3be44f26",
       "bytes": 1525,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/svg+xml",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/SVG/pige360-monochrome.svg",
       "sha256": "9911a627ece881095c096332f0803c22f1ace5e9300d599b4f8e240cfe00db26",
       "bytes": 1525,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/svg+xml",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/SVG/pige360-stacked.svg",
       "sha256": "76261f91fafe961a9de23d21e5b3835cab4aae1e77edbefa0abde81bababf895",
       "bytes": 1353,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/svg+xml",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "01_LOGOS/SVG/pige360-symbol.svg",
       "sha256": "7bec2501cc67b00930c282805979dfdef7a985af8f942542311b6f4be98e8946",
       "bytes": 792,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/svg+xml",
+      "category": "logos",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-144.png",
       "sha256": "e2364a1c95502090d41450404525128091440ed14e44793f6d29e28d65f46415",
       "bytes": 12277,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-192.png",
       "sha256": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d",
       "bytes": 16852,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-48.png",
       "sha256": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e",
       "bytes": 3466,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-72.png",
       "sha256": "752f230b16a87e7af6cf0bab865c4c6eaa3df568ac1eeb514a51a7ce4fc5b7a2",
       "bytes": 5625,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/android/mipmap-96.png",
       "sha256": "b2765efbbb0f2496e3761496c19a9c8b7fc6f9ee617976d54aca03830668094d",
       "bytes": 7788,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/apple-touch-icon.png",
       "sha256": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d",
       "bytes": 15768,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/favicon.ico",
       "sha256": "c7cf347b57e5041d82ccd6b15e7b236a7397de796dace37d96c407c3a79b95e6",
       "bytes": 45531,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/vnd.microsoft.icon",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/favicon.svg",
       "sha256": "7bec2501cc67b00930c282805979dfdef7a985af8f942542311b6f4be98e8946",
       "bytes": 792,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/svg+xml",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-1024.png",
       "sha256": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af",
       "bytes": 80367,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-120.png",
       "sha256": "518e0c981ad128a799f867a4507613ab3664b539b91a0dc94fdbe3456002ed56",
       "bytes": 9977,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-152.png",
       "sha256": "4115566e40230feaa0691e8db7c6a97f4d204e4767c40d66017d57dde55561d9",
       "bytes": 13142,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-167.png",
       "sha256": "eb6f8ef98143ee00488b4c088646d44dbf5d954b50e42386c11ea6a3ac3e1bd5",
       "bytes": 14427,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-180.png",
       "sha256": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d",
       "bytes": 15768,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-20.png",
       "sha256": "4f1b83c7bb868efc7a229e57b313b9608a1a67784df51dd4220c19912b058566",
       "bytes": 1109,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-29.png",
       "sha256": "19342eb3c4df3eac36e3f3836027514d24a7f581c206508c5833fc4fcae5f406",
       "bytes": 1817,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-40.png",
       "sha256": "56ee0b6dad0ddf0ebe7995e460e3186cfb9dcc9eed187570ea801fd26c301dd9",
       "bytes": 2757,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-58.png",
       "sha256": "54d5a5284ac53e1768d4bddb22951162adf2a5e18bd0abc5ce24c82a9071e92a",
       "bytes": 4425,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-60.png",
       "sha256": "89c171e2aee0935f3105cc1dd717b48dcea6cbb3a98181943a604c604f085fc0",
       "bytes": 4562,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-76.png",
       "sha256": "7e928e35d80d1791930b2d60f0965891359c1cb9206c173955d21550c63a7d95",
       "bytes": 6047,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-80.png",
       "sha256": "56eb776667b40583cb696784700c3ee3694af633b2717693c7cc93aef71ab6ed",
       "bytes": 6358,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/ios/AppIcon-87.png",
       "sha256": "6f295b2191c28f98e185068ad02a7d71786f1c83515c0499a1d9c9da031b8e51",
       "bytes": 6966,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-128.png",
       "sha256": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a",
       "bytes": 10775,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-16.png",
       "sha256": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af",
       "bytes": 801,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-24.png",
       "sha256": "bf98271d96e4c4fc497f9482a150df02bc66758c518748fe25052896088c5313",
       "bytes": 1444,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-256.png",
       "sha256": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1",
       "bytes": 23073,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-32.png",
       "sha256": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9",
       "bytes": 2078,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-48.png",
       "sha256": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e",
       "bytes": 3466,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/linux/pige360-64.png",
       "sha256": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532",
       "bytes": 4902,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_1024x1024.png",
       "sha256": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af",
       "bytes": 80367,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_128x128.png",
       "sha256": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a",
       "bytes": 10775,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_16x16.png",
       "sha256": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af",
       "bytes": 801,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_256x256.png",
       "sha256": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1",
       "bytes": 23073,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_32x32.png",
       "sha256": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9",
       "bytes": 2078,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_512x512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/macos/icon_64x64.png",
       "sha256": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532",
       "bytes": 4902,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/master-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-1024x1024.png",
       "sha256": "0e53738431a91ecf3f33ff8b11af1c77880a130a15e12310a54963144dd8f9af",
       "bytes": 80367,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-128x128.png",
       "sha256": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a",
       "bytes": 10775,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-16x16.png",
       "sha256": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af",
       "bytes": 801,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-180x180.png",
       "sha256": "e72f4e1161ce807c742723a1a909e8ac312b9d4a3c9d723450ca417875b98d7d",
       "bytes": 15768,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-192x192.png",
       "sha256": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d",
       "bytes": 16852,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-256x256.png",
       "sha256": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1",
       "bytes": 23073,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-32x32.png",
       "sha256": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9",
       "bytes": 2078,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-48x48.png",
       "sha256": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e",
       "bytes": 3466,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-512x512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pige360-64x64.png",
       "sha256": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532",
       "bytes": 4902,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pwa/icon-192.png",
       "sha256": "a648a932a1702cd88f5437328c6db3d907a28660fa9a5fbca0247236d0286c8d",
       "bytes": 16852,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/pwa/icon-512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-128.png",
       "sha256": "2685558957ace2be5ba532ab90cfa193e9695df9a52902e5e2371c227042871a",
       "bytes": 10775,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-16.png",
       "sha256": "ddad22faf19687a77fe7a28ac58c44f86e939cc8175fa21e61b9366854f7f9af",
       "bytes": 801,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-24.png",
       "sha256": "bf98271d96e4c4fc497f9482a150df02bc66758c518748fe25052896088c5313",
       "bytes": 1444,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-256.png",
       "sha256": "a2b737572f5350d0c24047ea75713efa183b5364565703d25538af81b79386a1",
       "bytes": 23073,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-32.png",
       "sha256": "9f54106e450e9b86248351399b0e2dc6b5e35919a52df8babd79167ddf2a7df9",
       "bytes": 2078,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-48.png",
       "sha256": "bb4dd344992c57b2b2fab803c5130f0ddcd0c80e562b66357d3cd1dbb76b5c0e",
       "bytes": 3466,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-512.png",
       "sha256": "13b3d059143fa32850875cff68da58be3b9e26de9cc508cbaf13df25fbadc74c",
       "bytes": 51163,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "02_ICONS/windows/pige360-64.png",
       "sha256": "45a86a6ae9761232b4c58cb66b225a0cab3238eabcdd3f1e2632764ff4f57532",
       "bytes": 4902,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "icons",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/dark/splash-1536x2048.png",
       "sha256": "100547cb2a05c47329527ddb226dd551242e5659176ce3dc366e2561b7c4b302",
       "bytes": 80936,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/desktop/splash-1920x1080-dark.png",
       "sha256": "af32eac3f1a828305b44e6f979cbedad027ba265fa17226461131f8ffe436fde",
       "bytes": 91343,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/desktop/splash-1920x1080-light.png",
       "sha256": "6b93a1b5ea27cd7e016fed835e0092bf6ddf4162e15046cb78df2bd8a819640b",
       "bytes": 107278,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/light/splash-1536x2048.png",
       "sha256": "56668524fcfa4b970a0ef23ef5488eac165c1dbec486088ec2a4a0a92e366db3",
       "bytes": 87929,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/mobile/splash-1080x1920-dark.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "03_SPLASH/mobile/splash-1080x1920-light.png",
       "sha256": "ed146c910cb0523d695deb67047b73e267b8499226f89548957e6ac489b150be",
       "bytes": 62144,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "splash",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/facebook-cover-1640x624.png",
       "sha256": "9e966febb683387a1ae36ded6d54833ec3b605a541a816d3c821f48230167367",
       "bytes": 43574,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/instagram-post-1080x1080.png",
       "sha256": "c0cab957c207194f216c3c6ee898036b37443cb64e097095466f37ff3b9cae79",
       "bytes": 72574,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/instagram-story-1080x1920.png",
       "sha256": "895530d2d3a49a963c520f2b3a0e865abcb3f1a6349f1f546d1303e9f4ac7d58",
       "bytes": 102222,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/linkedin-cover-1584x396.png",
       "sha256": "de2865fdc11b6daf27ffadfc4a017f8326a11ac7f7a0cb017f508de475a8a69a",
       "bytes": 26480,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/open-graph-1200x630.png",
       "sha256": "844efba89f4d68e3af770667ee7db2604caa40aa65d5236959e975827af053c0",
       "bytes": 41325,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "04_SOCIAL/whatsapp-share-1200x630.png",
       "sha256": "d12afdaf731aff7a22e2891e008498c6c1c1552e867f1bab7ce66173f3d967ab",
       "bytes": 38991,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "social",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/admin/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/admin/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/app-manifest-example.json",
       "sha256": "0da0d23b495e67e33d0eb6c192e3bf6fd4a01d26037712a24fbad561a7d52f77",
       "bytes": 1200,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "application/json",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/desktop-admin/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/desktop-admin/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/family/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/family/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/pos-canteen/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/pos-canteen/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/student/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/student/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/teacher/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/teacher/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/timeclock/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/timeclock/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/transport/icon-1024.png",
       "sha256": "3dc6576b0a9e8c8d3b5ddabd7da31623da4a26c4e5bc2597c38a6e9d8ce5703e",
       "bytes": 82003,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "05_APP_BRANDING/transport/splash-mobile.png",
       "sha256": "b5c1557f9afe1553d424db819f87d5f740739bf6337a5590745eabe20a785af2",
       "bytes": 55954,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "app_branding",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "06_DOCUMENTS/letterhead-a4.png",
       "sha256": "296571b4ec305c40f507f2f49878fe7d3fe777a84d2b4b1ae05cbe8a5e06383d",
       "bytes": 60994,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "documents",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "07_PRESENTATION_BOARDS/pige360-brand-board-01.png",
       "sha256": "36cbf89689594750e8ad45e68809096fcafbb58bc5bdc4570b420a045212f217",
       "bytes": 1883722,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "presentation_boards",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "07_PRESENTATION_BOARDS/pige360-brand-board-02.png",
       "sha256": "cff71283d7119129411e4495abf5676e3b357add2029292b5305472eb65feefe",
       "bytes": 1760129,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "presentation_boards",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "08_RECONSTRUCTED_REFERENCES/reference-01-pige360.png",
       "sha256": "3f0d3c865df3d6fba16d954a8b4ea93d3671ce90f462c298f390c6aee727016b",
       "bytes": 1759548,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "reconstructed_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "08_RECONSTRUCTED_REFERENCES/reference-02-pige360.png",
       "sha256": "0dad4209f1d6f44d28894b79d8dbc487fb8e2a3a121168b1083bcc6d11fb6956",
       "bytes": 1772017,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "reconstructed_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "08_RECONSTRUCTED_REFERENCES/reference-03-pige360.png",
       "sha256": "1a9f9f2745c6b03f143386275c969d875b1e87af634f48babc2133d5f9b53eef",
       "bytes": 1856625,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "reconstructed_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "08_RECONSTRUCTED_REFERENCES/reference-04-pige360.png",
       "sha256": "4e446dd80f9ea7e726086d0e7ae6d0ff4dd0699845fcb3c2f80ba935fd0e5f2f",
       "bytes": 1859390,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "image/png",
+      "category": "reconstructed_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "09_DESIGN_TOKENS/tailwind-preset.ts",
       "sha256": "f0d183cc17c07e48a14b389ca0afbf17c1f9a31f77818ffde29b7cf12b6ca770",
       "bytes": 304,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "text/vnd.trolltech.linguist",
+      "category": "design_tokens",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "09_DESIGN_TOKENS/tokens.css",
       "sha256": "c0a1133f43924d05b71e3e2bded21ea6ecab912284c30f8ad385e9addc09eb90",
       "bytes": 292,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "text/css",
+      "category": "design_tokens",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "09_DESIGN_TOKENS/tokens.json",
       "sha256": "3edd554f969cd6b8375511f3e5fa3b38c32a8db0c7d5d98290cbc4f2583e0b7a",
       "bytes": 690,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "application/json",
+      "category": "design_tokens",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "09_DESIGN_TOKENS/tokens.scss",
       "sha256": "3b4f8417c1a90a85b540ca71c6d099b437da0fc8c72eaef68cce467f024206f8",
       "bytes": 203,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "application/octet-stream",
+      "category": "design_tokens",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
+    },
+    {
+      "path": "10_SOURCE_REFERENCES/source-reference-01.png",
+      "sha256": "1f9d3ae1b13ed437acbe6dfe828c0548ea43802313186fbd63606a576c9ebff1",
+      "bytes": 2596226,
+      "media_type": "image/png",
+      "category": "source_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "source_only_not_extracted"
+    },
+    {
+      "path": "10_SOURCE_REFERENCES/source-reference-02.png",
+      "sha256": "906182aed1ee497baf8a7f2996e1f377eb5795348484e0877017b6cc63633b0b",
+      "bytes": 2569899,
+      "media_type": "image/png",
+      "category": "source_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "source_only_not_extracted"
+    },
+    {
+      "path": "10_SOURCE_REFERENCES/source-reference-03.png",
+      "sha256": "c2e818e0a874a72c0b90b3508b1f803d6a167bd515ef8770bbfa5218c9f05b52",
+      "bytes": 2675688,
+      "media_type": "image/png",
+      "category": "source_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "source_only_not_extracted"
+    },
+    {
+      "path": "10_SOURCE_REFERENCES/source-reference-04.png",
+      "sha256": "a82b20c46034ffc9d694cd27457c2d04f4cc16a200a0a539dcff7ea4c644c993",
+      "bytes": 2695616,
+      "media_type": "image/png",
+      "category": "source_references",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "source_only_not_extracted"
     },
     {
       "path": "LEIA-ME-PRIMEIRO.txt",
       "sha256": "1638629622e702ef5c0885846688a8749bad62c560a46b5d141bd4b8d9f100de",
       "bytes": 405,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "text/plain",
+      "category": "metadata",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     },
     {
       "path": "SHA256SUMS.txt",
       "sha256": "8b753c5ad5e1a628bc2573f9a9befbc7646d48c3fea131bb49e57ea316607736",
       "bytes": 11888,
-      "media_type": null,
-      "source": "PIGE360_BRANDING_COMPLETO.zip"
+      "media_type": "text/plain",
+      "category": "metadata",
+      "source": "PIGE360_BRANDING_COMPLETO.zip",
+      "activation_status": "active"
     }
   ]
 }

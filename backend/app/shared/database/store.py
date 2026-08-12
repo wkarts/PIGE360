@@ -64,6 +64,12 @@ class SQLiteStore:
                 "provider_status": "TEXT NOT NULL DEFAULT 'not_configured'",
                 "attempts": "INTEGER NOT NULL DEFAULT 0",
                 "last_attempt_at": "TEXT",
+                "fiscal_context_id": "TEXT",
+                "fiscal_context_version_id": "TEXT",
+                "fiscal_context_snapshot_json": "TEXT NOT NULL DEFAULT '{}'",
+                "delivery_policy_id": "TEXT",
+                "retry_count": "INTEGER NOT NULL DEFAULT 0",
+                "next_retry_at": "TEXT",
             }
             for column, ddl in additions.items():
                 if column not in columns:
@@ -82,6 +88,76 @@ class SQLiteStore:
             for column, ddl in additions.items():
                 if column not in columns:
                     conn.execute(f"ALTER TABLE signature_otp_challenges ADD COLUMN {column} {ddl}")
+
+        # Compatibilidade do incremento vertical de serviços, compras, estoque e patrimônio.
+        compatibility_columns = {
+            "services": {
+                "catalog_id": "TEXT", "service_type": "TEXT NOT NULL DEFAULT 'other'",
+                "recurrence_type": "TEXT NOT NULL DEFAULT 'one_time'",
+                "unit_of_measure": "TEXT NOT NULL DEFAULT 'unit'", "default_duration_minutes": "INTEGER",
+                "cost_center_id": "TEXT", "taxable": "INTEGER NOT NULL DEFAULT 1",
+                "metadata_json": "TEXT NOT NULL DEFAULT '{}'", "institution_id": "TEXT", "unit_id": "TEXT",
+                "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+            "service_orders": {
+                "order_number": "TEXT", "subscriber_person_id": "TEXT", "subscription_id": "TEXT",
+                "competence_id": "TEXT", "cost_center_id": "TEXT", "currency": "TEXT NOT NULL DEFAULT 'BRL'",
+                "subtotal": "NUMERIC NOT NULL DEFAULT 0", "discount_amount": "NUMERIC NOT NULL DEFAULT 0",
+                "due_date": "TEXT", "installment_count": "INTEGER NOT NULL DEFAULT 1", "charge_id": "TEXT",
+                "fiscal_status": "TEXT NOT NULL DEFAULT 'pending'", "notes": "TEXT", "confirmed_at": "TEXT",
+                "confirmed_by": "TEXT", "started_at": "TEXT", "completed_at": "TEXT", "cancelled_at": "TEXT",
+                "cancellation_reason": "TEXT", "institution_id": "TEXT", "unit_id": "TEXT",
+                "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+            "service_order_items": {
+                "variant_id": "TEXT", "description": "TEXT", "discount_amount": "NUMERIC NOT NULL DEFAULT 0",
+                "competence_start": "TEXT", "competence_end": "TEXT",
+                "fiscal_profile_snapshot_json": "TEXT NOT NULL DEFAULT '{}'",
+                "execution_status": "TEXT NOT NULL DEFAULT 'pending'",
+                "executed_quantity": "NUMERIC NOT NULL DEFAULT 0",
+            },
+            "stock_movements": {"lot_id": "TEXT", "balance_after": "NUMERIC"},
+            "suppliers": {
+                "code": "TEXT", "rating": "NUMERIC", "payment_terms_json": "TEXT NOT NULL DEFAULT '{}'",
+                "fiscal_profile_json": "TEXT NOT NULL DEFAULT '{}'", "notes": "TEXT", "institution_id": "TEXT",
+                "unit_id": "TEXT", "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+            "purchase_orders": {
+                "warehouse_id": "TEXT NOT NULL DEFAULT 'default'", "quotation_id": "TEXT", "requisition_id": "TEXT",
+                "currency": "TEXT NOT NULL DEFAULT 'BRL'", "subtotal": "NUMERIC NOT NULL DEFAULT 0",
+                "freight_amount": "NUMERIC NOT NULL DEFAULT 0", "discount_amount": "NUMERIC NOT NULL DEFAULT 0",
+                "notes": "TEXT", "approved_at": "TEXT", "approved_by": "TEXT", "closed_at": "TEXT",
+                "institution_id": "TEXT", "unit_id": "TEXT", "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+            "purchase_order_items": {
+                "returned_quantity": "NUMERIC NOT NULL DEFAULT 0", "discount_amount": "NUMERIC NOT NULL DEFAULT 0",
+                "total_amount": "NUMERIC NOT NULL DEFAULT 0",
+                "fiscal_profile_snapshot_json": "TEXT NOT NULL DEFAULT '{}'",
+            },
+            "inventory_counts": {
+                "started_at": "TEXT", "snapshot_json": "TEXT NOT NULL DEFAULT '{}'", "institution_id": "TEXT",
+                "unit_id": "TEXT", "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+            "inventory_count_items": {"lot_id": "TEXT", "notes": "TEXT"},
+            "assets": {
+                "tag": "TEXT", "name": "TEXT", "location_id": "TEXT", "product_id": "TEXT",
+                "receipt_item_id": "TEXT", "serial_number": "TEXT", "useful_life_months": "INTEGER",
+                "residual_value": "NUMERIC NOT NULL DEFAULT 0",
+                "accumulated_depreciation": "NUMERIC NOT NULL DEFAULT 0", "warranty_until": "TEXT",
+                "metadata_json": "TEXT NOT NULL DEFAULT '{}'", "institution_id": "TEXT", "unit_id": "TEXT",
+                "version": "INTEGER NOT NULL DEFAULT 1",
+            },
+        }
+        for table_name, additions in compatibility_columns.items():
+            exists = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table_name,)
+            ).fetchone()
+            if not exists:
+                continue
+            columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()}
+            for column, ddl in additions.items():
+                if column not in columns:
+                    conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column} {ddl}")
 
         table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='legal_contracts'").fetchone()
         if not table:

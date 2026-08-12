@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/attendance/test_attendance.py::test_teacher_without_assignment_is_blocked_and_cancelled_session_has_no_absence
-
-.PIGE360_NODE_RESULT=PASS

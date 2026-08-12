@@ -1,0 +1,6 @@
+apps/tenant-admin-web/src/App.vue: syntax_ok
+apps/tenant-admin-web/src/components/ServicesPanel.vue: syntax_ok
+apps/tenant-admin-web/src/components/ProcurementPanel.vue: syntax_ok
+apps/tenant-admin-web/src/components/AssetsPanel.vue: syntax_ok
+files=4
+diagnostics=0

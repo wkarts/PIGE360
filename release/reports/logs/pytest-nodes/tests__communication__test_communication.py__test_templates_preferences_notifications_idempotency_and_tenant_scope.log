@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/communication/test_communication.py::test_templates_preferences_notifications_idempotency_and_tenant_scope
-
-.PIGE360_NODE_RESULT=PASS

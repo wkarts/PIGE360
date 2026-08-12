@@ -1,0 +1,10 @@
+$ PYTHONPATH=backend python scripts/api/export_openapi.py
+{"paths": 497, "operations": 610, "schemas": 328, "duplicate_operation_ids": []}
+$ PYTHONPATH=backend python scripts/api/generate_typescript_sdk.py
+{"schemas": 328, "operations": 610, "output": "packages/api-sdk/src/generated"}
+$ OpenAPI inventory
+paths=497
+operations=610
+schemas=328
+duplicate_operation_ids=0
+exit=0

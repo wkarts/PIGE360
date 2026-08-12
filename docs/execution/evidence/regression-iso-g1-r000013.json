@@ -1,0 +1,78 @@
+{
+  "files": 10,
+  "passed": 21,
+  "failed_files": 0,
+  "seconds": 24.97,
+  "results": [
+    {
+      "file": "backend/tests/academic/test_education_stage_progress.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 13.7,
+      "tail": "..                                                                       [100%]\n2 passed in 7.55s"
+    },
+    {
+      "file": "backend/tests/academic/test_secretary_lifecycle.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 11.81,
+      "tail": "..                                                                       [100%]\n2 passed in 5.71s"
+    },
+    {
+      "file": "backend/tests/admissions/test_admissions_funnel.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 15.31,
+      "tail": "..                                                                       [100%]\n2 passed in 6.25s"
+    },
+    {
+      "file": "backend/tests/analytics/test_analytics.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 11.11,
+      "tail": "..                                                                       [100%]\n2 passed in 5.13s"
+    },
+    {
+      "file": "backend/tests/app_factory/test_app_factory.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 11.23,
+      "tail": "..                                                                       [100%]\n2 passed in 5.43s"
+    },
+    {
+      "file": "backend/tests/attendance/test_attendance.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 16.5,
+      "tail": "..                                                                       [100%]\n2 passed in 6.94s"
+    },
+    {
+      "file": "backend/tests/branding/test_branding.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 9.11,
+      "tail": "..                                                                       [100%]\n2 passed in 3.43s"
+    },
+    {
+      "file": "backend/tests/branding/test_official_asset_import.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 5.61,
+      "tail": "...                                                                      [100%]\n3 passed in 0.24s"
+    },
+    {
+      "file": "backend/tests/canteen/test_canteen_wallet_policies.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 7.75,
+      "tail": ".                                                                        [100%]\n1 passed in 2.01s"
+    },
+    {
+      "file": "backend/tests/communication/test_communication.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 11.27,
+      "tail": "...                                                                      [100%]\n3 passed in 5.23s"
+    }
+  ]
+}

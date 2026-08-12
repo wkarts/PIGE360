@@ -1,0 +1,25 @@
+{
+  "start": 53,
+  "end": 55,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 4,
+  "failed_files": 0,
+  "duration_seconds": 17.21,
+  "results": [
+    {
+      "index": 53,
+      "file": "backend/tests/pedagogy/test_lesson_planning.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.70s\n\n"
+    },
+    {
+      "index": 54,
+      "file": "backend/tests/platform/test_control_plane.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 3.20s\n\n"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "files": 10,
+  "passed": 23,
+  "failed_files": 0,
+  "seconds": 25.36,
+  "results": [
+    {
+      "file": "backend/tests/pedagogy/test_grading_report_card.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 13.21,
+      "tail": "..                                                                       [100%]\n2 passed in 6.65s"
+    },
+    {
+      "file": "backend/tests/pedagogy/test_lesson_planning.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 11.91,
+      "tail": "..                                                                       [100%]\n2 passed in 5.84s"
+    },
+    {
+      "file": "backend/tests/platform/test_control_plane.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 13.36,
+      "tail": "..                                                                       [100%]\n2 passed in 5.13s"
+    },
+    {
+      "file": "backend/tests/portals/test_portal_scope.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 17.6,
+      "tail": "....                                                                     [100%]\n4 passed in 11.77s"
+    },
+    {
+      "file": "backend/tests/reporting/test_reporting.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 14.49,
+      "tail": "..                                                                       [100%]\n2 passed in 5.27s"
+    },
+    {
+      "file": "backend/tests/sales/test_inventory_reorder_suggestions.py",
+      "exit_code": 0,
+      "passed": 2,
+      "seconds": 10.62,
+      "tail": "..                                                                       [100%]\n2 passed in 4.99s"
+    },
+    {
+      "file": "backend/tests/sales/test_procurement_assets_vertical.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 8.31,
+      "tail": ".                                                                        [100%]\n1 passed in 2.33s"
+    },
+    {
+      "file": "backend/tests/sales/test_sales_inventory_procurement.py",
+      "exit_code": 0,
+      "passed": 4,
+      "seconds": 13.45,
+      "tail": "....                                                                     [100%]\n4 passed in 7.96s"
+    },
+    {
+      "file": "backend/tests/security/test_host_and_auth.py",
+      "exit_code": 0,
+      "passed": 3,
+      "seconds": 10.49,
+      "tail": "...                                                                      [100%]\n3 passed in 4.93s"
+    },
+    {
+      "file": "backend/tests/services/test_services_vertical.py",
+      "exit_code": 0,
+      "passed": 1,
+      "seconds": 7.51,
+      "tail": ".                                                                        [100%]\n1 passed in 2.05s"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "start": 10,
+  "end": 12,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 5,
+  "failed_files": 0,
+  "duration_seconds": 17.52,
+  "results": [
+    {
+      "index": 10,
+      "file": "backend/tests/communication/test_notification_delivery.py",
+      "exit_code": 0,
+      "passed": 2,
+      "output": "..                                                                       [100%]\n2 passed in 2.73s\n\n"
+    },
+    {
+      "index": 11,
+      "file": "backend/tests/compliance/test_lgpd.py",
+      "exit_code": 0,
+      "passed": 3,
+      "output": "...                                                                      [100%]\n3 passed in 4.53s\n\n"
+    }
+  ]
+}

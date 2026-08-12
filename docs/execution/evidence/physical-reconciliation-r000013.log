@@ -1,0 +1,67 @@
+{
+  "inventory": {
+    "generated_at": "2026-08-10T18:51:46Z",
+    "workspace": "/mnt/data/pige360",
+    "version": "1.0.0",
+    "python": "3.13.5",
+    "pytest": "pytest 9.0.2",
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "tsc": "Version 5.8.3",
+    "docker": "not_available",
+    "cargo": "not_available",
+    "operational_tables": 213,
+    "control_tables": 8,
+    "tenant_base_tables": 48,
+    "python_app_files": 1288,
+    "python_test_files": 55,
+    "openapi_paths": 511,
+    "openapi_operations": 629,
+    "openapi_schemas": 341,
+    "pwa_apps": [
+      "admin-app",
+      "branding-studio",
+      "desktop-admin",
+      "family-app",
+      "kiosk-app",
+      "platform-console",
+      "pos-app",
+      "public-portal",
+      "student-app",
+      "teacher-app",
+      "tenant-admin-web",
+      "tenant-download-center",
+      "timeclock-app"
+    ],
+    "pwa_app_count": 13,
+    "package_locks": [],
+    "node_modules_present": false,
+    "git_directories": [],
+    "requirements_count": 4031,
+    "requirements_status_summary": {
+      "IMPLEMENTED": 235,
+      "IMPLEMENTING": 8,
+      "NOT_STARTED": 3318,
+      "TESTING": 38,
+      "VERIFIED": 432
+    },
+    "regression": {
+      "status": "0",
+      "summary": "123 aprovados, 0 ignorados, 133.81s",
+      "status_file": "docs/execution/evidence/backend-final-regression-123.status",
+      "log_file": "docs/execution/evidence/backend-final-regression-123.log"
+    }
+  },
+  "differences": {
+    "added": 134,
+    "modified": 21,
+    "deleted": 0
+  },
+  "outputs": [
+    "docs/execution/PHYSICAL_RECONCILIATION.md",
+    "docs/execution/evidence/physical-reconciliation.json",
+    "docs/execution/evidence/changed-files-current-turn.json",
+    "docs/execution/evidence/changed-files-current-turn.md",
+    "docs/execution/evidence/branding-checksums.txt"
+  ]
+}

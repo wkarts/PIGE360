@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/tenancy/test_isolation.py::test_idempotency_replays_same_person_request_and_rejects_key_reuse
-
-.PIGE360_NODE_RESULT=PASS

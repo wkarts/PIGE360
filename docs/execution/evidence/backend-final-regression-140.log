@@ -1,0 +1,6 @@
+PIGE360 — regressão consolidada após governança de catálogos fiscais
+files=63
+passed=140
+failed=0
+execution_mode=pytest por arquivo em processo isolado
+source_report=docs/execution/evidence/backend-regression-fiscal-governance-r20.json

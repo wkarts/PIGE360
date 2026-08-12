@@ -1,0 +1,404 @@
+{
+  "files": 65,
+  "passed": 144,
+  "failed_files": 0,
+  "seconds": 484.75,
+  "runner_summary": {
+    "files": 65,
+    "passed": 144,
+    "failed_files": 0,
+    "seconds": 484.77
+  },
+  "results": [
+    {
+      "file": "backend/tests/academic/test_education_stage_progress.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.39
+    },
+    {
+      "file": "backend/tests/academic/test_secretary_lifecycle.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.76
+    },
+    {
+      "file": "backend/tests/admissions/test_admissions_funnel.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.81
+    },
+    {
+      "file": "backend/tests/analytics/test_analytics.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.34
+    },
+    {
+      "file": "backend/tests/app_factory/test_app_factory.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.38
+    },
+    {
+      "file": "backend/tests/attendance/test_attendance.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.47
+    },
+    {
+      "file": "backend/tests/branding/test_branding.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.31
+    },
+    {
+      "file": "backend/tests/branding/test_official_asset_import.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 4.77
+    },
+    {
+      "file": "backend/tests/canteen/test_canteen_wallet_policies.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.97
+    },
+    {
+      "file": "backend/tests/communication/test_communication.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 8.66
+    },
+    {
+      "file": "backend/tests/communication/test_notification_delivery.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.81
+    },
+    {
+      "file": "backend/tests/compliance/test_lgpd.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 9.68
+    },
+    {
+      "file": "backend/tests/contract/test_contract_lifecycle.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.94
+    },
+    {
+      "file": "backend/tests/contract/test_contracts.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.73
+    },
+    {
+      "file": "backend/tests/contract/test_openapi.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 6.99
+    },
+    {
+      "file": "backend/tests/contract/test_otp_delivery.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.74
+    },
+    {
+      "file": "backend/tests/contract/test_pades_engine.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 4.53
+    },
+    {
+      "file": "backend/tests/contract/test_signature_providers.py",
+      "exit": 0,
+      "passed": 7,
+      "seconds": 15.0
+    },
+    {
+      "file": "backend/tests/database/test_postgres_sql_contract.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 4.72
+    },
+    {
+      "file": "backend/tests/e2e/test_operational_flow.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 6.63
+    },
+    {
+      "file": "backend/tests/engagement/test_notices_requests.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.69
+    },
+    {
+      "file": "backend/tests/events/test_event_delivery.py",
+      "exit": 0,
+      "passed": 5,
+      "seconds": 11.12
+    },
+    {
+      "file": "backend/tests/events/test_event_travel_lifecycle.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 6.05
+    },
+    {
+      "file": "backend/tests/execution/test_portable_checkpoint_builder.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.0
+    },
+    {
+      "file": "backend/tests/finance/test_finance_banking_services.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 8.45
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_catalog_classifications.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.84
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_catalog_governance.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 10.17
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_context_versioning.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 9.05
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_delivery.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.54
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_document_lifecycle.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.23
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_strategies_rtc.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.73
+    },
+    {
+      "file": "backend/tests/fiscal/test_fiscal_tax_calculation_engine.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 9.11
+    },
+    {
+      "file": "backend/tests/fiscal/test_ibpt_operational_resilience.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 6.05
+    },
+    {
+      "file": "backend/tests/fiscal/test_ibpt_sync.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.13
+    },
+    {
+      "file": "backend/tests/frontend/test_tenant_admin_vertical_modules.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 4.46
+    },
+    {
+      "file": "backend/tests/government_education/test_government_education.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.79
+    },
+    {
+      "file": "backend/tests/health/test_health.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.74
+    },
+    {
+      "file": "backend/tests/hr/test_hr_payroll_timekeeping.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.82
+    },
+    {
+      "file": "backend/tests/integrations/test_external_providers.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 10.09
+    },
+    {
+      "file": "backend/tests/library/test_library.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.9
+    },
+    {
+      "file": "backend/tests/mail/test_mail_client.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.61
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_catalog_governance_imports_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.84
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_catalogs_classifications_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 6.12
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_context_versioning_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 5.91
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_document_lifecycle_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 4.46
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_strategies_rtc_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 5.91
+    },
+    {
+      "file": "backend/tests/migrations/test_fiscal_tax_calculation_engine_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 6.08
+    },
+    {
+      "file": "backend/tests/migrations/test_ibpt_operational_resilience_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 6.45
+    },
+    {
+      "file": "backend/tests/migrations/test_inventory_reorder_suggestions_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 6.72
+    },
+    {
+      "file": "backend/tests/migrations/test_services_procurement_assets_migration.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 6.78
+    },
+    {
+      "file": "backend/tests/pedagogy/test_grading_report_card.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 8.43
+    },
+    {
+      "file": "backend/tests/pedagogy/test_lesson_planning.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.76
+    },
+    {
+      "file": "backend/tests/platform/test_control_plane.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.84
+    },
+    {
+      "file": "backend/tests/portals/test_portal_scope.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 12.49
+    },
+    {
+      "file": "backend/tests/reporting/test_reporting.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.49
+    },
+    {
+      "file": "backend/tests/sales/test_inventory_reorder_suggestions.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.96
+    },
+    {
+      "file": "backend/tests/sales/test_procurement_assets_vertical.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 7.11
+    },
+    {
+      "file": "backend/tests/sales/test_sales_inventory_procurement.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 11.0
+    },
+    {
+      "file": "backend/tests/security/test_host_and_auth.py",
+      "exit": 0,
+      "passed": 3,
+      "seconds": 8.53
+    },
+    {
+      "file": "backend/tests/services/test_services_vertical.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 5.98
+    },
+    {
+      "file": "backend/tests/storage/test_object_storage.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 5.04
+    },
+    {
+      "file": "backend/tests/tenancy/test_isolation.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 7.28
+    },
+    {
+      "file": "backend/tests/transportation/test_transportation.py",
+      "exit": 0,
+      "passed": 1,
+      "seconds": 6.28
+    },
+    {
+      "file": "backend/tests/unit/test_ids_and_passwords.py",
+      "exit": 0,
+      "passed": 2,
+      "seconds": 4.57
+    },
+    {
+      "file": "backend/tests/workflows/test_workflows.py",
+      "exit": 0,
+      "passed": 4,
+      "seconds": 10.52
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "start": 22,
+  "end": 24,
+  "total_files": 67,
+  "completed_files": 2,
+  "passed": 2,
+  "failed_files": 0,
+  "duration_seconds": 12.47,
+  "results": [
+    {
+      "index": 22,
+      "file": "backend/tests/events/test_event_travel_lifecycle.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 1.61s\n\n"
+    },
+    {
+      "index": 23,
+      "file": "backend/tests/execution/test_portable_checkpoint_builder.py",
+      "exit_code": 0,
+      "passed": 1,
+      "output": ".                                                                        [100%]\n1 passed in 0.61s\n\n"
+    }
+  ]
+}

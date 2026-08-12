@@ -1,0 +1,5 @@
+$ python -m compileall -q backend/app backend/tests
+compile_exit=0
+
+$ PYTHONPATH=backend python -m pytest -q backend/tests -ra
+.....

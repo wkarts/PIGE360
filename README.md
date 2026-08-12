@@ -6,7 +6,7 @@ PIGE360 é um ERP educacional brasileiro multi-tenant, SaaS/self-hosted e white-
 
 ## Estado validado desta árvore
 
-- **429 paths / 530 operações OpenAPI / 274 schemas**, sem `operationId` duplicado;
+- **559 paths / 689 operações OpenAPI / 375 schemas**, sem `operationId` duplicado;
 - **98 testes backend aprovados** em três shards isolados (33/33, 33/33 e 32/32);
 - migrations separadas para Control Plane e Tenant Plane, com RLS no Tenant Plane;
 - tenant resolvido por hostname antes da abertura do store;

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Header, Request, Response
@@ -368,7 +369,10 @@ def activate_enrollment(enrollment_id:str,data:EnrollmentAction,request:Request,
         if row["version"]!=data.expected_version:raise DomainError("VERSION_CONFLICT","Versão divergente.",409)
         if row["state"] not in {"pre_enrolled","reserved","suspended"}:raise DomainError("INVALID_STATE_TRANSITION","Matrícula não pode ser ativada neste estado.",409)
         if row["class_group_id"]:_assert_class_capacity(conn,tid,row["class_group_id"],exclude_enrollment_id=enrollment_id)
-        version=row["version"]+1;conn.execute("UPDATE enrollments SET state='active',enrolled_on=COALESCE(enrolled_on,?),ended_on=NULL,version=?,updated_at=? WHERE id=?",(now[:10],version,now,enrollment_id));movement_id=_enrollment_movement(conn,tenant_id=tid,enrollment_id=enrollment_id,movement_type="activation" if row["state"]!="suspended" else "reopening",from_state=row["state"],to_state="active",from_unit_id=row["unit_id"],to_unit_id=row["unit_id"],from_class_group_id=row["class_group_id"],to_class_group_id=row["class_group_id"],effective_on=now[:10],reason=data.reason,actor_id=user.id);result={"id":enrollment_id,"state":"active","version":version,"enrolled_on":row["enrolled_on"] or now[:10],"movement_id":movement_id};add_audit(conn,tenant_id=tid,actor_id=user.id,action="activate",aggregate_type="enrollment",aggregate_id=enrollment_id,correlation_id=request.state.correlation_id,before=dict(row),after=result,reason=data.reason);add_outbox(conn,tenant_id=tid,event_type="EnrollmentActivated",aggregate_type="enrollment",aggregate_id=enrollment_id,payload=result,correlation_id=request.state.correlation_id)
+        unit_row=conn.execute("SELECT timezone FROM units WHERE tenant_id=? AND id=?",(tid,row["unit_id"])).fetchone(); tz_name=(unit_row["timezone"] if unit_row and unit_row["timezone"] else "America/Bahia")
+        try: effective_date=datetime.now(ZoneInfo(tz_name)).date().isoformat()
+        except Exception: effective_date=date.today().isoformat()
+        version=row["version"]+1;conn.execute("UPDATE enrollments SET state='active',enrolled_on=COALESCE(enrolled_on,?),ended_on=NULL,version=?,updated_at=? WHERE id=?",(effective_date,version,now,enrollment_id));movement_id=_enrollment_movement(conn,tenant_id=tid,enrollment_id=enrollment_id,movement_type="activation" if row["state"]!="suspended" else "reopening",from_state=row["state"],to_state="active",from_unit_id=row["unit_id"],to_unit_id=row["unit_id"],from_class_group_id=row["class_group_id"],to_class_group_id=row["class_group_id"],effective_on=effective_date,reason=data.reason,actor_id=user.id);result={"id":enrollment_id,"state":"active","version":version,"enrolled_on":row["enrolled_on"] or effective_date,"movement_id":movement_id};add_audit(conn,tenant_id=tid,actor_id=user.id,action="activate",aggregate_type="enrollment",aggregate_id=enrollment_id,correlation_id=request.state.correlation_id,before=dict(row),after=result,reason=data.reason);add_outbox(conn,tenant_id=tid,event_type="EnrollmentActivated",aggregate_type="enrollment",aggregate_id=enrollment_id,payload=result,correlation_id=request.state.correlation_id)
     return result
 
 @router.get("/references/catalog",operation_id="tenant_reference_catalog")

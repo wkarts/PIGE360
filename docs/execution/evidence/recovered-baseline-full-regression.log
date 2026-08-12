@@ -1,0 +1,31 @@
+compile_exit=0
+........................................................................ [ 73%]
+..........................                                               [100%]
+============================= slowest 25 durations =============================
+4.62s setup    tests/contract/test_signature_providers.py::test_icp_brasil_detached_cms_is_cryptographically_verifiable
+3.62s setup    tests/tenancy/test_isolation.py::test_relational_students_and_physical_databases_are_isolated
+3.54s setup    tests/tenancy/test_isolation.py::test_idempotency_replays_same_person_request_and_rejects_key_reuse
+3.53s setup    tests/contract/test_signature_providers.py::test_govbr_oauth_pkce_callback_embeds_pades_without_token_leak
+3.47s setup    tests/health/test_health.py::test_health_incident_medication_and_family_privacy
+3.40s setup    tests/reporting/test_reporting.py::test_reporting_catalog_generates_xlsx_pdf_with_integrity_and_tenant_isolation
+3.28s setup    tests/events/test_event_delivery.py::test_outbox_failure_keeps_event_pending_with_backoff
+3.25s setup    tests/events/test_event_delivery.py::test_signed_context_rejects_tenant_tampering
+3.04s setup    tests/finance/test_finance_banking_services.py::test_bank_import_is_sha256_idempotent
+2.99s setup    tests/contract/test_contract_lifecycle.py::test_contract_full_lifecycle_versions_amendment_evidence_and_renewal
+2.94s call     tests/transportation/test_transportation.py::test_transport_schedule_events_occurrence_and_family_scope
+2.88s call     tests/pedagogy/test_grading_report_card.py::test_assessments_grades_recovery_close_reopen_and_report_card
+2.83s setup    tests/workflows/test_workflows.py::test_request_type_starts_frozen_workflow_and_completion_resolves_request
+2.79s setup    tests/fiscal/test_fiscal_delivery.py::test_fiscal_requested_event_authorizes_stores_xml_and_cancels
+2.75s setup    tests/contract/test_signature_providers.py::test_govbr_real_network_remains_blocked_in_testing
+2.74s setup    tests/library/test_library.py::test_library_policy_reservation_loan_fine_and_queue
+2.73s setup    tests/workflows/test_workflows.py::test_workflow_reassignment_and_sla_breach_once
+2.72s setup    tests/transportation/test_transportation.py::test_transport_schedule_events_occurrence_and_family_scope
+2.67s setup    tests/engagement/test_notices_requests.py::test_request_type_versioned_form_history_comments_and_scope
+2.65s setup    tests/platform/test_control_plane.py::test_platform_status_audit_and_support_session_are_operational
+2.63s setup    tests/portals/test_portal_scope.py::test_public_context_is_tenant_scoped_and_contains_no_platform_wordmark
+2.62s setup    tests/contract/test_openapi.py::test_openapi_has_unique_operation_ids_and_required_domains
+2.58s setup    tests/pedagogy/test_lesson_planning.py::test_complete_planning_flow_with_versions_approval_and_execution
+2.57s setup    tests/pedagogy/test_grading_report_card.py::test_teacher_cannot_grade_other_class
+2.57s setup    tests/academic/test_education_stage_progress.py::test_higher_education_prerequisites_internship_activity_thesis_and_integralization
+98 passed in 248.51s (0:04:08)
+pytest_exit=0

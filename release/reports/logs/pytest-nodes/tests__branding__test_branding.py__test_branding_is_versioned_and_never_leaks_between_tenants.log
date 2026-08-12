@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/branding/test_branding.py::test_branding_is_versioned_and_never_leaks_between_tenants
-
-.PIGE360_NODE_RESULT=PASS

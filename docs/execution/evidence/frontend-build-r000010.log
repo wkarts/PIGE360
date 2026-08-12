@@ -1,0 +1,17 @@
+$ npm --prefix apps/tenant-admin-web run type-check
+
+> @pige360/tenant-admin-web@1.0.0 type-check
+> vue-tsc --noEmit
+
+sh: 1: vue-tsc: not found
+typecheck_exit=127
+$ npm --prefix apps/tenant-admin-web run build
+
+> @pige360/tenant-admin-web@1.0.0 build
+> vue-tsc -b && vite build
+
+sh: 1: vue-tsc: not found
+build_exit=127
+classification=BLOCKED_EXTERNAL_LOCAL_TOOLING
+reason=node_modules, package-lock.json and vue-tsc are not materialized; network access remains prohibited.
+[3JTERM environment variable not set.

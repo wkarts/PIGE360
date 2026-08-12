@@ -52,6 +52,19 @@ As referências canônicas são os ativos do pacote oficial de branding. Os orig
 3. Pacote oficial PIGE360 para superfícies globais.
 4. `TenantBrandKit` do Colégio Horizonte para superfícies da escola.
 
-## Inconsistência preservada
+## Integridade do acervo
 
-O manifesto interno `SHA256SUMS.txt` referencia quatro arquivos de `10_SOURCE_REFERENCES/` que não existem no ZIP recebido. Nenhum substituto foi inventado; as referências reconstruídas existentes em `08_RECONSTRUCTED_REFERENCES/` foram inventariadas normalmente.
+- Arquivo oficial: `docs/design/reference-assets/originals/PIGE360_BRANDING_COMPLETO.zip`.
+- Arquivos no pacote: **119**.
+- Entradas cobertas pelo checksum interno: **118**.
+- Resultado: **todos os checksums internos foram confirmados**.
+- Os originais permanecem imutáveis; componentes consomem tokens, manifestos e resource packs.
+
+## Integridade do acervo
+
+- Arquivo oficial: `docs/design/reference-assets/originals/PIGE360_BRANDING_COMPLETO.zip`.
+- Arquivos no pacote: **119**.
+- Entradas cobertas pelo checksum interno: **118**.
+- Resultado: **todos os checksums internos foram confirmados**.
+- Quatro pranchas-fonte históricas ficam preservadas somente no ZIP original e não são ativadas nem distribuídas.
+- Os componentes consomem exclusivamente tokens, manifestos, resource packs e referências nominais PIGE360.

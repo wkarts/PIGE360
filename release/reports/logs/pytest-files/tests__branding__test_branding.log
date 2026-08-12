@@ -1,4 +1,0 @@
-$ /opt/pyvenv/bin/python -m pytest -q --disable-warnings tests/branding/test_branding.py
-
-..                                                                       [100%]
-2 passed in 1.94s

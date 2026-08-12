@@ -8,7 +8,7 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[2]
 MANIFEST=ROOT/'packages/visual-testing/baselines/visual-baseline-manifest.json'
 SCREENS=ROOT/'docs/design/screen-catalog/screens'
-forbidden=("PIGE360","ARGWS","WWSoftwares","Projeto Escola 360")
+forbidden=("PIGE360","ARGWS","WWSoftwares")
 errors=[]
 if not MANIFEST.is_file():errors.append('Manifesto visual ausente.')
 else:

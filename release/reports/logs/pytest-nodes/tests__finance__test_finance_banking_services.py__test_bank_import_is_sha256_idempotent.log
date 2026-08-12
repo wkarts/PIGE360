@@ -1,3 +1,0 @@
-$ /opt/pyvenv/bin/python3 /mnt/data/pige360-work/scripts/ci/pytest_node_entry.py tests/finance/test_finance_banking_services.py::test_bank_import_is_sha256_idempotent
-
-.PIGE360_NODE_RESULT=PASS

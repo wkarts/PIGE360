@@ -1,4 +1,0 @@
-$ /opt/pyvenv/bin/python /mnt/data/pige360-work/scripts/ci/pytest_process.py -q --disable-warnings tests/app_factory tests/branding tests/database tests/events tests/integrations
-
-...............                                                          [100%]
-15 passed in 10.15s

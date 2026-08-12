@@ -1,7 +1,7 @@
 name: 30 · Web e PWA
 'on':
   pull_request:
-    paths: ['apps/**','packages/**','scripts/frontend/**','.github/workflows/30-build-web.yml','CI_CD_KIT_LOCAL/workflows/30-build-web.yml']
+    paths: ['apps/**','packages/**','scripts/frontend/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,5 +21,4 @@ jobs:
       - run: npm run validate:ts
       - run: npm run build:web
       - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
         with: {name: pige360-web-pwa, path: 'apps/*/dist', if-no-files-found: error}
