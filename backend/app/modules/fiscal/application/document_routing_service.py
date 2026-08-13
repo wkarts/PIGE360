@@ -282,10 +282,87 @@ def _profile_for_context(conn, tenant_id: str, context_id: str) -> tuple[str,str
     return None
 
 
+def _link_service_fiscal_events(
+    conn,
+    *,
+    tenant_id: str,
+    service_order_id: str,
+    assembly_id: str,
+    documents: list[dict[str, Any]],
+    now: str,
+) -> None:
+    """Materializa a ligação auditável entre o pedido de serviço e sua NFS-e.
+
+    Um documento NFS-e pode consolidar vários itens do pedido. Por isso, cada
+    intenção fiscal elegível do pedido referencia o mesmo documento, sem perder
+    a granularidade do item que originou o evento.
+    """
+    nfse_ids = [
+        str(item["id"])
+        for item in documents
+        if str(item.get("document_type") or "").upper() == "NFS-E"
+    ]
+    if not nfse_ids:
+        return
+    document_id = nfse_ids[0]
+    conn.execute(
+        """UPDATE service_fiscal_events
+           SET fiscal_document_id=?, fiscal_assembly_id=?, state='emission_requested',
+               failure_code=NULL, failure_message=NULL, completed_at=NULL, updated_at=?
+           WHERE tenant_id=? AND service_order_id=? AND LOWER(document_type)='nfse'
+             AND state NOT IN ('blocked_validation','authorized','cancelled','substituted')""",
+        (document_id, assembly_id, now, tenant_id, service_order_id),
+    )
+    rows = conn.execute(
+        "SELECT state FROM service_fiscal_events WHERE tenant_id=? AND service_order_id=?",
+        (tenant_id, service_order_id),
+    ).fetchall()
+    states = {str(row["state"]) for row in rows}
+    if not states:
+        return
+    if "blocked_validation" in states:
+        order_state = "blocked_validation"
+    elif states <= {"authorized"}:
+        order_state = "authorized"
+    elif "awaiting_provider_configuration" in states:
+        order_state = "awaiting_provider_configuration"
+    elif "rejected" in states:
+        order_state = "rejected"
+    elif "cancelled" in states and states <= {"cancelled", "substituted"}:
+        order_state = "cancelled"
+    else:
+        order_state = "emission_requested"
+    conn.execute(
+        "UPDATE service_orders SET fiscal_status=?,updated_at=? WHERE tenant_id=? AND id=?",
+        (order_state, now, tenant_id, service_order_id),
+    )
+
+
 def process_emission_trigger(router, tenant_id: str, event_type: str, aggregate_id: str, payload: dict[str,Any], correlation_id: str) -> dict[str,Any]:
     store=router.tenant_store(tenant_id);storage=router.object_storage(tenant_id);now=iso_now()
     existing=store.fetch_one("SELECT * FROM fiscal_emission_trigger_runs WHERE tenant_id=? AND event_type=? AND aggregate_id=?",(tenant_id,event_type,aggregate_id))
-    if existing:return {"state":existing["state"],"id":existing["id"],"idempotent":True}
+    if existing:
+        if existing.get("source_type") == "service_order" and existing.get("source_id") and existing.get("assembly_id"):
+            with store.transaction() as conn:
+                linked = [
+                    dict(row)
+                    for row in conn.execute(
+                        """SELECT l.fiscal_document_id AS id,fd.document_type
+                           FROM fiscal_document_links l
+                           JOIN fiscal_documents fd ON fd.id=l.fiscal_document_id AND fd.tenant_id=l.tenant_id
+                           WHERE l.tenant_id=? AND l.assembly_id=?""",
+                        (tenant_id, existing["assembly_id"]),
+                    ).fetchall()
+                ]
+                _link_service_fiscal_events(
+                    conn,
+                    tenant_id=tenant_id,
+                    service_order_id=str(existing["source_id"]),
+                    assembly_id=str(existing["assembly_id"]),
+                    documents=linked,
+                    now=iso_now(),
+                )
+        return {"state":existing["state"],"id":existing["id"],"idempotent":True}
     trigger={"SaleCompleted":"sale_completed","ServiceOrderConfirmed":"service_order_confirmed","ServiceCompetenceBilled":"competence","PaymentConfirmed":"payment","ChargeCreated":"billing"}.get(event_type)
     if not trigger:return {"state":"ignored","reason":"unsupported_event"}
     source_type="sale" if event_type=="SaleCompleted" else "service_order";source_id=str(payload.get("service_order_id") or payload.get("order_id") or payload.get("id") or aggregate_id)
@@ -339,7 +416,19 @@ def process_emission_trigger(router, tenant_id: str, event_type: str, aggregate_
         store.execute("UPDATE fiscal_emission_trigger_runs SET state='not_configured',error_detail=?,updated_at=? WHERE tenant_id=? AND id=?",("Perfil fiscal correspondente ao contexto não configurado.",iso_now(),tenant_id,run_id));return {"id":run_id,"state":"not_configured"}
     try:
         input_data=FiscalDocumentAssemblyCreate(fiscal_context_id=policy["fiscal_context_id"],fiscal_profile_id=pair[0],source_type=source_type,source_id=source_id,occurred_on=date.today(),operation_type=policy["operation_type"],recipient_scope="individual",channel="service" if source_type=="service_order" else "retail",trigger_type=trigger,request_emission=True,metadata={"source_event":event_type,"aggregate_id":aggregate_id})
-        _,assembled=_assemble(input_data,store,storage,tenant_id,"system-worker",correlation_id,f"trigger:{event_type}:{aggregate_id}");store.execute("UPDATE fiscal_emission_trigger_runs SET state=?,assembly_id=?,updated_at=? WHERE tenant_id=? AND id=?",(assembled["state"],assembled["assembly_id"],iso_now(),tenant_id,run_id));return {"id":run_id,"state":assembled["state"],"assembly_id":assembled["assembly_id"],"documents":assembled["documents"]}
+        _,assembled=_assemble(input_data,store,storage,tenant_id,"system-worker",correlation_id,f"trigger:{event_type}:{aggregate_id}")
+        with store.transaction() as conn:
+            conn.execute("UPDATE fiscal_emission_trigger_runs SET state=?,assembly_id=?,updated_at=? WHERE tenant_id=? AND id=?",(assembled["state"],assembled["assembly_id"],iso_now(),tenant_id,run_id))
+            if source_type == "service_order":
+                _link_service_fiscal_events(
+                    conn,
+                    tenant_id=tenant_id,
+                    service_order_id=source_id,
+                    assembly_id=assembled["assembly_id"],
+                    documents=assembled["documents"],
+                    now=iso_now(),
+                )
+        return {"id":run_id,"state":assembled["state"],"assembly_id":assembled["assembly_id"],"documents":assembled["documents"]}
     except Exception as exc:
         store.execute("UPDATE fiscal_emission_trigger_runs SET state='failed',error_detail=?,updated_at=? WHERE tenant_id=? AND id=?",(str(exc)[:2000],iso_now(),tenant_id,run_id));raise
 

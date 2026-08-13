@@ -1,35 +1,54 @@
-name: 50 · Release
-'on':
+name: 50 · Pré-lançamento Alpha
+
+on:
   workflow_dispatch:
-    inputs:
-      enable_remote_release: {type: boolean, required: false, default: false}
+
 permissions:
   contents: read
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+
 jobs:
-  package:
+  alpha-test-release:
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
-      - run: bash scripts/release/package-local.sh
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements.lock
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: docker/setup-buildx-action@v3
+      - name: Instalar dependências e executar validações
+        id: validation
+        continue-on-error: true
+        run: |
+          python -m pip install -r backend/requirements.lock
+          bash scripts/ci/run-all.sh --ci
+      - name: Construir imagens Docker da versão de testes
+        id: runtime_images
+        if: ${{ steps.validation.outcome == 'success' }}
+        run: bash scripts/oci/build-runtime-images.sh all release/artifacts/docker/runtime
+      - name: Executar smoke test isolado do Compose
+        id: compose_smoke
+        if: ${{ steps.runtime_images.outcome == 'success' }}
+        run: bash scripts/ci/smoke-compose-homologation.sh release/artifacts/docker/compose-smoke
+      - name: Gerar pacotes de pré-lançamento reproduzíveis
+        if: ${{ steps.compose_smoke.outcome == 'success' }}
+        run: bash scripts/release/package-local.sh --output-dir release/output
       - uses: actions/upload-artifact@v4
-        with: {name: pige360-release-local, path: release/output/**, if-no-files-found: error}
-  remote-release:
-    if: ${{ inputs.enable_remote_release == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
-    needs: package
-    runs-on: ubuntu-24.04
-    environment: remote-release
-    permissions: {contents: write}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with: {name: pige360-release-local, path: release/output}
-      - env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ github.token }}
-          REMOTE_RELEASE_ENABLED: 'true'
-        run: bash scripts/release/publish-github-release.sh release/output
+        if: ${{ always() }}
+        with:
+          name: pige360-alpha-test-release-${{ github.run_id }}
+          path: |
+            release/output/**
+            release/reports/**
+            release/artifacts/docker/**
+          if-no-files-found: error
+      - name: Reprovar candidato quando os gates falharem
+        if: ${{ steps.validation.outcome != 'success' || steps.runtime_images.outcome != 'success' || steps.compose_smoke.outcome != 'success' }}
+        run: exit 1

@@ -1,10 +1,10 @@
 {
   "openapi": "3.1.0",
   "title": "PIGE360 — Plataforma Integrada de Gestão Educacional",
-  "version": "1.0.0",
-  "paths": 559,
-  "operations": 689,
-  "schemas": 375,
+  "version": "1.0.0-alpha.1",
+  "paths": 564,
+  "operations": 695,
+  "schemas": 377,
   "duplicate_operation_ids": [],
   "operations_catalog": [
     {
@@ -1617,6 +1617,60 @@
         "services"
       ],
       "summary": "Cancel Order"
+    },
+    {
+      "operationId": "list_service_payment_receipts",
+      "method": "GET",
+      "path": "/api/v1/service-orders/{order_id}/receipts",
+      "tags": [
+        "services"
+      ],
+      "summary": "List Receipts"
+    },
+    {
+      "operationId": "create_service_payment_receipt",
+      "method": "POST",
+      "path": "/api/v1/service-orders/{order_id}/receipts",
+      "tags": [
+        "services"
+      ],
+      "summary": "Create Receipt"
+    },
+    {
+      "operationId": "list_service_receipt_payments",
+      "method": "GET",
+      "path": "/api/v1/service-orders/{order_id}/receipt-payments",
+      "tags": [
+        "services"
+      ],
+      "summary": "List Receipt Payments"
+    },
+    {
+      "operationId": "get_service_payment_receipt",
+      "method": "GET",
+      "path": "/api/v1/service-receipts/{receipt_id}",
+      "tags": [
+        "services"
+      ],
+      "summary": "Get Receipt"
+    },
+    {
+      "operationId": "download_service_payment_receipt",
+      "method": "GET",
+      "path": "/api/v1/service-receipts/{receipt_id}/document",
+      "tags": [
+        "services"
+      ],
+      "summary": "Download Receipt"
+    },
+    {
+      "operationId": "void_service_payment_receipt",
+      "method": "POST",
+      "path": "/api/v1/service-receipts/{receipt_id}/void",
+      "tags": [
+        "services"
+      ],
+      "summary": "Void Receipt"
     },
     {
       "operationId": "create_service_execution",

@@ -247,6 +247,14 @@ class OrderCancel(StrictModel):
     reason: str = Field(min_length=3, max_length=4000)
 
 
+class ServiceReceiptCreate(StrictModel):
+    payment_id: str = Field(min_length=1, max_length=80)
+
+
+class ServiceReceiptVoid(StrictModel):
+    reason: str = Field(min_length=3, max_length=4000)
+
+
 class ExecutionCreate(StrictModel):
     order_item_id: str
     scheduled_at: datetime | None = None

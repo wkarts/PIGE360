@@ -191,6 +191,19 @@ CREATE TABLE IF NOT EXISTS service_order_items (
   execution_status TEXT NOT NULL DEFAULT 'pending', executed_quantity NUMERIC NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS service_receipts (
+  id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, receipt_number TEXT NOT NULL,
+  service_order_id TEXT NOT NULL REFERENCES service_orders(id), charge_id TEXT NOT NULL REFERENCES charges(id),
+  payment_id TEXT NOT NULL REFERENCES payments(id), currency TEXT NOT NULL DEFAULT 'BRL', amount NUMERIC NOT NULL,
+  payment_method TEXT NOT NULL, external_reference TEXT, recipient_name TEXT, recipient_document TEXT,
+  state TEXT NOT NULL DEFAULT 'issued', document_storage_key TEXT NOT NULL, document_sha256 TEXT NOT NULL,
+  snapshot_json TEXT NOT NULL DEFAULT '{}', issued_at TEXT NOT NULL, issued_by TEXT NOT NULL,
+  voided_at TEXT, voided_by TEXT, void_reason TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(tenant_id, receipt_number)
+);
+CREATE INDEX IF NOT EXISTS ix_service_receipts_order ON service_receipts(tenant_id,service_order_id,state,issued_at);
+CREATE INDEX IF NOT EXISTS ix_service_receipts_payment ON service_receipts(tenant_id,payment_id,state,issued_at);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_service_receipts_active_payment ON service_receipts(tenant_id,service_order_id,payment_id) WHERE state='issued';
 
 CREATE TABLE IF NOT EXISTS products (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, sku TEXT NOT NULL, barcode TEXT, name TEXT NOT NULL,
@@ -1292,10 +1305,12 @@ CREATE TABLE IF NOT EXISTS service_competencies (
 CREATE TABLE IF NOT EXISTS service_fiscal_events (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, event_key TEXT NOT NULL, service_order_id TEXT NOT NULL REFERENCES service_orders(id),
   service_order_item_id TEXT, competence_id TEXT, trigger_type TEXT NOT NULL, document_type TEXT NOT NULL DEFAULT 'nfse',
-  provider_code TEXT, state TEXT NOT NULL DEFAULT 'not_configured', payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
+  provider_code TEXT, fiscal_document_id TEXT REFERENCES fiscal_documents(id), fiscal_assembly_id TEXT REFERENCES fiscal_document_assemblies(id),
+  state TEXT NOT NULL DEFAULT 'not_configured', payload_snapshot_json TEXT NOT NULL DEFAULT '{}',
   requested_at TEXT NOT NULL, completed_at TEXT, failure_code TEXT, failure_message TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
   UNIQUE(tenant_id,event_key)
 );
+CREATE INDEX IF NOT EXISTS ix_service_fiscal_event_document ON service_fiscal_events(tenant_id,fiscal_document_id,state,updated_at);
 CREATE TABLE IF NOT EXISTS charges (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, charge_number TEXT NOT NULL, financial_contract_id TEXT REFERENCES financial_contracts(id),
   enrollment_id TEXT REFERENCES enrollments(id), responsible_person_id TEXT REFERENCES people(id), origin_type TEXT NOT NULL, origin_id TEXT NOT NULL,

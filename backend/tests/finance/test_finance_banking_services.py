@@ -57,6 +57,133 @@ def test_service_order_uses_server_price_generates_installments_and_can_be_liste
     assert [str(row["original_amount"]) for row in generated] in (["150", "150"], ["150.0", "150.0"], ["150.00", "150.00"])
 
 
+def test_service_payment_issues_receipt_pdf_with_hash_and_preserves_void_history(local_env):
+    service = _post(
+        local_env,
+        "/api/v1/services",
+        {"code": "RECIBO-OFICINA", "name": "Oficina de robótica", "price": "180.00"},
+    )
+    order = _post(
+        local_env,
+        "/api/v1/service-orders",
+        {
+            "order_number": "SRV-RECIBO-001",
+            "due_date": "2026-08-20",
+            "items": [{"service_id": service["id"], "quantity": "1", "unit_price": "180.00"}],
+        },
+    )
+    confirmed = local_env.client.post(
+        f"/api/v1/service-orders/{order['id']}/confirm",
+        headers=local_env.alpha_headers(),
+        json={"notes": "Cobrança confirmada para emissão de recibo."},
+    )
+    assert confirmed.status_code == 200, confirmed.text
+    confirmed_order = confirmed.json()
+    assert confirmed_order["charge_id"]
+    installment = next(
+        row
+        for row in local_env.client.get("/api/v1/finance/installments", headers=local_env.alpha_headers()).json()["items"]
+        if row["financial_contract_id"] == confirmed_order["financial_contract_id"]
+    )
+
+    payment_payload = {
+        "method": "bank_transfer",
+        "amount": "180.00",
+        "external_reference": "RECIBO-TRANSFER-001",
+        "allocations": [{"installment_id": installment["id"], "amount": "180.00"}],
+    }
+    payment_headers = local_env.alpha_headers(**{"Idempotency-Key": "service-receipt-payment-001"})
+    payment_response = local_env.client.post("/api/v1/finance/payments", headers=payment_headers, json=payment_payload)
+    assert payment_response.status_code == 201, payment_response.text
+    payment = payment_response.json()
+    assert len(payment["service_receipts"]) == 1
+    receipt = payment["service_receipts"][0]
+    assert receipt["state"] == "issued"
+    assert len(receipt["document_sha256"]) == 64
+
+    replay = local_env.client.post("/api/v1/finance/payments", headers=payment_headers, json=payment_payload)
+    assert replay.status_code == 201, replay.text
+    assert replay.json()["service_receipts"][0]["id"] == receipt["id"]
+
+    detail = local_env.client.get(f"/api/v1/service-orders/{order['id']}", headers=local_env.alpha_headers())
+    assert detail.status_code == 200, detail.text
+    assert detail.json()["receipt_payments"][0]["receipt_id"] == receipt["id"]
+    assert detail.json()["receipts"][0]["id"] == receipt["id"]
+
+    document = local_env.client.get(f"/api/v1/service-receipts/{receipt['id']}/document", headers=local_env.alpha_headers())
+    assert document.status_code == 200, document.text
+    assert document.content.startswith(b"%PDF")
+    assert document.headers["x-content-sha256"] == receipt["document_sha256"]
+
+    foreign = local_env.client.get(f"/api/v1/service-receipts/{receipt['id']}", headers=local_env.beta_headers())
+    assert foreign.status_code == 404, foreign.text
+
+    voided = local_env.client.post(
+        f"/api/v1/service-receipts/{receipt['id']}/void",
+        headers=local_env.alpha_headers(),
+        json={"reason": "Correção do destinatário do recibo."},
+    )
+    assert voided.status_code == 200, voided.text
+    assert voided.json()["state"] == "voided"
+
+    reissued = local_env.client.post(
+        f"/api/v1/service-orders/{order['id']}/receipts",
+        headers=local_env.alpha_headers(**{"Idempotency-Key": "service-receipt-reissue-001"}),
+        json={"payment_id": payment["id"]},
+    )
+    assert reissued.status_code == 201, reissued.text
+    assert reissued.json()["id"] != receipt["id"]
+    assert reissued.json()["state"] == "issued"
+
+
+def test_pix_confirmation_issues_service_receipt(local_env):
+    service = _post(
+        local_env,
+        "/api/v1/services",
+        {"code": "RECIBO-PIX", "name": "Atividade com PIX", "price": "90.00"},
+    )
+    order = _post(
+        local_env,
+        "/api/v1/service-orders",
+        {
+            "order_number": "SRV-RECIBO-PIX-001",
+            "due_date": "2026-08-21",
+            "items": [{"service_id": service["id"], "quantity": "1", "unit_price": "90.00"}],
+        },
+    )
+    confirmed = local_env.client.post(
+        f"/api/v1/service-orders/{order['id']}/confirm",
+        headers=local_env.alpha_headers(),
+        json={"notes": "Cobrança PIX confirmada."},
+    )
+    assert confirmed.status_code == 200, confirmed.text
+    financial_contract_id = confirmed.json()["financial_contract_id"]
+    installment = next(
+        row
+        for row in local_env.client.get("/api/v1/finance/installments", headers=local_env.alpha_headers()).json()["items"]
+        if row["financial_contract_id"] == financial_contract_id
+    )
+    account = _post(
+        local_env,
+        "/api/v1/banking/accounts",
+        {"name": "Conta de recibos PIX", "pix_key": "recibos-pix@escola.test"},
+    )
+    pix = _post(
+        local_env,
+        f"/api/v1/banking/accounts/{account['id']}/pix-charges",
+        {"installment_id": installment["id"]},
+    )
+    paid = local_env.client.post(
+        f"/api/v1/banking/pix-charges/{pix['id']}/confirm",
+        headers=local_env.alpha_headers(),
+        json={"end_to_end_id": "E2E-SERVICE-RECEIPT-PIX-0001"},
+    )
+    assert paid.status_code == 200, paid.text
+    assert paid.json()["state"] == "paid"
+    assert len(paid.json()["service_receipts"]) == 1
+    assert paid.json()["service_receipts"][0]["service_order_id"] == order["id"]
+
+
 def test_bank_import_is_sha256_idempotent(local_env):
     account = _post(
         local_env,

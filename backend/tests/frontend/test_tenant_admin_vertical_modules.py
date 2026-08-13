@@ -22,9 +22,9 @@ def test_tenant_admin_registers_services_procurement_and_assets_surfaces() -> No
         ("FiscalPanel", "fiscal", "Fiscal"),
     ):
         assert f'import {component} from "./components/{component}.vue"' in app
-        assert f'"{area}","{label}"' in app
-        assert f"active==='{area}'" in app
-        assert f"<{component} :api=\"api\"" in app
+        assert re.search(rf'\[\s*"{re.escape(area)}"\s*,\s*"{re.escape(label)}"', app)
+        assert re.search(rf"active\s*===\s*['\"]{re.escape(area)}['\"]", app)
+        assert re.search(rf"<{re.escape(component)}\s+:api=\"api\"", app)
 
 
 def test_vertical_panels_only_call_routes_present_in_current_openapi() -> None:
@@ -44,6 +44,11 @@ def test_vertical_panels_only_call_routes_present_in_current_openapi() -> None:
             "/api/v1/services/{service_id}/billing-rules",
             "/api/v1/service-subscriptions/{subscription_id}/competencies",
             "/api/v1/service-orders/{order_id}/executions",
+            "/api/v1/service-orders/{order_id}/receipts",
+            "/api/v1/service-orders/{order_id}/receipt-payments",
+            "/api/v1/service-receipts/{receipt_id}",
+            "/api/v1/service-receipts/{receipt_id}/document",
+            "/api/v1/service-receipts/{receipt_id}/void",
         },
         "components/ProcurementPanel.vue": {
             "/api/v1/suppliers",
@@ -146,7 +151,7 @@ def test_every_declared_vertical_action_has_an_executable_handler() -> None:
             "createCatalog", "createService", "showService", "updateServiceStatus", "createVariant",
             "createPrice", "createFiscalProfile", "publishFiscal", "createBillingRule", "createSubscription",
             "subscriptionAction", "generateCompetence", "createOrder", "orderAction", "showOrder",
-            "scheduleExecution", "executionAction", "load",
+            "issueReceipt", "downloadReceipt", "voidReceipt", "scheduleExecution", "executionAction", "load",
         },
         "components/ProcurementPanel.vue": {
             "createSupplier", "toggleSupplier", "createVariant", "createBarcode", "createRequisition",

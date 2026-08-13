@@ -1,6 +1,8 @@
-FROM node:22.16.0-bookworm-slim AS build
+ARG NODE_BASE_IMAGE=pige360-base-node:1.0.0-alpha.1
+FROM ${NODE_BASE_IMAGE} AS build
+USER root
 ARG APP_DIR=apps/tenant-admin-web
-ARG VERSION=1.0.0
+ARG VERSION=1.0.0-alpha.1
 WORKDIR /workspace
 ENV NODE_ENV=development \
     NPM_CONFIG_AUDIT=false \
@@ -25,7 +27,7 @@ RUN npm --workspace "./${APP_DIR}" run build
 
 FROM nginx:1.27.5-alpine
 ARG APP_DIR=apps/tenant-admin-web
-ARG VERSION=1.0.0
+ARG VERSION=1.0.0-alpha.1
 LABEL org.opencontainers.image.title="pige360-web" \
       org.opencontainers.image.version="$VERSION" \
       org.opencontainers.image.source="local-workspace"

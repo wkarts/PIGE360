@@ -1,5 +1,6 @@
-FROM pige360-api:1.0.0
-ARG VERSION=1.0.0
+ARG API_IMAGE=pige360-api:1.0.0-alpha.1
+FROM ${API_IMAGE}
+ARG VERSION=1.0.0-alpha.1
 LABEL org.opencontainers.image.title="pige360-reporting" org.opencontainers.image.version="$VERSION"
 USER 10001:10001
 CMD ["celery","-A","app.worker:celery_app","worker","--loglevel=INFO","--queues=reports"]

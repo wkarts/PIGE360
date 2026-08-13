@@ -17,6 +17,7 @@ from app.modules.finance.application.ledger import (
 )
 from app.modules.operations.common import FINANCE_ROLES, dumps, require, row_or_404, tenant
 from app.modules.portals.access import guardian_for_user
+from app.modules.services.application.vertical_service import issue_service_receipts_for_payment
 from app.shared.application.idempotency import get_idempotent, save_idempotent
 from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
@@ -350,6 +351,14 @@ def register_payment(
             allocations=[(item.installment_id, item.amount) for item in data.allocations],
             now=iso_now(),
         )
+        service_receipts = issue_service_receipts_for_payment(
+            conn,
+            tenant_id=tenant_id,
+            payment_id=payment_id,
+            actor_id=user.id,
+            storage=request.app.state.data_router.object_storage(tenant_id),
+            correlation_id=request.state.correlation_id,
+        )
         conn.execute(
             "INSERT INTO ledger_entries(id,tenant_id,entry_type,reference_type,reference_id,"
             "debit_account,credit_account,amount,occurred_at,description,created_at) "
@@ -375,6 +384,7 @@ def register_payment(
             "paid_at": paid_at,
             "state": "confirmed",
             "allocations": applied,
+            "service_receipts": service_receipts,
         }
         add_audit(
             conn,

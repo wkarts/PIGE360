@@ -18,16 +18,8 @@ if [ "${SIGN_REQUESTED:-false}" != "true" ]; then
   exit 0
 fi
 
-if [ -z "${APPLE_SIGNING_CERTIFICATE_BASE64:-}" ]; then
-  warning 'APPLE_SIGNING_CERTIFICATE_BASE64 ausente ou vazio. Nenhum envio à App Store será realizado.'
-  exit 0
-fi
-if [ -z "${APPLE_SIGNING_CERTIFICATE_PASSWORD:-}" ]; then
-  warning 'APPLE_SIGNING_CERTIFICATE_PASSWORD ausente ou vazio. Nenhum envio à App Store será realizado.'
-  exit 0
-fi
-if [ -z "${APPLE_SIGNING_IDENTITY:-}" ]; then
-  warning 'APPLE_SIGNING_IDENTITY ausente ou vazio. Nenhum envio à App Store será realizado.'
+if [ -z "${APPLE_SIGNING_CERTIFICATE_BASE64:-}" ] || [ -z "${APPLE_SIGNING_CERTIFICATE_PASSWORD:-}" ] || [ -z "${APPLE_SIGNING_IDENTITY:-}" ]; then
+  warning 'configuração iOS incompleta. Nenhum envio à App Store será realizado.'
   exit 0
 fi
 
@@ -47,19 +39,12 @@ if [ -z "$password" ] || ! printf '%s' "$APPLE_SIGNING_CERTIFICATE_BASE64" | dec
   exit 0
 fi
 
-if ! security create-keychain -p "$password" "$keychain" >/dev/null 2>&1 \
-  || ! security set-keychain-settings -lut 21600 "$keychain" >/dev/null 2>&1 \
-  || ! security unlock-keychain -p "$password" "$keychain" >/dev/null 2>&1 \
-  || ! security import "$tmp/signing.p12" -k "$keychain" -P "$APPLE_SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign >/dev/null 2>&1 \
-  || ! security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null 2>&1; then
+if ! security create-keychain -p "$password" "$keychain" >/dev/null 2>&1 || ! security set-keychain-settings -lut 21600 "$keychain" >/dev/null 2>&1 || ! security unlock-keychain -p "$password" "$keychain" >/dev/null 2>&1 || ! security import "$tmp/signing.p12" -k "$keychain" -P "$APPLE_SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign >/dev/null 2>&1 || ! security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null 2>&1; then
   warning 'certificado, senha ou chave Apple inválida. Nenhum envio à App Store será realizado.'
   exit 0
 fi
 
-security list-keychains -d user -s "$keychain" >/dev/null 2>&1 || {
-  warning 'não foi possível ativar o chaveiro Apple; assinatura iOS ignorada.'
-  exit 0
-}
+security list-keychains -d user -s "$keychain" >/dev/null 2>&1 || { warning 'não foi possível ativar o chaveiro Apple; assinatura iOS ignorada.'; exit 0; }
 
 profile_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
 profile=''
@@ -81,8 +66,7 @@ for app in $(find apps -type d \( -path '*/src-tauri/gen/apple/build/*/*.app' -o
   backup="$tmp/$name-before-sign.app"
   cp -R "$app" "$backup"
   if [ -n "$profile" ]; then cp "$profile" "$app/embedded.mobileprovision"; fi
-  if ! codesign --force --deep --options runtime --timestamp --sign "$APPLE_SIGNING_IDENTITY" "$app" >/dev/null 2>&1 \
-    || ! codesign --verify --deep --strict "$app" >/dev/null 2>&1; then
+  if ! codesign --force --deep --options runtime --timestamp --sign "$APPLE_SIGNING_IDENTITY" "$app" >/dev/null 2>&1 || ! codesign --verify --deep --strict "$app" >/dev/null 2>&1; then
     rm -rf "$app"
     cp -R "$backup" "$app"
     warning "certificado Apple rejeitado para $name.app. O aplicativo original foi preservado."
@@ -103,4 +87,3 @@ if [ "$found" -eq 0 ]; then
 else
   printf 'Assinatura iOS concluída; publicação em loja permanece desativada.\n'
 fi
-exit 0

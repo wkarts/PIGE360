@@ -1,3 +1,4 @@
+"use strict";
 const { createApp, ref, reactive, computed, onMounted } = Vue;
 class ApiFailure extends Error {
     status;
@@ -727,15 +728,7 @@ createApp({
                 const multiline = ["description", "reason", "notes", "responsibilities", "requirements"].includes(name);
                 const help = kind === "object" ? "Informe um objeto JSON válido." : kind === "array" && property.items?.type === "object" ? "Informe uma lista JSON válida." : kind === "array" ? "Separe os valores por linha ou vírgula." : undefined;
                 const placeholder = kind === "object" ? "{}" : kind === "array" && property.items?.type === "object" ? "[]" : undefined;
-                const field = {
-                    name,
-                    label: fieldLabel(name),
-                    kind,
-                    inputType,
-                    required: required.has(name),
-                    multiline,
-                    schema: property,
-                };
+                const field = { name, label: fieldLabel(name), kind, inputType, required: required.has(name), multiline, schema: property };
                 if (property.enum !== undefined)
                     field.enumValues = property.enum;
                 if (kind === "number")

@@ -1,5 +1,5 @@
 FROM node:22.16.0-bookworm-slim
-ARG VERSION=1.0.0
+ARG VERSION=1.0.0-alpha.1
 LABEL org.opencontainers.image.title="pige360-base-node" org.opencontainers.image.version="$VERSION" org.opencontainers.image.source="local-workspace"
 RUN groupadd --system --gid 10001 pige360 && useradd --system --uid 10001 --gid pige360 --home /opt/pige360 pige360
 WORKDIR /opt/pige360

@@ -1102,12 +1102,39 @@ class ServiceFiscalEvent(TenantEntityMixin, Base):
     trigger_type: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     document_type: Mapped[str] = mapped_column(String(40), nullable=False, default="nfse")
     provider_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    fiscal_document_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    fiscal_assembly_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
     status: Mapped[str] = mapped_column(String(60), nullable=False, default="not_configured", index=True)
     payload_snapshot_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     failure_code: Mapped[str | None] = mapped_column(String(100), nullable=True)
     failure_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class ServiceReceipt(TenantEntityMixin, Base):
+    __tablename__ = "service_receipts"
+    __table_args__ = (UniqueConstraint("tenant_id", "receipt_number", name="uq_service_receipt_number"),)
+
+    receipt_number: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    service_order_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    charge_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    payment_id: Mapped[str] = mapped_column(String(36), nullable=False, index=True)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, default="BRL")
+    amount: Mapped[Decimal] = mapped_column(MONEY, nullable=False)
+    payment_method: Mapped[str] = mapped_column(String(60), nullable=False)
+    external_reference: Mapped[str | None] = mapped_column(String(180), nullable=True)
+    recipient_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    recipient_document: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    state: Mapped[str] = mapped_column(String(40), nullable=False, default="issued", index=True)
+    document_storage_key: Mapped[str] = mapped_column(String(1000), nullable=False)
+    document_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    snapshot_json: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+    issued_by: Mapped[str] = mapped_column(String(36), nullable=False)
+    voided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    voided_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    void_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 # Vendas, PDV e cantina --------------------------------------------------------

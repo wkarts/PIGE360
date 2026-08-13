@@ -848,15 +848,7 @@ createApp({
           const multiline = ["description", "reason", "notes", "responsibilities", "requirements"].includes(name);
           const help = kind === "object" ? "Informe um objeto JSON válido." : kind === "array" && property.items?.type === "object" ? "Informe uma lista JSON válida." : kind === "array" ? "Separe os valores por linha ou vírgula." : undefined;
           const placeholder = kind === "object" ? "{}" : kind === "array" && property.items?.type === "object" ? "[]" : undefined;
-          const field: DynamicField = {
-            name,
-            label: fieldLabel(name),
-            kind,
-            inputType,
-            required: required.has(name),
-            multiline,
-            schema: property,
-          };
+          const field: DynamicField = { name, label: fieldLabel(name), kind, inputType, required: required.has(name), multiline, schema: property };
           if (property.enum !== undefined) field.enumValues = property.enum;
           if (kind === "number") field.step = type === "integer" ? "1" : "0.01";
           if (placeholder !== undefined) field.placeholder = placeholder;

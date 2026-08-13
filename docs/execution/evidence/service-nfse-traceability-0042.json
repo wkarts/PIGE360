@@ -1,0 +1,39 @@
+{
+  "increment": "0042_service_nfse_traceability",
+  "executed_at": "2026-08-12T16:22:16-04:00",
+  "commands": [
+    {
+      "command": "python -m compileall -q backend/app backend/tests scripts",
+      "status": "passed"
+    },
+    {
+      "command": "PYTHONPATH=backend Python SQLite schema and legacy compatibility check",
+      "status": "passed",
+      "detail": "fiscal_document_id, fiscal_assembly_id e ix_service_fiscal_event_document confirmados tanto no schema novo quanto em banco SQLite legado"
+    },
+    {
+      "command": "Static contract check for service routing, lifecycle handlers, cancellation propagation and ServicesPanel.vue",
+      "status": "passed",
+      "detail": "Foram confirmados vínculo de NFS-e, preservação de estados finais na repetição, propagação de cancelamento e coluna de documento fiscal no painel"
+    },
+    {
+      "command": "python scripts/validation/secret_scan.py",
+      "status": "passed",
+      "detail": "2097 files scanned; no findings"
+    },
+    {
+      "command": "python scripts/validation/validate_project.py --output docs/execution/evidence/validation-service-nfse-0042.json",
+      "status": "passed",
+      "detail": "OCI structural artifact skipped because no local OCI artifact was generated"
+    },
+    {
+      "command": "python -m pytest backend/tests/migrations/test_service_fiscal_document_linkage_migration.py backend/tests/fiscal/test_fiscal_document_routing_assembly.py -q",
+      "status": "blocked_environment",
+      "detail": "No module named pytest"
+    }
+  ],
+  "limitations": [
+    "Pytest/FastAPI dependency stack is not installed in this local environment.",
+    "No external fiscal provider, certificate or official homologation was used."
+  ]
+}

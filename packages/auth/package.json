@@ -1,8 +1,10 @@
 {
   "name": "@pige360/auth",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
-  "dependencies": { "@pige360/app-manifest": "1.0.0" }
+  "dependencies": {
+    "@pige360/app-manifest": "1.0.0-alpha.1"
+  }
 }

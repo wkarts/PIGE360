@@ -1,0 +1,10 @@
+services:
+  pige360-app-init:
+    image: pige360-migrations:${PIGE360_IMAGE_TAG}
+    pull_policy: never
+  pige360-api:
+    image: pige360-api:${PIGE360_IMAGE_TAG}
+    pull_policy: never
+  pige360-web:
+    image: pige360-web:${PIGE360_IMAGE_TAG}
+    pull_policy: never

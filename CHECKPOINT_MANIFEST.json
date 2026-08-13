@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-12T06:35:55Z",
-  "workspace_version": "1.0.0",
+  "created_at": "2026-08-13T06:49:08Z",
+  "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2830,
-  "uncompressed_bytes": 79431040,
+  "files_count": 2787,
+  "uncompressed_bytes": 77856687,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -40,7 +40,8 @@
       ".pem",
       ".pfx",
       ".pyc",
-      ".pyo"
+      ".pyo",
+      ".tsbuildinfo"
     ],
     "secret_names": [
       ".DS_Store",
@@ -48,14 +49,15 @@
       "CHECKPOINT_MANIFEST.json",
       "Thumbs.db",
       "id_ed25519",
-      "id_rsa"
+      "id_rsa",
+      "workspace-manifest.json"
     ]
   },
   "files": [
     {
       "path": ".env.example",
-      "size": 4520,
-      "sha256": "cfe6c3e450a05ce1b7724a989cf4726d025aef6b3ebffee7be94a6c94d416a2a"
+      "size": 4560,
+      "sha256": "3d924ab864bec0974b183b0ce8d316e76909ca2ceded996d16e3bdfe6dea1186"
     },
     {
       "path": ".github/workflows/00-ci.yml",
@@ -69,13 +71,13 @@
     },
     {
       "path": ".github/workflows/10-base-images.yml",
-      "size": 1141,
-      "sha256": "f2a65e7f96f125db339a2d35f5f338cb9c0f24b2f4975cb3565d80426c36510d"
+      "size": 1113,
+      "sha256": "dee53462cf9b2879a64c921d1fd4943846ceee1efcd0d345d101cef4d5ebada8"
     },
     {
       "path": ".github/workflows/20-application-images.yml",
-      "size": 1048,
-      "sha256": "19b264a838051a7a222b65de9d29f4107060269a3ff1cd43af68bcc1d0c8e8df"
+      "size": 1711,
+      "sha256": "535163b9df16b4d5f275dd1d48dc2ca72e0347a012ce5eed257bde8b863e00b6"
     },
     {
       "path": ".github/workflows/30-build-web.yml",
@@ -109,8 +111,8 @@
     },
     {
       "path": ".github/workflows/50-release.yml",
-      "size": 1199,
-      "sha256": "a3122cf3ecdacad3fd2d807a91c543f636feda01d54dcd311415f60ba1e7367a"
+      "size": 2108,
+      "sha256": "22f28a76f3bff38b17c89c31f4f8065c7740bbef0389da162f86089feea0b895"
     },
     {
       "path": ".github/workflows/60-deploy-saas.yml",
@@ -139,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 2135,
-      "sha256": "95f5107a0db5d1bcb6afc6155eb575a071296a83247cc5733e04e787d02d9424"
+      "size": 2833,
+      "sha256": "851ee11536b07d337664a8aa8a297b2920510fcfda4d7eb2aec0e0084bac3399"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -174,13 +176,13 @@
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/10-base-images.yml",
-      "size": 1141,
-      "sha256": "f2a65e7f96f125db339a2d35f5f338cb9c0f24b2f4975cb3565d80426c36510d"
+      "size": 923,
+      "sha256": "d12faa4e95af009666bcbace5bf51c01c2de02271cd26850f23087587fae3248"
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/20-application-images.yml",
-      "size": 1048,
-      "sha256": "19b264a838051a7a222b65de9d29f4107060269a3ff1cd43af68bcc1d0c8e8df"
+      "size": 1620,
+      "sha256": "1ba2c84ec787e79198e1c3fbd2ae358833275b64633443584992b625777b4d3b"
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/30-build-web.yml",
@@ -214,8 +216,8 @@
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/50-release.yml",
-      "size": 1199,
-      "sha256": "a3122cf3ecdacad3fd2d807a91c543f636feda01d54dcd311415f60ba1e7367a"
+      "size": 2016,
+      "sha256": "f21c4a005f913bfee7feba383d5684de735df0819234c9f237c7ec4c54d61a3e"
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/60-deploy-saas.yml",
@@ -259,8 +261,8 @@
     },
     {
       "path": "README.md",
-      "size": 4857,
-      "sha256": "1bde9b06b19bcf6284cd19752085b9ce4d1cf27b02c748869b28332246fdf20f"
+      "size": 4875,
+      "sha256": "990e07a00aaf258185ac369da44d2f205c6833c6d8fddee7bcf7061a1abb8749"
     },
     {
       "path": "SECURITY.md",
@@ -269,8 +271,8 @@
     },
     {
       "path": "VERSION",
-      "size": 6,
-      "sha256": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03"
+      "size": 14,
+      "sha256": "cf99c77b65c278cace8c2d3b1fabf4e9cd4e4bee9e4ffa200748acf3445f35bf"
     },
     {
       "path": "apps/admin-app/README.md",
@@ -284,8 +286,8 @@
     },
     {
       "path": "apps/admin-app/package.json",
-      "size": 591,
-      "sha256": "e91af16ebc20dd90b6c921466e24e3f08bfdea7f4116d252d7027d58897a31b2"
+      "size": 607,
+      "sha256": "1c9b739edef3b2ca8d9838d3cf31e914eeb55a352595f7c73d9ecf584638cfb2"
     },
     {
       "path": "apps/admin-app/public/icon-192.png",
@@ -304,13 +306,13 @@
     },
     {
       "path": "apps/admin-app/public/sw.js",
-      "size": 272,
-      "sha256": "dec19682ff523d2d2ab1d5b8f9a2daaa15a01179b5e180175304b34271f3a3df"
+      "size": 280,
+      "sha256": "faafaf604c4eca591d6a7578cbdaa026645b7e632d32b7938acd32e7681860fc"
     },
     {
       "path": "apps/admin-app/src-tauri/Cargo.toml",
-      "size": 356,
-      "sha256": "ad2af3e6ee54ae005e0a377d2b0e0e9f0bb96a442c4e2b56c892204a4e71c5c6"
+      "size": 364,
+      "sha256": "b48bedbc5df718f61c5611851fa270ea749bdf7505671090397fa24c42fbdb32"
     },
     {
       "path": "apps/admin-app/src-tauri/build.rs",
@@ -324,8 +326,8 @@
     },
     {
       "path": "apps/admin-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 465,
-      "sha256": "c91c51fcc2688e5845c6a5af9fd6853c26f668daa945e5e3564896d14c1b1b6c"
+      "size": 473,
+      "sha256": "24cf80dac45babd7951bb0d683e29763641dd79463c1a0ea46a67b30c0829a7f"
     },
     {
       "path": "apps/admin-app/src-tauri/icons/128x128.png",
@@ -364,28 +366,23 @@
     },
     {
       "path": "apps/admin-app/src-tauri/tauri.conf.json",
-      "size": 949,
-      "sha256": "8a94edb37619f30d0534fc1dad537d7894e9723a935c1114fbea7a2ba3f8f270"
+      "size": 957,
+      "sha256": "29ebfb9feb5c7013124e49c69cbfc1adbae01088d5345f85939d14b1ee921498"
     },
     {
       "path": "apps/admin-app/src/App.vue",
-      "size": 38346,
-      "sha256": "28edcb1e1a9e00c13844bcde25be1bcc1c62786f5b0ad68a121da38d210bf627"
-    },
-    {
-      "path": "apps/admin-app/src/App.vue.js",
-      "size": 119559,
-      "sha256": "8cb7d40abf77c27fd1ddaad525ab43d2c64d0e0def7e6f6131496db5cf2a375e"
+      "size": 59173,
+      "sha256": "b7c3c253a22898d0ac72d40e64b00ff17c1cb02155e450d16e516efc0e70d161"
     },
     {
       "path": "apps/admin-app/src/app-contract.js",
-      "size": 144,
-      "sha256": "17c3e77b661f8df60fd1763a34b2c96c10618129106f7d62a93ee16e93a1e564"
+      "size": 152,
+      "sha256": "88aecd041da920d0cc47c5847aacc54f5f300bb0e50542198a3e607aeaa3afa7"
     },
     {
       "path": "apps/admin-app/src/app-contract.ts",
-      "size": 153,
-      "sha256": "09fa61bdb21d5bfc50f51f80b58ffaad10248395260551301efa5808fa3d4c70"
+      "size": 161,
+      "sha256": "7ebad45d31bed1aabd1739121c5142b53f327203f5543baa4b21a74664d5b193"
     },
     {
       "path": "apps/admin-app/src/components/AnalyticsPanel.vue",
@@ -393,29 +390,14 @@
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
     },
     {
-      "path": "apps/admin-app/src/components/AnalyticsPanel.vue.js",
-      "size": 14319,
-      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
-    },
-    {
       "path": "apps/admin-app/src/components/CanteenPanel.vue",
       "size": 7974,
       "sha256": "8a193dd0fa34ebe90d155bb3350f3c2d338e09cfa4edbfae36fabb192b6c9d65"
     },
     {
-      "path": "apps/admin-app/src/components/CanteenPanel.vue.js",
-      "size": 20510,
-      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
-    },
-    {
       "path": "apps/admin-app/src/components/CommunicationPanel.vue",
-      "size": 9144,
-      "sha256": "253b595ef812547984250ccfa31734d9f4771271d4baad69d64ee9097ee77a32"
-    },
-    {
-      "path": "apps/admin-app/src/components/CommunicationPanel.vue.js",
-      "size": 22056,
-      "sha256": "02738d24956c54c0d8beb73e6f93f62fdfb16a37be8495f0efaed116e54055ef"
+      "size": 12641,
+      "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
     },
     {
       "path": "apps/admin-app/src/components/EventsTravelPanel.vue",
@@ -423,59 +405,29 @@
       "sha256": "5f534ecdbaafde6addf12621f667e6dded927631f7758a3b9ea02b66465016e0"
     },
     {
-      "path": "apps/admin-app/src/components/EventsTravelPanel.vue.js",
-      "size": 16246,
-      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
-    },
-    {
       "path": "apps/admin-app/src/components/MailPanel.vue",
-      "size": 12679,
-      "sha256": "d51f16f44ae620ba0e9af5e8500a06d40df30991720c1cb468b4292665e209bc"
-    },
-    {
-      "path": "apps/admin-app/src/components/MailPanel.vue.js",
-      "size": 24147,
-      "sha256": "19229f2566eaf0be261898be7a485c0d3c10510e8f3e58dcd50e0b96c32e3701"
+      "size": 17236,
+      "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
       "path": "apps/admin-app/src/components/ReportingPanel.vue",
-      "size": 6125,
-      "sha256": "a47ad792c94ab9e98a6e47f142a9167bb1e7293e01e9bc72b72343387cd43661"
-    },
-    {
-      "path": "apps/admin-app/src/components/ReportingPanel.vue.js",
-      "size": 12478,
-      "sha256": "fc01a6d57a579e4cb3d6d2673279c8c4aadbf422a5467d47d519730f5d0506f7"
+      "size": 8064,
+      "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
     },
     {
       "path": "apps/admin-app/src/components/RequestsPanel.vue",
-      "size": 10216,
-      "sha256": "902ec03f441e03f5e952eb4479e729a77e92bf51893ae19b391e9ea423e08a34"
-    },
-    {
-      "path": "apps/admin-app/src/components/RequestsPanel.vue.js",
-      "size": 25870,
-      "sha256": "291569863e3208e653169c4d2c320f7bf97fea0a879b1430e9f58c38ef4f86de"
+      "size": 13841,
+      "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
     },
     {
       "path": "apps/admin-app/src/components/StudentServicesPanel.vue",
-      "size": 22993,
-      "sha256": "26ab8edd0bb49ae03e6481d691c40c8ab96e29026206577e327de8038d1b1f1a"
-    },
-    {
-      "path": "apps/admin-app/src/components/StudentServicesPanel.vue.js",
-      "size": 63874,
-      "sha256": "6391359fb0c89dfb6c84ebfa79198b33fd8c23f04ce5cd3eef06b67ef609ca2a"
+      "size": 32263,
+      "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
       "path": "apps/admin-app/src/components/WorkflowPanel.vue",
-      "size": 9949,
-      "sha256": "b0304c5ccd52c0d4d0d2a4eb256f6947d380382872675049d4ae47e53168d3fa"
-    },
-    {
-      "path": "apps/admin-app/src/components/WorkflowPanel.vue.js",
-      "size": 25213,
-      "sha256": "885963f0c81251554a247b2bd4ef6156af0cbbf7c9512f0fef5b53e3b34ed560"
+      "size": 13979,
+      "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
     },
     {
       "path": "apps/admin-app/src/main.js",
@@ -494,13 +446,8 @@
     },
     {
       "path": "apps/admin-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/admin-app/tsconfig.tsbuildinfo",
-      "size": 456,
-      "sha256": "adae8bf5b1239da0fd520e9e2a8b92d608207eb69c8f9eeba225c20dcea8753c"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/admin-app/vite.config.ts",
@@ -519,8 +466,8 @@
     },
     {
       "path": "apps/branding-studio/package.json",
-      "size": 565,
-      "sha256": "2c0b4e8ee90491d40bc2f26a72555d66a5d10288743d864a3d4df6bf4c64d452"
+      "size": 581,
+      "sha256": "1ea335e4ec7a243de68aa29e9ba6ecbf0659e187d3dfa007778064ddc018c1b3"
     },
     {
       "path": "apps/branding-studio/public/icon-192.png",
@@ -539,13 +486,13 @@
     },
     {
       "path": "apps/branding-studio/public/sw.js",
-      "size": 278,
-      "sha256": "55938d8faa2098530e3cadc540862c265c9398b1ea8f16a7e8c7ced33e3e2277"
+      "size": 286,
+      "sha256": "26078196710df853864a3de4fda43a4fe42fee86a66be15caf6d8852abd52b59"
     },
     {
       "path": "apps/branding-studio/src-tauri/Cargo.toml",
-      "size": 290,
-      "sha256": "1b591820d23692b9500da40498304624efbbee29f8628f61a6007cffb04756dc"
+      "size": 298,
+      "sha256": "70393fd528d6657db92e8e40e1ed0bfefceb3a11ce672b6b81954a1b41cf0716"
     },
     {
       "path": "apps/branding-studio/src-tauri/build.rs",
@@ -559,8 +506,8 @@
     },
     {
       "path": "apps/branding-studio/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 472,
-      "sha256": "6f4ff42f7d2d39c0aa478ef3f542074034adf5c3adc38b16a4e7623499830b7f"
+      "size": 480,
+      "sha256": "d5cf39e829d980fbe60f44bd674745fcc4bfd7310f712702aac2eadcb8dee5f8"
     },
     {
       "path": "apps/branding-studio/src-tauri/icons/128x128.png",
@@ -599,8 +546,8 @@
     },
     {
       "path": "apps/branding-studio/src-tauri/tauri.conf.json",
-      "size": 931,
-      "sha256": "266217c203622ba24ad949f2c845e883dd0f44e1e5993b0bb6a9ceb21dbf5d58"
+      "size": 939,
+      "sha256": "eb99782da0e474d7eac47191bc0308f493299ed6e8d076abb43e6bf5bb9909bd"
     },
     {
       "path": "apps/branding-studio/src/App.vue",
@@ -608,19 +555,14 @@
       "sha256": "bbde7fe7625a9372dbd87aef9e3fb700ffd2df7c1ab2b4c55f8252531d3391e9"
     },
     {
-      "path": "apps/branding-studio/src/App.vue.js",
-      "size": 22386,
-      "sha256": "4aa081dbd9c2c0e6b37657d9b3e65a6ed8e107dc93eeeb37aa2cffd651e2252d"
-    },
-    {
       "path": "apps/branding-studio/src/app-contract.js",
-      "size": 153,
-      "sha256": "da7b13003d3c1aaf8427a4ff4916afa550a7e9e12d00aaceec2be2daed73badf"
+      "size": 161,
+      "sha256": "7f6b38bc7e3fc8b2c39af77206ae0360de313d804a17d9c133a2d1ec0ceb8a76"
     },
     {
       "path": "apps/branding-studio/src/app-contract.ts",
-      "size": 162,
-      "sha256": "79b4593340ea8019bc857e620cb87aea8680d7532b58bd1c9091109155818d84"
+      "size": 170,
+      "sha256": "4cb9ff940446c69a6382bf103ef1b91bf20e3bb293089fedde1825cc4ffd6fa5"
     },
     {
       "path": "apps/branding-studio/src/main.js",
@@ -639,13 +581,8 @@
     },
     {
       "path": "apps/branding-studio/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/branding-studio/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/branding-studio/vite.config.ts",
@@ -664,8 +601,8 @@
     },
     {
       "path": "apps/desktop-admin/package.json",
-      "size": 595,
-      "sha256": "dca92b67ceb6cd38e623faf94c15238f1aab09483e9f3596825e34fe2976a4d8"
+      "size": 611,
+      "sha256": "c17d54cb5dc6cc8021fbcbb4524d84e6e80b4fe30eb3c9fffd0d1af058ccc15c"
     },
     {
       "path": "apps/desktop-admin/public/icon-192.png",
@@ -684,13 +621,13 @@
     },
     {
       "path": "apps/desktop-admin/public/sw.js",
-      "size": 276,
-      "sha256": "7263ac59cbb080aba414eaf031a97cf472b0b3c91af934d3588b950c0b7304a3"
+      "size": 284,
+      "sha256": "e5086cf76b174932d833e089f22a9d8780a2d2adcdbccb67da94d7f993b2657e"
     },
     {
       "path": "apps/desktop-admin/src-tauri/Cargo.toml",
-      "size": 360,
-      "sha256": "f1bb271864889469cb24f6fca5f741267d77d6a8a17a34a00b4a743303174077"
+      "size": 368,
+      "sha256": "48d641ff7ec28af605ea4448c3be74751414e5d862fa2931471ae79eeb4ce565"
     },
     {
       "path": "apps/desktop-admin/src-tauri/build.rs",
@@ -704,8 +641,8 @@
     },
     {
       "path": "apps/desktop-admin/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 478,
-      "sha256": "c8dd54d6757ee174daa2efd6938c93679a2e31b475ef8999ab0a3ed49ae3170e"
+      "size": 486,
+      "sha256": "7d6356ff47113abff7546b426c764d8035f766a7657d56d6cd5a8d049fcdd3bc"
     },
     {
       "path": "apps/desktop-admin/src-tauri/icons/128x128.png",
@@ -744,28 +681,23 @@
     },
     {
       "path": "apps/desktop-admin/src-tauri/tauri.conf.json",
-      "size": 969,
-      "sha256": "aadf72a4eb4482d490e01c826dfa0dbac3069d1ce4ba7d9fc1f4f6e15f79c15d"
+      "size": 977,
+      "sha256": "918765795c7496b4b22a5fb9a72618186b1dfe60c636999c5c87fb485412be2d"
     },
     {
       "path": "apps/desktop-admin/src/App.vue",
-      "size": 38346,
-      "sha256": "28edcb1e1a9e00c13844bcde25be1bcc1c62786f5b0ad68a121da38d210bf627"
-    },
-    {
-      "path": "apps/desktop-admin/src/App.vue.js",
-      "size": 119559,
-      "sha256": "8cb7d40abf77c27fd1ddaad525ab43d2c64d0e0def7e6f6131496db5cf2a375e"
+      "size": 59173,
+      "sha256": "b7c3c253a22898d0ac72d40e64b00ff17c1cb02155e450d16e516efc0e70d161"
     },
     {
       "path": "apps/desktop-admin/src/app-contract.js",
-      "size": 157,
-      "sha256": "2adb18cb81640d3578fff26de598b9b753371dc484af6cfe4191f3b32aef303b"
+      "size": 165,
+      "sha256": "eb18e72319f6f72c7dca46665a7e11ade335cbf4558fb1b01626bdcc76f335b1"
     },
     {
       "path": "apps/desktop-admin/src/app-contract.ts",
-      "size": 166,
-      "sha256": "a97370b5a16f9df2c1713fdf8e570eb92b36a55ba6663a8da24221b79c862e2e"
+      "size": 174,
+      "sha256": "c2e947dda546b95f0a48843eb731309b5677ad4838187d16ef4fa50aedc79b6a"
     },
     {
       "path": "apps/desktop-admin/src/components/AnalyticsPanel.vue",
@@ -773,29 +705,14 @@
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
     },
     {
-      "path": "apps/desktop-admin/src/components/AnalyticsPanel.vue.js",
-      "size": 14319,
-      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
-    },
-    {
       "path": "apps/desktop-admin/src/components/CanteenPanel.vue",
       "size": 7974,
       "sha256": "8a193dd0fa34ebe90d155bb3350f3c2d338e09cfa4edbfae36fabb192b6c9d65"
     },
     {
-      "path": "apps/desktop-admin/src/components/CanteenPanel.vue.js",
-      "size": 20510,
-      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
-    },
-    {
       "path": "apps/desktop-admin/src/components/CommunicationPanel.vue",
-      "size": 9144,
-      "sha256": "253b595ef812547984250ccfa31734d9f4771271d4baad69d64ee9097ee77a32"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/CommunicationPanel.vue.js",
-      "size": 22056,
-      "sha256": "02738d24956c54c0d8beb73e6f93f62fdfb16a37be8495f0efaed116e54055ef"
+      "size": 12641,
+      "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
     },
     {
       "path": "apps/desktop-admin/src/components/EventsTravelPanel.vue",
@@ -803,59 +720,29 @@
       "sha256": "5f534ecdbaafde6addf12621f667e6dded927631f7758a3b9ea02b66465016e0"
     },
     {
-      "path": "apps/desktop-admin/src/components/EventsTravelPanel.vue.js",
-      "size": 16246,
-      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
-    },
-    {
       "path": "apps/desktop-admin/src/components/MailPanel.vue",
-      "size": 12679,
-      "sha256": "d51f16f44ae620ba0e9af5e8500a06d40df30991720c1cb468b4292665e209bc"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/MailPanel.vue.js",
-      "size": 24147,
-      "sha256": "19229f2566eaf0be261898be7a485c0d3c10510e8f3e58dcd50e0b96c32e3701"
+      "size": 17236,
+      "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
       "path": "apps/desktop-admin/src/components/ReportingPanel.vue",
-      "size": 6125,
-      "sha256": "a47ad792c94ab9e98a6e47f142a9167bb1e7293e01e9bc72b72343387cd43661"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/ReportingPanel.vue.js",
-      "size": 12478,
-      "sha256": "fc01a6d57a579e4cb3d6d2673279c8c4aadbf422a5467d47d519730f5d0506f7"
+      "size": 8064,
+      "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
     },
     {
       "path": "apps/desktop-admin/src/components/RequestsPanel.vue",
-      "size": 10216,
-      "sha256": "902ec03f441e03f5e952eb4479e729a77e92bf51893ae19b391e9ea423e08a34"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/RequestsPanel.vue.js",
-      "size": 25870,
-      "sha256": "291569863e3208e653169c4d2c320f7bf97fea0a879b1430e9f58c38ef4f86de"
+      "size": 13841,
+      "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
     },
     {
       "path": "apps/desktop-admin/src/components/StudentServicesPanel.vue",
-      "size": 22993,
-      "sha256": "26ab8edd0bb49ae03e6481d691c40c8ab96e29026206577e327de8038d1b1f1a"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/StudentServicesPanel.vue.js",
-      "size": 63874,
-      "sha256": "6391359fb0c89dfb6c84ebfa79198b33fd8c23f04ce5cd3eef06b67ef609ca2a"
+      "size": 32263,
+      "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
       "path": "apps/desktop-admin/src/components/WorkflowPanel.vue",
-      "size": 9949,
-      "sha256": "b0304c5ccd52c0d4d0d2a4eb256f6947d380382872675049d4ae47e53168d3fa"
-    },
-    {
-      "path": "apps/desktop-admin/src/components/WorkflowPanel.vue.js",
-      "size": 25213,
-      "sha256": "885963f0c81251554a247b2bd4ef6156af0cbbf7c9512f0fef5b53e3b34ed560"
+      "size": 13979,
+      "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
     },
     {
       "path": "apps/desktop-admin/src/main.js",
@@ -874,13 +761,8 @@
     },
     {
       "path": "apps/desktop-admin/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/desktop-admin/tsconfig.tsbuildinfo",
-      "size": 456,
-      "sha256": "adae8bf5b1239da0fd520e9e2a8b92d608207eb69c8f9eeba225c20dcea8753c"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/desktop-admin/vite.config.ts",
@@ -899,8 +781,8 @@
     },
     {
       "path": "apps/family-app/package.json",
-      "size": 592,
-      "sha256": "ee66475b238c2ae22eceafed921227a27b15dd4d9178eaf71ca16c41c6825966"
+      "size": 608,
+      "sha256": "856576ce46a40220b1527c50b086f9b349f078e72d2d0cad8573611115f77bde"
     },
     {
       "path": "apps/family-app/public/icon-192.png",
@@ -919,13 +801,13 @@
     },
     {
       "path": "apps/family-app/public/sw.js",
-      "size": 273,
-      "sha256": "dc1c3690bb1455eade5a54a5702d8525ea596bc4593fe9ce22fdc47cb5fc008c"
+      "size": 281,
+      "sha256": "f60b4b44462350fcdde7e8b60f3a0ed0988dd68ae7df7814511e8bb6df46b89c"
     },
     {
       "path": "apps/family-app/src-tauri/Cargo.toml",
-      "size": 357,
-      "sha256": "e615bc034a372e174c5830a484892e199f9d5ef1647e8fe359575421f6e9d9d7"
+      "size": 365,
+      "sha256": "7967c25cfeb4152e7dada21861aee359032cc9f7d002866e3b54e3c666bbd68b"
     },
     {
       "path": "apps/family-app/src-tauri/build.rs",
@@ -939,8 +821,8 @@
     },
     {
       "path": "apps/family-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 470,
-      "sha256": "de299056a98ea10c74e9a5bb38b731f8c48c6eaba389619f8691c82796faefc7"
+      "size": 478,
+      "sha256": "0c7f4b1c4cf12184905e0885bd629fa1f3ebbfe2a4615ba7ec0880454fcb6d68"
     },
     {
       "path": "apps/family-app/src-tauri/icons/128x128.png",
@@ -979,28 +861,23 @@
     },
     {
       "path": "apps/family-app/src-tauri/tauri.conf.json",
-      "size": 958,
-      "sha256": "a5e3891318b95011c94bf3e6afe3d7b62b18dee426a9a425f40019bd09ce87e1"
+      "size": 966,
+      "sha256": "0663572d2c7e52aad8add366d083656e66311cc0568983de4a9b31425e815f50"
     },
     {
       "path": "apps/family-app/src/App.vue",
-      "size": 23885,
-      "sha256": "6f42dc750992576abd306f94003954c51a9d76207d3240e245ccfeec5f90c841"
-    },
-    {
-      "path": "apps/family-app/src/App.vue.js",
-      "size": 65269,
-      "sha256": "773b1f9598e86565284a89b432f9d0dc499b3cf5430c270ee5881e28419a33a9"
+      "size": 34627,
+      "sha256": "b949f8c38ed4340cc131f13c27798f1bcc9f81c8cea05098ad6609694fbc4d8d"
     },
     {
       "path": "apps/family-app/src/app-contract.js",
-      "size": 149,
-      "sha256": "aaa724795d7bf9e841ba29a4d74c2890eff87000941576a7f0d8744d241be70d"
+      "size": 157,
+      "sha256": "7e7dc589f77573def4578ec4198c1ee40e04977c22d26bbe21408d82406e6043"
     },
     {
       "path": "apps/family-app/src/app-contract.ts",
-      "size": 158,
-      "sha256": "405846a22bc802c436d71d464f70dca0e82080984abfc488d1f31807a3c8753a"
+      "size": 166,
+      "sha256": "1da3d812224386808c2e7dd9aa7aa545e753931d39d3672bdfc2e8f3e3e3a368"
     },
     {
       "path": "apps/family-app/src/main.js",
@@ -1019,13 +896,8 @@
     },
     {
       "path": "apps/family-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/family-app/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/family-app/vite.config.ts",
@@ -1044,8 +916,8 @@
     },
     {
       "path": "apps/kiosk-app/package.json",
-      "size": 591,
-      "sha256": "cab3dae9ebbf8592892c888883211aa28f9dacd69371b04d390c66455cdf5daf"
+      "size": 607,
+      "sha256": "0088cc566dd8c153eff24aad50f7f56694c6b1a0ebc47030cf6a337ae03df09b"
     },
     {
       "path": "apps/kiosk-app/public/icon-192.png",
@@ -1064,13 +936,13 @@
     },
     {
       "path": "apps/kiosk-app/public/sw.js",
-      "size": 272,
-      "sha256": "5886ca534af33c2786add091ac232787607b4621eeb2be91ef673fa358d7a5e6"
+      "size": 280,
+      "sha256": "a2ee3c7b5334da6e2a5761047ffd1c370e1a977039f82377df44bee1b6731345"
     },
     {
       "path": "apps/kiosk-app/src-tauri/Cargo.toml",
-      "size": 356,
-      "sha256": "007f935ad1d928aa083eda9a4033e22a9dfbb55d60408ae2ecc56108b5da8dab"
+      "size": 364,
+      "sha256": "155030f2695dc9bd6ee9ffc16131a1e02f1a58fb552f83bb378592817d014972"
     },
     {
       "path": "apps/kiosk-app/src-tauri/build.rs",
@@ -1084,8 +956,8 @@
     },
     {
       "path": "apps/kiosk-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 466,
-      "sha256": "d56fb7afa53912fce1767c0d660a7a55442aa67b79917dd487399d3bb505a6f1"
+      "size": 474,
+      "sha256": "a82b4fb035ac0e42be2b2171f2a22197d1adc3a3fd09c253b78e402d04c6c6d9"
     },
     {
       "path": "apps/kiosk-app/src-tauri/icons/128x128.png",
@@ -1124,8 +996,8 @@
     },
     {
       "path": "apps/kiosk-app/src-tauri/tauri.conf.json",
-      "size": 951,
-      "sha256": "a588119f4d5cabfc4fa23865f97bf86b5a9117ede7bc50b636ef1a13549cfe08"
+      "size": 959,
+      "sha256": "1a49c27feab992d63143e96e38b11f4ce756f0115f44e2dc8a6d26006669125e"
     },
     {
       "path": "apps/kiosk-app/src/App.vue",
@@ -1133,19 +1005,14 @@
       "sha256": "8938d12e4b4b85473feff34727600ec4606b7efdf89dde58032b22ebcc46b075"
     },
     {
-      "path": "apps/kiosk-app/src/App.vue.js",
-      "size": 11430,
-      "sha256": "36fad7271f288c6a545131923116994d547c0afdbce9ff54dd6975eb30c61570"
-    },
-    {
       "path": "apps/kiosk-app/src/app-contract.js",
-      "size": 145,
-      "sha256": "90b5c764b779296c887c50ef198bdeea27f48d3fa76bdce6639917446e97aa46"
+      "size": 153,
+      "sha256": "615973b9cdca691bf7d12b76f9bd1cdfee4e8ed1c5dae8e1a5e30e661e82c255"
     },
     {
       "path": "apps/kiosk-app/src/app-contract.ts",
-      "size": 154,
-      "sha256": "94ecc6c63be1377b2fd6727e6ddfe3a27771682afd75be31ee55284f0b8357f1"
+      "size": 162,
+      "sha256": "4e158bfda52926c95b3a70f61a2c8ff1c72263bfc9328ed5125041e522a177ef"
     },
     {
       "path": "apps/kiosk-app/src/main.js",
@@ -1164,13 +1031,8 @@
     },
     {
       "path": "apps/kiosk-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/kiosk-app/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/kiosk-app/vite.config.ts",
@@ -1189,8 +1051,8 @@
     },
     {
       "path": "apps/platform-console/package.json",
-      "size": 566,
-      "sha256": "7b1754d29dce7d3c3c134480fa1bba5f4d335dba76531975e9b77aff7fd4fc28"
+      "size": 582,
+      "sha256": "9dae82b3075e12590841cb86a5d02d45e2c254a151175aae233627ff2e3ab5e2"
     },
     {
       "path": "apps/platform-console/public/icon-192.png",
@@ -1209,13 +1071,13 @@
     },
     {
       "path": "apps/platform-console/public/sw.js",
-      "size": 279,
-      "sha256": "e6ba55f1a976c210a380f747053eab569534e52af9d49e1acd908e24350cfe79"
+      "size": 287,
+      "sha256": "f2d13ea8221dabac2694544201fee01620c09002b76b4a4bf3a3bb2a4d33c076"
     },
     {
       "path": "apps/platform-console/src-tauri/Cargo.toml",
-      "size": 291,
-      "sha256": "4aec4ac8b550a7805d9ed750f8db2b5ef5d4c063ef9ef32a0c8608a2eb0c0192"
+      "size": 299,
+      "sha256": "e98462dec1d5dd7e9da02f31b86f9128860a3b62ce3f511a24b4bd5fd2a9b4b1"
     },
     {
       "path": "apps/platform-console/src-tauri/build.rs",
@@ -1229,8 +1091,8 @@
     },
     {
       "path": "apps/platform-console/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 472,
-      "sha256": "d9e8298dfd58769d6e6941db00b567807cf82fed7b4faa2e1feb6db64d96e5c5"
+      "size": 480,
+      "sha256": "a86d44ed2b38adc9857584aa4d23c450d804a62df3e7721d23db529a65269a6b"
     },
     {
       "path": "apps/platform-console/src-tauri/icons/128x128.png",
@@ -1269,8 +1131,8 @@
     },
     {
       "path": "apps/platform-console/src-tauri/tauri.conf.json",
-      "size": 930,
-      "sha256": "25cb1759ecb0900769a8b3cf981b3f3fbe1acfba9bd6063d82b2566f93b3fe85"
+      "size": 938,
+      "sha256": "5fd22543fc12298f7c8ba76e7beae80cb12c705ed4a8e51e42693e98362a9228"
     },
     {
       "path": "apps/platform-console/src/App.vue",
@@ -1278,19 +1140,14 @@
       "sha256": "487c7598bf8b3547a7461c8c012188d0f1355e722f68863e9283071b2734000d"
     },
     {
-      "path": "apps/platform-console/src/App.vue.js",
-      "size": 26295,
-      "sha256": "e79a286db9a6f8228801ff836104bf08936687311ad9dfbfeee0c431cb49a42a"
-    },
-    {
       "path": "apps/platform-console/src/app-contract.js",
-      "size": 153,
-      "sha256": "181300411da8a9599d53dd1ac2aa6a3948374e66ae5fba05569e586e20cb1093"
+      "size": 161,
+      "sha256": "203f36e217bfa33bf6f5833fffdcef8af4f21b17cc5efda5250d4c088e297758"
     },
     {
       "path": "apps/platform-console/src/app-contract.ts",
-      "size": 162,
-      "sha256": "23648e7dd2fc7ae74247f0d2317a71a11019f66a6206d40d928ebe41e7647d86"
+      "size": 170,
+      "sha256": "06bd047aef592e05defc5655164318cd77e9543a504884dcf8460fd12d911336"
     },
     {
       "path": "apps/platform-console/src/main.js",
@@ -1309,13 +1166,8 @@
     },
     {
       "path": "apps/platform-console/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/platform-console/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/platform-console/vite.config.ts",
@@ -1334,8 +1186,8 @@
     },
     {
       "path": "apps/pos-app/package.json",
-      "size": 589,
-      "sha256": "add2c13bd0f5bd4fa79a7cd42bbd8c0935f3a6b36a9968aaef6eaac7c11a2508"
+      "size": 605,
+      "sha256": "4db963e1ef7283798b8080d07554040bd20309b819faed2c0ec286d8fa01d045"
     },
     {
       "path": "apps/pos-app/public/icon-192.png",
@@ -1354,13 +1206,13 @@
     },
     {
       "path": "apps/pos-app/public/sw.js",
-      "size": 270,
-      "sha256": "1f437d1e008d72880781f02241da9558e125bc87dd6e710d2c95625423d64b95"
+      "size": 278,
+      "sha256": "b51d93b9ec837e638018c871e1c9c46eec59ab7ec16bb25798aff4d9a52d4543"
     },
     {
       "path": "apps/pos-app/src-tauri/Cargo.toml",
-      "size": 354,
-      "sha256": "856b3963f0b0e7cda365241c620d10e98bf39cc656b27f6d9cbec1cb2a5d516b"
+      "size": 362,
+      "sha256": "61c0d759ec0135b3bc0ae7e9ab30d5778d9e914c4f1a05838bfc2334a3ac747b"
     },
     {
       "path": "apps/pos-app/src-tauri/build.rs",
@@ -1374,8 +1226,8 @@
     },
     {
       "path": "apps/pos-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 462,
-      "sha256": "1b9042bd00d90a29a80e8fa9a886e7a2e16f8c08ab6b2521565170315142a027"
+      "size": 470,
+      "sha256": "a292d3ee6dc12a4516437fdf5c10149656debcd685a6f6bd0bdc897379d135a7"
     },
     {
       "path": "apps/pos-app/src-tauri/icons/128x128.png",
@@ -1414,8 +1266,8 @@
     },
     {
       "path": "apps/pos-app/src-tauri/tauri.conf.json",
-      "size": 945,
-      "sha256": "5db158a8328310afdc5707a954881e1856d144afd4fa192167026b87ddcdcea1"
+      "size": 953,
+      "sha256": "0de874ad4de140d98c9662ee5a41f97a7b3a17a4405f07ff4ce7d7bf03ecb538"
     },
     {
       "path": "apps/pos-app/src/App.vue",
@@ -1423,19 +1275,14 @@
       "sha256": "a73e3d613507859ceda73d79f6b5b91767ac92201ed3ed2a58d4aff5cfcc8253"
     },
     {
-      "path": "apps/pos-app/src/App.vue.js",
-      "size": 27552,
-      "sha256": "fbe386be2bd88dad7052317ed10abda9b3830906ecb7cbdfa7c2cf68cee9d0f6"
-    },
-    {
       "path": "apps/pos-app/src/app-contract.js",
-      "size": 141,
-      "sha256": "5a213d97d9be335440ef2435e35474fea01eb2b30197a328a3a49046f339ad1f"
+      "size": 149,
+      "sha256": "d2d29641225fab778e2a07981322edb0803d82ddba603dbe2547dc2474909889"
     },
     {
       "path": "apps/pos-app/src/app-contract.ts",
-      "size": 150,
-      "sha256": "4508a1835d9aa038c6593e97024be1874bf4667a6eaf284a2498c5cf3bad17a6"
+      "size": 158,
+      "sha256": "235f2e6dfa1a579bcb88558ef99fff35b1132264c95c34ee6dba5f17b372295d"
     },
     {
       "path": "apps/pos-app/src/main.js",
@@ -1454,13 +1301,8 @@
     },
     {
       "path": "apps/pos-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/pos-app/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/pos-app/vite.config.ts",
@@ -1479,8 +1321,8 @@
     },
     {
       "path": "apps/public-portal/package.json",
-      "size": 533,
-      "sha256": "43a0341b9f520db89f2e533925820c8e974e8a8570385c3c59e790092c40588d"
+      "size": 541,
+      "sha256": "ea15b3d80fbaab8b850846896ec3d68a6c15f5a8dbda5466beb771f4f7d3945e"
     },
     {
       "path": "apps/public-portal/public/icon-192.png",
@@ -1499,13 +1341,13 @@
     },
     {
       "path": "apps/public-portal/public/sw.js",
-      "size": 276,
-      "sha256": "584e353b810909fde4e40853741c4736a6cd018b89c1cf255026c33bb20f94eb"
+      "size": 284,
+      "sha256": "7d09c8a08f961e9ea3413145b36df8d98460e1d00d2631f0667bdfee2908db8f"
     },
     {
       "path": "apps/public-portal/src-tauri/Cargo.toml",
-      "size": 288,
-      "sha256": "923b42036e4ab3e2dc85067d0b50a490d039f4b440ffb7b4297924f2ed2f14df"
+      "size": 296,
+      "sha256": "7ba8315774e4f21f2e8fe102f4a61ac1d1f400d4bfdcd98b8e912f42f4d48785"
     },
     {
       "path": "apps/public-portal/src-tauri/build.rs",
@@ -1519,8 +1361,8 @@
     },
     {
       "path": "apps/public-portal/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 475,
-      "sha256": "06221cef6fd89d2d431df351f61b6d39e29fb7691c4461b2f9659cbd943a9c41"
+      "size": 483,
+      "sha256": "a579823b7470425696722f1de12145b5e4c1ef1d10de3619cbf1c33ef6c3e846"
     },
     {
       "path": "apps/public-portal/src-tauri/icons/128x128.png",
@@ -1559,8 +1401,8 @@
     },
     {
       "path": "apps/public-portal/src-tauri/tauri.conf.json",
-      "size": 939,
-      "sha256": "f2a9f29fefc71c2be841b617cab70639045e11d0684566193a8c99c9ecfb8363"
+      "size": 947,
+      "sha256": "5c9855cbcc014eb4d76fb5ed748b978fda30867c0a5f1c1979621ddb8f392d86"
     },
     {
       "path": "apps/public-portal/src/App.vue",
@@ -1568,19 +1410,14 @@
       "sha256": "1108ee83529e7b7acf1dc63d39e67d62f9b89dc72f3d174f4f1f3d9fe6b97113"
     },
     {
-      "path": "apps/public-portal/src/App.vue.js",
-      "size": 10534,
-      "sha256": "f16858bffa96711caa103de68da3243d9e0b0c70306b203f77d10c07ed5e85dd"
-    },
-    {
       "path": "apps/public-portal/src/app-contract.js",
-      "size": 154,
-      "sha256": "7cfb0fed72fbcc578b4ac00ba6ac7bd1262ddea0e9b7e41ecb6347cd6c1db93f"
+      "size": 162,
+      "sha256": "665b1ebc2a2dddbbac7b74acf9313eb20ebb862dc08878ca643d03e767d570bb"
     },
     {
       "path": "apps/public-portal/src/app-contract.ts",
-      "size": 163,
-      "sha256": "e79b5648544a99433e5b6744fe05b084047d67104847dcd70ea97508cd5bb974"
+      "size": 171,
+      "sha256": "53834fb189f813ad5a6886850cafed7228c1e23fe4ed5a81e5f5111bb29855eb"
     },
     {
       "path": "apps/public-portal/src/main.js",
@@ -1599,13 +1436,8 @@
     },
     {
       "path": "apps/public-portal/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/public-portal/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/public-portal/vite.config.ts",
@@ -1624,8 +1456,8 @@
     },
     {
       "path": "apps/student-app/package.json",
-      "size": 593,
-      "sha256": "e0142b8e57dc823ba41f30ef4eaa8600d9f631cc68a071ad8f201736b9176f7d"
+      "size": 609,
+      "sha256": "dce504f7ac7bc233de9c79a64a1f50e5e556bc693806cc05593056054a537dee"
     },
     {
       "path": "apps/student-app/public/icon-192.png",
@@ -1644,13 +1476,13 @@
     },
     {
       "path": "apps/student-app/public/sw.js",
-      "size": 274,
-      "sha256": "210b152d50af1523bad28991d6fcbe467b598afdd9750b5527b8c8284ac3c865"
+      "size": 282,
+      "sha256": "c0cf05dc3303a8bd3af5ac1bdba2be1ed671a574b14cb36b85242c86617b6547"
     },
     {
       "path": "apps/student-app/src-tauri/Cargo.toml",
-      "size": 358,
-      "sha256": "33dd31f7afc18d137fd18b4c72adbdc182c868a2986e321f6830e9e330708ff2"
+      "size": 366,
+      "sha256": "8e07a9d9e2291ac28bd13ef02478253def2988d2da634cc73f21133a013034c5"
     },
     {
       "path": "apps/student-app/src-tauri/build.rs",
@@ -1664,8 +1496,8 @@
     },
     {
       "path": "apps/student-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 468,
-      "sha256": "5e5a131670f314f50b4e561b9bc043454a832dfd64c53609f4226daf57cfdfa0"
+      "size": 476,
+      "sha256": "dd0afb8d5d5d922270e39b1faaf17ded226e251dd8cc02fb8676d02a1d87a827"
     },
     {
       "path": "apps/student-app/src-tauri/icons/128x128.png",
@@ -1704,8 +1536,8 @@
     },
     {
       "path": "apps/student-app/src-tauri/tauri.conf.json",
-      "size": 953,
-      "sha256": "a2a82ce2dcd5c59de1579ee87d2cba920430ffbd304cb532331034796cdd5488"
+      "size": 961,
+      "sha256": "cb8ccc685775307ca5bccc2bd962d9c6abbc853cede6f000a6a5af0d01670ded"
     },
     {
       "path": "apps/student-app/src/App.vue",
@@ -1713,19 +1545,14 @@
       "sha256": "e569184a0db0c7ee3f6d2c7043eb1bb8511a6ff37ca24f518b8c7120485c6804"
     },
     {
-      "path": "apps/student-app/src/App.vue.js",
-      "size": 39697,
-      "sha256": "5ba3bb9afca416ba39363c518413b8c1f099101dbbc4e15e2bdb9745a480a314"
-    },
-    {
       "path": "apps/student-app/src/app-contract.js",
-      "size": 147,
-      "sha256": "1f85251265ca09e992ada26b2e4f4e973af1ab064abd8bb48827a688b506df84"
+      "size": 155,
+      "sha256": "76e5205ef9df91166fb8a7d7c2a9519b0cb1979612d963a95a025cc20bd24011"
     },
     {
       "path": "apps/student-app/src/app-contract.ts",
-      "size": 156,
-      "sha256": "48f84bc187eef994df0008364c2fd6b74072e622407333ca1b5e66a91c82598c"
+      "size": 164,
+      "sha256": "c1691fc903c9b737a910d54bf58d4cb4a69319daa156ff6a2ef7387abaf09d34"
     },
     {
       "path": "apps/student-app/src/main.js",
@@ -1744,13 +1571,8 @@
     },
     {
       "path": "apps/student-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/student-app/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/student-app/vite.config.ts",
@@ -1769,8 +1591,8 @@
     },
     {
       "path": "apps/teacher-app/package.json",
-      "size": 631,
-      "sha256": "0b295956a1673536639fe1ea78c62b94c8ae830fe21e38050e085dffc07b13e2"
+      "size": 655,
+      "sha256": "5d29000b64029baf7b6c534a82bc3910714b046a1916a4e772566d62e60c3a0a"
     },
     {
       "path": "apps/teacher-app/public/icon-192.png",
@@ -1789,13 +1611,13 @@
     },
     {
       "path": "apps/teacher-app/public/sw.js",
-      "size": 274,
-      "sha256": "5ff386458e41dd381dfb3df8abda7a01d2b56e39560a1c8ec82c6e6f294d2d31"
+      "size": 282,
+      "sha256": "bce4b7008aefa31cfaac8cef713a9b7501dd7d845832835fc98a326934107c74"
     },
     {
       "path": "apps/teacher-app/src-tauri/Cargo.toml",
-      "size": 358,
-      "sha256": "aabbdc8649cc64b49e10d772b7f18fb26d48739ba5565374de360ee6613eb22a"
+      "size": 366,
+      "sha256": "49597731506f895faa387d7e0bd9fb298c7eec0f21a22e3a5d9fdfa99f1cd2a1"
     },
     {
       "path": "apps/teacher-app/src-tauri/build.rs",
@@ -1809,8 +1631,8 @@
     },
     {
       "path": "apps/teacher-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 473,
-      "sha256": "72fc3742aa3fe37fab7d454228b840b9db112862a8d08e2735d2f67858c11c8d"
+      "size": 481,
+      "sha256": "7f7786373f66e534c37bd9d6b13648999b4e727a007d5cedb4869476e0c082b1"
     },
     {
       "path": "apps/teacher-app/src-tauri/icons/128x128.png",
@@ -1849,8 +1671,8 @@
     },
     {
       "path": "apps/teacher-app/src-tauri/tauri.conf.json",
-      "size": 963,
-      "sha256": "b50426abd12a8d1cea72dc31796b8745e902e3ace1050c171c020b31f2f5e3c0"
+      "size": 971,
+      "sha256": "f2969aa346c6f269f9a8f9f48fe154c72b9ac45609cba5dd213b7a04cb1858c3"
     },
     {
       "path": "apps/teacher-app/src/App.vue",
@@ -1858,39 +1680,24 @@
       "sha256": "1a2db7ddaeac4ae782c6a4c834f961de421a9a726bc9d13a8820dc0d6175adec"
     },
     {
-      "path": "apps/teacher-app/src/App.vue.js",
-      "size": 23687,
-      "sha256": "370397d9160ce0b539076a1ca59171310ca4a09cc2615499839d9c9a42e87988"
-    },
-    {
       "path": "apps/teacher-app/src/EarlyChildhoodPanel.vue",
-      "size": 6705,
-      "sha256": "c1bfc93672cbbb57055e1cf87b6a0fdbb2ca4286d9bcbc91d4900510763d0a63"
-    },
-    {
-      "path": "apps/teacher-app/src/EarlyChildhoodPanel.vue.js",
-      "size": 15580,
-      "sha256": "5a7f4c2984abfbff9cffd2080594ee5b87eb3a93b25b62d98a8edda4bb8761bf"
+      "size": 8812,
+      "sha256": "a8da5e04fac9b99d904c89d75dd7ae3d1b328b9c987165ebbb412edf9b30b133"
     },
     {
       "path": "apps/teacher-app/src/GradingPanel.vue",
-      "size": 6968,
-      "sha256": "256e55e14a6f3607f980bf11747b0eb7167478ed16b6112bcdf3212cbfdb1e57"
-    },
-    {
-      "path": "apps/teacher-app/src/GradingPanel.vue.js",
-      "size": 14950,
-      "sha256": "07f2e2530be9c258679700b23798f68d5c2ca63abe897b6b67fd1e4ed7823dcf"
+      "size": 9196,
+      "sha256": "00b57ae274c4e81180e675e1b848fca01e4549298b4483b7b7d8d05cdfb563f4"
     },
     {
       "path": "apps/teacher-app/src/app-contract.js",
-      "size": 152,
-      "sha256": "0a28e13a52f75c43f944a8e24a60c1e04b4cd6b0b0f008cd674de51f7d931d5d"
+      "size": 160,
+      "sha256": "532ec398ea6150548461d6b7e71bfa8624daad908c49b6434f1ef9a209339ceb"
     },
     {
       "path": "apps/teacher-app/src/app-contract.ts",
-      "size": 161,
-      "sha256": "13f5b9c0189199202ab388110daca0079e2fb9f501787c4daab4341f2cb1ad64"
+      "size": 169,
+      "sha256": "b242ab6909a665d860484691b5ea10aebf644e7819e76f48f082813201ef1d41"
     },
     {
       "path": "apps/teacher-app/src/main.js",
@@ -1909,13 +1716,8 @@
     },
     {
       "path": "apps/teacher-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/teacher-app/tsconfig.tsbuildinfo",
-      "size": 167,
-      "sha256": "c6b24df727f13edf300308a6b0456d8568d9509b20819c09da3c5949a0e5f8a7"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/teacher-app/vite.config.ts",
@@ -1934,8 +1736,8 @@
     },
     {
       "path": "apps/tenant-admin-web/package.json",
-      "size": 566,
-      "sha256": "0ac48a90ccaccbe26c845963bb50091633756bd7f85f06d4623bd61889c59b90"
+      "size": 582,
+      "sha256": "57c3b235389a365ec6f6bd7544f9500f91dd93391cf7cdd7604eab9e75829dde"
     },
     {
       "path": "apps/tenant-admin-web/public/icon-192.png",
@@ -1954,13 +1756,13 @@
     },
     {
       "path": "apps/tenant-admin-web/public/sw.js",
-      "size": 279,
-      "sha256": "5342f1cd84f4b2aa9fb3e9da31df87be12d7744567d0373e991ca837f11e2f83"
+      "size": 287,
+      "sha256": "d89cff0c9840a349d5d8dabf4ad7686fdcc74cbb01bbf0547006c8dcaa0ab0ab"
     },
     {
       "path": "apps/tenant-admin-web/src-tauri/Cargo.toml",
-      "size": 291,
-      "sha256": "6ae46ca46afd2893eaefc5ca20530571db7d784f6be0f9783417f905c6d2ad11"
+      "size": 299,
+      "sha256": "b943e6847152eb10d1744a68ff4787cfeb2e77af869185a9294d356b961bf1fc"
     },
     {
       "path": "apps/tenant-admin-web/src-tauri/build.rs",
@@ -1974,8 +1776,8 @@
     },
     {
       "path": "apps/tenant-admin-web/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 480,
-      "sha256": "0b32aa8c7bfd6aa2d99d46cd2ad3808d7e330db6c96fb98799ba1560125e7265"
+      "size": 488,
+      "sha256": "7c91b1a46182f54d788beaef3217bb8d7687fc0b16a9e105dcbbb0bb7fe631a3"
     },
     {
       "path": "apps/tenant-admin-web/src-tauri/icons/128x128.png",
@@ -2014,38 +1816,33 @@
     },
     {
       "path": "apps/tenant-admin-web/src-tauri/tauri.conf.json",
-      "size": 947,
-      "sha256": "bdfb9cc8866d31f4eaa57444b52d1349e88654fd790f7956d0b0532a7fffeb84"
+      "size": 955,
+      "sha256": "91ee0efdec937bf34433793a91a47cb9a8cf0e315af6872b23cfc66cd92ab968"
     },
     {
       "path": "apps/tenant-admin-web/src/App.vue",
-      "size": 40090,
-      "sha256": "79c888a06bfd6106b989ff1efeb210f95206e3198ddc556e1ad152418b0bc518"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/App.vue.js",
-      "size": 126237,
-      "sha256": "636d66dbed32a6c112406d4232d47454bcc8713ae241af70b785e1a4a55af958"
+      "size": 61935,
+      "sha256": "6d38116f24eba6644d6302c32110c3888885dbe86211690127b74e27ca010aa8"
     },
     {
       "path": "apps/tenant-admin-web/src/app-contract.js",
-      "size": 160,
-      "sha256": "816d385d5a81d2d01dad1f6f4d72debe10b2aea08d62c87b70fd85a0ed4c1a61"
+      "size": 168,
+      "sha256": "550c4c3e0bf7195c48e7eae9ebb8986f6ec276768a21d6582f28117a327ca3ab"
     },
     {
       "path": "apps/tenant-admin-web/src/app-contract.ts",
-      "size": 169,
-      "sha256": "1cd9ec86a860a22a4e99101ec63b4eb19d2d003cf16e56225f66eb6515ac4c28"
+      "size": 177,
+      "sha256": "5e5394c3601685d072e54ff049b28f3521b74d5d20b32f8511e45cf7dc801f44"
     },
     {
       "path": "apps/tenant-admin-web/src/app.js",
-      "size": 96858,
-      "sha256": "cf5199ecbcc83142a6062ede0610445a2bf09ed830d0908a82b390a9555b7262"
+      "size": 96715,
+      "sha256": "fbc01bd4cfbcdb45ef01419aebc55e0ccdee0573c7fae336345a5628178bda21"
     },
     {
       "path": "apps/tenant-admin-web/src/app.ts",
-      "size": 96293,
-      "sha256": "87d9330b4ca7e8a9b9187003b19cadbf40562b8acdabb23d46d98a3c51900496"
+      "size": 96198,
+      "sha256": "4ff96be97b11c85a2f3830dc9455a0f50a63cc76f30d115eb3b14ec425700eb9"
     },
     {
       "path": "apps/tenant-admin-web/src/components/AcademicProgressPanel.vue",
@@ -2053,29 +1850,19 @@
       "sha256": "67a8c598a0f5b5e320ea8c6d39785c0ff8e8b556bdf51fefdfcc190d13f79201"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/AcademicProgressPanel.vue.js",
-      "size": 34158,
-      "sha256": "3611cb97e39c2ec5623473a9e48924d6ab8fbddce594d0849cfe4d050a767ec8"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/AnalyticsPanel.vue",
       "size": 5952,
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/AnalyticsPanel.vue.js",
-      "size": 14319,
-      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/AssetsPanel.vue",
-      "size": 19885,
-      "sha256": "0fc22d41cb218175d94b0f9a114754930c3db207542e226e4304a33d718b1646"
+      "size": 26524,
+      "sha256": "6ecf1e5ffeaebcb77c96219795e0e2f236dd36b383ffb19c252c4a343a67be9c"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/AssetsPanel.vue.js",
-      "size": 46112,
-      "sha256": "24ad7832196eb91671021a6f22794423a91a51100d5bb7ea29034ef0f2c94b08"
+      "path": "apps/tenant-admin-web/src/components/AttendanceCallPanel.vue",
+      "size": 12806,
+      "sha256": "4e6f23c4ae310dc31ac23772333b18a0112e611a1dcc27054408d1fc6a7a7dd8"
     },
     {
       "path": "apps/tenant-admin-web/src/components/CanteenPanel.vue",
@@ -2083,19 +1870,9 @@
       "sha256": "bbd8373db42947281a6cd25d8097d4408473f7e13e64534172cab7aff36decfc"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/CanteenPanel.vue.js",
-      "size": 20510,
-      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/CommunicationPanel.vue",
-      "size": 9144,
-      "sha256": "253b595ef812547984250ccfa31734d9f4771271d4baad69d64ee9097ee77a32"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/CommunicationPanel.vue.js",
-      "size": 22056,
-      "sha256": "02738d24956c54c0d8beb73e6f93f62fdfb16a37be8495f0efaed116e54055ef"
+      "size": 12641,
+      "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
     },
     {
       "path": "apps/tenant-admin-web/src/components/CompliancePanel.vue",
@@ -2103,29 +1880,14 @@
       "sha256": "ae6753aafc7e1edae2a9c4444da23411e96b2f7938dfd51c5d24ca8d3e5109ed"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/CompliancePanel.vue.js",
-      "size": 29657,
-      "sha256": "1445a4c850492b37e5021c49a636d4f15a7b2105ccab7399851a6e7bfcfae6a8"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/EventsTravelPanel.vue",
       "size": 4812,
       "sha256": "45f04b562d21ccc1bc6302a03999c6b570b1af0da26074ffd7ea58b7fdcc83a3"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/EventsTravelPanel.vue.js",
-      "size": 16246,
-      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/FiscalPanel.vue",
-      "size": 106147,
-      "sha256": "2198df808760c7cfd3cf81fd3072a96a8b4e2c1c6959b411fdb330b7886b02b5"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/FiscalPanel.vue.js",
-      "size": 264595,
-      "sha256": "006322436ca3d809c18fea6b5f3c088694aa673f4c3777fe2be677d58a7fab0d"
+      "size": 146172,
+      "sha256": "4e04c18e0f7e181cdb077754f43301fce2d974ea8c905665438890afbfe3ffd3"
     },
     {
       "path": "apps/tenant-admin-web/src/components/GovernmentEducationPanel.vue",
@@ -2133,79 +1895,39 @@
       "sha256": "43101fd283ffac4c184fdbbe153db81cb24897c4b7bcc797a927b553b70c80dc"
     },
     {
-      "path": "apps/tenant-admin-web/src/components/GovernmentEducationPanel.vue.js",
-      "size": 26037,
-      "sha256": "ca30113babc60484fbe925e06a210a626db8d5ae193d1a19f6cd80680b16ac73"
-    },
-    {
       "path": "apps/tenant-admin-web/src/components/MailPanel.vue",
-      "size": 12679,
-      "sha256": "d51f16f44ae620ba0e9af5e8500a06d40df30991720c1cb468b4292665e209bc"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/MailPanel.vue.js",
-      "size": 24147,
-      "sha256": "19229f2566eaf0be261898be7a485c0d3c10510e8f3e58dcd50e0b96c32e3701"
+      "size": 17236,
+      "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
       "path": "apps/tenant-admin-web/src/components/ProcurementPanel.vue",
-      "size": 48537,
-      "sha256": "3d9d13ef7b3162793717fe4c75941e71cc1f87b07644e89cca2b13ba180cdda5"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/ProcurementPanel.vue.js",
-      "size": 118433,
-      "sha256": "e125cfac882144ae5d435f754147e0b3c1ea3fb5ec239338f8da20fe301fb99b"
+      "size": 67169,
+      "sha256": "d5d73e15653299b780aad7d28815293a593cff46d9a7c97a1c3c2e034d54d47e"
     },
     {
       "path": "apps/tenant-admin-web/src/components/ReportingPanel.vue",
-      "size": 6125,
-      "sha256": "a47ad792c94ab9e98a6e47f142a9167bb1e7293e01e9bc72b72343387cd43661"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/ReportingPanel.vue.js",
-      "size": 12478,
-      "sha256": "fc01a6d57a579e4cb3d6d2673279c8c4aadbf422a5467d47d519730f5d0506f7"
+      "size": 8064,
+      "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
     },
     {
       "path": "apps/tenant-admin-web/src/components/RequestsPanel.vue",
-      "size": 10216,
-      "sha256": "902ec03f441e03f5e952eb4479e729a77e92bf51893ae19b391e9ea423e08a34"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/RequestsPanel.vue.js",
-      "size": 25870,
-      "sha256": "291569863e3208e653169c4d2c320f7bf97fea0a879b1430e9f58c38ef4f86de"
+      "size": 13841,
+      "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
     },
     {
       "path": "apps/tenant-admin-web/src/components/ServicesPanel.vue",
-      "size": 32411,
-      "sha256": "9eeb47e7a131cc9f8fde23145f0239565ab818fd67bc2e258b2aab7477cac324"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/ServicesPanel.vue.js",
-      "size": 86101,
-      "sha256": "a6c0462614ac485478724a8c4b8cca93ea3f259b01124d7068a50858c59c5f4f"
+      "size": 36566,
+      "sha256": "4874cde665694e916ded67b85da39b6361ef2070f49830599102cd777fd49367"
     },
     {
       "path": "apps/tenant-admin-web/src/components/StudentServicesPanel.vue",
-      "size": 22993,
-      "sha256": "26ab8edd0bb49ae03e6481d691c40c8ab96e29026206577e327de8038d1b1f1a"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/StudentServicesPanel.vue.js",
-      "size": 63874,
-      "sha256": "6391359fb0c89dfb6c84ebfa79198b33fd8c23f04ce5cd3eef06b67ef609ca2a"
+      "size": 32263,
+      "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
       "path": "apps/tenant-admin-web/src/components/WorkflowPanel.vue",
-      "size": 9949,
-      "sha256": "b0304c5ccd52c0d4d0d2a4eb256f6947d380382872675049d4ae47e53168d3fa"
-    },
-    {
-      "path": "apps/tenant-admin-web/src/components/WorkflowPanel.vue.js",
-      "size": 25213,
-      "sha256": "885963f0c81251554a247b2bd4ef6156af0cbbf7c9512f0fef5b53e3b34ed560"
+      "size": 13979,
+      "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
     },
     {
       "path": "apps/tenant-admin-web/src/main.js",
@@ -2224,13 +1946,8 @@
     },
     {
       "path": "apps/tenant-admin-web/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/tenant-admin-web/tsconfig.tsbuildinfo",
-      "size": 750,
-      "sha256": "15703d3da29e160a95801f36c324355fcf3f40a8fcde5b52922344d2a9694205"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/tenant-admin-web/vite.config.ts",
@@ -2249,8 +1966,8 @@
     },
     {
       "path": "apps/tenant-download-center/package.json",
-      "size": 572,
-      "sha256": "1e5734f005b3dfc0be14f9438b5da886f606702f7b060242120afeb31d8debea"
+      "size": 588,
+      "sha256": "0338fd097ca3529d162765423336ebca91869d3f2e245f2e4245fd5429de395b"
     },
     {
       "path": "apps/tenant-download-center/public/icon-192.png",
@@ -2269,13 +1986,13 @@
     },
     {
       "path": "apps/tenant-download-center/public/sw.js",
-      "size": 285,
-      "sha256": "5b99c456c523622f879ef16c7068fd8fe5e851e3dd9d67a5a2ab1298b406516c"
+      "size": 293,
+      "sha256": "8dd683084ad56f3b174220c6d911a5fd676bce612d583bb35dd8856f363a347d"
     },
     {
       "path": "apps/tenant-download-center/src-tauri/Cargo.toml",
-      "size": 297,
-      "sha256": "8754eb0655f379df71743e3c208319a3a3c02eadfefb88a3ac0ffdb0631de3b5"
+      "size": 305,
+      "sha256": "cf84ebb15c4beba3ae5f423e85aa9924b85098c3b8affc7b30cec9e086830f19"
     },
     {
       "path": "apps/tenant-download-center/src-tauri/build.rs",
@@ -2289,8 +2006,8 @@
     },
     {
       "path": "apps/tenant-download-center/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 485,
-      "sha256": "913b555c5afd5b4bec6fbfeb45a274dd217adf6f002a35ed73bd90ac940ec69c"
+      "size": 493,
+      "sha256": "de18db4e9ec52272a798000388c72f25e02f790739664fc8387f98cd455ced4d"
     },
     {
       "path": "apps/tenant-download-center/src-tauri/icons/128x128.png",
@@ -2329,8 +2046,8 @@
     },
     {
       "path": "apps/tenant-download-center/src-tauri/tauri.conf.json",
-      "size": 951,
-      "sha256": "8f8fa4e0dbaa71f45c36a82fa9e9ecefd8f50da2288c1240d7755b2cdf2876d9"
+      "size": 959,
+      "sha256": "1c41858acdea05c9933dc6f890e4095dd52b8417fb0fe9d208b0e75ffe42bd12"
     },
     {
       "path": "apps/tenant-download-center/src/App.vue",
@@ -2338,19 +2055,14 @@
       "sha256": "44711d80434a38c0b6d99f596947a17981d10b4eeee363f40020e03827d81460"
     },
     {
-      "path": "apps/tenant-download-center/src/App.vue.js",
-      "size": 11751,
-      "sha256": "6c2f1ee164727b2ad6b34ad379875f523230f73f10f4800f3f461696b811a7bc"
-    },
-    {
       "path": "apps/tenant-download-center/src/app-contract.js",
-      "size": 165,
-      "sha256": "debbdf61bd0407ec3dda5910891a999a7ebd8d4ee90b5900eb036ede841fd90c"
+      "size": 173,
+      "sha256": "dcea6c668daaceaa704ec113c2c4394aefa4d9ead6adf3151707b1ae73c51632"
     },
     {
       "path": "apps/tenant-download-center/src/app-contract.ts",
-      "size": 174,
-      "sha256": "27da385870fee84ee62024fda0326e4d8804ceef34c71d92fbef1aea877fc028"
+      "size": 182,
+      "sha256": "803b895e06b2812695fa58b8e913b0e90099ee7d5997de36ced4f94a4324c687"
     },
     {
       "path": "apps/tenant-download-center/src/main.js",
@@ -2369,13 +2081,8 @@
     },
     {
       "path": "apps/tenant-download-center/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/tenant-download-center/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/tenant-download-center/vite.config.ts",
@@ -2394,8 +2101,8 @@
     },
     {
       "path": "apps/timeclock-app/package.json",
-      "size": 595,
-      "sha256": "3a5a06e125342f01e46dcd61a0e56112a86ebadd6b32a310950f212f7f7d6836"
+      "size": 611,
+      "sha256": "f649eca9dec93a14d2e31f1a31123fde32ce7acea11f37abb16134fb38996309"
     },
     {
       "path": "apps/timeclock-app/public/icon-192.png",
@@ -2414,13 +2121,13 @@
     },
     {
       "path": "apps/timeclock-app/public/sw.js",
-      "size": 276,
-      "sha256": "c528f8c702c5465f589e99964f44400b3643da5bbe5b35ecb1838f22b0f1dff5"
+      "size": 284,
+      "sha256": "9f3c99880b966eb6dcb652b027578758bfb021b381219c1e9d8598564cb38ddf"
     },
     {
       "path": "apps/timeclock-app/src-tauri/Cargo.toml",
-      "size": 360,
-      "sha256": "06c360d4a9be4ab3c2a50ad4e9e6c13ee41840bcc9f1af6b29a68ba8daf2f72c"
+      "size": 368,
+      "sha256": "8fe8007585b0fd9ea0b8dcc346f1165472dbf956e4f198fe7e4b621d73334fa8"
     },
     {
       "path": "apps/timeclock-app/src-tauri/build.rs",
@@ -2434,8 +2141,8 @@
     },
     {
       "path": "apps/timeclock-app/src-tauri/gen/ios/PIGE360/Info.plist",
-      "size": 472,
-      "sha256": "22e1b4b4cd715a8bdc16df70cf41989bd1513a464d35113f4ea76b7e5d92bf0b"
+      "size": 480,
+      "sha256": "597942d8484afda41632de92e669460c25957a2f9032742b29364a9dced5ed7b"
     },
     {
       "path": "apps/timeclock-app/src-tauri/icons/128x128.png",
@@ -2474,8 +2181,8 @@
     },
     {
       "path": "apps/timeclock-app/src-tauri/tauri.conf.json",
-      "size": 959,
-      "sha256": "d2e97725a9b51c236e4d9e4987859c92280f3da21c14718e8bb2e98610a958a7"
+      "size": 967,
+      "sha256": "b6eb1e27a928cd22bb13fb6ab15e557d873a9735fe36883014cb207acc2efb00"
     },
     {
       "path": "apps/timeclock-app/src/App.vue",
@@ -2483,19 +2190,14 @@
       "sha256": "c292f981b8dd60ec8c5187127ef3fe447aeba8ae5763123dba81999804ea92fb"
     },
     {
-      "path": "apps/timeclock-app/src/App.vue.js",
-      "size": 10285,
-      "sha256": "2cfbd458bf2c44b6fa95e82ccebeb46fc932418e35d6feaf462a760efe26ec36"
-    },
-    {
       "path": "apps/timeclock-app/src/app-contract.js",
-      "size": 151,
-      "sha256": "cdde3e94503c156f523bcea9a4b08dec997265d352449690fd2cdbb19d4bc0e5"
+      "size": 159,
+      "sha256": "e780a37c59d87e27ea2f31c8c4434dad702f3a6c0a7f1fddb1ba0e04a43ca194"
     },
     {
       "path": "apps/timeclock-app/src/app-contract.ts",
-      "size": 160,
-      "sha256": "fe374e38c26fe482f465c9a4ffa837330becc4fb1a35413934c045f433bdd8d8"
+      "size": 168,
+      "sha256": "3f863b5e27aba5ff516a1e1a2cb96a13d12614cf0a7c544903ca1e6024b1d64e"
     },
     {
       "path": "apps/timeclock-app/src/main.js",
@@ -2514,13 +2216,8 @@
     },
     {
       "path": "apps/timeclock-app/tsconfig.json",
-      "size": 296,
-      "sha256": "a541c1417a405c087500ce269b738962c64904c69a612abf6001df962a48ac8c"
-    },
-    {
-      "path": "apps/timeclock-app/tsconfig.tsbuildinfo",
-      "size": 110,
-      "sha256": "009ea8f00ba818bc12e65e0ebe239af350191512ab1d50b279d3f6efa820e039"
+      "size": 137,
+      "sha256": "072156d85cce12ba3c10ec5790149ce68f0284d01caa1a385c806b2bfe897614"
     },
     {
       "path": "apps/timeclock-app/vite.config.ts",
@@ -2773,6 +2470,16 @@
       "sha256": "fecd65959f89e4e23fccd6872931817ba6067ccb62f15d88a10bd33be56af49c"
     },
     {
+      "path": "backend/alembic_tenant/versions/0042_service_fiscal_document_linkage.py",
+      "size": 982,
+      "sha256": "4f3025dfa114063d52a5f4bf038ff6b93992a26501aecebaf38a36c08b43815e"
+    },
+    {
+      "path": "backend/alembic_tenant/versions/0043_service_payment_receipts.py",
+      "size": 2301,
+      "sha256": "ef10a77445c665705f172c0a012a4c16bccfcbeeb230efcc69e6af8e6ea268e0"
+    },
+    {
       "path": "backend/app/__init__.py",
       "size": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -2784,8 +2491,8 @@
     },
     {
       "path": "backend/app/bootstrap/config.py",
-      "size": 8887,
-      "sha256": "5bb54fd8ea1f4e900a71544bc83af73d1f9e6bcf29303ce5899b4b81039ba391"
+      "size": 8903,
+      "sha256": "800201e599fcd7ab68bf955d6b225bafe26724cc4a9aa7006d3663535cc1c07d"
     },
     {
       "path": "backend/app/bootstrap/demo.py",
@@ -3814,8 +3521,8 @@
     },
     {
       "path": "backend/app/modules/banking/presentation/router.py",
-      "size": 19434,
-      "sha256": "8e3b3ee79681cf461ed912b13128cdf3908974ffc0b86b1633dec5d331179b6d"
+      "size": 19904,
+      "sha256": "c20951471ed06adb95231e60514c1c9dc460bd9b030e8e0a2c4f31b8076b5916"
     },
     {
       "path": "backend/app/modules/banking/presentation/schemas/__init__.py",
@@ -5179,8 +4886,8 @@
     },
     {
       "path": "backend/app/modules/finance/presentation/router.py",
-      "size": 27049,
-      "sha256": "147923b6dd516cff6ed0249d865afbd2b010a3978b90a1c0de5834427cabaa72"
+      "size": 27519,
+      "sha256": "de6520d5c0380fb5a97ad4a9908d5061d8660716cdf087f0837cac4b573a225e"
     },
     {
       "path": "backend/app/modules/finance/presentation/schemas/__init__.py",
@@ -5229,8 +4936,8 @@
     },
     {
       "path": "backend/app/modules/fiscal/application/document_delivery_service.py",
-      "size": 27983,
-      "sha256": "38b3e6bc2bc0aac07373d260fcfb769f7f08a957fdf8b273bd56446a27481714"
+      "size": 27159,
+      "sha256": "bef7edb2fdac22cdf8ce37ae897aef91c0dcfe01d4df90b368c074537ea77f52"
     },
     {
       "path": "backend/app/modules/fiscal/application/document_lifecycle_service.py",
@@ -5239,8 +4946,8 @@
     },
     {
       "path": "backend/app/modules/fiscal/application/document_routing_service.py",
-      "size": 42119,
-      "sha256": "5f46b788af180bbf1e2168f52c787267709205c6a249abf5e4d6964cff643598"
+      "size": 45693,
+      "sha256": "226ac3961d06275b840494191b9ee9589303502ec33a27c4d125cb2589082909"
     },
     {
       "path": "backend/app/modules/fiscal/application/dto/__init__.py",
@@ -5399,8 +5106,8 @@
     },
     {
       "path": "backend/app/modules/fiscal/presentation/router.py",
-      "size": 61077,
-      "sha256": "d0d8f5860f691cfa906d6d971e874a6f2194fdd1ad22907554495a5c5b887930"
+      "size": 62238,
+      "sha256": "4a7b0765c522d8e75b361642bdf681740798dc6bf32a18ee2a44eddf987e7b1a"
     },
     {
       "path": "backend/app/modules/fiscal/presentation/schemas/__init__.py",
@@ -8424,8 +8131,8 @@
     },
     {
       "path": "backend/app/modules/services/application/vertical_service.py",
-      "size": 85819,
-      "sha256": "86974d47e44af8aaf14f8a3d3d06563cf6a7d27f5b16fb39683b97e629aa97e5"
+      "size": 102824,
+      "sha256": "328bcb6b9beeb189aebe9d0952c8c44a07ee4adf79382ca8f32c57108a4a08ce"
     },
     {
       "path": "backend/app/modules/services/domain/entities/__init__.py",
@@ -8504,8 +8211,8 @@
     },
     {
       "path": "backend/app/modules/services/presentation/router.py",
-      "size": 15907,
-      "sha256": "6fd505b4fcdd02cbee988662bd5c0b6f155c411e8029e24e2407ea7de3870efb"
+      "size": 18364,
+      "sha256": "44845993823753cf334bb6a2c400237476be567b67eb3872be90f25e4229d6e3"
     },
     {
       "path": "backend/app/modules/services/presentation/schemas.py",
@@ -8519,8 +8226,8 @@
     },
     {
       "path": "backend/app/modules/services/presentation/vertical_schemas.py",
-      "size": 11625,
-      "sha256": "d5f49eee76bbc55fff392d0917361ccd2fc0c6f9ee1c464d237c006171622d88"
+      "size": 11821,
+      "sha256": "92824a5705d623a3fdd6cb4be38c30f4fbccebd2d700d9e7b6217c25c24e67ce"
     },
     {
       "path": "backend/app/modules/services/tests/__init__.py",
@@ -9439,13 +9146,13 @@
     },
     {
       "path": "backend/app/shared/database/models_tenant.py",
-      "size": 202828,
-      "sha256": "5babefe2d7aa367a2150c8e67a479a9782b776d15c4833f14e4d0b69b65f4cd6"
+      "size": 204811,
+      "sha256": "aeda05d7aca6706069c228d5f459e8377899b7a163b1dfd8fe2425aa11f3d531"
     },
     {
       "path": "backend/app/shared/database/operational_schema.sql",
-      "size": 129422,
-      "sha256": "a6a69b75ec8ee3413c8dcf71d59d7d5742fc5eaa839ed6bc522bfb13814d8819"
+      "size": 130861,
+      "sha256": "5eafe34a265d60b78366d475cbee10d4faa8ae49968c74f3f13d95695c62ea24"
     },
     {
       "path": "backend/app/shared/database/postgres_store.py",
@@ -9459,8 +9166,8 @@
     },
     {
       "path": "backend/app/shared/database/store.py",
-      "size": 11116,
-      "sha256": "f23dbffcba980f3f14dd3ea4133d0da9f20d96b5996d2eb9c03a1439917856e7"
+      "size": 11262,
+      "sha256": "f89dc71fe187493edf21eedc4a4724ae8b4812e906a0a1b58d0fc43e74b7ba0c"
     },
     {
       "path": "backend/app/shared/database/tenant_schema.sql",
@@ -9494,8 +9201,8 @@
     },
     {
       "path": "backend/app/shared/events/handlers.py",
-      "size": 60732,
-      "sha256": "6e477864028bdfd786078aafa212cfc489ee3cd1c3280f88ce25b8bdddd2503b"
+      "size": 64451,
+      "sha256": "967ed226d51be6d6e7dd194e186dbfc54b0626876a20730b49647a3d0acc6367"
     },
     {
       "path": "backend/app/shared/events/records.py",
@@ -9609,8 +9316,8 @@
     },
     {
       "path": "backend/pyproject.toml",
-      "size": 889,
-      "sha256": "fdc34186e79f7d8302bf84d1254d0ee2d0f4728f583b94d6a02a26aec1a7d0a4"
+      "size": 897,
+      "sha256": "79ba3d21b9c3ecba4ad99856767adbc94d3b465c0e97fe14a9f301ebf8e67d9b"
     },
     {
       "path": "backend/pytest.ini",
@@ -9764,8 +9471,8 @@
     },
     {
       "path": "backend/tests/finance/test_finance_banking_services.py",
-      "size": 9630,
-      "sha256": "bf48a34aacb68425998504da2cd00f01713497c7fe9d3935ca12f37515695610"
+      "size": 15013,
+      "sha256": "06113152ad3487b0c97cbce405ec45f83fa60fc9b72fcf58b328c439443cb420"
     },
     {
       "path": "backend/tests/fiscal/test_fiscal_catalog_classifications.py",
@@ -9789,8 +9496,8 @@
     },
     {
       "path": "backend/tests/fiscal/test_fiscal_delivery_resilience_rendering.py",
-      "size": 14978,
-      "sha256": "bf345a5693afa8fad31987849202d44cab7c4cb0c2abdce4a190463ba8176712"
+      "size": 14784,
+      "sha256": "7ac3c4feb3976b1bb60417388d63f230d73d0dfcee28ef0f02f20e3a7884549c"
     },
     {
       "path": "backend/tests/fiscal/test_fiscal_document_lifecycle.py",
@@ -9799,8 +9506,8 @@
     },
     {
       "path": "backend/tests/fiscal/test_fiscal_document_routing_assembly.py",
-      "size": 25098,
-      "sha256": "465907ebc47f703f8db49c62b6f167a7fe686e10552219a0260f53e1134dd868"
+      "size": 29320,
+      "sha256": "64176c5ecc20bc5fbd8c9bd492a6d905afb88b7b545e7d299f50fb48d6321686"
     },
     {
       "path": "backend/tests/fiscal/test_fiscal_strategies_rtc.py",
@@ -9854,8 +9561,8 @@
     },
     {
       "path": "backend/tests/frontend/test_tenant_admin_vertical_modules.py",
-      "size": 10668,
-      "sha256": "5fd2b0045d3a98a227b753c6101833b9cc0382614f150efac45c900fc8feb0d4"
+      "size": 11116,
+      "sha256": "d2f0794a82299c50d96dddf4f78a9c64e6aeb380317dd39a000fe2bf47d7d5b4"
     },
     {
       "path": "backend/tests/government_education/test_government_education.py",
@@ -9871,6 +9578,11 @@
       "path": "backend/tests/hr/test_hr_payroll_timekeeping.py",
       "size": 8623,
       "sha256": "3279e828573b9fbb528e5fe3314b52f583486ede1ba2b524009ffb791e2d2230"
+    },
+    {
+      "path": "backend/tests/infrastructure/test_compose_homologation_smoke.py",
+      "size": 1273,
+      "sha256": "84b38572122beaf3bf9b84615b143064fbad9b54db7183e765ea3a223f504d4e"
     },
     {
       "path": "backend/tests/integrations/test_external_providers.py",
@@ -9941,6 +9653,16 @@
       "path": "backend/tests/migrations/test_inventory_reorder_suggestions_migration.py",
       "size": 1992,
       "sha256": "40814e659632f77b8d1dbd5d30f2a0c140397130a4e685075d5fd0bb29637fd3"
+    },
+    {
+      "path": "backend/tests/migrations/test_service_fiscal_document_linkage_migration.py",
+      "size": 1426,
+      "sha256": "e451b297223db9b49c05e4c77f95e0d9ba2e5181b0d9146dadd4913e01e2b7c9"
+    },
+    {
+      "path": "backend/tests/migrations/test_service_payment_receipts_migration.py",
+      "size": 1468,
+      "sha256": "98b328bffc788e1717c7dbebdc0da5331f31420791f8ff9f75cf07a5cfb8398f"
     },
     {
       "path": "backend/tests/migrations/test_services_procurement_assets_migration.py",
@@ -10029,8 +9751,8 @@
     },
     {
       "path": "compose.yaml",
-      "size": 55763,
-      "sha256": "a298ed34165df1ec1cf2ebc1d12b3785e378f25fd2e40a12464691fac2c5665d"
+      "size": 56891,
+      "sha256": "a45e59ad4cefb4a822b47319562efe855acef284f8318e3f6362747905432244"
     },
     {
       "path": "deploy/local/tenant-app-manifest.demo.yaml",
@@ -10074,8 +9796,8 @@
     },
     {
       "path": "docs/api/OPENAPI_REPORT.json",
-      "size": 155760,
-      "sha256": "1790a679bee743a4e243321644b37bfdffab4235c589836ce722457f0c832244"
+      "size": 157149,
+      "sha256": "11c18bd98f4fe9f82c5ca5fa7dcdb06379f2cb77f80093af15dc14e9e7307a64"
     },
     {
       "path": "docs/api/SDK.md",
@@ -10084,13 +9806,13 @@
     },
     {
       "path": "docs/api/openapi.json",
-      "size": 1551872,
-      "sha256": "856518bf10937ce9d7432093209247be6b71222210d5cdb42e37a63fcea068b9"
+      "size": 1561767,
+      "sha256": "64e368246f507874de2bf97e80d687257aeffc6b78391b0e0724229429b64d1b"
     },
     {
       "path": "docs/api/openapi.yaml",
-      "size": 952503,
-      "sha256": "873799fec8a5a5e7ae7940e9a8878fe299e34bfdeba93ced83d6c10b996706d9"
+      "size": 958581,
+      "sha256": "64dc2df13b3939c1104e39544e0ff13dd6e81dbddaa36154b725986dc5c3f514"
     },
     {
       "path": "docs/app-factory/APP_FACTORY.md",
@@ -10126,6 +9848,11 @@
       "path": "docs/branding/BRANDING.md",
       "size": 728,
       "sha256": "ea203a76e9a64a6d8ecd440326db680c02dcca08d22c3fce87a95d041a4692f0"
+    },
+    {
+      "path": "docs/ci-cd/ALPHA_TEST_RELEASE.md",
+      "size": 4162,
+      "sha256": "cacd82f9a2ea0b095570c9efbdc6a8186b79368b1ee519f70070e4af809d6e18"
     },
     {
       "path": "docs/ci-cd/README.md",
@@ -11063,29 +10790,34 @@
       "sha256": "96458f14e7c5692f875f78acb0002e3fdca2e13d6b2472700ccd412d24515ceb"
     },
     {
-      "path": "docs/execution/EXECUTION_STATE.md",
-      "size": 3619,
-      "sha256": "3781be2c7a628372dd4afcac050e5ba09ccdf4c9bf0c22391a8641b54a60de11"
-    },
-    {
       "path": "docs/execution/INITIAL_STATE.md",
       "size": 2781,
       "sha256": "b80c673afee389b6b816f3f524b6a1d6160896c54c7a983430007743d2b9039b"
     },
     {
-      "path": "docs/execution/PHYSICAL_RECONCILIATION.md",
-      "size": 2301,
-      "sha256": "96a36cdc6e6b6280cb00e9ccee61f265175c739a0a4c3ccb3d4ff28080729f49"
+      "path": "docs/execution/REQUIREMENTS_MATRIX.md",
+      "size": 1059308,
+      "sha256": "f8b975559b76010685cc42307d66475b06aa78e9f957eeaceed6028226cb651c"
     },
     {
-      "path": "docs/execution/REQUIREMENTS_MATRIX.md",
-      "size": 1057417,
-      "sha256": "9ae7b30cfb95819b01d86f24ec780cafff9e02d60e64127fbbeea1e56b9852ce"
+      "path": "docs/execution/WORKSPACE_BASELINE.md",
+      "size": 1850,
+      "sha256": "4d94241966b0ff637b92f53aeac051c1740001f00b4d3ba153069a5ab36cae39"
     },
     {
       "path": "docs/execution/evidence/0040-recovery-targeted.log",
       "size": 12,
       "sha256": "fb3a85cd297aacb976a843a7a21df19eec92701e4e67a41d1a406e0498c7d307"
+    },
+    {
+      "path": "docs/execution/evidence/CONTINUA_RESULT_R000020.md",
+      "size": 1119,
+      "sha256": "0cbfa7560769c9d7ae3857759c9aeb5435dc65c0f27fec0997a1785b33254b02"
+    },
+    {
+      "path": "docs/execution/evidence/CONTINUA_RESULT_R000021.md",
+      "size": 1075,
+      "sha256": "da8f067d3729b05c3add25923cd9598e9fe128bc0b584e4b7932d4a056b3dd0e"
     },
     {
       "path": "docs/execution/evidence/DDTRACE_PYTHON313_TEARDOWN.md",
@@ -11691,11 +11423,6 @@
       "path": "docs/execution/evidence/first-seven-duration.log",
       "size": 2033,
       "sha256": "86063af6a09e7114a704d975e5b8f5923b03bd5f39b3869045162aabef0f8676"
-    },
-    {
-      "path": "docs/execution/evidence/fiscal-artifact-delivery-20260812.md",
-      "size": 1635,
-      "sha256": "5b9c8a3a618932824f12a9ef77b8bb0d1361c027c2eb2833437c641f4dcc0b7f"
     },
     {
       "path": "docs/execution/evidence/fiscal-catalogs-targeted-r000013.log",
@@ -12498,6 +12225,16 @@
       "sha256": "149d44a5bfcc66b2aa9d31587a7f00a3217a7756ca5c045db7b55d4910f32a8d"
     },
     {
+      "path": "docs/execution/evidence/service-nfse-traceability-0042.json",
+      "size": 1734,
+      "sha256": "b528616a19f806fcd9bc987d2c012ea4ae7029ba16872de1b6f5b06f73327198"
+    },
+    {
+      "path": "docs/execution/evidence/service-payment-receipts-0043.json",
+      "size": 3326,
+      "sha256": "e5469f732cb6782359adb6e1c21c51cbccfefc409cf92361de85bf6ae962b98c"
+    },
+    {
       "path": "docs/execution/evidence/services-legacy-after-router.log",
       "size": 98,
       "sha256": "13bca62673148710b531a24ec87c2103ff741d3bd74fed53ae70dac529468609"
@@ -12573,6 +12310,21 @@
       "sha256": "0f0baafe8539f5f990365ff4a3c4f34e1dbaf0749a132a58ef2c4214e4ba1fa0"
     },
     {
+      "path": "docs/execution/evidence/validation-r000031-rebuilt.json",
+      "size": 2607,
+      "sha256": "ec916c898530ace5ac8e51c38ed3366398a51e7b7abecb95f56b19d4e2414720"
+    },
+    {
+      "path": "docs/execution/evidence/validation-service-nfse-0042.json",
+      "size": 2607,
+      "sha256": "ec916c898530ace5ac8e51c38ed3366398a51e7b7abecb95f56b19d4e2414720"
+    },
+    {
+      "path": "docs/execution/evidence/validation-service-payment-receipts-0043.json",
+      "size": 2607,
+      "sha256": "c33354974270275507113d81a1fb3d284b8161fabdb9e7f0106bda0c02554292"
+    },
+    {
       "path": "docs/execution/evidence/visual-contract-after-branding.log",
       "size": 87,
       "sha256": "d18afb31db9bbe79ddfc9de573e72e316974f36c03b7e7a2c1a1f9ce93f1001c"
@@ -12604,13 +12356,13 @@
     },
     {
       "path": "docs/execution/requirements.json",
-      "size": 1971955,
-      "sha256": "2c307f5ded6f87be02e05e6cd8f521c56ec0003b5a14832375b80e3fa8592f9f"
+      "size": 1973871,
+      "sha256": "7e53f64f71f134b5a1650487bda4bc51c101a4e933ba839e78ebb7fc41a10892"
     },
     {
       "path": "docs/fiscal/FISCAL_ARTIFACT_DELIVERY.md",
-      "size": 2061,
-      "sha256": "b8b2f04f6e131eeb37d34080144b12c2ffcc5315ca6158dbe5c1d7c6fdf515bb"
+      "size": 1943,
+      "sha256": "e9cdd927da12b967ff24328b4aa36b889acc7df7f2bde461cfae5ea0785e54fc"
     },
     {
       "path": "docs/fiscal/FISCAL_CATALOGS_CLASSIFICATION.md",
@@ -12689,8 +12441,8 @@
     },
     {
       "path": "docs/mobile/OPTIONAL_SIGNING.md",
-      "size": 1497,
-      "sha256": "6e8cf709ef1ba174c657d8d0b77a5d0220a7b2e19072cc89f9ae76c92c282bbf"
+      "size": 1344,
+      "sha256": "b9655ae082fb9ccdcedc45e00d03e8e2d32d1fe5c55fd50a6c27c920c44577fa"
     },
     {
       "path": "docs/operations/BACKUP_RESTORE.md",
@@ -12733,6 +12485,16 @@
       "sha256": "9b1ac46430ee5b8975c370938569a39f662dc642d7c1bb06f7cd2e11ab4038b4"
     },
     {
+      "path": "docs/services/SERVICE_NFSE_TRACEABILITY.md",
+      "size": 1873,
+      "sha256": "e8198013220f18464c3c58a95f7c2967083047b1790abab51b410730c6da61bb"
+    },
+    {
+      "path": "docs/services/SERVICE_PAYMENT_RECEIPTS.md",
+      "size": 2605,
+      "sha256": "6a63c3c2901f35394a9c2e732aac762dcdae1de730d20be69496b4b2bc77dddd"
+    },
+    {
       "path": "docs/testing/TEST_STRATEGY.md",
       "size": 728,
       "sha256": "f67cff3a0cf0e8cf881acbdae3e2dee053944bcf7a053a5a12ca0be8b54b4b20"
@@ -12741,6 +12503,11 @@
       "path": "docs/user-guides/ADMINISTRADOR.md",
       "size": 307,
       "sha256": "81acafdaebdec7064c528d656a2076a0829e26a48d97fe622798890d29cc35c9"
+    },
+    {
+      "path": "docs/user-guides/ATTENDANCE_CALL.md",
+      "size": 1209,
+      "sha256": "76458955ac24be3ee9bc4552f909859c18b6fbd0a0c778cca5f3e062fdda1588"
     },
     {
       "path": "docs/user-guides/ESCOLA.md",
@@ -12798,59 +12565,64 @@
       "sha256": "d37b0d97662d127545727e014496e3bf00f27522f5d055bd881c4e085909ae55"
     },
     {
+      "path": "infra/compose/compose.homologation-smoke.yaml",
+      "size": 268,
+      "sha256": "42562826294f980e1c6883601641f8ffe37baf173acbc5eb02de597a28da2d88"
+    },
+    {
       "path": "infra/compose/compose.local.yaml",
       "size": 150,
       "sha256": "36aa219ee97931eb894f2737a6614cea421013531dc1d71367f16b9c42a8bb2c"
     },
     {
       "path": "infra/docker/Dockerfile.api",
-      "size": 1108,
-      "sha256": "3b0d63076b59b3f5b8883a34a044112741990b979ae4979e4fddc7b0ab604008"
+      "size": 889,
+      "sha256": "7b68600b3c74f2491b7e8b9a75f103b1d3f2a87077279a3d9a33ca10c3a4da42"
     },
     {
       "path": "infra/docker/Dockerfile.migrations",
-      "size": 292,
-      "sha256": "2625cd84d2fdab58f26bf214c79c2a77d724e7be0a08dcb8ac708e2dd1b157ce"
+      "size": 335,
+      "sha256": "4418ed6091c44746560a0f84e5be227c3e5cb574b44ee000f986037c58eac079"
     },
     {
       "path": "infra/docker/Dockerfile.reporting",
-      "size": 249,
-      "sha256": "18a19aa40ef84c907c98c2d40a09691bf7841603f36ccb29a76b53f4fae3cbda"
+      "size": 292,
+      "sha256": "d56cc937e6682deefa453d27ba73ac53956a6d289528e8fde2153bac519904ee"
     },
     {
       "path": "infra/docker/Dockerfile.web",
-      "size": 1634,
-      "sha256": "2b2da617497ee5f00246f806379af80d3dd730c9ddc19146d43a2e5efd30e897"
+      "size": 1704,
+      "sha256": "36e22e543b8a414857709239f667ad2053bcc86853d7a427c729d5863c63a6ee"
     },
     {
       "path": "infra/docker/Dockerfile.worker",
-      "size": 312,
-      "sha256": "5a20231074fa9f2c49f48ce1273265368fc4b7498b7eeade4d5735dea63ce740"
+      "size": 355,
+      "sha256": "c910ac5258d83dbf7b012ccb81562f53197e9bfb25e50fb64059ba28c163eb5f"
     },
     {
       "path": "infra/docker/base/Dockerfile.node",
-      "size": 355,
-      "sha256": "8d860bfac6ee7d83b2d52e8ff168877a308feeb610b133f24609c2c39106f05d"
+      "size": 363,
+      "sha256": "41f357bea93430b795c5f4df756b2da6c0f5861c625ab6bbb56099d25b4d2dff"
     },
     {
       "path": "infra/docker/base/Dockerfile.python",
-      "size": 687,
-      "sha256": "d9144035d4987d9970bb2a3f5c057fbb34129be5edcbf5b9275ea614e6d1e456"
+      "size": 695,
+      "sha256": "3209686b2a30a3f7deb70210c35d17a454fa23c2058a1fe96e847d9e8cb12680"
     },
     {
       "path": "infra/docker/base/Dockerfile.runtime",
-      "size": 529,
-      "sha256": "739b78e3bc6554b64603ee3aea7f665069083e2f78b310ec277e7aee9d4c432a"
+      "size": 537,
+      "sha256": "527a86e4f27e6657fda724237b0a1b940f4b0a9615943579f4751d8c826d5efa"
     },
     {
       "path": "infra/docker/base/Dockerfile.rust-tauri",
-      "size": 585,
-      "sha256": "a65f4dbbeee83084c37b1f7071b1ed69ae94c28d718361720d73e7f87f714a34"
+      "size": 593,
+      "sha256": "d4e841365d380427652711965c6d570c6e3935ae1edb3eade31cec001024a163"
     },
     {
       "path": "infra/docker/build-farm/Dockerfile.linux",
-      "size": 930,
-      "sha256": "fc5fa583cfc6f425c775fa363d36d66f1f0a34f9da5ddf8806e2ddc28dea5745"
+      "size": 938,
+      "sha256": "02b120e4bf0d27ac3434bf37b85eafd688ef9db8b1ea4158689dc8ac5b7bb95d"
     },
     {
       "path": "infra/docker/nginx.conf",
@@ -13009,33 +12781,33 @@
     },
     {
       "path": "package-lock.json",
-      "size": 244380,
-      "sha256": "5e672002bfd62c03550851f6e52a8e83c451434bfc1f73f00b2a63b9efe68e64"
+      "size": 244740,
+      "sha256": "28a0cf0b1694efef16dae07b8aba56de5ed75560c85f554d1974fbb1f93b92f5"
     },
     {
       "path": "package.json",
-      "size": 465,
-      "sha256": "ad15e1c3a3d6c390df1396aab4eaad20a1cc504e6ff2ffa1153ef82d4354e8db"
+      "size": 473,
+      "sha256": "29124f6b4562734bfb6431b00be9da979df8fecacddfe5e7020ac14bad55b6b1"
     },
     {
       "path": "packages/api-sdk/package.json",
-      "size": 140,
-      "sha256": "dee4131df82d65f39265690384fc17b474e2e45779ea8b53cae5ec5d67a112ba"
+      "size": 148,
+      "sha256": "c2690da608ac285175c3422d6cfc172360940f00668a80c574ffd1d2e8a64e2b"
     },
     {
       "path": "packages/api-sdk/src/generated/client.ts",
-      "size": 198405,
-      "sha256": "1e7ae6be33da8fb1b24aa13452d50482da02a126f8e520e0c3ae4df85d074332"
+      "size": 200132,
+      "sha256": "fd05395fa8d1fb9156050beff18d21d49bfe943432341966abde79145b594308"
     },
     {
       "path": "packages/api-sdk/src/generated/operations.json",
-      "size": 118673,
-      "sha256": "042ab9c3a9a5b9bbe1abb8fac2349375be6ed7d259e731adeef881fa4095ec45"
+      "size": 119745,
+      "sha256": "00fc4d9f75a9ee84e0bee933c7066c0d8dae1c24be031666c6249658884ef704"
     },
     {
       "path": "packages/api-sdk/src/generated/types.ts",
-      "size": 74025,
-      "sha256": "9035234a54c3e9381a30045e2b3578522f264ceb1f24f2d4f3ba71b2bbd24c76"
+      "size": 74145,
+      "sha256": "b90e263662e915b399bee822411a5d67c129dabeb8ce15df2c94ca48ff868afb"
     },
     {
       "path": "packages/api-sdk/src/index.ts",
@@ -13044,8 +12816,8 @@
     },
     {
       "path": "packages/app-manifest/package.json",
-      "size": 130,
-      "sha256": "e47720da943a14ca6f0928aba2b5a84944410ba176a1a93649953d3cde56f584"
+      "size": 138,
+      "sha256": "4ea7cb966e0fdd13ef0da5786013de4ebf605b59bd508399bb073ba10184750a"
     },
     {
       "path": "packages/app-manifest/src/index.js",
@@ -13059,8 +12831,8 @@
     },
     {
       "path": "packages/auth/package.json",
-      "size": 178,
-      "sha256": "24f078b8e1cf6ccd26637b0d93d0c40b354c50a6156aef0a32acac0678f9b80c"
+      "size": 200,
+      "sha256": "3d579b946a000d7f7c28c2d896ca536360748bc085270d84ecb331c0abd4d786"
     },
     {
       "path": "packages/auth/src/index.js",
@@ -13074,8 +12846,8 @@
     },
     {
       "path": "packages/design-tokens/package.json",
-      "size": 181,
-      "sha256": "4099b832d68bbf48d405a9a3eb113e256f4c77c2cef5e78700489a9eece09f79"
+      "size": 189,
+      "sha256": "006b8cc119c01a708b7592659a89ea364d8796df42480e741474d53e0cd55043"
     },
     {
       "path": "packages/design-tokens/src/tailwind-preset.ts",
@@ -13099,8 +12871,8 @@
     },
     {
       "path": "packages/domain-types/package.json",
-      "size": 130,
-      "sha256": "6282f687cd55658855bfec133f0591c71d75d67f54bf406580aeaf6e358b92ff"
+      "size": 138,
+      "sha256": "ffd499fdccc8a68e587c64a0539d6994cbe86b0d24200c5d082ec99e082a1c95"
     },
     {
       "path": "packages/domain-types/src/index.ts",
@@ -13109,8 +12881,8 @@
     },
     {
       "path": "packages/fiscal-types/package.json",
-      "size": 109,
-      "sha256": "7c2aa379cb968e24fb969fd3ae764c799a2866bf798ad837f2ffd2b9e264b57f"
+      "size": 138,
+      "sha256": "be938ef882e40602703a07c2a739bab4fae87f41fb803894f124e16a51217e9e"
     },
     {
       "path": "packages/fiscal-types/src/index.ts",
@@ -13119,8 +12891,8 @@
     },
     {
       "path": "packages/mail-client/package.json",
-      "size": 149,
-      "sha256": "69a520a2a79400763f24b799faf1d536478c0f10814de581cf4efff021a3acb2"
+      "size": 199,
+      "sha256": "3d8857ff8597557e8a68ba3b54264457d149e2799aac7cb4742dbf5a553f0481"
     },
     {
       "path": "packages/mail-client/src/index.ts",
@@ -13129,8 +12901,8 @@
     },
     {
       "path": "packages/observability/package.json",
-      "size": 110,
-      "sha256": "5dab25459edb6ab208ea52a6858f5511d6ef296a3176372c0af8add17f37227b"
+      "size": 139,
+      "sha256": "3df90764c5039f436f28828530219c136ee9656cb84462060fe853a40a811af9"
     },
     {
       "path": "packages/observability/src/index.ts",
@@ -13139,8 +12911,8 @@
     },
     {
       "path": "packages/offline-sync/package.json",
-      "size": 192,
-      "sha256": "f8544a7b4e07036e378c2886fd4565fcabfbf75571df9fcb52ff3d989c5441f8"
+      "size": 208,
+      "sha256": "60154cd673e896ebdb29e23cd62b89c483c4bca865d9ec566e2c27589a6e6ee9"
     },
     {
       "path": "packages/offline-sync/src/index.js",
@@ -13154,8 +12926,8 @@
     },
     {
       "path": "packages/permissions/package.json",
-      "size": 108,
-      "sha256": "ce4f3c978419868aad51ad3d6bd1ceaa2bfb722d461a19ff11d866dce4982f88"
+      "size": 137,
+      "sha256": "2abb8bca9280809ec541e48a3f4bb5821ab418b243a15284eda4a627275e073c"
     },
     {
       "path": "packages/permissions/src/index.ts",
@@ -13754,8 +13526,8 @@
     },
     {
       "path": "packages/tenant-branding/package.json",
-      "size": 133,
-      "sha256": "5b4271b409e0b63cca1d52529e9cf78e3e68faf2ac12d120b6b3e0aa1b1ed7fd"
+      "size": 141,
+      "sha256": "284350f79f444c3bde453cd603da8b8418dd95c495dcbdf2746dd919b538f88a"
     },
     {
       "path": "packages/tenant-branding/src/index.ts",
@@ -13764,8 +13536,8 @@
     },
     {
       "path": "packages/testing/package.json",
-      "size": 104,
-      "sha256": "9b479dc303ae1f5af3492334d36603ae7811a12ce1bdb69aec43b2b28adb98cc"
+      "size": 133,
+      "sha256": "f7d3c39bdfc6c2ca73d1bee3f1e883778ca6a97a66cabe50c7976de115fe4922"
     },
     {
       "path": "packages/testing/src/index.ts",
@@ -13774,8 +13546,8 @@
     },
     {
       "path": "packages/ui/package.json",
-      "size": 219,
-      "sha256": "495928ae888b8e8cae8a6e8502697f88dd2a39174ce9a32e6f3d991c5466855d"
+      "size": 243,
+      "sha256": "52abfb2a3f308246c3dc6e688d299427e1319489eee62ea72890dafbf7db3bd1"
     },
     {
       "path": "packages/ui/src/AppShell.vue",
@@ -13804,8 +13576,8 @@
     },
     {
       "path": "packages/validation/package.json",
-      "size": 107,
-      "sha256": "73b159675760297c17143537dc936869829fc69aec00910555884189fbbeb469"
+      "size": 136,
+      "sha256": "650f8e8349598380c03fb38c1a47b3943f1fda08350c6dd76752bbde4ca0ae2b"
     },
     {
       "path": "packages/validation/src/index.ts",
@@ -13819,8 +13591,8 @@
     },
     {
       "path": "rust/Cargo.toml",
-      "size": 992,
-      "sha256": "3c9646539c3908a90f06e7d56c2169a9b2c0597603014fc20cc848554c17b8bf"
+      "size": 1000,
+      "sha256": "c4809ac28db6fd8b6f7d1cd1badb2eca5395124a040b2eb0177c3b76a4bdec5c"
     },
     {
       "path": "rust/crates/device-identity/Cargo.toml",
@@ -13943,6 +13715,11 @@
       "sha256": "4fe30371ac41e37362a9ee8fa997afbfe52156a05be819a41c1882b2bd794d15"
     },
     {
+      "path": "scripts/ci/smoke-compose-homologation.sh",
+      "size": 3903,
+      "sha256": "631615298d769a3156a35822792d227fd76c7ee5822592d6952e8e8d55db6944"
+    },
+    {
       "path": "scripts/deploy/deploy-saas-ssh.sh",
       "size": 2420,
       "sha256": "1d32bc47d70c09c16c8f5753d2c82521b35f216b13daebb5c8ad56b224cf4689"
@@ -13954,8 +13731,8 @@
     },
     {
       "path": "scripts/execution/build_portable_checkpoint.py",
-      "size": 5707,
-      "sha256": "9f6a56cdf05f97371ff5d78ca557ea981d7f419e042f69593fdc090700b9bdf4"
+      "size": 5809,
+      "sha256": "57b40c5c2bca3d898db998d9f418513ffafa8ce64137a4552d1e4194d82e7d2e"
     },
     {
       "path": "scripts/execution/reconcile_physical_state.py",
@@ -14028,6 +13805,16 @@
       "sha256": "6ae01a905580a2c662ad755542e571105288ba8a8345d7449a577ea47a39584e"
     },
     {
+      "path": "scripts/execution/update_service_nfse_traceability_0042_checkpoint.py",
+      "size": 4133,
+      "sha256": "91cb5b5cc1ed4cc955978f61da7a911cb638b0b1a1f2ef3b4b9306fa7cab449d"
+    },
+    {
+      "path": "scripts/execution/update_service_payment_receipts_0043_checkpoint.py",
+      "size": 4283,
+      "sha256": "0ecd5fb5a6e39c17a6140ab9dc3edd7b5ebbcf6e44e7c9e270df6d83255496e2"
+    },
+    {
       "path": "scripts/frontend/install-dependencies.sh",
       "size": 486,
       "sha256": "5557668ef464c4d51de56dc8805736df147ba73d3edaaae47f60c93895444b1f"
@@ -14079,13 +13866,18 @@
     },
     {
       "path": "scripts/mobile/sign-android.sh",
-      "size": 3117,
-      "sha256": "b427c26d208e960638ac7cfc68249cebb2a0acc5151ad6be83754c0eee65f8b2"
+      "size": 2721,
+      "sha256": "deab37ca5629fac8cc4e5630dea8ae5cd2b6de4ffba5f88a7b5082ff060a41ef"
     },
     {
       "path": "scripts/mobile/sign-ios.sh",
-      "size": 4274,
-      "sha256": "6cfbdcfa004eb884e66067e57e4012dc605f11cca78fe94176e075a497158333"
+      "size": 3983,
+      "sha256": "b1058d877dc0063043e1b9900c13ecbb0290ba48210dacf108478dc43359551c"
+    },
+    {
+      "path": "scripts/oci/build-runtime-images.sh",
+      "size": 3301,
+      "sha256": "999e1267df15ac47f8b9876c90f9c0021566707aec9979e644e573de8a35813e"
     },
     {
       "path": "scripts/oci/build_structural_oci.py",
@@ -14124,8 +13916,8 @@
     },
     {
       "path": "scripts/release/generate_evidence_pdf.py",
-      "size": 9812,
-      "sha256": "2f30010a0e5366c66c8be563fb594b6a28ba962115b3cd3746a3a4a1d5166985"
+      "size": 9817,
+      "sha256": "496323b6443b856f9ad35aed0408d8d6f923ea0cf9e35d3ee17b013b00102a67"
     },
     {
       "path": "scripts/release/generate_provenance.py",
@@ -14174,8 +13966,8 @@
     },
     {
       "path": "scripts/validation/validate_project.py",
-      "size": 9395,
-      "sha256": "081852a65d6fc0e2e0e2baf21f9d8d858cfe4aeb07bdc7a89781c5881b9ec291"
+      "size": 9868,
+      "sha256": "ad090588f68038b9329520d707104b85ea55d083bb7ded025fb542ecacebc5e0"
     },
     {
       "path": "scripts/visual/generate_visual_catalog.py",
@@ -14189,18 +13981,13 @@
     },
     {
       "path": "tsconfig.validation.json",
-      "size": 1915,
-      "sha256": "20589384b626a1c3a7a646de54af2b51b2320f56e58870591f6ef73af804a076"
+      "size": 1935,
+      "sha256": "662526155a12d02169e12a8a5c66e1df86f42d2f7834c3a116525c9cf08e5f43"
     },
     {
       "path": "types/vendor.d.ts",
-      "size": 1344,
-      "sha256": "1da6701975b04a7030579abcc0562542092309c9df473b22d2680e9d28835d64"
-    },
-    {
-      "path": "workspace-manifest.json",
-      "size": 695,
-      "sha256": "ee1d533d4bef6a022fefd69e96de4457ae561216e658e13df07950ce780af69d"
+      "size": 1128,
+      "sha256": "9dc9690ae919992ec2ab63a3c78dfdd5896baade3bd441cd04817692f2abc027"
     }
   ]
 }

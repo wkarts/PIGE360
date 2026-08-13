@@ -253,25 +253,15 @@ def test_all_local_artifact_types_support_authenticated_download_and_hash_valida
 
     for document_type, artifact_type in (("NF-e", "danfe_local"), ("NFC-e", "danfce_local"), ("NFS-e", "danfse_local")):
         document_id = _document(local_env, profile["id"], f"download-{document_type}", document_type)
-        rendered = local_env.client.post(
-            f"/api/v1/fiscal/documents/{document_id}/render",
-            headers=local_env.alpha_headers(),
-            json={},
-        )
+        rendered = local_env.client.post(f"/api/v1/fiscal/documents/{document_id}/render", headers=local_env.alpha_headers(), json={})
         assert rendered.status_code == 200, rendered.text
         artifact_id = rendered.json()["id"]
-        listed = local_env.client.get(
-            f"/api/v1/fiscal/documents/{document_id}/artifacts",
-            headers=local_env.alpha_headers(),
-        )
+        listed = local_env.client.get(f"/api/v1/fiscal/documents/{document_id}/artifacts", headers=local_env.alpha_headers())
         assert listed.status_code == 200, listed.text
         assert listed.json()["items"][0]["artifact_type"] == artifact_type
         assert listed.json()["items"][0]["available"] is True
 
-        response = local_env.client.get(
-            f"/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download",
-            headers=local_env.alpha_headers(),
-        )
+        response = local_env.client.get(f"/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download", headers=local_env.alpha_headers())
         assert response.status_code == 200, response.text
         digest = hashlib.sha256(response.content).hexdigest()
         assert response.headers["x-artifact-sha256"] == digest == rendered.json()["sha256"]
@@ -282,10 +272,7 @@ def test_all_local_artifact_types_support_authenticated_download_and_hash_valida
     document_id, artifact_id, storage_key = downloaded[0]
     storage = router.object_storage(local_env.alpha_tenant["id"])
     storage.local_path(storage_key).write_bytes(b"artefato adulterado")
-    invalid = local_env.client.get(
-        f"/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download",
-        headers=local_env.alpha_headers(),
-    )
+    invalid = local_env.client.get(f"/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download", headers=local_env.alpha_headers())
     assert invalid.status_code == 409
     assert invalid.json()["code"] == "FISCAL_ARTIFACT_INTEGRITY_FAILED"
 
@@ -294,14 +281,7 @@ def test_fiscal_artifact_download_does_not_cross_tenants(local_env):
     provider = _provider(local_env)
     profile = _profile(local_env, provider["id"])
     document_id = _document(local_env, profile["id"], "cross-tenant")
-    rendered = local_env.client.post(
-        f"/api/v1/fiscal/documents/{document_id}/render",
-        headers=local_env.alpha_headers(),
-        json={},
-    )
+    rendered = local_env.client.post(f"/api/v1/fiscal/documents/{document_id}/render", headers=local_env.alpha_headers(), json={})
     assert rendered.status_code == 200, rendered.text
-    response = local_env.client.get(
-        f"/api/v1/fiscal/documents/{document_id}/artifacts/{rendered.json()['id']}/download",
-        headers=local_env.beta_headers(),
-    )
+    response = local_env.client.get(f"/api/v1/fiscal/documents/{document_id}/artifacts/{rendered.json()['id']}/download", headers=local_env.beta_headers())
     assert response.status_code == 404

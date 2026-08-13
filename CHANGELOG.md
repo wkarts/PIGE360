@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.0-alpha.1] - 2026-08-13
+
+### Pré-lançamento de testes
+
+- versão de testes preparada para execução controlada no GitHub Actions;
+- imagens Docker base e de aplicação passaram a ser construídas por fluxo
+  reutilizável, exportadas em TAR com SHA-256 e metadados de inspeção;
+- Dockerfiles de API, web, worker, migrations e reporting agora recebem as
+  imagens base por argumento, eliminando o acoplamento à tag estática `1.0.0`;
+- workflow de pré-lançamento executa validações, constrói imagens e gera pacotes
+  locais reproduzíveis como artefatos do GitHub Actions;
+- publicação em registro, release remoto e deploy continuam deliberadamente
+  fora do fluxo de testes.
+
 ## [1.0.0] - 2026-08-08
 
 ### Produto

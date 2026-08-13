@@ -1,0 +1,73 @@
+{
+  "increment": "0043_service_payment_receipts",
+  "requirement": "V8-1609",
+  "generated_at": "2026-08-13T00:56:01+00:00",
+  "scope": {
+    "feature": "recibos financeiros de pedidos de serviço",
+    "preserved_contracts": [
+      "pagamento confirmado e PIX conciliado",
+      "contas a receber por charge_id",
+      "isolamento por tenant",
+      "documento fiscal não é simulado como autorizado"
+    ]
+  },
+  "implementation": {
+    "automatic_sources": [
+      "POST /api/v1/finance/payments",
+      "POST /api/v1/banking/pix-charges/{charge_id}/confirm"
+    ],
+    "persistence": "service_receipts com migration 0043, RLS PostgreSQL, índice único parcial para recibo ativo por pedido e pagamento, snapshot e SHA-256.",
+    "document": "PDF gerado no servidor, salvo em object storage privado do tenant e conferido no download autenticado.",
+    "history": "anulação guarda documento, snapshot, pagamento, rateio, auditoria e outbox; reemissão só cria novo recibo após anulação.",
+    "ui": "Painel de Serviços exibe pagamentos elegíveis, recibos preservados, download com conferência SHA-256 e anulação com motivo."
+  },
+  "validation": [
+    {
+      "command": "PYTHONPATH=backend /tmp/pige360-receipts-test-env/bin/python -m pytest backend/tests -q",
+      "result": "176 passed in 287.76s",
+      "status": "passed"
+    },
+    {
+      "command": "PATH=/tmp/pige360-typescript-check/node_modules/.bin:$PATH python scripts/frontend/validate_vue_sfc.py apps/tenant-admin-web/src/components/ServicesPanel.vue",
+      "result": "estrutura HTML e TypeScript estrito aprovados",
+      "status": "passed"
+    },
+    {
+      "command": "/tmp/pige360-receipts-test-env/bin/python scripts/validation/validate_project.py --output docs/execution/evidence/validation-service-payment-receipts-0043.json",
+      "result": "validador estrutural aprovado; 13 aplicações, 51 módulos requeridos, 15 workflows e 46 serviços Compose preservados",
+      "status": "passed"
+    },
+    {
+      "command": "python scripts/validation/secret_scan.py",
+      "result": "2103 arquivos examinados; 0 achados",
+      "status": "passed"
+    },
+    {
+      "command": "sqlite3 em memória com backend/app/shared/database/operational_schema.sql",
+      "result": "tabela service_receipts e índice ux_service_receipts_active_payment presentes",
+      "status": "passed"
+    },
+    {
+      "command": "scripts/api/export_openapi.py e scripts/api/generate_typescript_sdk.py",
+      "result": "564 paths, 695 operações, 377 schemas, sem operationId duplicado",
+      "status": "passed"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-local-r000031-evolved-0042-20260812.zip",
+    "baseline_sha256": "4e55b50b12a4f6a4cbb6804e4a061684cd4d636091bf834850920d537759033f",
+    "comparison": {
+      "baseline_files": 2747,
+      "current_files": 2753,
+      "added": 6,
+      "modified": 19,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint evoluído 0042 foi removido no incremento 0043."
+  },
+  "limits": [
+    "O recibo não substitui NF-e, NFC-e ou NFS-e e não afirma autorização de provider externo.",
+    "A anulação do recibo não executa estorno financeiro automático.",
+    "Não houve publicação, deploy, push remoto nem execução de artefato OCI neste workspace local."
+  ]
+}

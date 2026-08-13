@@ -389,66 +389,12 @@ def read_fiscal_document_artifact(
     expected_sha256 = str(artifact["sha256"])
     if actual_sha256 != expected_sha256:
         with request.state.store.transaction() as conn:
-            add_audit(
-                conn,
-                tenant_id=tenant_id,
-                actor_id=user.id,
-                action="artifact_integrity_failure",
-                aggregate_type="fiscal_document",
-                aggregate_id=document_id,
-                correlation_id=request.state.correlation_id,
-                after={
-                    "artifact_id": artifact_id,
-                    "expected_sha256": expected_sha256,
-                    "actual_sha256": actual_sha256,
-                    "bytes_count": len(content),
-                },
-                reason="SHA-256 do objeto diverge do registro persistido.",
-            )
-            add_outbox(
-                conn,
-                tenant_id=tenant_id,
-                event_type="FiscalDocumentArtifactIntegrityFailed",
-                aggregate_type="fiscal_document",
-                aggregate_id=document_id,
-                payload={
-                    "artifact_id": artifact_id,
-                    "expected_sha256": expected_sha256,
-                    "actual_sha256": actual_sha256,
-                },
-                correlation_id=request.state.correlation_id,
-            )
+            add_audit(conn, tenant_id=tenant_id, actor_id=user.id, action="artifact_integrity_failure", aggregate_type="fiscal_document", aggregate_id=document_id, correlation_id=request.state.correlation_id, after={"artifact_id": artifact_id, "expected_sha256": expected_sha256, "actual_sha256": actual_sha256, "bytes_count": len(content)}, reason="SHA-256 do objeto diverge do registro persistido.")
+            add_outbox(conn, tenant_id=tenant_id, event_type="FiscalDocumentArtifactIntegrityFailed", aggregate_type="fiscal_document", aggregate_id=document_id, payload={"artifact_id": artifact_id, "expected_sha256": expected_sha256, "actual_sha256": actual_sha256}, correlation_id=request.state.correlation_id)
         raise DomainError("FISCAL_ARTIFACT_INTEGRITY_FAILED", "A integridade do artefato fiscal não pôde ser comprovada.", 409)
     with request.state.store.transaction() as conn:
-        add_audit(
-            conn,
-            tenant_id=tenant_id,
-            actor_id=user.id,
-            action="artifact_download",
-            aggregate_type="fiscal_document",
-            aggregate_id=document_id,
-            correlation_id=request.state.correlation_id,
-            after={
-                "artifact_id": artifact_id,
-                "artifact_type": artifact["artifact_type"],
-                "sha256": expected_sha256,
-                "bytes_count": len(content),
-            },
-        )
-        add_outbox(
-            conn,
-            tenant_id=tenant_id,
-            event_type="FiscalDocumentArtifactDownloaded",
-            aggregate_type="fiscal_document",
-            aggregate_id=document_id,
-            payload={
-                "artifact_id": artifact_id,
-                "artifact_type": artifact["artifact_type"],
-                "sha256": expected_sha256,
-                "bytes_count": len(content),
-            },
-            correlation_id=request.state.correlation_id,
-        )
+        add_audit(conn, tenant_id=tenant_id, actor_id=user.id, action="artifact_download", aggregate_type="fiscal_document", aggregate_id=document_id, correlation_id=request.state.correlation_id, after={"artifact_id": artifact_id, "artifact_type": artifact["artifact_type"], "sha256": expected_sha256, "bytes_count": len(content)})
+        add_outbox(conn, tenant_id=tenant_id, event_type="FiscalDocumentArtifactDownloaded", aggregate_type="fiscal_document", aggregate_id=document_id, payload={"artifact_id": artifact_id, "artifact_type": artifact["artifact_type"], "sha256": expected_sha256, "bytes_count": len(content)}, correlation_id=request.state.correlation_id)
     artifact.pop("storage_key", None)
     artifact["filename"] = f"{artifact['artifact_type']}-{document_id}.pdf"
     return content, artifact

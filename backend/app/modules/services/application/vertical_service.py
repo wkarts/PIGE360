@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import calendar
+import hashlib
+import hmac
+import io
 from datetime import date, datetime
 from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Iterable
 
 from fastapi import Request
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 from app.modules.operations.common import dumps, loads
 from app.modules.services.presentation.vertical_schemas import (
@@ -23,6 +28,8 @@ from app.modules.services.presentation.vertical_schemas import (
     PriceTableCreate,
     ServiceCreateUnified,
     ServiceOrderCreateUnified,
+    ServiceReceiptCreate,
+    ServiceReceiptVoid,
     ServiceUpdate,
     SubscriptionCreate,
     SubscriptionDecision,
@@ -62,6 +69,7 @@ def _status(row: dict[str, Any]) -> dict[str, Any]:
         ("config_json", {}),
         ("evidence_json", {}),
         ("payload_snapshot_json", {}),
+        ("snapshot_json", {}),
     ):
         if key in result:
             result[key.removesuffix("_json")] = loads(result[key], default)
@@ -615,6 +623,380 @@ def create_billing_rule(request: Request, tenant_id: str, user: CurrentUser, ser
         return 201, result
 
 
+def _receipt_public(row: dict[str, Any]) -> dict[str, Any]:
+    result = _status(row)
+    result.pop("document_storage_key", None)
+    result.pop("recipient_document", None)
+    result.pop("snapshot_json", None)
+    result.pop("snapshot", None)
+    return result
+
+
+def _receipt_recipient_conn(conn: Any, tenant_id: str, order: dict[str, Any]) -> dict[str, str | None]:
+    recipient: dict[str, Any] | None = None
+    if order.get("subscriber_person_id"):
+        raw = conn.execute(
+            "SELECT full_name,cpf FROM people WHERE tenant_id=? AND id=?",
+            (tenant_id, order["subscriber_person_id"]),
+        ).fetchone()
+        recipient = dict(raw) if raw else None
+    elif order.get("responsible_guardian_id"):
+        raw = conn.execute(
+            """SELECT p.full_name,p.cpf
+               FROM guardians g JOIN people p ON p.id=g.person_id AND p.tenant_id=g.tenant_id
+               WHERE g.tenant_id=? AND g.id=?""",
+            (tenant_id, order["responsible_guardian_id"]),
+        ).fetchone()
+        recipient = dict(raw) if raw else None
+    return {
+        "name": str((recipient or {}).get("full_name") or "Responsável não identificado"),
+        "document": (recipient or {}).get("cpf"),
+    }
+
+
+def _receipt_issuer_conn(conn: Any, tenant_id: str, order: dict[str, Any]) -> dict[str, str | None]:
+    institution: dict[str, Any] | None = None
+    if order.get("institution_id"):
+        raw = conn.execute(
+            "SELECT legal_name,trade_name,cnpj FROM institutions WHERE tenant_id=? AND id=?",
+            (tenant_id, order["institution_id"]),
+        ).fetchone()
+        institution = dict(raw) if raw else None
+    return {
+        "name": str((institution or {}).get("trade_name") or (institution or {}).get("legal_name") or "Instituição de ensino"),
+        "legal_name": (institution or {}).get("legal_name"),
+        "document": (institution or {}).get("cnpj"),
+    }
+
+
+def _receipt_pdf(snapshot: dict[str, Any]) -> bytes:
+    """Gera o documento local de recibo sem declarar validade fiscal de NFS-e."""
+    out = io.BytesIO()
+    document = canvas.Canvas(out, pagesize=A4, pageCompression=1)
+    width, height = A4
+    document.setTitle(f"Recibo {snapshot['receipt_number']}")
+    document.setAuthor("PIGE360")
+    y = height - 56
+    document.setFont("Helvetica-Bold", 16)
+    document.drawString(50, y, "RECIBO DE PAGAMENTO DE SERVIÇO")
+    y -= 24
+    document.setFont("Helvetica", 10)
+    lines = [
+        f"Número: {snapshot['receipt_number']}",
+        f"Emitido em: {snapshot['issued_at']}",
+        f"Emitente: {snapshot['issuer']['name']}",
+        f"Recebemos de: {snapshot['recipient']['name']}",
+        f"Pedido de serviço: {snapshot['service_order']['order_number']}",
+        f"Pagamento: {snapshot['payment']['method']} em {snapshot['payment']['paid_at']}",
+        f"Referência externa: {snapshot['payment']['external_reference'] or 'não informada'}",
+        "",
+        "Itens recebidos:",
+    ]
+    for item in snapshot["items"]:
+        lines.append(f"- {item['description']}: R$ {item['total_amount']}")
+    lines.extend(
+        [
+            "",
+            f"Valor recebido: R$ {snapshot['amount']} {snapshot['currency']}",
+            "Este recibo comprova o pagamento informado e não substitui documento fiscal.",
+        ]
+    )
+    for raw_line in lines:
+        line = raw_line.replace("—", "-")
+        document.drawString(50, y, line[:110])
+        y -= 15
+        if y < 60:
+            document.showPage()
+            document.setFont("Helvetica", 10)
+            y = height - 56
+    document.showPage()
+    document.save()
+    return out.getvalue()
+
+
+def _receipt_payment_rows_conn(conn: Any, tenant_id: str, order_id: str) -> list[dict[str, Any]]:
+    order = _one(
+        conn,
+        "SELECT id,charge_id FROM service_orders WHERE tenant_id=? AND id=?",
+        (tenant_id, order_id),
+        "SERVICE_ORDER_NOT_FOUND",
+        "Pedido de serviço não localizado.",
+    )
+    if not order.get("charge_id"):
+        return []
+    rows = conn.execute(
+        """SELECT p.id,p.method,p.amount,p.paid_at,p.external_reference,p.state,
+                  COALESCE(SUM(pa.amount),0) AS service_amount,
+                  (SELECT sr.id FROM service_receipts sr
+                     WHERE sr.tenant_id=p.tenant_id AND sr.service_order_id=? AND sr.payment_id=p.id
+                       AND sr.state='issued' ORDER BY sr.issued_at DESC LIMIT 1) AS receipt_id
+           FROM payment_allocations pa
+           JOIN payments p ON p.id=pa.payment_id AND p.tenant_id=pa.tenant_id
+           JOIN accounts_receivable ar ON ar.installment_id=pa.installment_id AND ar.tenant_id=pa.tenant_id
+           WHERE pa.tenant_id=? AND ar.charge_id=?
+           GROUP BY p.id,p.method,p.amount,p.paid_at,p.external_reference,p.state,p.tenant_id
+           ORDER BY p.paid_at DESC,p.id DESC""",
+        (order_id, tenant_id, order["charge_id"]),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def issue_service_receipts_for_payment(
+    conn: Any,
+    *,
+    tenant_id: str,
+    payment_id: str,
+    actor_id: str,
+    storage: Any,
+    correlation_id: str | None,
+) -> list[dict[str, Any]]:
+    """Emite um recibo por pedido de serviço contemplado pelo pagamento confirmado.
+
+    A relação passa por `accounts_receivable.charge_id`, evitando atribuir um
+    rateio de contrato recorrente ao pedido de serviço errado.
+    """
+    payment = _one(
+        conn,
+        "SELECT * FROM payments WHERE tenant_id=? AND id=?",
+        (tenant_id, payment_id),
+        "PAYMENT_NOT_FOUND",
+        "Pagamento não localizado.",
+    )
+    if payment.get("state") != "confirmed":
+        return []
+    rows = conn.execute(
+        """SELECT so.*,p.method AS payment_method,p.external_reference,p.paid_at,
+                  COALESCE(SUM(pa.amount),0) AS receipt_amount
+           FROM payment_allocations pa
+           JOIN payments p ON p.id=pa.payment_id AND p.tenant_id=pa.tenant_id
+           JOIN accounts_receivable ar ON ar.installment_id=pa.installment_id AND ar.tenant_id=pa.tenant_id
+           JOIN service_orders so ON so.charge_id=ar.charge_id AND so.tenant_id=ar.tenant_id
+           WHERE pa.tenant_id=? AND pa.payment_id=?
+           GROUP BY so.id,p.method,p.external_reference,p.paid_at
+           ORDER BY so.created_at,so.id""",
+        (tenant_id, payment_id),
+    ).fetchall()
+    issued: list[dict[str, Any]] = []
+    for raw in rows:
+        order = dict(raw)
+        amount = money(order["receipt_amount"])
+        if amount <= 0 or not order.get("charge_id"):
+            continue
+        existing = conn.execute(
+            """SELECT * FROM service_receipts
+               WHERE tenant_id=? AND service_order_id=? AND payment_id=? AND state='issued'
+               ORDER BY issued_at DESC LIMIT 1""",
+            (tenant_id, order["id"], payment_id),
+        ).fetchone()
+        if existing:
+            issued.append({**_receipt_public(dict(existing)), "idempotent": True})
+            continue
+        receipt_id, now = uuid7(), iso_now()
+        receipt_number = f"RSV-{receipt_id[-12:].upper()}"
+        recipient = _receipt_recipient_conn(conn, tenant_id, order)
+        issuer = _receipt_issuer_conn(conn, tenant_id, order)
+        items = [
+            {
+                "description": str(item["description"] or item["service_name"] or "Serviço"),
+                "quantity": str(item["quantity"]),
+                "total_amount": money_str(item["total_amount"]),
+            }
+            for item in conn.execute(
+                """SELECT soi.description,soi.quantity,soi.total_amount,s.name AS service_name
+                   FROM service_order_items soi JOIN services s ON s.id=soi.service_id AND s.tenant_id=soi.tenant_id
+                   WHERE soi.tenant_id=? AND soi.service_order_id=? ORDER BY soi.created_at,soi.id""",
+                (tenant_id, order["id"]),
+            ).fetchall()
+        ]
+        snapshot = {
+            "receipt_number": receipt_number,
+            "issued_at": now,
+            "issuer": issuer,
+            "recipient": recipient,
+            "service_order": {"id": order["id"], "order_number": order.get("order_number") or order["id"]},
+            "payment": {
+                "id": payment_id,
+                "method": order["payment_method"],
+                "paid_at": order["paid_at"],
+                "external_reference": order.get("external_reference"),
+            },
+            "items": items,
+            "currency": str(order.get("currency") or "BRL"),
+            "amount": money_str(amount),
+        }
+        pdf = _receipt_pdf(snapshot)
+        document_key = f"service-receipts/{now[:4]}/{receipt_id}/recibo.pdf"
+        stored = storage.put_bytes(document_key, pdf, content_type="application/pdf")
+        if stored.sha256 != hashlib.sha256(pdf).hexdigest():
+            raise DomainError("SERVICE_RECEIPT_STORAGE_INTEGRITY_FAILED", "Falha de integridade ao armazenar o recibo.", 500)
+        try:
+            conn.execute(
+                """INSERT INTO service_receipts(
+                       id,tenant_id,receipt_number,service_order_id,charge_id,payment_id,currency,amount,payment_method,
+                       external_reference,recipient_name,recipient_document,state,document_storage_key,document_sha256,
+                       snapshot_json,issued_at,issued_by,created_at,updated_at
+                   ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    receipt_id, tenant_id, receipt_number, order["id"], order["charge_id"], payment_id,
+                    snapshot["currency"], snapshot["amount"], order["payment_method"], order.get("external_reference"),
+                    recipient["name"], recipient["document"], "issued", stored.key, stored.sha256,
+                    dumps(snapshot), now, actor_id, now, now,
+                ),
+            )
+        except Exception as exc:
+            if "unique" not in str(exc).lower() and "duplicate" not in str(exc).lower():
+                raise
+            concurrent = conn.execute(
+                """SELECT * FROM service_receipts
+                   WHERE tenant_id=? AND service_order_id=? AND payment_id=? AND state='issued'
+                   ORDER BY issued_at DESC LIMIT 1""",
+                (tenant_id, order["id"], payment_id),
+            ).fetchone()
+            if not concurrent:
+                raise
+            issued.append({**_receipt_public(dict(concurrent)), "idempotent": True})
+            continue
+        result = {
+            "id": receipt_id,
+            "receipt_number": receipt_number,
+            "service_order_id": order["id"],
+            "payment_id": payment_id,
+            "amount": snapshot["amount"],
+            "currency": snapshot["currency"],
+            "state": "issued",
+            "document_sha256": stored.sha256,
+            "issued_at": now,
+            "idempotent": False,
+        }
+        add_audit(
+            conn,
+            tenant_id=tenant_id,
+            actor_id=actor_id,
+            action="issue",
+            aggregate_type="service_receipt",
+            aggregate_id=receipt_id,
+            correlation_id=correlation_id,
+            after=result,
+        )
+        add_outbox(
+            conn,
+            tenant_id=tenant_id,
+            event_type="ServiceReceiptIssued",
+            aggregate_type="service_receipt",
+            aggregate_id=receipt_id,
+            payload=result,
+            correlation_id=correlation_id,
+        )
+        issued.append(result)
+    return issued
+
+
+def _receipt_raw_conn(conn: Any, tenant_id: str, receipt_id: str) -> dict[str, Any]:
+    return _one(
+        conn,
+        "SELECT * FROM service_receipts WHERE tenant_id=? AND id=?",
+        (tenant_id, receipt_id),
+        "SERVICE_RECEIPT_NOT_FOUND",
+        "Recibo de serviço não localizado.",
+    )
+
+
+def _receipt_detail_conn(conn: Any, tenant_id: str, receipt_id: str) -> dict[str, Any]:
+    return _receipt_public(_receipt_raw_conn(conn, tenant_id, receipt_id))
+
+
+def list_service_receipts(request: Request, tenant_id: str, order_id: str) -> dict[str, Any]:
+    with request.state.store.transaction() as conn:
+        _one(
+            conn,
+            "SELECT id FROM service_orders WHERE tenant_id=? AND id=?",
+            (tenant_id, order_id),
+            "SERVICE_ORDER_NOT_FOUND",
+            "Pedido de serviço não localizado.",
+        )
+        rows = conn.execute(
+            "SELECT * FROM service_receipts WHERE tenant_id=? AND service_order_id=? ORDER BY issued_at DESC,id DESC",
+            (tenant_id, order_id),
+        ).fetchall()
+        return {"items": [_receipt_public(dict(row)) for row in rows]}
+
+
+def list_service_receipt_payments(request: Request, tenant_id: str, order_id: str) -> dict[str, Any]:
+    with request.state.store.transaction() as conn:
+        return {"items": _receipt_payment_rows_conn(conn, tenant_id, order_id)}
+
+
+def create_service_receipt(
+    request: Request,
+    tenant_id: str,
+    user: CurrentUser,
+    order_id: str,
+    data: ServiceReceiptCreate,
+    key: str | None,
+) -> tuple[int, dict[str, Any]]:
+    payload = _body(data)
+    scope = f"services:receipt:create:{tenant_id}:{order_id}"
+    with request.state.store.transaction() as conn:
+        cached = _cached(conn, scope, key, payload)
+        if cached:
+            return cached
+        _one(conn, "SELECT id FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, order_id), "SERVICE_ORDER_NOT_FOUND", "Pedido de serviço não localizado.")
+        issued = issue_service_receipts_for_payment(
+            conn,
+            tenant_id=tenant_id,
+            payment_id=data.payment_id,
+            actor_id=user.id,
+            storage=request.app.state.data_router.object_storage(tenant_id),
+            correlation_id=request.state.correlation_id,
+        )
+        result = next((item for item in issued if item["service_order_id"] == order_id), None)
+        if not result:
+            raise DomainError("SERVICE_RECEIPT_PAYMENT_NOT_LINKED", "O pagamento não possui rateio confirmado para a cobrança deste pedido.", 409)
+        _save(conn, scope, key, payload, 201, result)
+        return 201, result
+
+
+def service_receipt_detail(request: Request, tenant_id: str, receipt_id: str) -> dict[str, Any]:
+    with request.state.store.transaction() as conn:
+        return _receipt_detail_conn(conn, tenant_id, receipt_id)
+
+
+def service_receipt_document(request: Request, tenant_id: str, receipt_id: str) -> tuple[bytes, str, str]:
+    with request.state.store.transaction() as conn:
+        receipt = _receipt_raw_conn(conn, tenant_id, receipt_id)
+    storage = request.app.state.data_router.object_storage(tenant_id)
+    storage_key = str(receipt["document_storage_key"])
+    if not storage.exists(storage_key):
+        raise DomainError("SERVICE_RECEIPT_DOCUMENT_MISSING", "O PDF do recibo não está disponível no armazenamento privado.", 503)
+    content = storage.get_bytes(storage_key)
+    digest = hashlib.sha256(content).hexdigest()
+    if not hmac.compare_digest(digest, str(receipt["document_sha256"])):
+        raise DomainError("SERVICE_RECEIPT_DOCUMENT_INTEGRITY_FAILED", "A integridade do PDF do recibo não confere.", 409)
+    return content, str(receipt["receipt_number"]), digest
+
+
+def void_service_receipt(
+    request: Request,
+    tenant_id: str,
+    user: CurrentUser,
+    receipt_id: str,
+    data: ServiceReceiptVoid,
+) -> dict[str, Any]:
+    with request.state.store.transaction() as conn:
+        before = _receipt_detail_conn(conn, tenant_id, receipt_id)
+        if before["state"] == "voided":
+            return {**before, "idempotent": True}
+        now = iso_now()
+        conn.execute(
+            "UPDATE service_receipts SET state='voided',voided_at=?,voided_by=?,void_reason=?,updated_at=? WHERE tenant_id=? AND id=?",
+            (now, user.id, data.reason, now, tenant_id, receipt_id),
+        )
+        result = _receipt_detail_conn(conn, tenant_id, receipt_id)
+        _audit(conn, tenant_id=tenant_id, user=user, request=request, action="void", aggregate_type="service_receipt", aggregate_id=receipt_id, before=before, after=result, reason=data.reason)
+        _event(conn, tenant_id=tenant_id, request=request, event_type="ServiceReceiptVoided", aggregate_type="service_receipt", aggregate_id=receipt_id, payload={"id": receipt_id, "service_order_id": result["service_order_id"], "reason": data.reason})
+        return result
+
+
 def _order_detail_conn(conn: Any, tenant_id: str, order_id: str) -> dict[str, Any]:
     order = _one(conn, "SELECT * FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, order_id), "SERVICE_ORDER_NOT_FOUND", "Pedido de serviço não localizado.")
     result = _status(order)
@@ -639,6 +1021,14 @@ def _order_detail_conn(conn: Any, tenant_id: str, order_id: str) -> dict[str, An
         result["charge"] = _status(dict(charge)) if charge else None
     else:
         result["charge"] = None
+    result["receipts"] = [
+        _receipt_public(dict(row))
+        for row in conn.execute(
+            "SELECT * FROM service_receipts WHERE tenant_id=? AND service_order_id=? ORDER BY issued_at DESC,id DESC",
+            (tenant_id, order_id),
+        ).fetchall()
+    ]
+    result["receipt_payments"] = _receipt_payment_rows_conn(conn, tenant_id, order_id)
     return result
 
 

@@ -116,6 +116,10 @@ class SQLiteStore:
                 "execution_status": "TEXT NOT NULL DEFAULT 'pending'",
                 "executed_quantity": "NUMERIC NOT NULL DEFAULT 0",
             },
+            "service_fiscal_events": {
+                "fiscal_document_id": "TEXT",
+                "fiscal_assembly_id": "TEXT",
+            },
             "stock_movements": {"lot_id": "TEXT", "balance_after": "NUMERIC"},
             "suppliers": {
                 "code": "TEXT", "rating": "NUMERIC", "payment_terms_json": "TEXT NOT NULL DEFAULT '{}'",

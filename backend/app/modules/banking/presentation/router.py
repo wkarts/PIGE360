@@ -17,6 +17,7 @@ from app.modules.finance.application.ledger import (
 )
 from app.modules.operations.common import FINANCE_ROLES, dumps, require, row_or_404, tenant
 from app.modules.portals.access import assert_financial_installment_access
+from app.modules.services.application.vertical_service import issue_service_receipts_for_payment
 from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.presentation.errors import DomainError
@@ -308,6 +309,14 @@ def confirm_pix(
             allocations=[(charge["installment_id"], Decimal(str(charge["amount"])))],
             now=iso_now(),
         )
+        service_receipts = issue_service_receipts_for_payment(
+            conn,
+            tenant_id=tenant_id,
+            payment_id=payment_id,
+            actor_id=user.id,
+            storage=request.app.state.data_router.object_storage(tenant_id),
+            correlation_id=request.state.correlation_id,
+        )
         conn.execute(
             "UPDATE pix_charges SET state='paid',paid_at=?,end_to_end_id=?,updated_at=? WHERE id=?",
             (paid_at, data.end_to_end_id, iso_now(), charge_id),
@@ -336,6 +345,7 @@ def confirm_pix(
             "payment_id": payment_id,
             "end_to_end_id": data.end_to_end_id,
             "paid_at": paid_at,
+            "service_receipts": service_receipts,
         }
         add_audit(
             conn,

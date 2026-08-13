@@ -20,6 +20,8 @@ from app.modules.services.presentation.vertical_schemas import (
     PriceTableCreate,
     ServiceCreateUnified,
     ServiceOrderCreateUnified,
+    ServiceReceiptCreate,
+    ServiceReceiptVoid,
     ServiceUpdate,
     SubscriptionCreate,
     SubscriptionDecision,
@@ -374,6 +376,62 @@ def cancel_order(
 ):
     require(user, WRITE_ROLES)
     return service.cancel_order(request, tenant(user), user, order_id, data)
+
+
+@router.get("/service-orders/{order_id}/receipts", operation_id="list_service_payment_receipts")
+def list_receipts(order_id: str, request: Request, user: CurrentUser = Depends(current_user)):
+    require(user, READ_ROLES)
+    return service.list_service_receipts(request, tenant(user), order_id)
+
+
+@router.get("/service-orders/{order_id}/receipt-payments", operation_id="list_service_receipt_payments")
+def list_receipt_payments(order_id: str, request: Request, user: CurrentUser = Depends(current_user)):
+    require(user, READ_ROLES)
+    return service.list_service_receipt_payments(request, tenant(user), order_id)
+
+
+@router.post("/service-orders/{order_id}/receipts", status_code=201, operation_id="create_service_payment_receipt")
+def create_receipt(
+    order_id: str,
+    data: ServiceReceiptCreate,
+    request: Request,
+    response: Response,
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key", min_length=8, max_length=200),
+    user: CurrentUser = Depends(current_user),
+):
+    require(user, WRITE_ROLES)
+    return _created(response, service.create_service_receipt(request, tenant(user), user, order_id, data, idempotency_key))
+
+
+@router.get("/service-receipts/{receipt_id}", operation_id="get_service_payment_receipt")
+def get_receipt(receipt_id: str, request: Request, user: CurrentUser = Depends(current_user)):
+    require(user, READ_ROLES)
+    return service.service_receipt_detail(request, tenant(user), receipt_id)
+
+
+@router.get("/service-receipts/{receipt_id}/document", operation_id="download_service_payment_receipt")
+def download_receipt(receipt_id: str, request: Request, user: CurrentUser = Depends(current_user)):
+    require(user, READ_ROLES)
+    content, receipt_number, digest = service.service_receipt_document(request, tenant(user), receipt_id)
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{receipt_number}.pdf"',
+            "X-Content-SHA256": digest,
+        },
+    )
+
+
+@router.post("/service-receipts/{receipt_id}/void", operation_id="void_service_payment_receipt")
+def void_receipt(
+    receipt_id: str,
+    data: ServiceReceiptVoid,
+    request: Request,
+    user: CurrentUser = Depends(current_user),
+):
+    require(user, WRITE_ROLES)
+    return service.void_service_receipt(request, tenant(user), user, receipt_id, data)
 
 
 @router.post(

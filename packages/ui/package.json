@@ -1,8 +1,13 @@
 {
   "name": "@pige360/ui",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts", "./brand-provider": "./src/brand-provider.ts" },
-  "peerDependencies": { "vue": "3.5.13" }
+  "exports": {
+    ".": "./src/index.ts",
+    "./brand-provider": "./src/brand-provider.ts"
+  },
+  "peerDependencies": {
+    "vue": "3.5.13"
+  }
 }
