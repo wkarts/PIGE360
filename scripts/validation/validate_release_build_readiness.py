@@ -123,8 +123,9 @@ def main() -> int:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 
     ios_workflow = (ROOT / ".github/workflows/33-build-ios.yml").read_text(encoding="utf-8")
-    if "pull_request:" not in ios_workflow:
-        failures.append("workflow iOS não valida alterações nativas em pull requests")
+    for required in ("pull_request:", "APPLE_DEVELOPMENT_TEAM"):
+        if required not in ios_workflow:
+            failures.append(f"workflow iOS sem requisito de compilação verificável: {required}")
 
     package_local = (ROOT / "scripts/release/package_local.py").read_text(encoding="utf-8")
     if "generate_evidence_pdf.py" not in package_local or "relatório de evidências ausente" not in package_local:
