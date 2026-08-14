@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -135,3 +137,15 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "versões publicadas são imutáveis" in publisher
     assert "version-consistency" in ci
     assert "mismatches" in version_check
+
+
+def test_release_build_readiness_prevents_known_native_build_regressions() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/validation/validate_release_build_readiness.py"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr

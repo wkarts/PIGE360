@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "6c6b7db294146354cc84ed9b7308488c4b1d4d6eb43d9d47d7bc6af5aaace27a",
-      "bytes": 9216
+      "sha256": "b798d8e5e14735bc177dee1499efba317b3e8a88371552034a001186c42eb9cc",
+      "bytes": 9848
     },
     {
       "path": "workflows/60-deploy-saas.yml",
