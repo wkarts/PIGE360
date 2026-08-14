@@ -128,12 +128,16 @@ def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts
 
 def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
+    android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
     publisher = (ROOT / "scripts/release/publish-github-release.sh").read_text(encoding="utf-8")
     version_check = (ROOT / "scripts/validation/validate_version_consistency.py").read_text(encoding="utf-8")
     ci = (ROOT / "scripts/ci/run_all.py").read_text(encoding="utf-8")
 
     assert "*.ipa" in ios
     assert "Esperadas 5 IPAs unsigned" in ios
+    assert "tauri android init --ci --skip-targets-install" in android
+    assert "Esperados 7 APKs" in android
+    assert "Esperados 7 AABs" in android
     for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
         assert extension in publisher
     assert "versões publicadas são imutáveis" in publisher

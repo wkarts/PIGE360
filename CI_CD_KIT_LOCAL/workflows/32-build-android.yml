@@ -17,7 +17,10 @@ jobs:
         with: {distribution: temurin, java-version: '21'}
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
+      - uses: android-actions/setup-android@v3
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
       - run: bash scripts/mobile/build-android.sh
       - name: Avaliar assinatura Android (opcional)
         env:

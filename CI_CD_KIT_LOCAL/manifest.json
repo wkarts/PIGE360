@@ -44,13 +44,13 @@
     },
     {
       "path": "workflows/31-build-desktop.yml",
-      "sha256": "4afe0942f4966fb1977330360afd84c1e18840e2786ea664485dcae03994352c",
-      "bytes": 1153
+      "sha256": "ccfaa5bb9016002e096d27baf22f9200c6beded464ace4ad63a34bd0d803d631",
+      "bytes": 2044
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "ad95027277046a7de837de1c1fc71866fe5cafd62618d989ac09a9c24974d787",
-      "bytes": 1182
+      "sha256": "e1773a01a7c292f4ed6375450eb00297adcf42a1faeba605d9995bfc2dadd2cc",
+      "bytes": 1348
     },
     {
       "path": "workflows/33-build-ios.yml",

@@ -70,6 +70,11 @@ def main() -> int:
     if 'version="$(tr -d' not in ios:
         failures.append("build iOS não deriva a versão canônica de VERSION")
 
+    android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
+    for required in ("tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Esperados 7 APKs", "Esperados 7 AABs"):
+        if required not in android:
+            failures.append(f"build Android sem regeneração/contagem verificável: {required}")
+
     release_workflow = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
     for required in (
         "Strawberry\\perl\\bin\\perl.exe",
@@ -81,6 +86,16 @@ def main() -> int:
     ):
         if required not in release_workflow:
             failures.append(f"workflow desktop Windows sem preparação verificável para OpenSSL: {required}")
+
+    desktop_workflow = (ROOT / ".github/workflows/31-build-desktop.yml").read_text(encoding="utf-8")
+    for required in ("Locale::Maketext::Simple", "libwebkit2gtk-4.1-dev"):
+        if required not in desktop_workflow:
+            failures.append(f"workflow manual desktop sem requisito nativo: {required}")
+
+    android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
+    for required in ("android-actions/setup-android@v3", "aarch64-linux-android"):
+        if required not in android_workflow:
+            failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 
     package_local = (ROOT / "scripts/release/package_local.py").read_text(encoding="utf-8")
     if "generate_evidence_pdf.py" not in package_local or "relatório de evidências ausente" not in package_local:

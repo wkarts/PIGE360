@@ -31,6 +31,24 @@ jobs:
         with: {node-version: '22.16.0'}
       - uses: dtolnay/rust-toolchain@stable
         with: {targets: '${{ matrix.target }}'}
+      - name: Preparar Perl completo para OpenSSL no Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $perl = Join-Path $env:SystemDrive 'Strawberry\perl\bin\perl.exe'
+          if (-not (Test-Path $perl)) {
+            choco install strawberryperl --no-progress --yes --limit-output
+          }
+          if (-not (Test-Path $perl)) {
+            throw "Strawberry Perl não disponível para a compilação vendorizada do OpenSSL."
+          }
+          & $perl -MLocale::Maketext::Simple -e 1
+          (Split-Path $perl -Parent) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - name: Instalar bibliotecas nativas do Tauri no Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
       - run: bash scripts/desktop/build-all.sh "${{ matrix.target }}"
       - uses: actions/upload-artifact@v4
         with: {name: 'desktop-${{ matrix.target }}', path: release/artifacts/desktop/**, if-no-files-found: error}
