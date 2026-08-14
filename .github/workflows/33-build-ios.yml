@@ -1,5 +1,16 @@
 name: 33 · iOS app/xcarchive/IPA
 'on':
+  pull_request:
+    paths:
+      - 'apps/family-app/**'
+      - 'apps/teacher-app/**'
+      - 'apps/student-app/**'
+      - 'apps/admin-app/**'
+      - 'apps/pos-app/**'
+      - 'rust/**'
+      - 'scripts/mobile/**'
+      - '.github/workflows/33-build-ios.yml'
+      - 'package-lock.json'
   workflow_dispatch:
     inputs:
       sign: {type: boolean, required: false, default: false}

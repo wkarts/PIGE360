@@ -88,14 +88,18 @@ def main() -> int:
             failures.append(f"workflow desktop Windows sem preparação verificável para OpenSSL: {required}")
 
     desktop_workflow = (ROOT / ".github/workflows/31-build-desktop.yml").read_text(encoding="utf-8")
-    for required in ("Locale::Maketext::Simple", "libwebkit2gtk-4.1-dev"):
+    for required in ("pull_request:", "Locale::Maketext::Simple", "libwebkit2gtk-4.1-dev"):
         if required not in desktop_workflow:
             failures.append(f"workflow manual desktop sem requisito nativo: {required}")
 
     android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
-    for required in ("android-actions/setup-android@v3", "aarch64-linux-android"):
+    for required in ("pull_request:", "android-actions/setup-android@v3", "aarch64-linux-android"):
         if required not in android_workflow:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
+
+    ios_workflow = (ROOT / ".github/workflows/33-build-ios.yml").read_text(encoding="utf-8")
+    if "pull_request:" not in ios_workflow:
+        failures.append("workflow iOS não valida alterações nativas em pull requests")
 
     package_local = (ROOT / "scripts/release/package_local.py").read_text(encoding="utf-8")
     if "generate_evidence_pdf.py" not in package_local or "relatório de evidências ausente" not in package_local:

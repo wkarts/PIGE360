@@ -138,6 +138,10 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "tauri android init --ci --skip-targets-install" in android
     assert "Esperados 7 APKs" in android
     assert "Esperados 7 AABs" in android
+    for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
+        workflow = yaml.safe_load((ROOT / ".github/workflows" / workflow_name).read_text(encoding="utf-8"))
+        triggers = workflow.get("on", workflow.get(True, {}))
+        assert "pull_request" in triggers
     for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
         assert extension in publisher
     assert "versões publicadas são imutáveis" in publisher

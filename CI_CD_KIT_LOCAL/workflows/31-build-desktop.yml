@@ -1,5 +1,13 @@
 name: 31 · Desktop Tauri
 'on':
+  pull_request:
+    paths:
+      - 'apps/desktop-admin/**'
+      - 'apps/pos-app/**'
+      - 'rust/**'
+      - 'scripts/desktop/**'
+      - '.github/workflows/31-build-desktop.yml'
+      - 'package-lock.json'
   workflow_dispatch:
 permissions:
   contents: read

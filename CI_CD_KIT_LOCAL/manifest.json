@@ -44,18 +44,18 @@
     },
     {
       "path": "workflows/31-build-desktop.yml",
-      "sha256": "ccfaa5bb9016002e096d27baf22f9200c6beded464ace4ad63a34bd0d803d631",
-      "bytes": 2044
+      "sha256": "53cbe10e33c7b1310a87dc756b3cfd8ab4fbcdf4553bf799197481a446b89426",
+      "bytes": 2253
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "e1773a01a7c292f4ed6375450eb00297adcf42a1faeba605d9995bfc2dadd2cc",
-      "bytes": 1348
+      "sha256": "06b78005d379a09f09749442288a37e31fee780dccec7aa6d56a52c183222f21",
+      "bytes": 1701
     },
     {
       "path": "workflows/33-build-ios.yml",
-      "sha256": "67f4ed0e0165d3edbf1170b385028d5b0fd0de09fdfe1a15e5a5430e806b50c5",
-      "bytes": 1148
+      "sha256": "88e1b4a5603f0b63b8b1b7d9a4f5efc67fff86787441c441b6a5c67719b36277",
+      "bytes": 1437
     },
     {
       "path": "workflows/34-build-tenant-apps.yml",
