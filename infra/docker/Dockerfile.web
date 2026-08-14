@@ -42,5 +42,6 @@ USER 10001:10001
 # container PIGE360 usa configuração própria, root filesystem read-only e UID
 # sem privilégios; portanto inicia o Nginx diretamente, sem essa mutação.
 ENTRYPOINT []
+CMD ["nginx", "-g", "daemon off;"]
 EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=3s --retries=5 CMD wget -q -O- http://127.0.0.1:8080/healthz || exit 1
