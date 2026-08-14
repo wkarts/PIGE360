@@ -75,6 +75,11 @@ Docker Engine padrão (`default`). Isso mantém as tags `pige360-base-*` e
 buscá-las no Docker Hub. O builder isolado criado pelo `setup-buildx-action`
 continua disponível para workflows próprios, mas não é usado nessa cadeia local.
 
+O lock de produção fixa `psycopg[binary]==3.2.13`. A versão `3.2.0` não é
+utilizada porque seus metadados exigem `psycopg-binary==3.2.0.dev1`, pacote que
+não está publicado no índice. O build da API instala os dois locks antes de
+gerar a imagem, portanto essa validação ocorre no workflow de imagens.
+
 Após a exportação, o workflow sobe somente o núcleo de homologação do Compose:
 PostgreSQL de controle e tenants, Redis, RabbitMQ, MinIO, inicialização de
 migrations, API e web. Os segredos são gerados em diretório temporário do

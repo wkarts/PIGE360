@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-14T06:45:59Z",
+  "created_at": "2026-08-14T07:09:50Z",
   "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2845,
-  "uncompressed_bytes": 79965483,
+  "files_count": 2848,
+  "uncompressed_bytes": 79972546,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -141,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 3589,
-      "sha256": "366c378ae412b7d923b4d4543c8078a40368f8c353160098a3495c5b5ebc0271"
+      "size": 3747,
+      "sha256": "7afe69b458b8d027a33207a796c1087ef7db5ee26f921adc29f4ef1307a73491"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -9571,8 +9571,8 @@
     },
     {
       "path": "backend/pyproject.toml",
-      "size": 897,
-      "sha256": "79ba3d21b9c3ecba4ad99856767adbc94d3b465c0e97fe14a9f301ebf8e67d9b"
+      "size": 899,
+      "sha256": "5b3f39a6624f7cd601aaab25c53c6a502889ecaf9c65617a23fee7bb18edbbd2"
     },
     {
       "path": "backend/pytest.ini",
@@ -9591,8 +9591,8 @@
     },
     {
       "path": "backend/requirements.production.lock",
-      "size": 305,
-      "sha256": "a01d17af03d978fa6d693bda4ddf2dd6f7e34463e9ede8d4c0bde8c57a3088a6"
+      "size": 519,
+      "sha256": "f3e3edbaa976fdf5fe937a0e81b77f77df0c17e2f82bd5fde34d12d6712bf4cf"
     },
     {
       "path": "backend/scripts/bootstrap_demo.py",
@@ -9838,6 +9838,11 @@
       "path": "backend/tests/infrastructure/test_compose_homologation_smoke.py",
       "size": 1739,
       "sha256": "c4961731d46233a8467ab844a3e9aaa5593dd06d128ef18bdf732e126a5f53e9"
+    },
+    {
+      "path": "backend/tests/infrastructure/test_production_dependency_locks.py",
+      "size": 798,
+      "sha256": "710132312dea60dea2261ef0b7d600605e914e8cd3834b8946d4ee41b5c0ca4c"
     },
     {
       "path": "backend/tests/integrations/test_external_providers.py",
@@ -10116,8 +10121,8 @@
     },
     {
       "path": "docs/ci-cd/ALPHA_TEST_RELEASE.md",
-      "size": 4678,
-      "sha256": "d34c249151674638516704c2e46c1efd4aa4bc8f73c6b7247831c16ecff97484"
+      "size": 4990,
+      "sha256": "b13897f7b668220ff35233555900aed071a64597f5e3f0b7fbf354be83838bd4"
     },
     {
       "path": "docs/ci-cd/README.md",
@@ -12000,6 +12005,11 @@
       "sha256": "16f9f9c384681bafb6ddc3eaafa65a564565541ee6b5ee05b043c67f3d5bb66b"
     },
     {
+      "path": "docs/execution/evidence/production-psycopg-lock-0046.json",
+      "size": 2948,
+      "sha256": "edc8311b21d2b15d0182716d7b84f5ded500922decf452a65fb3b71b90b9b613"
+    },
+    {
       "path": "docs/execution/evidence/recovered-baseline-full-regression.log",
       "size": 3148,
       "sha256": "77341380a762756221de8a2558805b44f1f06c97d089d7380e42dd476f3b7b23"
@@ -12583,6 +12593,11 @@
       "path": "docs/execution/evidence/typescript-workspace-validation-r000005.log",
       "size": 50,
       "sha256": "0f0baafe8539f5f990365ff4a3c4f34e1dbaf0749a132a58ef2c4214e4ba1fa0"
+    },
+    {
+      "path": "docs/execution/evidence/validation-production-psycopg-lock-0046.json",
+      "size": 2631,
+      "sha256": "1d5750d24cf8005a6ac75b4e027d24e6156e084882a0aa5c637e53936d41b4af"
     },
     {
       "path": "docs/execution/evidence/validation-r000031-rebuilt.json",

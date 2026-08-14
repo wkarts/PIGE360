@@ -1,0 +1,60 @@
+{
+  "increment": "0046_production_psycopg_lock",
+  "generated_at": "2026-08-14T07:08:45Z",
+  "scope": "Correção do lock de dependências de produção consumido pela imagem Docker da API.",
+  "incident": {
+    "source": "logs_86211021190.zip / workflow build-runtime-images",
+    "observed_at": "2026-08-14T07:01:14Z",
+    "symptom": "A etapa Dockerfile.api:7 falhou durante pip install dos locks de backend.",
+    "root_cause": "psycopg[binary]==3.2.0 resolve psycopg-binary==3.2.0.dev1 para CPython, distribuição não publicada no índice. O próprio resolver listou versões publicadas a partir de 3.2.2, inclusive 3.2.13.",
+    "evidence": "O log registra 'No matching distribution found for psycopg-binary==3.2.0.dev1' e lista 3.2.13 entre as versões disponíveis."
+  },
+  "implementation": {
+    "production_lock": "backend/requirements.production.lock fixa psycopg[binary]==3.2.13.",
+    "package_contract": "backend/pyproject.toml passa a exigir psycopg[binary]>=3.2.2,<4, eliminando a faixa que permitiria a versão problemática 3.2.0.",
+    "regression_test": "Teste de infraestrutura verifica o pin de produção e o limite mínimo declarado no projeto.",
+    "preserved_behavior": [
+      "conexão PostgreSQL via psycopg com binário pré-compilado",
+      "demais pins de produção",
+      "build Docker, workflow de imagens e smoke Compose"
+    ]
+  },
+  "validation": [
+    {
+      "command": "python3 (execução direta de backend/tests/infrastructure/test_production_dependency_locks.py e test_compose_homologation_smoke.py)",
+      "result": "5 testes estáticos aprovados.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/validate_project.py --output docs/execution/evidence/validation-production-psycopg-lock-0046.json",
+      "result": "Validador estrutural aprovado, sem falhas.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/secret_scan.py",
+      "result": "2198 arquivos examinados; 0 achados.",
+      "status": "passed"
+    },
+    {
+      "command": "bash scripts/oci/build-runtime-images.sh all release/artifacts/docker/runtime",
+      "result": "Não executado localmente: Docker/Buildx não está disponível. A resolução real deve ser confirmada no workflow GitHub Actions.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0045-20260814.zip",
+    "baseline_sha256": "d2c18ac44ffc9b283506341f661ad4d15b8bf396ff3dbdcca0c8d9d2b4aa311c",
+    "comparison": {
+      "baseline_files": 2845,
+      "current_files": 2848,
+      "added": 3,
+      "modified": 4,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0045 foi removido no incremento 0046."
+  },
+  "limits": [
+    "Não houve push, Pull Request remota, publicação de imagem ou deploy.",
+    "O workflow ainda deve executar Docker, resolução pip e smoke Compose no runner GitHub."
+  ]
+}

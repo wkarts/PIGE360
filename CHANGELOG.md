@@ -13,6 +13,8 @@
 - a cadeia de imagens Docker agora usa o builder Docker Engine padrão ao
   consumir bases locais, evitando busca indevida das imagens `pige360-base-*`
   no Docker Hub durante os workflows de aplicação e pré-lançamento.
+- o lock de produção usa `psycopg[binary]` 3.2.13, substituindo a versão 3.2.0
+  que referencia a distribuição inexistente `psycopg-binary==3.2.0.dev1`.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 
