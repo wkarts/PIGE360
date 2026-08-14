@@ -1,0 +1,55 @@
+{
+  "increment": "0050_web_nginx_tmpfs_owner",
+  "generated_at": "2026-08-14T14:10:00Z",
+  "scope": "Correção de permissão de diretórios temporários para todos os serviços Nginx em Compose.",
+  "incident": {
+    "source": "workflow 20 / run 31807499344 / job 94789859558",
+    "observed_at": "2026-08-14T14:05:14Z",
+    "symptom": "pige360-web foi criado com o comando Nginx correto, mas ficou unhealthy.",
+    "root_cause": "Os tmpfs de /var/cache/nginx e /var/run substituem os diretórios com owner 10001 da imagem por montagens pertencentes ao root. O processo Nginx sem privilégios não conseguiu criar /var/cache/nginx/client_temp.",
+    "evidence": "O log do smoke registrou: mkdir() /var/cache/nginx/client_temp failed (13: Permission denied). API, RabbitMQ, Redis, MinIO e PostgreSQL estavam healthy."
+  },
+  "implementation": {
+    "tmpfs": [
+      "/var/cache/nginx:mode=0755,uid=10001,gid=10001",
+      "/var/run:mode=0755,uid=10001,gid=10001"
+    ],
+    "coverage": [
+      "pige360-web",
+      "pige360-platform-console",
+      "pige360-branding-studio",
+      "pige360-tenant-download-center",
+      "infra/templates/compose.yaml.tmpl"
+    ],
+    "preserved_behavior": [
+      "root filesystem somente leitura",
+      "execução com UID/GID 10001",
+      "CMD explícito nginx -g daemon off;",
+      "sem scripts mutáveis de bootstrap da imagem Nginx"
+    ]
+  },
+  "validation": [
+    {
+      "command": "python3 (backend/tests/infrastructure/test_compose_homologation_smoke.py)",
+      "result": "7 testes estáticos aprovados, incluindo o contrato de UID/GID e modo dos tmpfs nos quatro serviços Nginx e no template.",
+      "status": "passed"
+    },
+    {
+      "command": "bash -n scripts/ci/smoke-compose-homologation.sh; python3 scripts/validation/validate_project.py; python3 scripts/validation/secret_scan.py",
+      "result": "Sintaxe Shell e validação estrutural aprovadas; 2203 arquivos examinados e 0 achados de segredo. O smoke real permanece pendente do workflow 20, pois o workspace local não possui Docker/Compose.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0049-20260814.zip",
+    "baseline_sha256": "37ab4792002874d5f6bdbaa15cdea0e52fa84087bfc5e6ab8c8f8961d9a02b7b",
+    "comparison": {
+      "baseline_files": 2851,
+      "current_files": 2852,
+      "added": 1,
+      "modified": 5,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0049 foi removido no incremento 0050."
+  }
+}
