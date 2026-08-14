@@ -1,0 +1,55 @@
+{
+  "increment": "0048_web_nginx_unprivileged_startup",
+  "generated_at": "2026-08-14T07:50:00Z",
+  "scope": "Correção do startup do container pige360-web no smoke Compose de homologação.",
+  "incident": {
+    "source": "logs_86217698837.zip / workflow build-runtime-images",
+    "observed_at": "2026-08-14T07:42:46Z",
+    "symptom": "O Compose informou que pige360-web estava unhealthy; o diagnóstico mostra que o container estava Restarting (1).",
+    "root_cause": "A imagem web herdava /docker-entrypoint.sh da imagem oficial Nginx. Seus scripts de bootstrap tratam default.conf como configuração mutável, incompatível com a configuração própria do PIGE360, UID 10001 e root filesystem somente leitura.",
+    "evidence": "No mesmo smoke, RabbitMQ, Redis, PostgreSQL, MinIO e API ficaram healthy; apenas pige360-web reiniciava com código 1."
+  },
+  "implementation": {
+    "nginx": "Remove default.conf não utilizado, valida nginx.conf no build e limpa o ENTRYPOINT herdado, preservando o CMD oficial nginx -g daemon off;.",
+    "diagnostics": "O smoke registra logs de pige360-web e pige360-rabbitmq quando o startup falha.",
+    "preserved_behavior": [
+      "execução com UID 10001",
+      "root filesystem read-only",
+      "endpoint /healthz em 8080",
+      "imagem Nginx oficial e health check existente"
+    ]
+  },
+  "validation": [
+    {
+      "command": "python3 (execução direta de backend/tests/infrastructure/test_compose_homologation_smoke.py)",
+      "result": "6 testes estáticos aprovados, incluindo o contrato de entrypoint e logs de falha.",
+      "status": "passed"
+    },
+    {
+      "command": "bash -n scripts/ci/smoke-compose-homologation.sh; python3 scripts/validation/validate_project.py; python3 scripts/validation/secret_scan.py",
+      "result": "Sintaxe Shell e validação estrutural aprovadas; 2201 arquivos examinados e 0 achados de segredo.",
+      "status": "passed"
+    },
+    {
+      "command": "docker build / smoke-compose-homologation.sh",
+      "result": "Pendente de runner com Docker/Compose; este workspace local não possui Docker.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0047-20260814.zip",
+    "baseline_sha256": "f3a42786db81d72af2df809e839d814cff298eb0a0d4136d120735043092d16e",
+    "comparison": {
+      "baseline_files": 2849,
+      "current_files": 2850,
+      "added": 1,
+      "modified": 5,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0047 foi removido no incremento 0048."
+  },
+  "limits": [
+    "Não houve push, Pull Request remota, publicação de imagem ou deploy.",
+    "O próximo workflow 20 deve confirmar o startup real da imagem web."
+  ]
+}
