@@ -89,10 +89,11 @@ runner, não são impressos e são removidos ao final. A senha inicial do Rabbit
 inicialização antes de o health check ser contabilizado. Se o startup falhar, o
 workflow coleta o estado dos containers e os logs sanitizados de web e RabbitMQ
 em `compose-startup-diagnostics.log`; o artefato do workflow 20 também é
-enviado em caso de erro. A imagem web valida a configuração do Nginx no build e
-inicia sem os scripts mutáveis da imagem base, compatível com UID não
-privilegiado e root filesystem somente leitura. Os health checks de web e API,
-logs e manifesto do smoke test ficam no artefato do job.
+enviado em caso de erro. A imagem web valida a configuração do Nginx no build,
+inicia sem os scripts mutáveis da imagem base e declara explicitamente o
+comando `nginx -g "daemon off;"`, compatível com UID não privilegiado e root
+filesystem somente leitura. Os health checks de web e API, logs e manifesto do
+smoke test ficam no artefato do job.
 
 ## Critérios antes de produção
 
