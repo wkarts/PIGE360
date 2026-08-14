@@ -75,6 +75,7 @@ def test_compose_smoke_keeps_service_diagnostics_after_a_startup_failure() -> No
     assert "rm -f /etc/nginx/conf.d/default.conf" in dockerfile
     assert "RUN nginx -t" in dockerfile
     assert "ENTRYPOINT []" in dockerfile
+    assert 'CMD ["nginx", "-g", "daemon off;"]' in dockerfile
 
     for name in (
         ".github/workflows/20-application-images.yml",
