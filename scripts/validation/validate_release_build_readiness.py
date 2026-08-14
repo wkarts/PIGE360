@@ -85,6 +85,18 @@ def main() -> int:
             for required in ("#[cfg_attr(mobile, tauri::mobile_entry_point)]", "pub fn run()"):
                 if required not in text:
                     failures.append(f"{app}: biblioteca móvel sem ponto de entrada Tauri: {required}")
+            cargo_toml = (ROOT / "apps" / app / "src-tauri/Cargo.toml").read_text(encoding="utf-8")
+            if "[lib]" not in cargo_toml or 'crate-type = ["staticlib", "cdylib", "rlib"]' not in cargo_toml:
+                failures.append(f"{app}: biblioteca móvel não expõe cdylib/staticlib exigida pelo Tauri Android")
+
+    desktop = (ROOT / "scripts/desktop/build-all.sh").read_text(encoding="utf-8")
+    for required in (
+        'version="$(tr -d',
+        'msi_version="${version%-alpha.*}-${version##*.}"',
+        '--config "$desktop_tauri_config"',
+    ):
+        if required not in desktop:
+            failures.append(f"build desktop sem conversão verificável da versão alpha para MSI: {required}")
 
     ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
     if 'ios_version="${version%-alpha.*}"' not in ios or '--config "$ios_config"' not in ios:
