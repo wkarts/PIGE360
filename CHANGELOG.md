@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — checkpoint 0048 (2026-08-14)
+## [Unreleased] — checkpoint 0049 (2026-08-14)
 
 ### Catálogo comercial escolar
 
@@ -22,6 +22,9 @@
 - o container web inicia o Nginx diretamente em modo não privilegiado, sem os
   scripts da imagem base que tentavam alterar `default.conf`; a configuração é
   verificada no build e o diagnóstico do smoke agora inclui web e RabbitMQ.
+- após limpar o `ENTRYPOINT` herdado, a imagem web declara explicitamente
+  `CMD ["nginx", "-g", "daemon off;"]`, evitando que o Docker Compose tente
+  criar o serviço sem comando.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 
