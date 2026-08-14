@@ -1,6 +1,6 @@
 # PIGE360 — Plataforma Integrada de Gestão Educacional
 
-**Versão de testes: 1.0.0-alpha.1**
+**Versão de testes: 1.0.0-alpha.2**
 
 PIGE360 é um ERP educacional brasileiro multi-tenant, SaaS/self-hosted e white-label. O monorepo reúne Control Plane, Tenant Plane, API FastAPI, workers Celery/RabbitMQ, aplicações Vue/PWA/Tauri, PostgreSQL por tenant, Redis, MinIO/S3, App Factory, contratos/assinaturas, módulos acadêmicos, financeiros, fiscais, RH, comunicação e serviços ao aluno.
 

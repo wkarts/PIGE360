@@ -4,8 +4,8 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "883d31cbc41b19facaf6b90be5b46cab660dbe2a2f51ac1f1c82288696f3d63e",
-      "bytes": 170
+      "sha256": "766b8a17358e25534c38601b3de8118a814e008287ea7a26afb4a5742da42615",
+      "bytes": 325
     },
     {
       "path": "scripts/deploy/deploy-saas-ssh.sh",
@@ -14,8 +14,8 @@
     },
     {
       "path": "scripts/release/publish-github-release.sh",
-      "sha256": "a72fef2a67f40b9b6722353eb76b2db2c837c6bb629a85fb7714518cd077c95f",
-      "bytes": 1082
+      "sha256": "777fd07a0128bf62647f74844b7fb61c7047de4f3aaa7a316e2f466884ca9230",
+      "bytes": 1886
     },
     {
       "path": "workflows/00-ci.yml",
@@ -29,13 +29,13 @@
     },
     {
       "path": "workflows/10-base-images.yml",
-      "sha256": "f2a65e7f96f125db339a2d35f5f338cb9c0f24b2f4975cb3565d80426c36510d",
-      "bytes": 1141
+      "sha256": "dee53462cf9b2879a64c921d1fd4943846ceee1efcd0d345d101cef4d5ebada8",
+      "bytes": 1113
     },
     {
       "path": "workflows/20-application-images.yml",
-      "sha256": "19b264a838051a7a222b65de9d29f4107060269a3ff1cd43af68bcc1d0c8e8df",
-      "bytes": 1048
+      "sha256": "7b5c4100c8ac612adb7da9c331ecf1b3ecf3abf907c52b6238a78f57c46a7c2a",
+      "bytes": 1843
     },
     {
       "path": "workflows/30-build-web.yml",
@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "a3122cf3ecdacad3fd2d807a91c543f636feda01d54dcd311415f60ba1e7367a",
-      "bytes": 1199
+      "sha256": "6c6b7db294146354cc84ed9b7308488c4b1d4d6eb43d9d47d7bc6af5aaace27a",
+      "bytes": 9216
     },
     {
       "path": "workflows/60-deploy-saas.yml",

@@ -1,6 +1,6 @@
-ARG API_IMAGE=pige360-api:1.0.0-alpha.1
+ARG API_IMAGE=pige360-api:1.0.0-alpha.2
 FROM ${API_IMAGE}
-ARG VERSION=1.0.0-alpha.1
+ARG VERSION=1.0.0-alpha.2
 LABEL org.opencontainers.image.title="pige360-migrations" org.opencontainers.image.version="$VERSION"
 USER root
 COPY infra /opt/pige360/infra

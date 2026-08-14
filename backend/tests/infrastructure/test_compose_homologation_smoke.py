@@ -24,7 +24,8 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "build-runtime-images.sh all" in workflow
     assert "smoke-compose-homologation.sh" in workflow
     assert "smoke-compose-homologation.sh" in release
-    assert "compose_smoke.outcome == 'success'" in release
+    assert "runtime_images:" in release
+    assert "needs: [validation, runtime_images]" in release
 
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
@@ -102,3 +103,35 @@ def test_web_tmpfs_is_writable_by_the_unprivileged_nginx_user() -> None:
             "pige360-tenant-download-center",
         ):
             assert compose["services"][service]["tmpfs"] == expected_tmpfs
+
+
+def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts() -> None:
+    workflow = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
+    kit_workflow = (ROOT / "CI_CD_KIT_LOCAL/workflows/50-release.yml").read_text(encoding="utf-8")
+
+    for candidate in (workflow, kit_workflow):
+        assert "push:" in candidate
+        assert "branches: [main]" in candidate
+        assert "- VERSION" in candidate
+        assert "contents: write" in candidate
+        assert "package-web-pwa.sh" in candidate
+        assert "build-all.sh" in candidate
+        assert "build-android.sh" in candidate
+        assert "build-ios.sh" in candidate
+        assert "actions/download-artifact@v4" in candidate
+        assert "publish-github-release.sh release/publish" in candidate
+
+
+def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
+    ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
+    publisher = (ROOT / "scripts/release/publish-github-release.sh").read_text(encoding="utf-8")
+    version_check = (ROOT / "scripts/validation/validate_version_consistency.py").read_text(encoding="utf-8")
+    ci = (ROOT / "scripts/ci/run_all.py").read_text(encoding="utf-8")
+
+    assert "*.ipa" in ios
+    assert "Esperadas 5 IPAs unsigned" in ios
+    for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
+        assert extension in publisher
+    assert "versões publicadas são imutáveis" in publisher
+    assert "version-consistency" in ci
+    assert "mismatches" in version_check

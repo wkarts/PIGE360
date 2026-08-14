@@ -157,7 +157,7 @@ services:
       dockerfile: infra/docker/Dockerfile.migrations
     environment: &id001
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -209,7 +209,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.api
-    image: pige360-api:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-api:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     environment: *id001
     secrets: &id002
     - app_jwt_secret
@@ -262,7 +262,7 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/tenant-admin-web
-    image: pige360-web:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-web:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     depends_on:
       pige360-api:
         condition: service_healthy
@@ -281,7 +281,7 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/platform-console
-    image: pige360-platform-console:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-platform-console:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     networks:
     - pige360-app
     restart: unless-stopped
@@ -295,7 +295,7 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/branding-studio
-    image: pige360-branding-studio:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-branding-studio:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     networks:
     - pige360-app
     restart: unless-stopped
@@ -309,7 +309,7 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/tenant-download-center
-    image: pige360-tenant-download-center:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-tenant-download-center:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     networks:
     - pige360-app
     restart: unless-stopped
@@ -321,10 +321,10 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.api
-    image: pige360-app-factory:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-app-factory:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -361,7 +361,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -379,7 +379,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -390,7 +390,7 @@ services:
     - --hostname=app-builds@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -425,7 +425,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -436,7 +436,7 @@ services:
     - --hostname=app-distribution@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -471,7 +471,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -482,7 +482,7 @@ services:
     - --hostname=visual-regression@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -517,7 +517,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -528,7 +528,7 @@ services:
     - --hostname=default@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -562,7 +562,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -573,7 +573,7 @@ services:
     - --hostname=high-priority@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -607,7 +607,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -618,7 +618,7 @@ services:
     - --hostname=academic@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -652,7 +652,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -663,7 +663,7 @@ services:
     - --hostname=pedagogy@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -697,7 +697,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -708,7 +708,7 @@ services:
     - --hostname=attendance@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -742,7 +742,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -753,7 +753,7 @@ services:
     - --hostname=finance@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -787,7 +787,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -798,7 +798,7 @@ services:
     - --hostname=banking@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -832,7 +832,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -843,7 +843,7 @@ services:
     - --hostname=fiscal@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -877,7 +877,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -888,7 +888,7 @@ services:
     - --hostname=sales@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -922,7 +922,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -933,7 +933,7 @@ services:
     - --hostname=hr@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -967,7 +967,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -978,7 +978,7 @@ services:
     - --hostname=mail@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1012,7 +1012,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1023,7 +1023,7 @@ services:
     - --hostname=notifications@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1057,7 +1057,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1068,7 +1068,7 @@ services:
     - --hostname=documents@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1102,7 +1102,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1113,7 +1113,7 @@ services:
     - --hostname=contracts@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1147,7 +1147,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1158,7 +1158,7 @@ services:
     - --hostname=signatures@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1192,7 +1192,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1203,7 +1203,7 @@ services:
     - --hostname=reports@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1237,7 +1237,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     command:
     - celery
     - -A
@@ -1248,7 +1248,7 @@ services:
     - --hostname=integrations@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.1}
+      APP_VERSION: ${APP_VERSION:-1.0.0-alpha.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1282,7 +1282,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/build-farm/Dockerfile.linux
-    image: pige360-builder-linux:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-builder-linux:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     profiles:
     - build-farm
     environment:
@@ -1346,7 +1346,7 @@ services:
       PIGE360_SOURCE_ROOT: /workspace/source
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-    image: pige360-builder-android:${PIGE360_IMAGE_TAG:-1.0.0-alpha.1}
+    image: pige360-builder-android:${PIGE360_IMAGE_TAG:-1.0.0-alpha.2}
     networks:
     - pige360-build-farm
     profiles:

@@ -1,1 +1,1 @@
-const CACHE="pige360-branding-studio-1.0.0-alpha.1";self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./assets/app.css","./assets/app.js"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
+const CACHE="pige360-branding-studio-1.0.0-alpha.2";self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./assets/app.css","./assets/app.js"]))));self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));
