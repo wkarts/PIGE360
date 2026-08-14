@@ -27,7 +27,7 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "smoke-compose-homologation.sh" in workflow
     assert "smoke-compose-homologation.sh" in release
     assert "runtime_images:" in release
-    assert "needs: [validation, runtime_images]" in release
+    assert "needs: [version, validation, runtime_images]" in release
 
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
@@ -122,6 +122,8 @@ def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts
         assert "build-ios.sh" in candidate
         assert "actions/download-artifact@v4" in candidate
         assert "publish-github-release.sh release/publish" in candidate
+        assert "publishable" in candidate
+        assert 'gh release view "$tag"' in candidate
 
 
 def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:

@@ -71,7 +71,14 @@ def main() -> int:
         failures.append("build iOS não deriva a versão canônica de VERSION")
 
     release_workflow = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
-    for required in ("Strawberry\\perl\\bin\\perl.exe", "Locale::Maketext::Simple", "choco install strawberryperl"):
+    for required in (
+        "Strawberry\\perl\\bin\\perl.exe",
+        "Locale::Maketext::Simple",
+        "choco install strawberryperl",
+        "publishable: ${{ steps.release_version.outputs.publishable }}",
+        'gh release view "$tag" --repo "$GITHUB_REPOSITORY"',
+        "needs.version.outputs.publishable == 'true'",
+    ):
         if required not in release_workflow:
             failures.append(f"workflow desktop Windows sem preparação verificável para OpenSSL: {required}")
 

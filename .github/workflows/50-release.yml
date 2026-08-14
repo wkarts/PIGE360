@@ -5,6 +5,18 @@ on:
     branches: [main]
     paths:
       - VERSION
+      - 'apps/**'
+      - 'backend/**'
+      - 'packages/**'
+      - 'rust/**'
+      - 'infra/docker/**'
+      - 'compose*.yaml'
+      - 'scripts/desktop/**'
+      - 'scripts/mobile/**'
+      - 'scripts/oci/**'
+      - 'scripts/release/**'
+      - 'scripts/validation/**'
+      - '.github/workflows/50-release.yml'
   workflow_dispatch:
 
 permissions:
@@ -21,6 +33,7 @@ jobs:
     outputs:
       version: ${{ steps.release_version.outputs.version }}
       tag: ${{ steps.release_version.outputs.tag }}
+      publishable: ${{ steps.release_version.outputs.publishable }}
     steps:
       - uses: actions/checkout@v4
       - name: Garantir que a promoção ocorreu na main
@@ -28,15 +41,26 @@ jobs:
       - name: Validar a versão canônica e os metadados de produto
         run: python3 scripts/validation/validate_version_consistency.py --output release/version-consistency.json
       - id: release_version
-        name: Expor versão e tag
+        name: Expor versão, tag e estado da promoção
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           version="$(tr -d '[:space:]' < VERSION)"
+          tag="v$version"
           printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
-          printf 'tag=v%s\n' "$version" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            printf 'publishable=false\n' >> "$GITHUB_OUTPUT"
+            echo "A release $tag já existe; a matriz de promoção será ignorada."
+          else
+            printf 'publishable=true\n' >> "$GITHUB_OUTPUT"
+            echo "A release $tag ainda não existe; a matriz de promoção será executada."
+          fi
 
   validation:
     name: Gates de qualidade
     needs: version
+    if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -66,7 +90,8 @@ jobs:
 
   runtime_images:
     name: Imagens de runtime e smoke Compose
-    needs: validation
+    needs: [version, validation]
+    if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     steps:
@@ -85,7 +110,8 @@ jobs:
 
   web_pwa:
     name: PWAs das 13 aplicações
-    needs: validation
+    needs: [version, validation]
+    if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -105,7 +131,8 @@ jobs:
 
   desktop:
     name: Desktop ${{ matrix.label }}
-    needs: validation
+    needs: [version, validation]
+    if: needs.version.outputs.publishable == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -168,7 +195,8 @@ jobs:
 
   android:
     name: Android APK e AAB
-    needs: validation
+    needs: [version, validation]
+    if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -196,7 +224,8 @@ jobs:
 
   ios:
     name: iOS IPA unsigned
-    needs: validation
+    needs: [version, validation]
+    if: needs.version.outputs.publishable == 'true'
     runs-on: macos-15
     timeout-minutes: 120
     steps:
@@ -219,7 +248,8 @@ jobs:
 
   release_bundle:
     name: Pacotes auto-hospedados e evidências
-    needs: [validation, runtime_images]
+    needs: [version, validation, runtime_images]
+    if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     steps:
@@ -249,6 +279,15 @@ jobs:
   publish:
     name: Criar GitHub Release
     needs: [version, validation, runtime_images, web_pwa, desktop, android, ios, release_bundle]
+    if: >-
+      ${{ always() && needs.version.outputs.publishable == 'true' &&
+          needs.validation.result == 'success' &&
+          needs.runtime_images.result == 'success' &&
+          needs.web_pwa.result == 'success' &&
+          needs.desktop.result == 'success' &&
+          needs.android.result == 'success' &&
+          needs.ios.result == 'success' &&
+          needs.release_bundle.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
