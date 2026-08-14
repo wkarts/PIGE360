@@ -273,8 +273,8 @@ services:
     restart: unless-stopped
     read_only: true
     tmpfs:
-    - /var/cache/nginx
-    - /var/run
+    - /var/cache/nginx:mode=0755,uid=10001,gid=10001
+    - /var/run:mode=0755,uid=10001,gid=10001
   pige360-platform-console:
     build:
       context: .
@@ -287,8 +287,8 @@ services:
     restart: unless-stopped
     read_only: true
     tmpfs:
-    - /var/cache/nginx
-    - /var/run
+    - /var/cache/nginx:mode=0755,uid=10001,gid=10001
+    - /var/run:mode=0755,uid=10001,gid=10001
   pige360-branding-studio:
     build:
       context: .
@@ -301,8 +301,8 @@ services:
     restart: unless-stopped
     read_only: true
     tmpfs:
-    - /var/cache/nginx
-    - /var/run
+    - /var/cache/nginx:mode=0755,uid=10001,gid=10001
+    - /var/run:mode=0755,uid=10001,gid=10001
   pige360-tenant-download-center:
     build:
       context: .
@@ -315,8 +315,8 @@ services:
     restart: unless-stopped
     read_only: true
     tmpfs:
-    - /var/cache/nginx
-    - /var/run
+    - /var/cache/nginx:mode=0755,uid=10001,gid=10001
+    - /var/run:mode=0755,uid=10001,gid=10001
   pige360-app-factory-api:
     build:
       context: .
