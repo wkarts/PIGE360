@@ -88,6 +88,9 @@ def main() -> int:
             cargo_toml = (ROOT / "apps" / app / "src-tauri/Cargo.toml").read_text(encoding="utf-8")
             if "[lib]" not in cargo_toml or 'crate-type = ["staticlib", "cdylib", "rlib"]' not in cargo_toml:
                 failures.append(f"{app}: biblioteca móvel não expõe cdylib/staticlib exigida pelo Tauri Android")
+            package = json.loads((ROOT / "apps" / app / "package.json").read_text(encoding="utf-8"))
+            if package.get("scripts", {}).get("tauri") != "tauri":
+                failures.append(f"{app}: script npm tauri ausente para a chamada feita pelo Gradle Android")
 
     desktop = (ROOT / "scripts/desktop/build-all.sh").read_text(encoding="utf-8")
     for required in (
