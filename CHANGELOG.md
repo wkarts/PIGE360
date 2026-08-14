@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — checkpoint 0049 (2026-08-14)
+## [Unreleased] — checkpoint 0050 (2026-08-14)
 
 ### Catálogo comercial escolar
 
@@ -25,6 +25,9 @@
 - após limpar o `ENTRYPOINT` herdado, a imagem web declara explicitamente
   `CMD ["nginx", "-g", "daemon off;"]`, evitando que o Docker Compose tente
   criar o serviço sem comando.
+- todos os serviços web em Compose agora montam `/var/cache/nginx` e `/var/run`
+  como `tmpfs` pertencentes ao UID/GID 10001; isso preserva o filesystem
+  somente leitura sem impedir a criação de `client_temp` e do PID do Nginx.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 
