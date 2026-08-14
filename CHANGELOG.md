@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — checkpoint 0044 (2026-08-14)
+## [Unreleased] — checkpoint 0047 (2026-08-14)
 
 ### Catálogo comercial escolar
 
@@ -15,6 +15,10 @@
   no Docker Hub durante os workflows de aplicação e pré-lançamento.
 - o lock de produção usa `psycopg[binary]` 3.2.13, substituindo a versão 3.2.0
   que referencia a distribuição inexistente `psycopg-binary==3.2.0.dev1`.
+- o RabbitMQ lê a senha inicial a partir do Docker Secret em tempo de boot,
+  substituindo a variável `_FILE` não suportada pela imagem atual; seu health
+  check recebeu janela de inicialização de 45 segundos e diagnóstico persistente
+  do smoke Compose para impedir falhas opacas no GitHub Actions.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 

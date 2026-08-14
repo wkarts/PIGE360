@@ -27,6 +27,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
+capture_startup_failure() {
+  # Mantém a causa real do serviço visível no log da Action e no artefato, sem
+  # imprimir os arquivos temporários de segredo usados pelo smoke test.
+  {
+    echo "Compose smoke startup diagnostics (sanitized)"
+    docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml ps --all
+    echo
+    echo "RabbitMQ logs"
+    docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml logs --no-color --timestamps pige360-rabbitmq
+  } | tee "$output_dir/compose-startup-diagnostics.log" >&2
+}
+
 write_secret() {
   local name="$1"
   local value="$2"
@@ -59,7 +71,10 @@ for image in "pige360-migrations:${image_tag}" "pige360-api:${image_tag}" "pige3
 done
 
 docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml config -q
-docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml up -d --no-build --wait --wait-timeout 240 pige360-web
+if ! docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml up -d --no-build --wait --wait-timeout 240 pige360-web; then
+  capture_startup_failure
+  exit 1
+fi
 
 curl --fail --silent --show-error --retry 12 --retry-delay 2 "http://127.0.0.1:${WEB_PUBLISHED_PORT}/healthz" > "$output_dir/web-healthz.txt"
 docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml exec -T pige360-api \

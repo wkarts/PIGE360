@@ -8,6 +8,8 @@ on:
       - 'packages/**'
       - 'infra/docker/**'
       - 'infra/compose/**'
+      - 'infra/templates/**'
+      - 'compose.yaml'
       - 'scripts/ci/**'
       - 'scripts/oci/**'
       - 'package.json'
@@ -21,6 +23,8 @@ on:
       - 'packages/**'
       - 'infra/docker/**'
       - 'infra/compose/**'
+      - 'infra/templates/**'
+      - 'compose.yaml'
       - 'scripts/ci/**'
       - 'scripts/oci/**'
       - 'package.json'
@@ -49,6 +53,7 @@ jobs:
       - name: Executar smoke test isolado do Compose
         run: bash scripts/ci/smoke-compose-homologation.sh release/artifacts/docker/compose-smoke
       - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: pige360-runtime-images-${{ github.run_id }}
           path: release/artifacts/docker/**

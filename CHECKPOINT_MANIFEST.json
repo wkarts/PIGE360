@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-14T07:09:50Z",
+  "created_at": "2026-08-14T07:25:51Z",
   "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2848,
-  "uncompressed_bytes": 79972546,
+  "files_count": 2849,
+  "uncompressed_bytes": 79979885,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -76,8 +76,8 @@
     },
     {
       "path": ".github/workflows/20-application-images.yml",
-      "size": 1711,
-      "sha256": "535163b9df16b4d5f275dd1d48dc2ca72e0347a012ce5eed257bde8b863e00b6"
+      "size": 1843,
+      "sha256": "7b5c4100c8ac612adb7da9c331ecf1b3ecf3abf907c52b6238a78f57c46a7c2a"
     },
     {
       "path": ".github/workflows/30-build-web.yml",
@@ -141,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 3747,
-      "sha256": "7afe69b458b8d027a33207a796c1087ef7db5ee26f921adc29f4ef1307a73491"
+      "size": 4053,
+      "sha256": "e5c43cfb20c381f3a77d98fb1276baa1d10bbfd8b9eba6de1acab4b6a07c05a7"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -181,8 +181,8 @@
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/20-application-images.yml",
-      "size": 1620,
-      "sha256": "1ba2c84ec787e79198e1c3fbd2ae358833275b64633443584992b625777b4d3b"
+      "size": 1752,
+      "sha256": "43ce0640ef39e1c81f7ad83139a29c4475e2c793368af0d28774472d05758a4f"
     },
     {
       "path": "CI_CD_KIT_LOCAL/workflows/30-build-web.yml",
@@ -9836,8 +9836,8 @@
     },
     {
       "path": "backend/tests/infrastructure/test_compose_homologation_smoke.py",
-      "size": 1739,
-      "sha256": "c4961731d46233a8467ab844a3e9aaa5593dd06d128ef18bdf732e126a5f53e9"
+      "size": 3366,
+      "sha256": "a12e4b918f5b76d5985d95522c0240940ae4658d5a5be05aa5b7b3d4f6017bdd"
     },
     {
       "path": "backend/tests/infrastructure/test_production_dependency_locks.py",
@@ -10021,8 +10021,8 @@
     },
     {
       "path": "compose.yaml",
-      "size": 56891,
-      "sha256": "a45e59ad4cefb4a822b47319562efe855acef284f8318e3f6362747905432244"
+      "size": 57212,
+      "sha256": "adae7162e6985beb5c3acd2e726df1bdf6ea0302e1a41ee7686c5daa68d29d5a"
     },
     {
       "path": "deploy/local/tenant-app-manifest.demo.yaml",
@@ -10121,8 +10121,8 @@
     },
     {
       "path": "docs/ci-cd/ALPHA_TEST_RELEASE.md",
-      "size": 4990,
-      "sha256": "b13897f7b668220ff35233555900aed071a64597f5e3f0b7fbf354be83838bd4"
+      "size": 5423,
+      "sha256": "584d2a3190a03f775a0fa99841376862a964e7814a52701e51cf3e2b9a5b43bd"
     },
     {
       "path": "docs/ci-cd/README.md",
@@ -11680,6 +11680,11 @@
       "sha256": "0f87c76e7ed8248b2908f6f91523187726b66055bd083250d17ee1077e22d26a"
     },
     {
+      "path": "docs/execution/evidence/compose-rabbitmq-readiness-0047.json",
+      "size": 3416,
+      "sha256": "4bcf97349dbff3262f4c1e20659c1162c5d4679b3f02d6f063ac1931cbfb876f"
+    },
+    {
       "path": "docs/execution/evidence/ddtrace-thread-diagnostic.log",
       "size": 187,
       "sha256": "14ddcf5c9a529418c20ae41c9613e69d5bfa924562956d41df8c2457452034af"
@@ -13081,8 +13086,8 @@
     },
     {
       "path": "infra/templates/compose.yaml.tmpl",
-      "size": 56477,
-      "sha256": "1929ae1632c1d4c2afea80f4364c3f974909238506fc9ca9a282190577130003"
+      "size": 56798,
+      "sha256": "1f105da30765a3de2608d0ebd42907e6068e739d5a4bea8c1650f197d79b3fe1"
     },
     {
       "path": "package-lock.json",
@@ -14021,8 +14026,8 @@
     },
     {
       "path": "scripts/ci/smoke-compose-homologation.sh",
-      "size": 3903,
-      "sha256": "631615298d769a3156a35822792d227fd76c7ee5822592d6952e8e8d55db6944"
+      "size": 4554,
+      "sha256": "27c51f00cc699d96d13902d556bf09eb26471b087e0c8bffb246997e575caf00"
     },
     {
       "path": "scripts/deploy/deploy-saas-ssh.sh",

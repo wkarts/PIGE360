@@ -83,8 +83,14 @@ gerar a imagem, portanto essa validação ocorre no workflow de imagens.
 Após a exportação, o workflow sobe somente o núcleo de homologação do Compose:
 PostgreSQL de controle e tenants, Redis, RabbitMQ, MinIO, inicialização de
 migrations, API e web. Os segredos são gerados em diretório temporário do
-runner, não são impressos e são removidos ao final. Os health checks de web e
-API, logs e manifesto do smoke test ficam no artefato do job.
+runner, não são impressos e são removidos ao final. A senha inicial do RabbitMQ
+é lida do Docker Secret no boot (a imagem moderna não aceita a variante
+`RABBITMQ_DEFAULT_PASS_FILE`) e o broker possui 45 segundos de período de
+inicialização antes de o health check ser contabilizado. Se o startup falhar, o
+workflow coleta o estado dos containers e os logs sanitizados do RabbitMQ em
+`compose-startup-diagnostics.log`; o artefato do workflow 20 também é enviado
+em caso de erro. Os health checks de web e API, logs e manifesto do smoke test
+ficam no artefato do job.
 
 ## Critérios antes de produção
 
