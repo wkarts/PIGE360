@@ -137,6 +137,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "Esperadas 5 IPAs unsigned" in ios
     assert "tauri ios init --ci" in ios
     assert "restore_ios_platform_config" in ios
+    assert "CODE_SIGNING_ALLOWED=NO" in ios
     assert "Falha ao gerar o projeto iOS" in ios
     assert "tauri android init --ci --skip-targets-install" in android
     assert "NDK_HOME" in android
