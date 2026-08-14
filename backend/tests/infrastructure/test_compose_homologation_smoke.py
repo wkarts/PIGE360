@@ -136,6 +136,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "*.ipa" in ios
     assert "Esperadas 5 IPAs unsigned" in ios
     assert "tauri ios init --ci" in ios
+    assert "restore_ios_platform_config" in ios
     assert "Falha ao gerar o projeto iOS" in ios
     assert "tauri android init --ci --skip-targets-install" in android
     assert "NDK_HOME" in android
@@ -149,6 +150,12 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
     assert "ndk_version='27.3.13750724'" in android_workflow
     assert "ANDROID_NDK_HOME" in android_workflow
+    for app in ("family-app", "teacher-app", "student-app", "admin-app", "pos-app", "kiosk-app", "timeclock-app"):
+        mobile_lib = (ROOT / "apps" / app / "src-tauri/src/lib.rs").read_text(encoding="utf-8")
+        mobile_main = (ROOT / "apps" / app / "src-tauri/src/main.rs").read_text(encoding="utf-8")
+        assert "#[cfg_attr(mobile, tauri::mobile_entry_point)]" in mobile_lib
+        assert "pub fn run()" in mobile_lib
+        assert "::run();" in mobile_main
     for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
         assert extension in publisher
     assert "versões publicadas são imutáveis" in publisher

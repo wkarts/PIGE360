@@ -22,7 +22,36 @@ for app in family-app teacher-app student-app admin-app pos-app; do
       rm -rf src-tauri/gen/apple
     fi
     if [ ! -d src-tauri/gen/apple ]; then
+      # O `ios init` também lê `CFBundleShortVersionString`. Preserve qualquer
+      # configuração iOS existente, aplique a versão numérica só durante a
+      # geração e restaure o arquivo antes de compilar/publicar artefatos.
+      ios_platform_config='src-tauri/tauri.ios.conf.json'
+      ios_platform_backup="$(mktemp)"
+      if [ -f "$ios_platform_config" ]; then
+        cp "$ios_platform_config" "$ios_platform_backup"
+      fi
+      restore_ios_platform_config() {
+        if [ -s "$ios_platform_backup" ]; then
+          cp "$ios_platform_backup" "$ios_platform_config"
+        else
+          rm -f "$ios_platform_config"
+        fi
+        rm -f "$ios_platform_backup"
+      }
+      trap restore_ios_platform_config EXIT HUP INT TERM
+      python3 - "$ios_platform_config" "$ios_version" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+config = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+config["version"] = sys.argv[2]
+path.write_text(json.dumps(config), encoding="utf-8")
+PY
       npx --no-install tauri ios init --ci
+      restore_ios_platform_config
+      trap - EXIT HUP INT TERM
     fi
     [ -d src-tauri/gen/apple ] || {
       echo "Falha ao gerar o projeto iOS para $app." >&2

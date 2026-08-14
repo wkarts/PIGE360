@@ -19,6 +19,15 @@ BRIDGED_APPS = {
     "teacher-app",
     "timeclock-app",
 }
+MOBILE_BRIDGED_APPS = {
+    "admin-app",
+    "family-app",
+    "kiosk-app",
+    "pos-app",
+    "student-app",
+    "teacher-app",
+    "timeclock-app",
+}
 COMMANDS = {
     "secure_session_put",
     "secure_session_get",
@@ -54,7 +63,16 @@ def main() -> int:
     module_path = '#[path = "../../../../rust/crates/native-bridge/src/tauri_commands.rs"]'
     for app in sorted(BRIDGED_APPS):
         main_rs = ROOT / "apps" / app / "src-tauri/src/main.rs"
-        text = main_rs.read_text(encoding="utf-8")
+        command_source = main_rs
+        if app in MOBILE_BRIDGED_APPS:
+            command_source = main_rs.with_name("lib.rs")
+            main_text = main_rs.read_text(encoding="utf-8")
+            if "::run();" not in main_text:
+                failures.append(f"{app}: executável não delega para a biblioteca móvel")
+            if not command_source.is_file():
+                failures.append(f"{app}: biblioteca móvel Tauri ausente")
+                continue
+        text = command_source.read_text(encoding="utf-8")
         if module_path not in text:
             failures.append(f"{app}: módulo local de comandos Tauri ausente")
         stale = [command for command in COMMANDS if f"pige360_native_bridge::{command}" in text]
@@ -63,13 +81,17 @@ def main() -> int:
         missing = [command for command in COMMANDS if f"tauri_commands::{command}" not in text]
         if missing:
             failures.append(f"{app}: comandos locais ausentes: {sorted(missing)}")
+        if app in MOBILE_BRIDGED_APPS:
+            for required in ("#[cfg_attr(mobile, tauri::mobile_entry_point)]", "pub fn run()"):
+                if required not in text:
+                    failures.append(f"{app}: biblioteca móvel sem ponto de entrada Tauri: {required}")
 
     ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
     if 'ios_version="${version%-alpha.*}"' not in ios or '--config "$ios_config"' not in ios:
         failures.append("build iOS não converte a versão alpha para CFBundleShortVersionString numérico")
     if 'version="$(tr -d' not in ios:
         failures.append("build iOS não deriva a versão canônica de VERSION")
-    for required in ("tauri ios init --ci", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS"):
+    for required in ("tauri ios init --ci", "tauri.ios.conf.json", "restore_ios_platform_config", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS"):
         if required not in ios:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
