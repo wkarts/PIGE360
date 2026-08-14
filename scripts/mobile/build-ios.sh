@@ -57,10 +57,7 @@ PY
       echo "Falha ao gerar o projeto iOS para $app." >&2
       exit 4
     }
-    # Os artefatos desta etapa são deliberadamente unsigned. As credenciais
-    # Apple entram apenas no workflow de assinatura, nunca no build de PR.
-    npx --no-install tauri ios build --target aarch64 --config "$ios_config" -- \
-      CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+    npx --no-install tauri ios build --target aarch64 --config "$ios_config"
   )
 done
 find apps -path '*/src-tauri/gen/apple/build/arm64/*.ipa' -type f -exec cp {} release/artifacts/ios/ \;
