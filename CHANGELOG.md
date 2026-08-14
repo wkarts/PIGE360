@@ -10,6 +10,9 @@
 - formulário de cadastro no painel de Compras, OpenAPI e SDK TypeScript alinhados;
 - migration tenant `0044_school_sales_catalog_categories`, documentação e
   cenários de regressão de venda/estoque incluídos.
+- a cadeia de imagens Docker agora usa o builder Docker Engine padrão ao
+  consumir bases locais, evitando busca indevida das imagens `pige360-base-*`
+  no Docker Hub durante os workflows de aplicação e pré-lançamento.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 

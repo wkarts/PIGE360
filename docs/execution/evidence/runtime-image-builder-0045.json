@@ -1,0 +1,64 @@
+{
+  "increment": "0045_runtime_image_engine_builder",
+  "generated_at": "2026-08-14T06:44:52Z",
+  "scope": "Correção da cadeia local de imagens Docker nos workflows 20 e 50.",
+  "incident": {
+    "source": "logs_86206287553.zip / workflow build-runtime-images",
+    "observed_at": "2026-08-14T06:31:03Z",
+    "symptom": "A construção de pige360-api falhou ao resolver pige360-base-python:1.0.0-alpha.1 em docker.io.",
+    "root_cause": "docker/setup-buildx-action selecionou um builder docker-container. As imagens base foram exportadas com --load para o Docker Engine, mas esse builder isolado não compartilha automaticamente essas tags e tentou baixá-las de um registro remoto inexistente.",
+    "evidence": "O log mostra exportação e importação local da base, seguida de 'pull access denied' ao resolver docker.io/library/pige360-base-python:1.0.0-alpha.1."
+  },
+  "implementation": {
+    "script": "scripts/oci/build-runtime-images.sh valida e seleciona explicitamente o builder default (driver Docker Engine) em todas as construções da cadeia.",
+    "preserved_behavior": [
+      "exportação em TAR, checksum e metadados por imagem",
+      "imagens base e de aplicação com as mesmas tags",
+      "workflows 20 e 50, smoke test Compose e publicação remota desabilitada"
+    ],
+    "regression_test": "Teste de infraestrutura confirma a seleção do builder do Engine e os argumentos de encadeamento da base Python e da API."
+  },
+  "validation": [
+    {
+      "command": "bash -n scripts/oci/build-runtime-images.sh",
+      "result": "Sintaxe Shell aprovada.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 (execução direta de backend/tests/infrastructure/test_compose_homologation_smoke.py)",
+      "result": "4 testes estáticos aprovados, incluindo test_runtime_image_build_uses_engine_builder_for_local_base_chain.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/validate_project.py --output docs/execution/evidence/validation-runtime-image-builder-0045.json",
+      "result": "Validador estrutural aprovado; 564 paths e 695 operações OpenAPI, sem falhas.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/secret_scan.py",
+      "result": "2195 arquivos examinados; 0 achados.",
+      "status": "passed"
+    },
+    {
+      "command": "bash scripts/oci/build-runtime-images.sh all release/artifacts/docker/runtime",
+      "result": "Não executado localmente: Docker/Buildx não está disponível neste ambiente. O fluxo GitHub Actions deve reexecutar o workflow 20 ou 50 para validar as imagens e o smoke Compose reais.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0044-20260814.zip",
+    "baseline_sha256": "9581ec913e1b1b1f9cc66a471716dff8211c60379beae8027cd6ccbd164a22cc",
+    "comparison": {
+      "baseline_files": 2843,
+      "current_files": 2845,
+      "added": 2,
+      "modified": 4,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0044 foi removido no incremento 0045."
+  },
+  "limits": [
+    "Não houve push, criação de Pull Request, publicação em registro ou deploy remoto.",
+    "A execução real do Docker/Compose depende do runner GitHub Actions."
+  ]
+}

@@ -31,3 +31,13 @@ def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
     for image in ("pige360-migrations", "pige360-api", "pige360-web"):
         assert f"image: {image}:${{PIGE360_IMAGE_TAG}}" in override
     assert override.count("pull_policy: never") == 3
+
+
+def test_runtime_image_build_uses_engine_builder_for_local_base_chain() -> None:
+    script = (ROOT / "scripts/oci/build-runtime-images.sh").read_text(encoding="utf-8")
+
+    assert 'engine_builder="default"' in script
+    assert 'docker buildx inspect "$engine_builder"' in script
+    assert '--builder "$engine_builder"' in script
+    assert 'PYTHON_BASE_IMAGE=pige360-base-python:${image_tag}' in script
+    assert 'API_IMAGE=pige360-api:${image_tag}' in script

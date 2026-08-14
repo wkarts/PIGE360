@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-14T04:21:09Z",
+  "created_at": "2026-08-14T06:45:59Z",
   "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2843,
-  "uncompressed_bytes": 79957754,
+  "files_count": 2845,
+  "uncompressed_bytes": 79965483,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -141,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 3365,
-      "sha256": "0b1db70b379a5bf9384bfb431bbf45f48728a19fbad2493b610aa5e5eeac4d6c"
+      "size": 3589,
+      "sha256": "366c378ae412b7d923b4d4543c8078a40368f8c353160098a3495c5b5ebc0271"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -9836,8 +9836,8 @@
     },
     {
       "path": "backend/tests/infrastructure/test_compose_homologation_smoke.py",
-      "size": 1273,
-      "sha256": "84b38572122beaf3bf9b84615b143064fbad9b54db7183e765ea3a223f504d4e"
+      "size": 1739,
+      "sha256": "c4961731d46233a8467ab844a3e9aaa5593dd06d128ef18bdf732e126a5f53e9"
     },
     {
       "path": "backend/tests/integrations/test_external_providers.py",
@@ -10116,8 +10116,8 @@
     },
     {
       "path": "docs/ci-cd/ALPHA_TEST_RELEASE.md",
-      "size": 4162,
-      "sha256": "cacd82f9a2ea0b095570c9efbdc6a8186b79368b1ee519f70070e4af809d6e18"
+      "size": 4678,
+      "sha256": "d34c249151674638516704c2e46c1efd4aa4bc8f73c6b7247831c16ecff97484"
     },
     {
       "path": "docs/ci-cd/README.md",
@@ -12415,6 +12415,11 @@
       "sha256": "d8e279d742ca53a5612d2d0ca157cfc3b338dd20d126a633351f251bbc343542"
     },
     {
+      "path": "docs/execution/evidence/runtime-image-builder-0045.json",
+      "size": 3297,
+      "sha256": "b665ee1df410a3eb164e37f1776ee3889fac9572b03d54493c70d4501a1d319c"
+    },
+    {
       "path": "docs/execution/evidence/school-sales-catalog-categories-0044.json",
       "size": 4505,
       "sha256": "11529a1beed9f4100e05ac3fee20e4da576329d31315f2a0f13e750eb6ed23be"
@@ -12583,6 +12588,11 @@
       "path": "docs/execution/evidence/validation-r000031-rebuilt.json",
       "size": 2607,
       "sha256": "ec916c898530ace5ac8e51c38ed3366398a51e7b7abecb95f56b19d4e2414720"
+    },
+    {
+      "path": "docs/execution/evidence/validation-runtime-image-builder-0045.json",
+      "size": 2631,
+      "sha256": "1d5750d24cf8005a6ac75b4e027d24e6156e084882a0aa5c637e53936d41b4af"
     },
     {
       "path": "docs/execution/evidence/validation-school-sales-catalog-categories-0044.json",
@@ -14156,8 +14166,8 @@
     },
     {
       "path": "scripts/oci/build-runtime-images.sh",
-      "size": 3301,
-      "sha256": "999e1267df15ac47f8b9876c90f9c0021566707aec9979e644e573de8a35813e"
+      "size": 3896,
+      "sha256": "02a4132117d1b6db6ceb6f00ea821013f7b5d55928e00983ccd033cf3f6a10df"
     },
     {
       "path": "scripts/oci/build_structural_oci.py",

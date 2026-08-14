@@ -25,6 +25,17 @@ docker buildx version >/dev/null 2>&1 || {
   exit 3
 }
 
+# As imagens base são exportadas com --load, portanto ficam no Docker Engine
+# local. O builder docker-container ativado por docker/setup-buildx-action não
+# enxerga automaticamente essas tags e tenta buscá-las no Docker Hub. Forçamos
+# o builder padrão (driver docker) para manter a cadeia base -> API -> workers
+# inteiramente no Engine do runner, sem registro remoto.
+engine_builder="default"
+docker buildx inspect "$engine_builder" >/dev/null 2>&1 || {
+  echo "O builder Docker Engine padrão '$engine_builder' não está disponível." >&2
+  exit 3
+}
+
 mkdir -p "$output_dir"
 
 build_image() {
@@ -36,6 +47,7 @@ build_image() {
   local metadata="$output_dir/${safe_name}.metadata.json"
 
   docker buildx build \
+    --builder "$engine_builder" \
     --load \
     --provenance=false \
     --sbom=false \

@@ -66,6 +66,15 @@ pige360-reporting:1.0.0-alpha.1
 Cada imagem é exportada como arquivo TAR acompanhado de SHA-256 e metadados de
 inspeção. O artefato pode ser importado em ambiente de teste com `docker load`.
 
+### Encadeamento local de imagens
+
+O script `scripts/oci/build-runtime-images.sh` constrói as imagens base com
+`--load` e, em seguida, constrói API, web, workers e migrations usando o builder
+Docker Engine padrão (`default`). Isso mantém as tags `pige360-base-*` e
+`pige360-api` disponíveis para os estágios seguintes no mesmo runner, sem tentar
+buscá-las no Docker Hub. O builder isolado criado pelo `setup-buildx-action`
+continua disponível para workflows próprios, mas não é usado nessa cadeia local.
+
 Após a exportação, o workflow sobe somente o núcleo de homologação do Compose:
 PostgreSQL de controle e tenants, Redis, RabbitMQ, MinIO, inicialização de
 migrations, API e web. Os segredos são gerados em diretório temporário do
