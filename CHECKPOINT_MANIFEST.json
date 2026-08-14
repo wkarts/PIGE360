@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-13T06:49:08Z",
+  "created_at": "2026-08-14T04:21:09Z",
   "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2787,
-  "uncompressed_bytes": 77856687,
+  "files_count": 2843,
+  "uncompressed_bytes": 79957754,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -141,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 2833,
-      "sha256": "851ee11536b07d337664a8aa8a297b2920510fcfda4d7eb2aec0e0084bac3399"
+      "size": 3365,
+      "sha256": "0b1db70b379a5bf9384bfb431bbf45f48728a19fbad2493b610aa5e5eeac4d6c"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -375,6 +375,11 @@
       "sha256": "b7c3c253a22898d0ac72d40e64b00ff17c1cb02155e450d16e516efc0e70d161"
     },
     {
+      "path": "apps/admin-app/src/App.vue.js",
+      "size": 136747,
+      "sha256": "a03456fd5fa568c212d579bf7c4daace5d2b1c8ee2afaa1fbfde8f2b851fb9ce"
+    },
+    {
       "path": "apps/admin-app/src/app-contract.js",
       "size": 152,
       "sha256": "88aecd041da920d0cc47c5847aacc54f5f300bb0e50542198a3e607aeaa3afa7"
@@ -390,9 +395,19 @@
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
     },
     {
+      "path": "apps/admin-app/src/components/AnalyticsPanel.vue.js",
+      "size": 14319,
+      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
+    },
+    {
       "path": "apps/admin-app/src/components/CanteenPanel.vue",
       "size": 7974,
       "sha256": "8a193dd0fa34ebe90d155bb3350f3c2d338e09cfa4edbfae36fabb192b6c9d65"
+    },
+    {
+      "path": "apps/admin-app/src/components/CanteenPanel.vue.js",
+      "size": 20510,
+      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
     },
     {
       "path": "apps/admin-app/src/components/CommunicationPanel.vue",
@@ -400,9 +415,19 @@
       "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
     },
     {
+      "path": "apps/admin-app/src/components/CommunicationPanel.vue.js",
+      "size": 23456,
+      "sha256": "c48b7a891d5cadc6f298351c97eea912155eb74e32b9e4e3685f43c55f83cb97"
+    },
+    {
       "path": "apps/admin-app/src/components/EventsTravelPanel.vue",
       "size": 4823,
       "sha256": "5f534ecdbaafde6addf12621f667e6dded927631f7758a3b9ea02b66465016e0"
+    },
+    {
+      "path": "apps/admin-app/src/components/EventsTravelPanel.vue.js",
+      "size": 16246,
+      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
     },
     {
       "path": "apps/admin-app/src/components/MailPanel.vue",
@@ -410,9 +435,19 @@
       "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
+      "path": "apps/admin-app/src/components/MailPanel.vue.js",
+      "size": 26112,
+      "sha256": "c286282fd0d4300a44f4782fc72ec45d226fa165e637f61ee11997d4bf1a1219"
+    },
+    {
       "path": "apps/admin-app/src/components/ReportingPanel.vue",
       "size": 8064,
       "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
+    },
+    {
+      "path": "apps/admin-app/src/components/ReportingPanel.vue.js",
+      "size": 13116,
+      "sha256": "0bf1a38cd795071e2b9f3ad99550e252c137345361f011fc81cb49e8d56f77ce"
     },
     {
       "path": "apps/admin-app/src/components/RequestsPanel.vue",
@@ -420,14 +455,29 @@
       "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
     },
     {
+      "path": "apps/admin-app/src/components/RequestsPanel.vue.js",
+      "size": 27120,
+      "sha256": "e693119dc7776fa54a8df7c599f34cfa69a3d0f2b0be163a6dfca62e84ae3227"
+    },
+    {
       "path": "apps/admin-app/src/components/StudentServicesPanel.vue",
       "size": 32263,
       "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
+      "path": "apps/admin-app/src/components/StudentServicesPanel.vue.js",
+      "size": 64602,
+      "sha256": "8922720a9ec3a2741c5e2df43987a4644bf8771a84acf433f82c1e0d21e47315"
+    },
+    {
       "path": "apps/admin-app/src/components/WorkflowPanel.vue",
       "size": 13979,
       "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
+    },
+    {
+      "path": "apps/admin-app/src/components/WorkflowPanel.vue.js",
+      "size": 26310,
+      "sha256": "0d712c17364217351e04520d34ac855f9ce913aeb54e71b527ca15040d50f968"
     },
     {
       "path": "apps/admin-app/src/main.js",
@@ -553,6 +603,11 @@
       "path": "apps/branding-studio/src/App.vue",
       "size": 8296,
       "sha256": "bbde7fe7625a9372dbd87aef9e3fb700ffd2df7c1ab2b4c55f8252531d3391e9"
+    },
+    {
+      "path": "apps/branding-studio/src/App.vue.js",
+      "size": 22386,
+      "sha256": "4aa081dbd9c2c0e6b37657d9b3e65a6ed8e107dc93eeeb37aa2cffd651e2252d"
     },
     {
       "path": "apps/branding-studio/src/app-contract.js",
@@ -690,6 +745,11 @@
       "sha256": "b7c3c253a22898d0ac72d40e64b00ff17c1cb02155e450d16e516efc0e70d161"
     },
     {
+      "path": "apps/desktop-admin/src/App.vue.js",
+      "size": 136747,
+      "sha256": "a03456fd5fa568c212d579bf7c4daace5d2b1c8ee2afaa1fbfde8f2b851fb9ce"
+    },
+    {
       "path": "apps/desktop-admin/src/app-contract.js",
       "size": 165,
       "sha256": "eb18e72319f6f72c7dca46665a7e11ade335cbf4558fb1b01626bdcc76f335b1"
@@ -705,9 +765,19 @@
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
     },
     {
+      "path": "apps/desktop-admin/src/components/AnalyticsPanel.vue.js",
+      "size": 14319,
+      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
+    },
+    {
       "path": "apps/desktop-admin/src/components/CanteenPanel.vue",
       "size": 7974,
       "sha256": "8a193dd0fa34ebe90d155bb3350f3c2d338e09cfa4edbfae36fabb192b6c9d65"
+    },
+    {
+      "path": "apps/desktop-admin/src/components/CanteenPanel.vue.js",
+      "size": 20510,
+      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
     },
     {
       "path": "apps/desktop-admin/src/components/CommunicationPanel.vue",
@@ -715,9 +785,19 @@
       "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
     },
     {
+      "path": "apps/desktop-admin/src/components/CommunicationPanel.vue.js",
+      "size": 23456,
+      "sha256": "c48b7a891d5cadc6f298351c97eea912155eb74e32b9e4e3685f43c55f83cb97"
+    },
+    {
       "path": "apps/desktop-admin/src/components/EventsTravelPanel.vue",
       "size": 4823,
       "sha256": "5f534ecdbaafde6addf12621f667e6dded927631f7758a3b9ea02b66465016e0"
+    },
+    {
+      "path": "apps/desktop-admin/src/components/EventsTravelPanel.vue.js",
+      "size": 16246,
+      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
     },
     {
       "path": "apps/desktop-admin/src/components/MailPanel.vue",
@@ -725,9 +805,19 @@
       "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
+      "path": "apps/desktop-admin/src/components/MailPanel.vue.js",
+      "size": 26112,
+      "sha256": "c286282fd0d4300a44f4782fc72ec45d226fa165e637f61ee11997d4bf1a1219"
+    },
+    {
       "path": "apps/desktop-admin/src/components/ReportingPanel.vue",
       "size": 8064,
       "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
+    },
+    {
+      "path": "apps/desktop-admin/src/components/ReportingPanel.vue.js",
+      "size": 13116,
+      "sha256": "0bf1a38cd795071e2b9f3ad99550e252c137345361f011fc81cb49e8d56f77ce"
     },
     {
       "path": "apps/desktop-admin/src/components/RequestsPanel.vue",
@@ -735,14 +825,29 @@
       "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
     },
     {
+      "path": "apps/desktop-admin/src/components/RequestsPanel.vue.js",
+      "size": 27120,
+      "sha256": "e693119dc7776fa54a8df7c599f34cfa69a3d0f2b0be163a6dfca62e84ae3227"
+    },
+    {
       "path": "apps/desktop-admin/src/components/StudentServicesPanel.vue",
       "size": 32263,
       "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
+      "path": "apps/desktop-admin/src/components/StudentServicesPanel.vue.js",
+      "size": 64602,
+      "sha256": "8922720a9ec3a2741c5e2df43987a4644bf8771a84acf433f82c1e0d21e47315"
+    },
+    {
       "path": "apps/desktop-admin/src/components/WorkflowPanel.vue",
       "size": 13979,
       "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
+    },
+    {
+      "path": "apps/desktop-admin/src/components/WorkflowPanel.vue.js",
+      "size": 26310,
+      "sha256": "0d712c17364217351e04520d34ac855f9ce913aeb54e71b527ca15040d50f968"
     },
     {
       "path": "apps/desktop-admin/src/main.js",
@@ -868,6 +973,11 @@
       "path": "apps/family-app/src/App.vue",
       "size": 34627,
       "sha256": "b949f8c38ed4340cc131f13c27798f1bcc9f81c8cea05098ad6609694fbc4d8d"
+    },
+    {
+      "path": "apps/family-app/src/App.vue.js",
+      "size": 68305,
+      "sha256": "5bdf306a3b0e5f358bc4bd93aeae13bf26620fd6c004af23214bbac71ca6f1ff"
     },
     {
       "path": "apps/family-app/src/app-contract.js",
@@ -1005,6 +1115,11 @@
       "sha256": "8938d12e4b4b85473feff34727600ec4606b7efdf89dde58032b22ebcc46b075"
     },
     {
+      "path": "apps/kiosk-app/src/App.vue.js",
+      "size": 11430,
+      "sha256": "36fad7271f288c6a545131923116994d547c0afdbce9ff54dd6975eb30c61570"
+    },
+    {
       "path": "apps/kiosk-app/src/app-contract.js",
       "size": 153,
       "sha256": "615973b9cdca691bf7d12b76f9bd1cdfee4e8ed1c5dae8e1a5e30e661e82c255"
@@ -1138,6 +1253,11 @@
       "path": "apps/platform-console/src/App.vue",
       "size": 9736,
       "sha256": "487c7598bf8b3547a7461c8c012188d0f1355e722f68863e9283071b2734000d"
+    },
+    {
+      "path": "apps/platform-console/src/App.vue.js",
+      "size": 26295,
+      "sha256": "e79a286db9a6f8228801ff836104bf08936687311ad9dfbfeee0c431cb49a42a"
     },
     {
       "path": "apps/platform-console/src/app-contract.js",
@@ -1275,6 +1395,11 @@
       "sha256": "a73e3d613507859ceda73d79f6b5b91767ac92201ed3ed2a58d4aff5cfcc8253"
     },
     {
+      "path": "apps/pos-app/src/App.vue.js",
+      "size": 27552,
+      "sha256": "fbe386be2bd88dad7052317ed10abda9b3830906ecb7cbdfa7c2cf68cee9d0f6"
+    },
+    {
       "path": "apps/pos-app/src/app-contract.js",
       "size": 149,
       "sha256": "d2d29641225fab778e2a07981322edb0803d82ddba603dbe2547dc2474909889"
@@ -1408,6 +1533,11 @@
       "path": "apps/public-portal/src/App.vue",
       "size": 3263,
       "sha256": "1108ee83529e7b7acf1dc63d39e67d62f9b89dc72f3d174f4f1f3d9fe6b97113"
+    },
+    {
+      "path": "apps/public-portal/src/App.vue.js",
+      "size": 10534,
+      "sha256": "f16858bffa96711caa103de68da3243d9e0b0c70306b203f77d10c07ed5e85dd"
     },
     {
       "path": "apps/public-portal/src/app-contract.js",
@@ -1545,6 +1675,11 @@
       "sha256": "e569184a0db0c7ee3f6d2c7043eb1bb8511a6ff37ca24f518b8c7120485c6804"
     },
     {
+      "path": "apps/student-app/src/App.vue.js",
+      "size": 39697,
+      "sha256": "5ba3bb9afca416ba39363c518413b8c1f099101dbbc4e15e2bdb9745a480a314"
+    },
+    {
       "path": "apps/student-app/src/app-contract.js",
       "size": 155,
       "sha256": "76e5205ef9df91166fb8a7d7c2a9519b0cb1979612d963a95a025cc20bd24011"
@@ -1680,14 +1815,29 @@
       "sha256": "1a2db7ddaeac4ae782c6a4c834f961de421a9a726bc9d13a8820dc0d6175adec"
     },
     {
+      "path": "apps/teacher-app/src/App.vue.js",
+      "size": 23687,
+      "sha256": "370397d9160ce0b539076a1ca59171310ca4a09cc2615499839d9c9a42e87988"
+    },
+    {
       "path": "apps/teacher-app/src/EarlyChildhoodPanel.vue",
       "size": 8812,
       "sha256": "a8da5e04fac9b99d904c89d75dd7ae3d1b328b9c987165ebbb412edf9b30b133"
     },
     {
+      "path": "apps/teacher-app/src/EarlyChildhoodPanel.vue.js",
+      "size": 16098,
+      "sha256": "bbe704384125c574557c1c3c5cae0e25f73b3715c13f9517806bcf50d8d57099"
+    },
+    {
       "path": "apps/teacher-app/src/GradingPanel.vue",
       "size": 9196,
       "sha256": "00b57ae274c4e81180e675e1b848fca01e4549298b4483b7b7d8d05cdfb563f4"
+    },
+    {
+      "path": "apps/teacher-app/src/GradingPanel.vue.js",
+      "size": 15879,
+      "sha256": "1103c92e9f25d0f7066262727b256dc997a02708a63bc94ba77496217aa19bf3"
     },
     {
       "path": "apps/teacher-app/src/app-contract.js",
@@ -1825,6 +1975,11 @@
       "sha256": "6d38116f24eba6644d6302c32110c3888885dbe86211690127b74e27ca010aa8"
     },
     {
+      "path": "apps/tenant-admin-web/src/App.vue.js",
+      "size": 171563,
+      "sha256": "8b1478ce316553b7fc73d49a5f9a201d3916b0ac46f4c3e878cc432428bf9549"
+    },
+    {
       "path": "apps/tenant-admin-web/src/app-contract.js",
       "size": 168,
       "sha256": "550c4c3e0bf7195c48e7eae9ebb8986f6ec276768a21d6582f28117a327ca3ab"
@@ -1850,9 +2005,19 @@
       "sha256": "67a8c598a0f5b5e320ea8c6d39785c0ff8e8b556bdf51fefdfcc190d13f79201"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/AcademicProgressPanel.vue.js",
+      "size": 34158,
+      "sha256": "3611cb97e39c2ec5623473a9e48924d6ab8fbddce594d0849cfe4d050a767ec8"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/AnalyticsPanel.vue",
       "size": 5952,
       "sha256": "d45163cbd6c5c5708f3b8106128a5d7dc54b74bd98cb219e0152deb4fc51a9bc"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/AnalyticsPanel.vue.js",
+      "size": 14319,
+      "sha256": "d2e114a79603bde2073a0765b369e0d1bdb826829596851457beabe313cafbb2"
     },
     {
       "path": "apps/tenant-admin-web/src/components/AssetsPanel.vue",
@@ -1860,9 +2025,19 @@
       "sha256": "6ecf1e5ffeaebcb77c96219795e0e2f236dd36b383ffb19c252c4a343a67be9c"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/AssetsPanel.vue.js",
+      "size": 47129,
+      "sha256": "8a009d82a2ba20e9bc9d1e086f354d703ba37e95b290f28e73eb6ed92469c018"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/AttendanceCallPanel.vue",
       "size": 12806,
       "sha256": "4e6f23c4ae310dc31ac23772333b18a0112e611a1dcc27054408d1fc6a7a7dd8"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/AttendanceCallPanel.vue.js",
+      "size": 18904,
+      "sha256": "3a1719280e25a3b6feaa53ed3400b464303629effb90f3786d15f9af1af1c2f2"
     },
     {
       "path": "apps/tenant-admin-web/src/components/CanteenPanel.vue",
@@ -1870,9 +2045,19 @@
       "sha256": "bbd8373db42947281a6cd25d8097d4408473f7e13e64534172cab7aff36decfc"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/CanteenPanel.vue.js",
+      "size": 20510,
+      "sha256": "86c7294831e5ab7aef6466ee19480a80f85b5ea54b8b6834d9ce304ab4b735f4"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/CommunicationPanel.vue",
       "size": 12641,
       "sha256": "147c6f450abff3db1491707efa51efe338226ffbe4d1311fb1b1392b97a73b39"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/CommunicationPanel.vue.js",
+      "size": 23456,
+      "sha256": "c48b7a891d5cadc6f298351c97eea912155eb74e32b9e4e3685f43c55f83cb97"
     },
     {
       "path": "apps/tenant-admin-web/src/components/CompliancePanel.vue",
@@ -1880,9 +2065,19 @@
       "sha256": "ae6753aafc7e1edae2a9c4444da23411e96b2f7938dfd51c5d24ca8d3e5109ed"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/CompliancePanel.vue.js",
+      "size": 29657,
+      "sha256": "1445a4c850492b37e5021c49a636d4f15a7b2105ccab7399851a6e7bfcfae6a8"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/EventsTravelPanel.vue",
       "size": 4812,
       "sha256": "45f04b562d21ccc1bc6302a03999c6b570b1af0da26074ffd7ea58b7fdcc83a3"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/EventsTravelPanel.vue.js",
+      "size": 16246,
+      "sha256": "4081631fa901be1fb08b6e147847623d66ed07d3f06820f98f74c4dcea398311"
     },
     {
       "path": "apps/tenant-admin-web/src/components/FiscalPanel.vue",
@@ -1890,9 +2085,19 @@
       "sha256": "4e04c18e0f7e181cdb077754f43301fce2d974ea8c905665438890afbfe3ffd3"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/FiscalPanel.vue.js",
+      "size": 270530,
+      "sha256": "683b1cd43d371d067ab5823eba703aa7999053f1e1a756751b1675692bbb3220"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/GovernmentEducationPanel.vue",
       "size": 10777,
       "sha256": "43101fd283ffac4c184fdbbe153db81cb24897c4b7bcc797a927b553b70c80dc"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/GovernmentEducationPanel.vue.js",
+      "size": 26037,
+      "sha256": "ca30113babc60484fbe925e06a210a626db8d5ae193d1a19f6cd80680b16ac73"
     },
     {
       "path": "apps/tenant-admin-web/src/components/MailPanel.vue",
@@ -1900,9 +2105,19 @@
       "sha256": "56056d518bd6ce7b81f0fe3a9091dcb1e78b927ef5463d3e6c0fdb106274115d"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/MailPanel.vue.js",
+      "size": 26112,
+      "sha256": "c286282fd0d4300a44f4782fc72ec45d226fa165e637f61ee11997d4bf1a1219"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/ProcurementPanel.vue",
-      "size": 67169,
-      "sha256": "d5d73e15653299b780aad7d28815293a593cff46d9a7c97a1c3c2e034d54d47e"
+      "size": 69391,
+      "sha256": "597328eed7e63ea30faada91cdb30fd5c808d3fe1cbbb44d15c09264a70142e8"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/ProcurementPanel.vue.js",
+      "size": 121460,
+      "sha256": "85fea8db9560058e8ab3703298deb1592b060ca7b021a50727a6b11277617bc7"
     },
     {
       "path": "apps/tenant-admin-web/src/components/ReportingPanel.vue",
@@ -1910,9 +2125,19 @@
       "sha256": "f621983fdce48984f379850b455fc8c19ba6b2737ae350f50d402c3367f3a977"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/ReportingPanel.vue.js",
+      "size": 13116,
+      "sha256": "0bf1a38cd795071e2b9f3ad99550e252c137345361f011fc81cb49e8d56f77ce"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/RequestsPanel.vue",
       "size": 13841,
       "sha256": "d00c9ed784386e065adc61853e1af7991d8e8831b97506efbb10a861541bf89d"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/RequestsPanel.vue.js",
+      "size": 27120,
+      "sha256": "e693119dc7776fa54a8df7c599f34cfa69a3d0f2b0be163a6dfca62e84ae3227"
     },
     {
       "path": "apps/tenant-admin-web/src/components/ServicesPanel.vue",
@@ -1920,14 +2145,29 @@
       "sha256": "4874cde665694e916ded67b85da39b6361ef2070f49830599102cd777fd49367"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/ServicesPanel.vue.js",
+      "size": 96962,
+      "sha256": "ac9c5023be4ca47508a40e2020d8a0eda6d31e540f0f4a7a9212c7cad7a0ac27"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/StudentServicesPanel.vue",
       "size": 32263,
       "sha256": "e042780db617641a1ff3818d2419acb6dca0dc4a421e6bc121f68278ebbabf90"
     },
     {
+      "path": "apps/tenant-admin-web/src/components/StudentServicesPanel.vue.js",
+      "size": 64602,
+      "sha256": "8922720a9ec3a2741c5e2df43987a4644bf8771a84acf433f82c1e0d21e47315"
+    },
+    {
       "path": "apps/tenant-admin-web/src/components/WorkflowPanel.vue",
       "size": 13979,
       "sha256": "c4b20e8e0a28a7b43ba4e768d5b16ae8cca9f30e2b3b212cbca7c0a65f602e1c"
+    },
+    {
+      "path": "apps/tenant-admin-web/src/components/WorkflowPanel.vue.js",
+      "size": 26310,
+      "sha256": "0d712c17364217351e04520d34ac855f9ce913aeb54e71b527ca15040d50f968"
     },
     {
       "path": "apps/tenant-admin-web/src/main.js",
@@ -2053,6 +2293,11 @@
       "path": "apps/tenant-download-center/src/App.vue",
       "size": 4324,
       "sha256": "44711d80434a38c0b6d99f596947a17981d10b4eeee363f40020e03827d81460"
+    },
+    {
+      "path": "apps/tenant-download-center/src/App.vue.js",
+      "size": 11751,
+      "sha256": "6c2f1ee164727b2ad6b34ad379875f523230f73f10f4800f3f461696b811a7bc"
     },
     {
       "path": "apps/tenant-download-center/src/app-contract.js",
@@ -2188,6 +2433,11 @@
       "path": "apps/timeclock-app/src/App.vue",
       "size": 3750,
       "sha256": "c292f981b8dd60ec8c5187127ef3fe447aeba8ae5763123dba81999804ea92fb"
+    },
+    {
+      "path": "apps/timeclock-app/src/App.vue.js",
+      "size": 10285,
+      "sha256": "2cfbd458bf2c44b6fa95e82ccebeb46fc932418e35d6feaf462a760efe26ec36"
     },
     {
       "path": "apps/timeclock-app/src/app-contract.js",
@@ -2478,6 +2728,11 @@
       "path": "backend/alembic_tenant/versions/0043_service_payment_receipts.py",
       "size": 2301,
       "sha256": "ef10a77445c665705f172c0a012a4c16bccfcbeeb230efcc69e6af8e6ea268e0"
+    },
+    {
+      "path": "backend/alembic_tenant/versions/0044_school_sales_catalog_categories.py",
+      "size": 1760,
+      "sha256": "17edd461bb1f981ed80484cbd5eaae452459758fc2b9b4217b5bfe256451a2bd"
     },
     {
       "path": "backend/app/__init__.py",
@@ -6136,8 +6391,8 @@
     },
     {
       "path": "backend/app/modules/inventory/presentation/router.py",
-      "size": 20807,
-      "sha256": "0cab8c9d3b8811802552526212993d71dc96c4050f9487c657464da33bf01369"
+      "size": 21787,
+      "sha256": "4df4485bfec5758b326188332077063a2bc87c4cfc157874df3043253baf8659"
     },
     {
       "path": "backend/app/modules/inventory/presentation/schemas/__init__.py",
@@ -9146,13 +9401,13 @@
     },
     {
       "path": "backend/app/shared/database/models_tenant.py",
-      "size": 204811,
-      "sha256": "aeda05d7aca6706069c228d5f459e8377899b7a163b1dfd8fe2425aa11f3d531"
+      "size": 204927,
+      "sha256": "1981da2015a9219b207a19d9f7535716ee94b0fe291f19345d1e7d4440d460b3"
     },
     {
       "path": "backend/app/shared/database/operational_schema.sql",
-      "size": 130861,
-      "sha256": "5eafe34a265d60b78366d475cbee10d4faa8ae49968c74f3f13d95695c62ea24"
+      "size": 131037,
+      "sha256": "c1c4bbcc6e4a923ae2dabc7ee1189b3da58858d16fa9f770b3be12c9c0930cfc"
     },
     {
       "path": "backend/app/shared/database/postgres_store.py",
@@ -9166,8 +9421,8 @@
     },
     {
       "path": "backend/app/shared/database/store.py",
-      "size": 11262,
-      "sha256": "f89dc71fe187493edf21eedc4a4724ae8b4812e906a0a1b58d0fc43e74b7ba0c"
+      "size": 11717,
+      "sha256": "432d0c75f619066db0010af70c2baf7f23a5f5f7f082d7a153d2620b82f85752"
     },
     {
       "path": "backend/app/shared/database/tenant_schema.sql",
@@ -9466,8 +9721,8 @@
     },
     {
       "path": "backend/tests/execution/test_portable_checkpoint_builder.py",
-      "size": 1930,
-      "sha256": "665c01e19198f81ee1507aae407202b0119754cd41ce2a2153f63aa46f1a7eb3"
+      "size": 2199,
+      "sha256": "60fbed69b83c896bb0d5baba2a4b4cad72385c8d9ec53cbb36f4458c3850f99a"
     },
     {
       "path": "backend/tests/finance/test_finance_banking_services.py",
@@ -9561,8 +9816,8 @@
     },
     {
       "path": "backend/tests/frontend/test_tenant_admin_vertical_modules.py",
-      "size": 11116,
-      "sha256": "d2f0794a82299c50d96dddf4f78a9c64e6aeb380317dd39a000fe2bf47d7d5b4"
+      "size": 12150,
+      "sha256": "2c7bc7d278815c4a5b9da8b4859c07290590b793dbe2fc23ee087a52acc3a85c"
     },
     {
       "path": "backend/tests/government_education/test_government_education.py",
@@ -9655,6 +9910,11 @@
       "sha256": "40814e659632f77b8d1dbd5d30f2a0c140397130a4e685075d5fd0bb29637fd3"
     },
     {
+      "path": "backend/tests/migrations/test_school_sales_catalog_categories_migration.py",
+      "size": 1472,
+      "sha256": "fb871d7ae52a7c6941979f954565bc18b07e2213d3d96741f423cf59323773f4"
+    },
+    {
       "path": "backend/tests/migrations/test_service_fiscal_document_linkage_migration.py",
       "size": 1426,
       "sha256": "e451b297223db9b49c05e4c77f95e0d9ba2e5181b0d9146dadd4913e01e2b7c9"
@@ -9708,6 +9968,11 @@
       "path": "backend/tests/sales/test_sales_inventory_procurement.py",
       "size": 10734,
       "sha256": "153d88606646f7d70c3d5ab8e2a687dd4e10792aa1342dae97aec8604e1c1926"
+    },
+    {
+      "path": "backend/tests/sales/test_school_sales_catalog_categories.py",
+      "size": 3930,
+      "sha256": "e41796b661fa02b1137b854abd923fe3c9d36d01f4e8782fc7e187d670629416"
     },
     {
       "path": "backend/tests/security/test_host_and_auth.py",
@@ -9806,13 +10071,13 @@
     },
     {
       "path": "docs/api/openapi.json",
-      "size": 1561767,
-      "sha256": "64e368246f507874de2bf97e80d687257aeffc6b78391b0e0724229429b64d1b"
+      "size": 1563135,
+      "sha256": "07dda72c8baa897ad5d205cb21869e313bea991cbb7b3ff5e526b80e8f2b4298"
     },
     {
       "path": "docs/api/openapi.yaml",
-      "size": 958581,
-      "sha256": "64dc2df13b3939c1104e39544e0ff13dd6e81dbddaa36154b725986dc5c3f514"
+      "size": 959428,
+      "sha256": "8de208cd43008b655c6ab1dca09894a21d91f0e5223b22b642f3aa275b4436b8"
     },
     {
       "path": "docs/app-factory/APP_FACTORY.md",
@@ -10796,8 +11061,8 @@
     },
     {
       "path": "docs/execution/REQUIREMENTS_MATRIX.md",
-      "size": 1059308,
-      "sha256": "f8b975559b76010685cc42307d66475b06aa78e9f957eeaceed6028226cb651c"
+      "size": 1063301,
+      "sha256": "60483ff06c9cfe151a4b06939f5145510951164042d59c4c5dfbc15c8a4dc606"
     },
     {
       "path": "docs/execution/WORKSPACE_BASELINE.md",
@@ -12150,6 +12415,11 @@
       "sha256": "d8e279d742ca53a5612d2d0ca157cfc3b338dd20d126a633351f251bbc343542"
     },
     {
+      "path": "docs/execution/evidence/school-sales-catalog-categories-0044.json",
+      "size": 4505,
+      "sha256": "11529a1beed9f4100e05ac3fee20e4da576329d31315f2a0f13e750eb6ed23be"
+    },
+    {
       "path": "docs/execution/evidence/sdk-0040-typescript-strict.log",
       "size": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
@@ -12315,6 +12585,11 @@
       "sha256": "ec916c898530ace5ac8e51c38ed3366398a51e7b7abecb95f56b19d4e2414720"
     },
     {
+      "path": "docs/execution/evidence/validation-school-sales-catalog-categories-0044.json",
+      "size": 2631,
+      "sha256": "1d5750d24cf8005a6ac75b4e027d24e6156e084882a0aa5c637e53936d41b4af"
+    },
+    {
       "path": "docs/execution/evidence/validation-service-nfse-0042.json",
       "size": 2607,
       "sha256": "ec916c898530ace5ac8e51c38ed3366398a51e7b7abecb95f56b19d4e2414720"
@@ -12356,8 +12631,8 @@
     },
     {
       "path": "docs/execution/requirements.json",
-      "size": 1973871,
-      "sha256": "7e53f64f71f134b5a1650487bda4bc51c101a4e933ba839e78ebb7fc41a10892"
+      "size": 1977738,
+      "sha256": "20f0840cae714234f3139df9dd0c3d85e184c6d022640f2706b3c535f102f4b4"
     },
     {
       "path": "docs/fiscal/FISCAL_ARTIFACT_DELIVERY.md",
@@ -12478,6 +12753,11 @@
       "path": "docs/operations/RUNBOOK.md",
       "size": 672,
       "sha256": "8afb87df2a31de6af330d152c43271cb1a721ab5db90db0490b05b9f4ca00524"
+    },
+    {
+      "path": "docs/sales/SCHOOL_SALES_CATALOG_CATEGORIES.md",
+      "size": 1471,
+      "sha256": "c0ec21ce91bcfd1f3c1301a91246e48fbeb89f368c0e127f41697624b1a03e71"
     },
     {
       "path": "docs/security/SECURITY_MODEL.md",
@@ -12796,8 +13076,8 @@
     },
     {
       "path": "packages/api-sdk/src/generated/client.ts",
-      "size": 200132,
-      "sha256": "fd05395fa8d1fb9156050beff18d21d49bfe943432341966abde79145b594308"
+      "size": 200307,
+      "sha256": "dd1a98708f58af2a16ca40ceb17eacf016613e360cee75f11fb3c592e7d8ed92"
     },
     {
       "path": "packages/api-sdk/src/generated/operations.json",
@@ -12806,8 +13086,8 @@
     },
     {
       "path": "packages/api-sdk/src/generated/types.ts",
-      "size": 74145,
-      "sha256": "b90e263662e915b399bee822411a5d67c129dabeb8ce15df2c94ca48ff868afb"
+      "size": 74322,
+      "sha256": "9eab3dc01dfab3db5f0026edc050e6bf87afb49e04c17be87961713f6d923638"
     },
     {
       "path": "packages/api-sdk/src/index.ts",
@@ -13731,8 +14011,8 @@
     },
     {
       "path": "scripts/execution/build_portable_checkpoint.py",
-      "size": 5809,
-      "sha256": "57b40c5c2bca3d898db998d9f418513ffafa8ce64137a4552d1e4194d82e7d2e"
+      "size": 5750,
+      "sha256": "5d3a6875d3f02f07b3c74b850404aa30d70f388609123cda99cef6d5eb241fc3"
     },
     {
       "path": "scripts/execution/reconcile_physical_state.py",
@@ -13981,8 +14261,8 @@
     },
     {
       "path": "tsconfig.validation.json",
-      "size": 1935,
-      "sha256": "662526155a12d02169e12a8a5c66e1df86f42d2f7834c3a116525c9cf08e5f43"
+      "size": 1915,
+      "sha256": "20589384b626a1c3a7a646de54af2b51b2320f56e58870591f6ef73af804a076"
     },
     {
       "path": "types/vendor.d.ts",

@@ -1,0 +1,96 @@
+{
+  "increment": "0044_school_sales_catalog_categories",
+  "requirements": [
+    "V8-1611",
+    "V8-1612",
+    "V8-1613",
+    "V8-1614",
+    "V8-1615",
+    "V8-1616",
+    "V8-1617",
+    "V8-1618",
+    "V8-1619"
+  ],
+  "generated_at": "2026-08-14T04:19:07Z",
+  "scope": {
+    "feature": "categorias comerciais para o catálogo escolar",
+    "categories": [
+      "general",
+      "school_uniform",
+      "textbook",
+      "handout",
+      "learning_module",
+      "educational_material",
+      "school_kit",
+      "event_ticket",
+      "event"
+    ],
+    "preserved_contracts": [
+      "product_type legado e seu mapeamento automático",
+      "isolamento por tenant",
+      "estoque, caixa, venda, auditoria e outbox existentes",
+      "fluxo fiscal sem afirmar autorização externa"
+    ]
+  },
+  "implementation": {
+    "api": "POST /api/v1/products aceita school_catalog_category e GET /api/v1/products filtra pela mesma categoria.",
+    "persistence": "products recebe school_catalog_category com padrão general, índice por tenant/categoria/estado e migration tenant 0044.",
+    "compatibility": "uniform, book, material e kit legados são classificados como school_uniform, textbook, educational_material e school_kit quando a categoria não é enviada.",
+    "ui": "O painel de Compras oferece cadastro de produto escolar para todas as categorias suportadas.",
+    "contract": "OpenAPI JSON/YAML e SDK TypeScript foram regenerados a partir do contrato atualizado."
+  },
+  "validation": [
+    {
+      "command": "PATH=/workspace/scratch/5c2f04430b6d/PIGE360/node_modules/.bin:$PATH tsc -p tsconfig.validation.json --noEmit",
+      "result": "TypeScript 5.8.3 aprovado sem saída de erro.",
+      "status": "passed"
+    },
+    {
+      "command": "PATH=/workspace/scratch/5c2f04430b6d/PIGE360/node_modules/.bin:$PATH python3 scripts/frontend/validate_vue_sfc.py apps/tenant-admin-web/src/components/ProcurementPanel.vue",
+      "result": "Estrutura do template e TypeScript estrito do componente aprovados.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/validate_project.py --output docs/execution/evidence/validation-school-sales-catalog-categories-0044.json",
+      "result": "Validador estrutural aprovado: 13 aplicações, 51 módulos obrigatórios, 15 workflows, 46 serviços Compose, 564 paths e 695 operações OpenAPI sem operationId duplicado.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/secret_scan.py",
+      "result": "2193 arquivos examinados; 0 achados.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 (AST do código alterado + SQLite em memória com backend/app/shared/database/operational_schema.sql)",
+      "result": "Arquivos Python analisados; products expõe school_catalog_category TEXT NOT NULL DEFAULT general e o índice ix_products_school_catalog_category.",
+      "status": "passed"
+    },
+    {
+      "command": "jq empty docs/api/openapi.json; python3 -c 'import yaml; yaml.safe_load(...)'; python3 scripts/api/generate_typescript_sdk.py",
+      "result": "OpenAPI JSON e YAML válidos; SDK gerado com 377 schemas e 695 operações; ProductInput e list_products_relational expõem as nove categorias.",
+      "status": "passed"
+    },
+    {
+      "command": "PYTHONPATH=backend python3 -m pytest backend/tests/sales/test_school_sales_catalog_categories.py backend/tests/migrations/test_school_sales_catalog_categories_migration.py backend/tests/frontend/test_tenant_admin_vertical_modules.py -q",
+      "result": "Não executado neste ambiente: fastapi, alembic e pytest não estão instalados. Os cenários foram adicionados e a validação estática foi executada.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-alpha-1-homologation-candidate-20260813.zip",
+    "baseline_sha256": "ef226db3afefd6d724a7e976b64207b1ac94670261a2f789d11bbca07fa37b72",
+    "comparison": {
+      "baseline_files": 2837,
+      "current_files": 2843,
+      "added": 6,
+      "modified": 13,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do candidato de homologação foi removido no checkpoint 0044."
+  },
+  "limits": [
+    "A migration 0044 é PostgreSQL/Alembic; a estrutura SQLite local foi validada separadamente.",
+    "A suíte de API/migration ainda deve ser executada em ambiente com as dependências Python do projeto.",
+    "Não houve publicação, deploy, push remoto, release externo ou execução de imagem OCI."
+  ]
+}

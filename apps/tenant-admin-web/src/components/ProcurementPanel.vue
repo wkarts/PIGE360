@@ -45,6 +45,14 @@ const supplierForm = reactive({
   contact_name: "",
   contact_email: "",
 });
+const productForm = reactive({
+  sku: "",
+  barcode: "",
+  name: "",
+  school_catalog_category: "general",
+  cost: "0",
+  sale_price: "0",
+});
 const variantForm = reactive({
   product_id: "",
   sku: "",
@@ -298,6 +306,30 @@ async function createSupplier(): Promise<void> {
       contact_email: "",
     });
     emit("notice", "Fornecedor e contato cadastrados.");
+    await load();
+  } catch (error) {
+    emit("error", message(error));
+  }
+}
+async function createProduct(): Promise<void> {
+  try {
+    await post("/products", {
+      sku: productForm.sku,
+      barcode: nullable(productForm.barcode),
+      name: productForm.name,
+      school_catalog_category: productForm.school_catalog_category,
+      cost: productForm.cost,
+      sale_price: productForm.sale_price,
+    });
+    Object.assign(productForm, {
+      sku: "",
+      barcode: "",
+      name: "",
+      school_catalog_category: "general",
+      cost: "0",
+      sale_price: "0",
+    });
+    emit("notice", "Produto escolar cadastrado e disponível para venda e estoque.");
     await load();
   } catch (error) {
     emit("error", message(error));
@@ -968,6 +1000,30 @@ onMounted(load);
         </div>
       </section>
       <section class="grid-2 forms">
+        <form class="panel" @submit.prevent="createProduct">
+          <h2>Produto escolar</h2>
+          <div class="cols">
+            <label>SKU<input v-model="productForm.sku" required /></label>
+            <label>Código de barras<input v-model="productForm.barcode" /></label>
+          </div>
+          <label>Nome<input v-model="productForm.name" required /></label>
+          <label>Categoria escolar<select v-model="productForm.school_catalog_category">
+            <option value="general">Produto diverso</option>
+            <option value="school_uniform">Fardamento e uniformes</option>
+            <option value="textbook">Livro</option>
+            <option value="handout">Apostila</option>
+            <option value="learning_module">Módulo didático</option>
+            <option value="educational_material">Material escolar</option>
+            <option value="school_kit">Kit escolar</option>
+            <option value="event_ticket">Ingresso</option>
+            <option value="event">Evento</option>
+          </select></label>
+          <div class="cols">
+            <label>Custo<input v-model="productForm.cost" type="number" min="0" step="0.01" required /></label>
+            <label>Venda<input v-model="productForm.sale_price" type="number" min="0" step="0.01" required /></label>
+          </div>
+          <button class="primary">Cadastrar produto</button>
+        </form>
         <form class="panel" @submit.prevent="createVariant">
           <h2>Variação de produto</h2>
           <label

@@ -16,6 +16,9 @@ def test_builder_ignores_restored_checkpoint_manifest_and_emits_one_canonical_ma
     workspace.mkdir()
     (workspace / "VERSION").write_text("1.0.0\n", encoding="utf-8")
     (workspace / "application.txt").write_text("conteúdo operacional\n", encoding="utf-8")
+    generated_vue_mirror = workspace / "apps" / "admin-app" / "src" / "App.vue.js"
+    generated_vue_mirror.parent.mkdir(parents=True)
+    generated_vue_mirror.write_text("export default {};\n", encoding="utf-8")
     (workspace / "CHECKPOINT_MANIFEST.json").write_text(
         json.dumps({"format": "stale-restored-checkpoint"}),
         encoding="utf-8",
@@ -46,6 +49,7 @@ def test_builder_ignores_restored_checkpoint_manifest_and_emits_one_canonical_ma
         assert len(names) == len(set(names))
         assert names.count("CHECKPOINT_MANIFEST.json") == 1
         assert "application.txt" in names
+        assert "apps/admin-app/src/App.vue.js" in names
         assert not any(".pytest_cache" in name for name in names)
         manifest = json.loads(archive.read("CHECKPOINT_MANIFEST.json"))
         assert manifest["format"] == "pige360-workspace-portable-checkpoint"

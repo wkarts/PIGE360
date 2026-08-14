@@ -121,6 +121,7 @@ class SQLiteStore:
                 "fiscal_assembly_id": "TEXT",
             },
             "stock_movements": {"lot_id": "TEXT", "balance_after": "NUMERIC"},
+            "products": {"school_catalog_category": "TEXT NOT NULL DEFAULT 'general'"},
             "suppliers": {
                 "code": "TEXT", "rating": "NUMERIC", "payment_terms_json": "TEXT NOT NULL DEFAULT '{}'",
                 "fiscal_profile_json": "TEXT NOT NULL DEFAULT '{}'", "notes": "TEXT", "institution_id": "TEXT",
@@ -162,6 +163,15 @@ class SQLiteStore:
             for column, ddl in additions.items():
                 if column not in columns:
                     conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column} {ddl}")
+
+        products_table = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='products'"
+        ).fetchone()
+        if products_table:
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS ix_products_school_catalog_category "
+                "ON products(tenant_id, school_catalog_category, state)"
+            )
 
         table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='legal_contracts'").fetchone()
         if not table:

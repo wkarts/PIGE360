@@ -6924,6 +6924,24 @@ paths:
           - type: string
           - type: 'null'
           title: Q
+      - name: school_catalog_category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            enum:
+            - general
+            - school_uniform
+            - textbook
+            - handout
+            - learning_module
+            - educational_material
+            - school_kit
+            - event_ticket
+            - event
+          - type: 'null'
+          title: School Catalog Category
       - name: authorization
         in: header
         required: false
@@ -34273,6 +34291,21 @@ components:
           - kit
           title: Product Type
           default: product
+        school_catalog_category:
+          anyOf:
+          - type: string
+            enum:
+            - general
+            - school_uniform
+            - textbook
+            - handout
+            - learning_module
+            - educational_material
+            - school_kit
+            - event_ticket
+            - event
+          - type: 'null'
+          title: School Catalog Category
         ncm:
           anyOf:
           - type: string

@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — checkpoint 0044 (2026-08-14)
+
+### Catálogo comercial escolar
+
+- categorias explícitas para uniforme, livros, apostilas, módulos, materiais,
+  kits, ingressos e eventos, mantendo compatibilidade com `product_type` legado;
+- filtro por categoria com isolamento por tenant e índice operacional;
+- formulário de cadastro no painel de Compras, OpenAPI e SDK TypeScript alinhados;
+- migration tenant `0044_school_sales_catalog_categories`, documentação e
+  cenários de regressão de venda/estoque incluídos.
+
 ## [1.0.0-alpha.1] - 2026-08-13
 
 ### Pré-lançamento de testes

@@ -151,6 +151,7 @@ class Product(TenantEntityMixin, Base):
     barcode: Mapped[str | None] = mapped_column(String(80), nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     kind: Mapped[str] = mapped_column(String(40), nullable=False, default="product")
+    school_catalog_category: Mapped[str] = mapped_column(String(40), nullable=False, default="general", index=True)
     sale_price: Mapped[Decimal] = mapped_column(MONEY, nullable=False, default=Decimal("0.00"))
     cost_price: Mapped[Decimal] = mapped_column(MONEY, nullable=False, default=Decimal("0.00"))
     stock_controlled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

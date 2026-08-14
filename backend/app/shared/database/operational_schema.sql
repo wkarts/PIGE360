@@ -207,11 +207,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_service_receipts_active_payment ON service_
 
 CREATE TABLE IF NOT EXISTS products (
   id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, sku TEXT NOT NULL, barcode TEXT, name TEXT NOT NULL,
-  product_type TEXT NOT NULL DEFAULT 'product', ncm TEXT, cest TEXT, unit TEXT NOT NULL DEFAULT 'UN',
+  product_type TEXT NOT NULL DEFAULT 'product', school_catalog_category TEXT NOT NULL DEFAULT 'general', ncm TEXT, cest TEXT, unit TEXT NOT NULL DEFAULT 'UN',
   cost NUMERIC NOT NULL DEFAULT 0, sale_price NUMERIC NOT NULL DEFAULT 0, fiscal_profile_json TEXT NOT NULL DEFAULT '{}',
   allergen_json TEXT NOT NULL DEFAULT '[]', restriction_json TEXT NOT NULL DEFAULT '{}', state TEXT NOT NULL DEFAULT 'active',
   created_at TEXT NOT NULL, updated_at TEXT NOT NULL, UNIQUE(tenant_id, sku), UNIQUE(tenant_id, barcode)
 );
+CREATE INDEX IF NOT EXISTS ix_products_school_catalog_category ON products(tenant_id, school_catalog_category, state);
 CREATE TABLE IF NOT EXISTS stock_balances (
   tenant_id TEXT NOT NULL, product_id TEXT NOT NULL REFERENCES products(id), warehouse TEXT NOT NULL DEFAULT 'default',
   quantity NUMERIC NOT NULL DEFAULT 0, reserved NUMERIC NOT NULL DEFAULT 0, updated_at TEXT NOT NULL,

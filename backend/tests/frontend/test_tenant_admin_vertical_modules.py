@@ -51,6 +51,7 @@ def test_vertical_panels_only_call_routes_present_in_current_openapi() -> None:
             "/api/v1/service-receipts/{receipt_id}/void",
         },
         "components/ProcurementPanel.vue": {
+            "/api/v1/products",
             "/api/v1/suppliers",
             "/api/v1/inventory/product-variants",
             "/api/v1/inventory/product-barcodes",
@@ -154,7 +155,7 @@ def test_every_declared_vertical_action_has_an_executable_handler() -> None:
             "issueReceipt", "downloadReceipt", "voidReceipt", "scheduleExecution", "executionAction", "load",
         },
         "components/ProcurementPanel.vue": {
-            "createSupplier", "toggleSupplier", "createVariant", "createBarcode", "createRequisition",
+            "createSupplier", "createProduct", "toggleSupplier", "createVariant", "createBarcode", "createRequisition",
             "showRequisition", "requisitionAction", "createQuotation", "showQuotation", "submitProposal",
             "awardQuotation", "createOrder", "showOrder", "approveOrder", "receiveOrder", "returnOrderItem",
             "createReservation", "reservationAction", "createCount", "completeCount",
@@ -186,6 +187,33 @@ def test_every_declared_vertical_action_has_an_executable_handler() -> None:
             assert re.search(rf"@(?:click|submit\.prevent|change)=\"[^\"]*\b{re.escape(handler)}\b", source), (
                 f"Handler {handler} não está ligado a uma ação de interface em {relative}"
             )
+
+
+def test_school_sales_catalog_categories_are_aligned_between_ui_and_openapi() -> None:
+    source = _text("components/ProcurementPanel.vue")
+    spec = json.loads(OPENAPI.read_text(encoding="utf-8"))
+    expected = {
+        "general",
+        "school_uniform",
+        "textbook",
+        "handout",
+        "learning_module",
+        "educational_material",
+        "school_kit",
+        "event_ticket",
+        "event",
+    }
+    category_schema = spec["components"]["schemas"]["ProductInput"]["properties"]["school_catalog_category"]
+    contract_categories = set(category_schema["anyOf"][0]["enum"])
+    query = next(
+        item for item in spec["paths"]["/api/v1/products"]["get"]["parameters"]
+        if item["name"] == "school_catalog_category"
+    )
+    assert contract_categories == expected
+    assert set(query["schema"]["anyOf"][0]["enum"]) == expected
+    for category in expected:
+        assert f'value="{category}"' in source
+    assert "createProduct" in source
 
 
 def test_fiscal_routing_surface_exposes_financial_cancel_policy_without_fake_payment_deletion() -> None:

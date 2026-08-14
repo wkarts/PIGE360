@@ -42,8 +42,6 @@ def include(rel: str) -> bool:
         return False
     if path.name in EXCLUDED_NAMES:
         return False
-    if path.name.endswith(".vue.js"):
-        return False
     if path.suffix.lower() in EXCLUDED_SUFFIXES:
         return False
     if path.name.startswith(".env.") and path.name != ".env.example":
