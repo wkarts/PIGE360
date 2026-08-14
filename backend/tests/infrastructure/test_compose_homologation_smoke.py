@@ -64,13 +64,17 @@ def test_rabbitmq_uses_a_secret_loader_and_a_startup_grace_period() -> None:
         assert rabbitmq["healthcheck"]["retries"] == 12
 
 
-def test_compose_smoke_keeps_rabbitmq_diagnostics_after_a_startup_failure() -> None:
+def test_compose_smoke_keeps_service_diagnostics_after_a_startup_failure() -> None:
     smoke = (ROOT / "scripts/ci/smoke-compose-homologation.sh").read_text(encoding="utf-8")
+    dockerfile = (ROOT / "infra/docker/Dockerfile.web").read_text(encoding="utf-8")
 
     assert "capture_startup_failure" in smoke
     assert "compose-startup-diagnostics.log" in smoke
-    assert "logs --no-color --timestamps pige360-rabbitmq" in smoke
+    assert "logs --no-color --timestamps pige360-web pige360-rabbitmq" in smoke
     assert "if ! docker compose" in smoke
+    assert "rm -f /etc/nginx/conf.d/default.conf" in dockerfile
+    assert "RUN nginx -t" in dockerfile
+    assert "ENTRYPOINT []" in dockerfile
 
     for name in (
         ".github/workflows/20-application-images.yml",
