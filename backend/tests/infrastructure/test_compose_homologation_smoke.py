@@ -85,3 +85,20 @@ def test_compose_smoke_keeps_service_diagnostics_after_a_startup_failure() -> No
         assert "'compose.yaml'" in workflow
         assert "'infra/templates/**'" in workflow
         assert "if: ${{ always() }}" in workflow
+
+
+def test_web_tmpfs_is_writable_by_the_unprivileged_nginx_user() -> None:
+    expected_tmpfs = [
+        "/var/cache/nginx:mode=0755,uid=10001,gid=10001",
+        "/var/run:mode=0755,uid=10001,gid=10001",
+    ]
+
+    for name in ("compose.yaml", "infra/templates/compose.yaml.tmpl"):
+        compose = yaml.safe_load((ROOT / name).read_text(encoding="utf-8"))
+        for service in (
+            "pige360-web",
+            "pige360-platform-console",
+            "pige360-branding-studio",
+            "pige360-tenant-download-center",
+        ):
+            assert compose["services"][service]["tmpfs"] == expected_tmpfs
