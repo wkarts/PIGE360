@@ -22,9 +22,9 @@ def test_tenant_admin_registers_services_procurement_and_assets_surfaces() -> No
         ("FiscalPanel", "fiscal", "Fiscal"),
     ):
         assert f'import {component} from "./components/{component}.vue"' in app
-        assert f'"{area}","{label}"' in app
-        assert f"active==='{area}'" in app
-        assert f"<{component} :api=\"api\"" in app
+        assert re.search(rf'\[\s*"{re.escape(area)}"\s*,\s*"{re.escape(label)}"', app)
+        assert re.search(rf"active\s*===\s*['\"]{re.escape(area)}['\"]", app)
+        assert re.search(rf"<{re.escape(component)}\s+:api=\"api\"", app)
 
 
 def test_vertical_panels_only_call_routes_present_in_current_openapi() -> None:
@@ -44,8 +44,14 @@ def test_vertical_panels_only_call_routes_present_in_current_openapi() -> None:
             "/api/v1/services/{service_id}/billing-rules",
             "/api/v1/service-subscriptions/{subscription_id}/competencies",
             "/api/v1/service-orders/{order_id}/executions",
+            "/api/v1/service-orders/{order_id}/receipts",
+            "/api/v1/service-orders/{order_id}/receipt-payments",
+            "/api/v1/service-receipts/{receipt_id}",
+            "/api/v1/service-receipts/{receipt_id}/document",
+            "/api/v1/service-receipts/{receipt_id}/void",
         },
         "components/ProcurementPanel.vue": {
+            "/api/v1/products",
             "/api/v1/suppliers",
             "/api/v1/inventory/product-variants",
             "/api/v1/inventory/product-barcodes",
@@ -146,10 +152,10 @@ def test_every_declared_vertical_action_has_an_executable_handler() -> None:
             "createCatalog", "createService", "showService", "updateServiceStatus", "createVariant",
             "createPrice", "createFiscalProfile", "publishFiscal", "createBillingRule", "createSubscription",
             "subscriptionAction", "generateCompetence", "createOrder", "orderAction", "showOrder",
-            "scheduleExecution", "executionAction", "load",
+            "issueReceipt", "downloadReceipt", "voidReceipt", "scheduleExecution", "executionAction", "load",
         },
         "components/ProcurementPanel.vue": {
-            "createSupplier", "toggleSupplier", "createVariant", "createBarcode", "createRequisition",
+            "createSupplier", "createProduct", "toggleSupplier", "createVariant", "createBarcode", "createRequisition",
             "showRequisition", "requisitionAction", "createQuotation", "showQuotation", "submitProposal",
             "awardQuotation", "createOrder", "showOrder", "approveOrder", "receiveOrder", "returnOrderItem",
             "createReservation", "reservationAction", "createCount", "completeCount",
@@ -181,6 +187,33 @@ def test_every_declared_vertical_action_has_an_executable_handler() -> None:
             assert re.search(rf"@(?:click|submit\.prevent|change)=\"[^\"]*\b{re.escape(handler)}\b", source), (
                 f"Handler {handler} não está ligado a uma ação de interface em {relative}"
             )
+
+
+def test_school_sales_catalog_categories_are_aligned_between_ui_and_openapi() -> None:
+    source = _text("components/ProcurementPanel.vue")
+    spec = json.loads(OPENAPI.read_text(encoding="utf-8"))
+    expected = {
+        "general",
+        "school_uniform",
+        "textbook",
+        "handout",
+        "learning_module",
+        "educational_material",
+        "school_kit",
+        "event_ticket",
+        "event",
+    }
+    category_schema = spec["components"]["schemas"]["ProductInput"]["properties"]["school_catalog_category"]
+    contract_categories = set(category_schema["anyOf"][0]["enum"])
+    query = next(
+        item for item in spec["paths"]["/api/v1/products"]["get"]["parameters"]
+        if item["name"] == "school_catalog_category"
+    )
+    assert contract_categories == expected
+    assert set(query["schema"]["anyOf"][0]["enum"]) == expected
+    for category in expected:
+        assert f'value="{category}"' in source
+    assert "createProduct" in source
 
 
 def test_fiscal_routing_surface_exposes_financial_cancel_policy_without_fake_payment_deletion() -> None:

@@ -3,7 +3,7 @@
   "info": {
     "title": "PIGE360 — Plataforma Integrada de Gestão Educacional",
     "description": "API REST multi-tenant do PIGE360",
-    "version": "1.0.0"
+    "version": "1.0.0-alpha.1"
   },
   "paths": {
     "/api/v1/health/live": {
@@ -10991,6 +10991,378 @@
         }
       }
     },
+    "/api/v1/service-orders/{order_id}/receipts": {
+      "get": {
+        "tags": [
+          "services"
+        ],
+        "summary": "List Receipts",
+        "operationId": "list_service_payment_receipts",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Order Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Create Receipt",
+        "operationId": "create_service_payment_receipt",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Order Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 8,
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceReceiptCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-orders/{order_id}/receipt-payments": {
+      "get": {
+        "tags": [
+          "services"
+        ],
+        "summary": "List Receipt Payments",
+        "operationId": "list_service_receipt_payments",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Order Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-receipts/{receipt_id}": {
+      "get": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Get Receipt",
+        "operationId": "get_service_payment_receipt",
+        "parameters": [
+          {
+            "name": "receipt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Receipt Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-receipts/{receipt_id}/document": {
+      "get": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Download Receipt",
+        "operationId": "download_service_payment_receipt",
+        "parameters": [
+          {
+            "name": "receipt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Receipt Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/service-receipts/{receipt_id}/void": {
+      "post": {
+        "tags": [
+          "services"
+        ],
+        "summary": "Void Receipt",
+        "operationId": "void_service_payment_receipt",
+        "parameters": [
+          {
+            "name": "receipt_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Receipt Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceReceiptVoid"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/service-orders/{order_id}/executions": {
       "post": {
         "tags": [
@@ -11500,6 +11872,33 @@
                 }
               ],
               "title": "Q"
+            }
+          },
+          {
+            "name": "school_catalog_category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "general",
+                    "school_uniform",
+                    "textbook",
+                    "handout",
+                    "learning_module",
+                    "educational_material",
+                    "school_kit",
+                    "event_ticket",
+                    "event"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "School Catalog Category"
             }
           },
           {
@@ -24519,7 +24918,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ScheduleInput"
+                "$ref": "#/components/schemas/app__modules__lesson_planning__presentation__router__ScheduleInput"
               }
             }
           }
@@ -25300,7 +25699,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/app__modules__pedagogy__presentation__router__PolicyInput"
+                "$ref": "#/components/schemas/PolicyInput"
               }
             }
           }
@@ -28224,7 +28623,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/app__modules__contracts__presentation__router__TemplateVersionInput"
+                "$ref": "#/components/schemas/TemplateVersionInput"
               }
             }
           }
@@ -31852,7 +32251,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PolicyInput"
+                "$ref": "#/components/schemas/app__modules__library__presentation__router__PolicyInput"
               }
             }
           }
@@ -32365,7 +32764,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/app__modules__transportation__presentation__router__ScheduleInput"
+                "$ref": "#/components/schemas/ScheduleInput"
               }
             }
           }
@@ -33924,7 +34323,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TemplateVersionInput"
+                "$ref": "#/components/schemas/app__modules__communication__presentation__router__TemplateVersionInput"
               }
             }
           }
@@ -38575,11 +38974,8 @@
           "200": {
             "description": "Successful Response",
             "content": {
-              "application/pdf": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -40382,7 +40778,7 @@
             "schema": {
               "type": "string",
               "format": "date",
-              "default": "2026-08-11",
+              "default": "2026-08-12",
               "title": "Occurred On"
             }
           },
@@ -40737,7 +41133,7 @@
             "schema": {
               "type": "string",
               "format": "date",
-              "default": "2026-08-11",
+              "default": "2026-08-12",
               "title": "Occurred On"
             }
           },
@@ -41635,7 +42031,7 @@
             "schema": {
               "type": "string",
               "format": "date",
-              "default": "2026-08-11",
+              "default": "2026-08-12",
               "title": "Occurred On"
             }
           },
@@ -56006,53 +56402,136 @@
       },
       "PolicyInput": {
         "properties": {
-          "code": {
+          "academic_year_id": {
             "type": "string",
-            "title": "Code",
-            "default": "default"
+            "title": "Academic Year Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "class_group_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Group Id"
+          },
+          "component_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component Id"
+          },
+          "calculation_method": {
+            "type": "string",
+            "const": "weighted_average",
+            "title": "Calculation Method",
+            "default": "weighted_average"
+          },
+          "max_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Max Score",
+            "default": "10"
+          },
+          "passing_score": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Passing Score",
+            "default": "6"
+          },
+          "attendance_minimum": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Attendance Minimum",
+            "default": "75"
+          },
+          "rounding_precision": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 0.0,
+            "title": "Rounding Precision",
+            "default": 2
+          },
+          "recovery_strategy": {
+            "type": "string",
+            "enum": [
+              "replace_if_higher",
+              "average_with_recovery",
+              "replace"
+            ],
+            "title": "Recovery Strategy",
+            "default": "replace_if_higher"
+          },
+          "missing_score_strategy": {
+            "type": "string",
+            "enum": [
+              "zero",
+              "ignore"
+            ],
+            "title": "Missing Score Strategy",
+            "default": "zero"
           },
           "effective_from": {
             "type": "string",
             "format": "date",
             "title": "Effective From"
           },
-          "max_loan_days": {
-            "type": "integer",
-            "maximum": 365.0,
-            "minimum": 1.0,
-            "title": "Max Loan Days"
-          },
-          "max_renewals": {
-            "type": "integer",
-            "maximum": 20.0,
-            "minimum": 0.0,
-            "title": "Max Renewals"
-          },
-          "grace_days": {
-            "type": "integer",
-            "maximum": 30.0,
-            "minimum": 0.0,
-            "title": "Grace Days",
-            "default": 0
-          },
-          "daily_fine": {
-            "type": "string",
-            "title": "Daily Fine",
-            "default": "0.00"
-          },
-          "reservation_hold_hours": {
-            "type": "integer",
-            "maximum": 720.0,
-            "minimum": 1.0,
-            "title": "Reservation Hold Hours",
-            "default": 48
+          "effective_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Until"
           }
         },
         "type": "object",
         "required": [
-          "effective_from",
-          "max_loan_days",
-          "max_renewals"
+          "academic_year_id",
+          "name",
+          "effective_from"
         ],
         "title": "PolicyInput"
       },
@@ -56561,6 +57040,28 @@
             ],
             "title": "Product Type",
             "default": "product"
+          },
+          "school_catalog_category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "general",
+                  "school_uniform",
+                  "textbook",
+                  "handout",
+                  "learning_module",
+                  "educational_material",
+                  "school_kit",
+                  "event_ticket",
+                  "event"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "School Catalog Category"
           },
           "ncm": {
             "anyOf": [
@@ -58850,25 +59351,66 @@
       },
       "ScheduleInput": {
         "properties": {
-          "expected_version": {
-            "type": "integer",
-            "minimum": 1.0,
-            "title": "Expected Version"
+          "route_id": {
+            "type": "string",
+            "title": "Route Id"
           },
-          "sessions": {
+          "weekdays": {
             "items": {
-              "$ref": "#/components/schemas/ScheduledLesson"
+              "type": "integer"
             },
             "type": "array",
-            "maxItems": 500,
+            "maxItems": 7,
             "minItems": 1,
-            "title": "Sessions"
+            "title": "Weekdays"
+          },
+          "outbound_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outbound Time"
+          },
+          "return_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Time"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
           }
         },
         "type": "object",
         "required": [
-          "expected_version",
-          "sessions"
+          "route_id",
+          "weekdays",
+          "valid_from"
         ],
         "title": "ScheduleInput"
       },
@@ -59417,6 +59959,38 @@
           "items"
         ],
         "title": "ServiceOrderCreateUnified"
+      },
+      "ServiceReceiptCreate": {
+        "properties": {
+          "payment_id": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Payment Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "payment_id"
+        ],
+        "title": "ServiceReceiptCreate"
+      },
+      "ServiceReceiptVoid": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 3,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "ServiceReceiptVoid"
       },
       "ServiceRequestInput": {
         "properties": {
@@ -61166,43 +61740,28 @@
       },
       "TemplateVersionInput": {
         "properties": {
-          "subject_template": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 300
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subject Template"
-          },
-          "body_template": {
+          "body_text": {
             "type": "string",
-            "maxLength": 20000,
-            "minLength": 1,
-            "title": "Body Template"
+            "maxLength": 200000,
+            "minLength": 10,
+            "title": "Body Text"
           },
           "variables": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "maxItems": 100,
             "title": "Variables"
           },
-          "reason": {
-            "type": "string",
-            "maxLength": 1000,
-            "minLength": 3,
-            "title": "Reason"
+          "rules": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Rules"
           }
         },
         "type": "object",
         "required": [
-          "body_template",
-          "reason"
+          "body_text"
         ],
         "title": "TemplateVersionInput"
       },
@@ -62767,30 +63326,45 @@
         ],
         "title": "PublishInput"
       },
-      "app__modules__contracts__presentation__router__TemplateVersionInput": {
+      "app__modules__communication__presentation__router__TemplateVersionInput": {
         "properties": {
-          "body_text": {
+          "subject_template": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Template"
+          },
+          "body_template": {
             "type": "string",
-            "maxLength": 200000,
-            "minLength": 10,
-            "title": "Body Text"
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Body Template"
           },
           "variables": {
             "items": {
               "type": "string"
             },
             "type": "array",
+            "maxItems": 100,
             "title": "Variables"
           },
-          "rules": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Rules"
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 3,
+            "title": "Reason"
           }
         },
         "type": "object",
         "required": [
-          "body_text"
+          "body_template",
+          "reason"
         ],
         "title": "TemplateVersionInput"
       },
@@ -62808,6 +63382,82 @@
           "reason"
         ],
         "title": "RetryInput"
+      },
+      "app__modules__lesson_planning__presentation__router__ScheduleInput": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "sessions": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduledLesson"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Sessions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected_version",
+          "sessions"
+        ],
+        "title": "ScheduleInput"
+      },
+      "app__modules__library__presentation__router__PolicyInput": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "default": "default"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date",
+            "title": "Effective From"
+          },
+          "max_loan_days": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 1.0,
+            "title": "Max Loan Days"
+          },
+          "max_renewals": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Max Renewals"
+          },
+          "grace_days": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 0.0,
+            "title": "Grace Days",
+            "default": 0
+          },
+          "daily_fine": {
+            "type": "string",
+            "title": "Daily Fine",
+            "default": "0.00"
+          },
+          "reservation_hold_hours": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 1.0,
+            "title": "Reservation Hold Hours",
+            "default": 48
+          }
+        },
+        "type": "object",
+        "required": [
+          "effective_from",
+          "max_loan_days",
+          "max_renewals"
+        ],
+        "title": "PolicyInput"
       },
       "app__modules__library__presentation__router__ReservationInput": {
         "properties": {
@@ -62832,206 +63482,6 @@
           "library_item_id"
         ],
         "title": "ReservationInput"
-      },
-      "app__modules__pedagogy__presentation__router__PolicyInput": {
-        "properties": {
-          "academic_year_id": {
-            "type": "string",
-            "title": "Academic Year Id"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 160,
-            "minLength": 2,
-            "title": "Name"
-          },
-          "class_group_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Class Group Id"
-          },
-          "component_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Component Id"
-          },
-          "calculation_method": {
-            "type": "string",
-            "const": "weighted_average",
-            "title": "Calculation Method",
-            "default": "weighted_average"
-          },
-          "max_score": {
-            "anyOf": [
-              {
-                "type": "number",
-                "exclusiveMinimum": 0.0
-              },
-              {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-              }
-            ],
-            "title": "Max Score",
-            "default": "10"
-          },
-          "passing_score": {
-            "anyOf": [
-              {
-                "type": "number",
-                "minimum": 0.0
-              },
-              {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-              }
-            ],
-            "title": "Passing Score",
-            "default": "6"
-          },
-          "attendance_minimum": {
-            "anyOf": [
-              {
-                "type": "number",
-                "maximum": 100.0,
-                "minimum": 0.0
-              },
-              {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
-              }
-            ],
-            "title": "Attendance Minimum",
-            "default": "75"
-          },
-          "rounding_precision": {
-            "type": "integer",
-            "maximum": 4.0,
-            "minimum": 0.0,
-            "title": "Rounding Precision",
-            "default": 2
-          },
-          "recovery_strategy": {
-            "type": "string",
-            "enum": [
-              "replace_if_higher",
-              "average_with_recovery",
-              "replace"
-            ],
-            "title": "Recovery Strategy",
-            "default": "replace_if_higher"
-          },
-          "missing_score_strategy": {
-            "type": "string",
-            "enum": [
-              "zero",
-              "ignore"
-            ],
-            "title": "Missing Score Strategy",
-            "default": "zero"
-          },
-          "effective_from": {
-            "type": "string",
-            "format": "date",
-            "title": "Effective From"
-          },
-          "effective_until": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Effective Until"
-          }
-        },
-        "type": "object",
-        "required": [
-          "academic_year_id",
-          "name",
-          "effective_from"
-        ],
-        "title": "PolicyInput"
-      },
-      "app__modules__transportation__presentation__router__ScheduleInput": {
-        "properties": {
-          "route_id": {
-            "type": "string",
-            "title": "Route Id"
-          },
-          "weekdays": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
-            "maxItems": 7,
-            "minItems": 1,
-            "title": "Weekdays"
-          },
-          "outbound_time": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Outbound Time"
-          },
-          "return_time": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Return Time"
-          },
-          "valid_from": {
-            "type": "string",
-            "format": "date",
-            "title": "Valid From"
-          },
-          "valid_until": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Valid Until"
-          }
-        },
-        "type": "object",
-        "required": [
-          "route_id",
-          "weekdays",
-          "valid_from"
-        ],
-        "title": "ScheduleInput"
       },
       "app__modules__workflows__presentation__router__PublishInput": {
         "properties": {

@@ -249,6 +249,58 @@ async function showOrder(row) {
         emit("error", message(error));
     }
 }
+async function refreshSelectedOrder() {
+    if (selectedOrder.value?.id)
+        await showOrder({ id: selectedOrder.value.id });
+}
+async function issueReceipt(payment) {
+    if (!selectedOrder.value)
+        return;
+    try {
+        const receipt = await post(`/service-orders/${selectedOrder.value.id}/receipts`, { payment_id: payment.id }, idempotency("service-receipt"));
+        emit("notice", receipt.idempotent ? "O recibo já estava emitido para este pagamento." : `Recibo ${receipt.receipt_number} emitido e protegido por SHA-256.`);
+        await load();
+        await refreshSelectedOrder();
+    }
+    catch (error) {
+        emit("error", message(error));
+    }
+}
+async function downloadReceipt(receipt) {
+    try {
+        const response = await props.api.response(`/service-receipts/${receipt.id}/document`);
+        const data = await response.arrayBuffer();
+        const expected = (response.headers.get("x-content-sha256") || "").toLowerCase();
+        const digest = await crypto.subtle.digest("SHA-256", data);
+        const actual = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
+        if (expected && actual !== expected)
+            throw new Error("Integridade do recibo inválida: SHA-256 divergente.");
+        const blob = new Blob([data], { type: response.headers.get("content-type") || "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${receipt.receipt_number || receipt.id}.pdf`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+    }
+    catch (error) {
+        emit("error", message(error));
+    }
+}
+async function voidReceipt(receipt) {
+    const reason = window.prompt(`Informe o motivo da anulação do recibo ${receipt.receipt_number}:`);
+    if (!reason?.trim())
+        return;
+    try {
+        await post(`/service-receipts/${receipt.id}/void`, { reason: reason.trim() });
+        emit("notice", "Recibo anulado; o pagamento financeiro e seu histórico foram preservados.");
+        await load();
+        await refreshSelectedOrder();
+    }
+    catch (error) {
+        emit("error", message(error));
+    }
+}
 async function scheduleExecution() {
     if (!selectedOrder.value)
         return;
@@ -1379,6 +1431,138 @@ function __VLS_template() {
                 });
             }
         }
+        if (__VLS_ctx.selectedOrder) {
+            __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
+                ...{ class: ("grid-2") },
+            });
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("panel") },
+            });
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("panel-title") },
+            });
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+            (__VLS_ctx.selectedOrder.receipt_payments?.length ?? 0);
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("rows") },
+            });
+            for (const [payment] of __VLS_getVForSourceType((__VLS_ctx.selectedOrder.receipt_payments || []))) {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    key: ((payment.id)),
+                });
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+                __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
+                (__VLS_ctx.money(payment.service_amount));
+                (payment.method);
+                __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
+                (__VLS_ctx.dateTime(payment.paid_at));
+                (payment.external_reference || 'sem referência externa');
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+                if (payment.receipt_id) {
+                    __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+                        ...{ class: ("pill ok") },
+                    });
+                }
+                else if (payment.state === 'confirmed') {
+                    __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+                        ...{ onClick: (...[$event]) => {
+                                if (!(!((__VLS_ctx.tab === 'catalog'))))
+                                    return;
+                                if (!(!((__VLS_ctx.tab === 'subscriptions'))))
+                                    return;
+                                if (!((__VLS_ctx.tab === 'orders')))
+                                    return;
+                                if (!((__VLS_ctx.selectedOrder)))
+                                    return;
+                                if (!(!((payment.receipt_id))))
+                                    return;
+                                if (!((payment.state === 'confirmed')))
+                                    return;
+                                __VLS_ctx.issueReceipt(payment);
+                            } },
+                        ...{ class: ("small") },
+                    });
+                }
+                else {
+                    __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+                        ...{ class: ("pill warn") },
+                    });
+                    (payment.state);
+                }
+            }
+            if (!(__VLS_ctx.selectedOrder.receipt_payments || []).length) {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    ...{ class: ("empty") },
+                });
+            }
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("panel") },
+            });
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("panel-title") },
+            });
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
+            __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+            (__VLS_ctx.selectedOrder.receipts?.length ?? 0);
+            __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                ...{ class: ("rows") },
+            });
+            for (const [receipt] of __VLS_getVForSourceType((__VLS_ctx.selectedOrder.receipts || []))) {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    key: ((receipt.id)),
+                });
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+                __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
+                (receipt.receipt_number);
+                (__VLS_ctx.money(receipt.amount));
+                __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
+                (receipt.state);
+                (String(receipt.document_sha256).slice(0, 16));
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
+                __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+                    ...{ onClick: (...[$event]) => {
+                            if (!(!((__VLS_ctx.tab === 'catalog'))))
+                                return;
+                            if (!(!((__VLS_ctx.tab === 'subscriptions'))))
+                                return;
+                            if (!((__VLS_ctx.tab === 'orders')))
+                                return;
+                            if (!((__VLS_ctx.selectedOrder)))
+                                return;
+                            __VLS_ctx.downloadReceipt(receipt);
+                        } },
+                    ...{ class: ("small") },
+                });
+                if (receipt.state === 'issued') {
+                    __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+                        ...{ onClick: (...[$event]) => {
+                                if (!(!((__VLS_ctx.tab === 'catalog'))))
+                                    return;
+                                if (!(!((__VLS_ctx.tab === 'subscriptions'))))
+                                    return;
+                                if (!((__VLS_ctx.tab === 'orders')))
+                                    return;
+                                if (!((__VLS_ctx.selectedOrder)))
+                                    return;
+                                if (!((receipt.state === 'issued')))
+                                    return;
+                                __VLS_ctx.voidReceipt(receipt);
+                            } },
+                        ...{ class: ("small") },
+                    });
+                }
+            }
+            if (!(__VLS_ctx.selectedOrder.receipts || []).length) {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+                    ...{ class: ("empty") },
+                });
+            }
+        }
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("panel") },
         });
@@ -1479,6 +1663,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.th, __VLS_intrinsicElements.th)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.tbody, __VLS_intrinsicElements.tbody)({});
         for (const [row] of __VLS_getVForSourceType((__VLS_ctx.fiscalEvents))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({
@@ -1492,9 +1677,17 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.classification_status);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
+            if (row.fiscal_document_id) {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.code, __VLS_intrinsicElements.code)({});
+                (String(row.fiscal_document_id).slice(-12));
+            }
+            else {
+                __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
+            }
+            __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                 ...{ class: ("pill") },
-                ...{ class: ((row.status === 'not_configured' ? 'warn' : row.status === 'blocked_validation' ? 'danger' : 'ok')) },
+                ...{ class: ((row.status === 'not_configured' || row.status === 'awaiting_provider_configuration' ? 'warn' : row.status === 'blocked_validation' || row.status === 'rejected' ? 'danger' : 'ok')) },
             });
             (row.status);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1505,12 +1698,12 @@ function __VLS_template() {
         if (!__VLS_ctx.fiscalEvents.length) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({
-                colspan: ("6"),
+                colspan: ("7"),
                 ...{ class: ("empty") },
             });
         }
     }
-    ['service-module', 'metrics', 'service-tabs', 'selected', 'selected', 'selected', 'selected', 'small', 'refresh', 'grid-2', 'forms', 'panel', 'cols', 'primary', 'panel', 'cols', 'cols', 'inline', 'primary', 'panel', 'panel-title', 'pill', 'small', 'empty', 'panel', 'panel-title', 'small', 'small', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'cols', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'panel', 'rows', 'panel', 'rows', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'inline', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'pill', 'small', 'small', 'small', 'small', 'small', 'empty', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'pill', 'small', 'small', 'small', 'small', 'small', 'panel', 'panel-title', 'small', 'small', 'small', 'panel', 'panel-title', 'pill', 'empty',];
+    ['service-module', 'metrics', 'service-tabs', 'selected', 'selected', 'selected', 'selected', 'small', 'refresh', 'grid-2', 'forms', 'panel', 'cols', 'primary', 'panel', 'cols', 'cols', 'inline', 'primary', 'panel', 'panel-title', 'pill', 'small', 'empty', 'panel', 'panel-title', 'small', 'small', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'cols', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'panel', 'rows', 'panel', 'rows', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'inline', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'pill', 'small', 'small', 'small', 'small', 'small', 'empty', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'pill', 'small', 'small', 'small', 'small', 'small', 'grid-2', 'panel', 'panel-title', 'rows', 'pill', 'ok', 'small', 'pill', 'warn', 'empty', 'panel', 'panel-title', 'rows', 'small', 'small', 'empty', 'panel', 'panel-title', 'small', 'small', 'small', 'panel', 'panel-title', 'pill', 'empty',];
     var __VLS_slots;
     var $slots;
     let __VLS_inheritedAttrs;
@@ -1573,6 +1766,9 @@ const __VLS_self = (await import('vue')).defineComponent({
             createOrder: createOrder,
             orderAction: orderAction,
             showOrder: showOrder,
+            issueReceipt: issueReceipt,
+            downloadReceipt: downloadReceipt,
+            voidReceipt: voidReceipt,
             scheduleExecution: scheduleExecution,
             executionAction: executionAction,
             money: money,

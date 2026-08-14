@@ -18,7 +18,12 @@ const email = ref("");
 const password = ref("");
 const authenticated = ref(false);
 const active = ref("dashboard");
-const dashboard = ref({ metrics: {}, recent_audit: [], recent_outbox: [], branding: {} });
+const dashboard = ref({
+    metrics: {},
+    recent_audit: [],
+    recent_outbox: [],
+    branding: {},
+});
 const refs = ref({});
 const rows = ref([]);
 const secondary = ref([]);
@@ -26,35 +31,217 @@ const policies = ref([]);
 const teacherAssignments = ref([]);
 const allEnrollments = ref([]);
 const brand = computed(() => dashboard.value.branding ?? {});
-const schoolName = computed(() => brand.value.short_name || brand.value.trade_name || brand.value.legal_name || "Instituição");
+const schoolName = computed(() => brand.value.short_name ||
+    brand.value.trade_name ||
+    brand.value.legal_name ||
+    "Instituição");
 const roleSet = computed(() => new Set(api.claims()?.roles ?? []));
-const can = (...roles) => roles.some(r => roleSet.value.has(r));
+const can = (...roles) => roles.some((r) => roleSet.value.has(r));
 const nav = computed(() => [
-    ["dashboard", "Visão geral", "⌂", true], ["analytics", "Indicadores", "◫", can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "finance_manager", "finance_operator", "hr_manager", "personnel_operator", "payroll_operator", "timekeeping_operator", "canteen_manager", "pos_operator", "inventory_manager", "auditor", "fiscal_manager")], ["students", "Secretaria", "◎", can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator")],
-    ["planning", "Planejamento", "▤", can("tenant_owner", "institution_director", "academic_coordinator", "teacher", "assistant_teacher")],
-    ["attendance", "Frequência", "✓", can("tenant_owner", "institution_director", "academic_coordinator", "teacher", "assistant_teacher")],
-    ["finance", "Financeiro", "$", can("tenant_owner", "institution_director", "finance_manager", "finance_operator")],
-    ["sales", "Vendas e estoque", "▦", can("tenant_owner", "institution_director", "canteen_manager", "pos_operator", "inventory_manager")],
-    ["canteen", "Cantina", "◈", can("tenant_owner", "institution_director", "canteen_manager", "finance_manager", "finance_operator", "secretary")],
-    ["events", "Eventos e viagens", "☆", can("tenant_owner", "institution_director", "unit_manager", "event_manager")],
-    ["fiscal", "Fiscal", "N", can("tenant_owner", "institution_director", "fiscal_manager", "finance_manager")],
-    ["hr", "RH e Folha", "♙", can("tenant_owner", "institution_director", "hr_manager", "personnel_operator", "payroll_operator", "timekeeping_operator")],
-    ["requests", "Solicitações", "☰", true], ["workflows", "Workflows", "◇", can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "request_agent", "finance_manager", "hr_manager", "auditor", "support")], ["communication", "Comunicação", "◌", can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "event_manager", "finance_manager", "hr_manager", "request_agent", "support")], ["reports", "Relatórios", "▥", can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "finance_manager", "finance_operator", "hr_manager", "personnel_operator", "payroll_operator", "inventory_manager", "canteen_manager", "auditor")], ["mail", "E-mail", "✉", true], ["integrations", "Integrações", "↔", can("tenant_owner", "institution_director", "support", "auditor")], ["student_services", "Serviços ao aluno", "♧", can("tenant_owner", "institution_director", "unit_manager", "secretary", "library_manager", "transport_manager", "health_operator")], ["audit", "Auditoria", "◉", can("tenant_owner", "institution_director", "auditor")]
-].filter(x => x[3]));
-const personForm = reactive({ full_name: "", cpf: "", email: "", registration_number: "" });
-const enrollmentForm = reactive({ student_id: "", institution_id: "", unit_id: "", program_id: "", curriculum_id: "", academic_year_id: "", class_group_id: "", enrollment_number: "", financial_responsible_guardian_id: "" });
-const planForm = reactive({ institution_id: "", unit_id: "", academic_period_id: "", program_id: "", curriculum_id: "", class_group_id: "", component_id: "", teacher_id: "", title: "", start_date: "", end_date: "", content: "" });
-const sessionForm = reactive({ institution_id: "", unit_id: "", class_group_id: "", component_id: "", attendance_policy_id: "", teacher_id: "", scheduled_start: "", scheduled_end: "" });
-const financeForm = reactive({ enrollment_id: "", responsible_guardian_id: "", description: "Mensalidade escolar", total_amount: "", count: 12, first_due_date: "" });
-const productForm = reactive({ sku: "", barcode: "", name: "", product_type: "book", ncm: "", unit: "UN", cost: "0.00", sale_price: "0.00" });
-const requestForm = reactive({ request_type: "administrative", subject: "", description: "", priority: "normal", department: "Secretaria", sla_hours: 72 });
-const integrationForm = reactive({ provider: "cloudflare", name: "Cloudflare", base_url: "", secret_reference: "", allow_private_network: false });
-function problemMessage(e) { const p = e?.problem; return p?.detail || (e instanceof Error ? e.message : "Erro inesperado"); }
-function idem(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-function setBrand() { const b = brand.value; const root = document.documentElement; root.style.setProperty("--brand-primary", b.primary_color || "#006D77"); root.style.setProperty("--brand-secondary", b.secondary_color || "#0D1B2A"); root.style.setProperty("--brand-accent", b.accent_color || "#F59E0B"); document.title = `${schoolName.value} — Administração`; }
-async function request(path, init = {}) { return api.request(path, init); }
-async function jsonPost(path, body, key) { const headers = { "Content-Type": "application/json" }; if (key)
-    headers["Idempotency-Key"] = key; return request(path, { method: "POST", headers, body: JSON.stringify(body) }); }
+    ["dashboard", "Visão geral", "⌂", true],
+    [
+        "analytics",
+        "Indicadores",
+        "◫",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "finance_manager", "finance_operator", "hr_manager", "personnel_operator", "payroll_operator", "timekeeping_operator", "canteen_manager", "pos_operator", "inventory_manager", "auditor", "fiscal_manager"),
+    ],
+    [
+        "students",
+        "Secretaria",
+        "◎",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator"),
+    ],
+    [
+        "planning",
+        "Planejamento",
+        "▤",
+        can("tenant_owner", "institution_director", "academic_coordinator", "teacher", "assistant_teacher"),
+    ],
+    [
+        "attendance",
+        "Frequência",
+        "✓",
+        can("tenant_owner", "institution_director", "academic_coordinator", "teacher", "assistant_teacher"),
+    ],
+    [
+        "finance",
+        "Financeiro",
+        "$",
+        can("tenant_owner", "institution_director", "finance_manager", "finance_operator"),
+    ],
+    [
+        "sales",
+        "Vendas e estoque",
+        "▦",
+        can("tenant_owner", "institution_director", "canteen_manager", "pos_operator", "inventory_manager"),
+    ],
+    [
+        "canteen",
+        "Cantina",
+        "◈",
+        can("tenant_owner", "institution_director", "canteen_manager", "finance_manager", "finance_operator", "secretary"),
+    ],
+    [
+        "events",
+        "Eventos e viagens",
+        "☆",
+        can("tenant_owner", "institution_director", "unit_manager", "event_manager"),
+    ],
+    [
+        "fiscal",
+        "Fiscal",
+        "N",
+        can("tenant_owner", "institution_director", "fiscal_manager", "finance_manager"),
+    ],
+    [
+        "hr",
+        "RH e Folha",
+        "♙",
+        can("tenant_owner", "institution_director", "hr_manager", "personnel_operator", "payroll_operator", "timekeeping_operator"),
+    ],
+    ["requests", "Solicitações", "☰", true],
+    [
+        "workflows",
+        "Workflows",
+        "◇",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "request_agent", "finance_manager", "hr_manager", "auditor", "support"),
+    ],
+    [
+        "communication",
+        "Comunicação",
+        "◌",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "event_manager", "finance_manager", "hr_manager", "request_agent", "support"),
+    ],
+    [
+        "reports",
+        "Relatórios",
+        "▥",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "academic_coordinator", "finance_manager", "finance_operator", "hr_manager", "personnel_operator", "payroll_operator", "inventory_manager", "canteen_manager", "auditor"),
+    ],
+    ["mail", "E-mail", "✉", true],
+    [
+        "integrations",
+        "Integrações",
+        "↔",
+        can("tenant_owner", "institution_director", "support", "auditor"),
+    ],
+    [
+        "student_services",
+        "Serviços ao aluno",
+        "♧",
+        can("tenant_owner", "institution_director", "unit_manager", "secretary", "library_manager", "transport_manager", "health_operator"),
+    ],
+    [
+        "audit",
+        "Auditoria",
+        "◉",
+        can("tenant_owner", "institution_director", "auditor"),
+    ],
+].filter((x) => x[3]));
+const personForm = reactive({
+    full_name: "",
+    cpf: "",
+    email: "",
+    registration_number: "",
+});
+const enrollmentForm = reactive({
+    student_id: "",
+    institution_id: "",
+    unit_id: "",
+    program_id: "",
+    curriculum_id: "",
+    academic_year_id: "",
+    class_group_id: "",
+    enrollment_number: "",
+    financial_responsible_guardian_id: "",
+});
+const planForm = reactive({
+    institution_id: "",
+    unit_id: "",
+    academic_period_id: "",
+    program_id: "",
+    curriculum_id: "",
+    class_group_id: "",
+    component_id: "",
+    teacher_id: "",
+    title: "",
+    start_date: "",
+    end_date: "",
+    content: "",
+});
+const sessionForm = reactive({
+    institution_id: "",
+    unit_id: "",
+    class_group_id: "",
+    component_id: "",
+    attendance_policy_id: "",
+    teacher_id: "",
+    scheduled_start: "",
+    scheduled_end: "",
+});
+const financeForm = reactive({
+    enrollment_id: "",
+    responsible_guardian_id: "",
+    description: "Mensalidade escolar",
+    total_amount: "",
+    count: 12,
+    first_due_date: "",
+});
+const productForm = reactive({
+    sku: "",
+    barcode: "",
+    name: "",
+    product_type: "book",
+    ncm: "",
+    unit: "UN",
+    cost: "0.00",
+    sale_price: "0.00",
+});
+const requestForm = reactive({
+    request_type: "administrative",
+    subject: "",
+    description: "",
+    priority: "normal",
+    department: "Secretaria",
+    sla_hours: 72,
+});
+const integrationForm = reactive({
+    provider: "cloudflare",
+    name: "Cloudflare",
+    base_url: "",
+    secret_reference: "",
+    allow_private_network: false,
+});
+function problemMessage(e) {
+    const p = e?.problem;
+    return p?.detail || (e instanceof Error ? e.message : "Erro inesperado");
+}
+function idem(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
+}
+function setBrand() {
+    const b = brand.value;
+    const root = document.documentElement;
+    root.style.setProperty("--brand-primary", b.primary_color || "#006D77");
+    root.style.setProperty("--brand-secondary", b.secondary_color || "#0D1B2A");
+    root.style.setProperty("--brand-accent", b.accent_color || "#F59E0B");
+    document.title = `${schoolName.value} — Administração`;
+}
+async function request(path, init = {}) {
+    return api.request(path, init);
+}
+async function jsonPost(path, body, key) {
+    const headers = {
+        "Content-Type": "application/json",
+    };
+    if (key)
+        headers["Idempotency-Key"] = key;
+    return request(path, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+    });
+}
 async function boot() {
     try {
         await api.initialize();
@@ -69,18 +256,27 @@ async function boot() {
         ready.value = true;
     }
 }
-async function login() { busy.value = true; error.value = ""; try {
-    await api.login(email.value, password.value);
-    authenticated.value = true;
-    await loadBase();
+async function login() {
+    busy.value = true;
+    error.value = "";
+    try {
+        await api.login(email.value, password.value);
+        authenticated.value = true;
+        await loadBase();
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function logout() {
+    await api.logout();
+    authenticated.value = false;
+    rows.value = [];
+    secondary.value = [];
 }
-finally {
-    busy.value = false;
-} }
-async function logout() { await api.logout(); authenticated.value = false; rows.value = []; secondary.value = []; }
 async function loadBase() {
     dashboard.value = await request("/dashboard/operations");
     setBrand();
@@ -91,7 +287,8 @@ async function loadBase() {
         refs.value = {};
     }
     try {
-        teacherAssignments.value = (await request("/teacher-assignments")).items || [];
+        teacherAssignments.value =
+            (await request("/teacher-assignments")).items || [];
     }
     catch {
         teacherAssignments.value = [];
@@ -116,7 +313,12 @@ async function selectArea(area) {
             rows.value = dashboard.value.recent_audit || [];
             secondary.value = dashboard.value.recent_outbox || [];
         }
-        if (area === "analytics" || area === "reports" || area === "communication" || area === "workflows" || area === "canteen" || area === "events") {
+        if (area === "analytics" ||
+            area === "reports" ||
+            area === "communication" ||
+            area === "workflows" ||
+            area === "canteen" ||
+            area === "events") {
             rows.value = [];
             secondary.value = [];
         }
@@ -126,16 +328,19 @@ async function selectArea(area) {
         }
         if (area === "planning") {
             rows.value = (await request("/teaching-plans")).items || [];
-            secondary.value = (await request("/teacher-assignments")).items || [];
+            secondary.value =
+                (await request("/teacher-assignments")).items || [];
         }
         if (area === "attendance") {
-            rows.value = (await request("/class-sessions?limit=100")).items || [];
+            rows.value =
+                (await request("/class-sessions?limit=100")).items || [];
             policies.value = (await request("/attendance/policies")).items || [];
             secondary.value = (await request("/attendance/risks")).items || [];
         }
         if (area === "finance") {
             rows.value = (await request("/finance/contracts")).items || [];
-            secondary.value = (await request("/finance/installments")).items || [];
+            secondary.value =
+                (await request("/finance/installments")).items || [];
         }
         if (area === "sales") {
             rows.value = (await request("/products")).items || [];
@@ -159,7 +364,8 @@ async function selectArea(area) {
         }
         if (area === "integrations") {
             rows.value = (await request("/integration-connections")).items || [];
-            secondary.value = (await request("/integrations/providers/status")).items || [];
+            secondary.value =
+                (await request("/integrations/providers/status")).items || [];
         }
         if (area === "audit") {
             const d = await request("/dashboard/operations");
@@ -174,148 +380,286 @@ async function selectArea(area) {
         busy.value = false;
     }
 }
-async function createStudent() { busy.value = true; try {
-    const person = await jsonPost("/people", { full_name: personForm.full_name, cpf: personForm.cpf || null, email: personForm.email || null }, idem("person"));
-    await jsonPost("/students", { person_id: person.id, registration_number: personForm.registration_number });
-    notice.value = "Aluno cadastrado com sucesso.";
-    Object.assign(personForm, { full_name: "", cpf: "", email: "", registration_number: "" });
-    await selectArea("students");
+async function createStudent() {
+    busy.value = true;
+    try {
+        const person = await jsonPost("/people", {
+            full_name: personForm.full_name,
+            cpf: personForm.cpf || null,
+            email: personForm.email || null,
+        }, idem("person"));
+        await jsonPost("/students", {
+            person_id: person.id,
+            registration_number: personForm.registration_number,
+        });
+        notice.value = "Aluno cadastrado com sucesso.";
+        Object.assign(personForm, {
+            full_name: "",
+            cpf: "",
+            email: "",
+            registration_number: "",
+        });
+        await selectArea("students");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function createEnrollment() {
+    busy.value = true;
+    try {
+        const body = {
+            ...enrollmentForm,
+            class_group_id: enrollmentForm.class_group_id || null,
+            financial_responsible_guardian_id: enrollmentForm.financial_responsible_guardian_id || null,
+        };
+        await jsonPost("/enrollments", body, idem("enrollment"));
+        notice.value = "Pré-matrícula criada.";
+        await selectArea("students");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function createEnrollment() { busy.value = true; try {
-    const body = { ...enrollmentForm, class_group_id: enrollmentForm.class_group_id || null, financial_responsible_guardian_id: enrollmentForm.financial_responsible_guardian_id || null };
-    await jsonPost("/enrollments", body, idem("enrollment"));
-    notice.value = "Pré-matrícula criada.";
-    await selectArea("students");
+async function activateEnrollment(row) {
+    try {
+        await jsonPost(`/enrollments/${row.id}/activate`, {
+            expected_version: row.version,
+            reason: "Ativação pelo administrativo",
+        });
+        await selectArea("students");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function createPlan() {
+    busy.value = true;
+    try {
+        await jsonPost("/teaching-plans", {
+            institution_id: planForm.institution_id,
+            unit_id: planForm.unit_id,
+            academic_period_id: planForm.academic_period_id,
+            program_id: planForm.program_id || null,
+            curriculum_id: planForm.curriculum_id,
+            class_group_id: planForm.class_group_id,
+            component_id: planForm.component_id,
+            teacher_ids: [planForm.teacher_id],
+            plan_type: "weekly",
+            title: planForm.title,
+            start_date: planForm.start_date,
+            end_date: planForm.end_date,
+            objectives: [],
+            skills: [],
+            competencies: [],
+            curriculum_links: [],
+            content: planForm.content.split("\n").filter(Boolean),
+            methodologies: [],
+            resources: [],
+            accommodations: [],
+            assessments: [],
+            homework: [],
+            references: [],
+            attachments: [],
+            approval_required: true,
+        }, idem("teaching-plan"));
+        notice.value = "Planejamento criado.";
+        await selectArea("planning");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function activateEnrollment(row) { try {
-    await jsonPost(`/enrollments/${row.id}/activate`, { expected_version: row.version, reason: "Ativação pelo administrativo" });
-    await selectArea("students");
+async function planAction(row, action) {
+    try {
+        await jsonPost(`/teaching-plans/${row.id}/${action}`, {
+            reason: action === "approve"
+                ? "Planejamento aprovado"
+                : "Atualização de fluxo pedagógico",
+            expected_version: row.current_version,
+            comments: null,
+        });
+        await selectArea("planning");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
-} }
-async function createPlan() { busy.value = true; try {
-    await jsonPost("/teaching-plans", { institution_id: planForm.institution_id, unit_id: planForm.unit_id, academic_period_id: planForm.academic_period_id, program_id: planForm.program_id || null, curriculum_id: planForm.curriculum_id, class_group_id: planForm.class_group_id, component_id: planForm.component_id, teacher_ids: [planForm.teacher_id], plan_type: "weekly", title: planForm.title, start_date: planForm.start_date, end_date: planForm.end_date, objectives: [], skills: [], competencies: [], curriculum_links: [], content: planForm.content.split("\n").filter(Boolean), methodologies: [], resources: [], accommodations: [], assessments: [], homework: [], references: [], attachments: [], approval_required: true }, idem("teaching-plan"));
-    notice.value = "Planejamento criado.";
-    await selectArea("planning");
+async function createSession() {
+    busy.value = true;
+    try {
+        await jsonPost("/class-sessions", {
+            institution_id: sessionForm.institution_id,
+            unit_id: sessionForm.unit_id,
+            class_group_id: sessionForm.class_group_id,
+            component_id: sessionForm.component_id,
+            attendance_policy_id: sessionForm.attendance_policy_id,
+            scheduled_start: sessionForm.scheduled_start,
+            scheduled_end: sessionForm.scheduled_end,
+            modality: "regular",
+            enrolled_student_ids: ((await request(`/enrollments?state=active`)).items || [])
+                .filter((x) => x.class_group_id === sessionForm.class_group_id)
+                .map((x) => x.student_id),
+            teacher_ids: [sessionForm.teacher_id],
+        }, idem("class-session"));
+        notice.value = "Sessão de aula criada.";
+        await selectArea("attendance");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function sessionAction(row, action) {
+    try {
+        await jsonPost(`/class-sessions/${row.id}/${action}`, {
+            reason: "Operação administrativa registrada",
+            expected_version: row.version,
+        });
+        await selectArea("attendance");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function planAction(row, action) { try {
-    await jsonPost(`/teaching-plans/${row.id}/${action}`, { reason: action === "approve" ? "Planejamento aprovado" : "Atualização de fluxo pedagógico", expected_version: row.current_version, comments: null });
-    await selectArea("planning");
+async function createFinancial() {
+    busy.value = true;
+    try {
+        const contract = await jsonPost("/finance/contracts", {
+            enrollment_id: financeForm.enrollment_id || null,
+            responsible_guardian_id: financeForm.responsible_guardian_id || null,
+            description: financeForm.description,
+            total_amount: financeForm.total_amount,
+            competence_rule: "billing",
+        });
+        await jsonPost(`/finance/contracts/${contract.id}/installments`, {
+            count: Number(financeForm.count),
+            first_due_date: financeForm.first_due_date,
+            interval_months: 1,
+        });
+        notice.value = "Contrato e parcelas gerados.";
+        await selectArea("finance");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
-} }
-async function createSession() { busy.value = true; try {
-    await jsonPost("/class-sessions", { institution_id: sessionForm.institution_id, unit_id: sessionForm.unit_id, class_group_id: sessionForm.class_group_id, component_id: sessionForm.component_id, attendance_policy_id: sessionForm.attendance_policy_id, scheduled_start: sessionForm.scheduled_start, scheduled_end: sessionForm.scheduled_end, modality: "regular", enrolled_student_ids: ((await request(`/enrollments?state=active`)).items || []).filter((x) => x.class_group_id === sessionForm.class_group_id).map((x) => x.student_id), teacher_ids: [sessionForm.teacher_id] }, idem("class-session"));
-    notice.value = "Sessão de aula criada.";
-    await selectArea("attendance");
+async function createProduct() {
+    busy.value = true;
+    try {
+        await jsonPost("/products", productForm);
+        notice.value = "Produto cadastrado.";
+        await selectArea("sales");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function createRequest() {
+    busy.value = true;
+    try {
+        await jsonPost("/service-requests", requestForm);
+        notice.value = "Solicitação criada.";
+        await selectArea("requests");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function sessionAction(row, action) { try {
-    await jsonPost(`/class-sessions/${row.id}/${action}`, { reason: "Operação administrativa registrada", expected_version: row.version });
-    await selectArea("attendance");
+function label(items, id) {
+    return items?.find((x) => x.id === id)?.label || id;
 }
-catch (e) {
-    error.value = problemMessage(e);
-} }
-async function createFinancial() { busy.value = true; try {
-    const contract = await jsonPost("/finance/contracts", { enrollment_id: financeForm.enrollment_id || null, responsible_guardian_id: financeForm.responsible_guardian_id || null, description: financeForm.description, total_amount: financeForm.total_amount, competence_rule: "billing" });
-    await jsonPost(`/finance/contracts/${contract.id}/installments`, { count: Number(financeForm.count), first_due_date: financeForm.first_due_date, interval_months: 1 });
-    notice.value = "Contrato e parcelas gerados.";
-    await selectArea("finance");
+function money(v) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(Number(v || 0));
 }
-catch (e) {
-    error.value = problemMessage(e);
+function dateBR(v) {
+    if (!v)
+        return "—";
+    try {
+        return new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: String(v).includes("T") ? "short" : undefined,
+        }).format(new Date(v));
+    }
+    catch {
+        return String(v);
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function createProduct() { busy.value = true; try {
-    await jsonPost("/products", productForm);
-    notice.value = "Produto cadastrado.";
-    await selectArea("sales");
+function integrationCapabilities(provider) {
+    if (provider === "cloudflare")
+        return ["dns", "custom_hostnames"];
+    if (provider === "mailcow")
+        return ["mailboxes"];
+    if (provider === "evolution")
+        return ["send_text"];
+    return [];
 }
-catch (e) {
-    error.value = problemMessage(e);
+async function createIntegration() {
+    busy.value = true;
+    error.value = "";
+    try {
+        const config = {};
+        if (integrationForm.base_url.trim())
+            config.base_url = integrationForm.base_url.trim();
+        if (integrationForm.allow_private_network)
+            config.allow_private_network = true;
+        await jsonPost("/integration-connections", {
+            provider: integrationForm.provider,
+            name: integrationForm.name,
+            environment: "production",
+            capabilities: integrationCapabilities(integrationForm.provider),
+            secret_reference: integrationForm.secret_reference || null,
+            config,
+        });
+        notice.value =
+            "Conexão registrada. O segredo permanece fora do banco e do frontend.";
+        await selectArea("integrations");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function createRequest() { busy.value = true; try {
-    await jsonPost("/service-requests", requestForm);
-    notice.value = "Solicitação criada.";
-    await selectArea("requests");
+async function testIntegration(row) {
+    busy.value = true;
+    error.value = "";
+    try {
+        const result = await jsonPost(`/integration-connections/${row.id}/test`, {});
+        notice.value = `${row.name}: ${result.status} (${result.latency_ms} ms)`;
+        await selectArea("integrations");
+    }
+    catch (e) {
+        error.value = problemMessage(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = problemMessage(e);
-}
-finally {
-    busy.value = false;
-} }
-function label(items, id) { return items?.find(x => x.id === id)?.label || id; }
-function money(v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v || 0)); }
-function dateBR(v) { if (!v)
-    return "—"; try {
-    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: String(v).includes("T") ? "short" : undefined }).format(new Date(v));
-}
-catch {
-    return String(v);
-} }
-function integrationCapabilities(provider) { if (provider === "cloudflare")
-    return ["dns", "custom_hostnames"]; if (provider === "mailcow")
-    return ["mailboxes"]; if (provider === "evolution")
-    return ["send_text"]; return []; }
-async function createIntegration() { busy.value = true; error.value = ""; try {
-    const config = {};
-    if (integrationForm.base_url.trim())
-        config.base_url = integrationForm.base_url.trim();
-    if (integrationForm.allow_private_network)
-        config.allow_private_network = true;
-    await jsonPost("/integration-connections", { provider: integrationForm.provider, name: integrationForm.name, environment: "production", capabilities: integrationCapabilities(integrationForm.provider), secret_reference: integrationForm.secret_reference || null, config });
-    notice.value = "Conexão registrada. O segredo permanece fora do banco e do frontend.";
-    await selectArea("integrations");
-}
-catch (e) {
-    error.value = problemMessage(e);
-}
-finally {
-    busy.value = false;
-} }
-async function testIntegration(row) { busy.value = true; error.value = ""; try {
-    const result = await jsonPost(`/integration-connections/${row.id}/test`, {});
-    notice.value = `${row.name}: ${result.status} (${result.latency_ms} ms)`;
-    await selectArea("integrations");
-}
-catch (e) {
-    error.value = problemMessage(e);
-}
-finally {
-    busy.value = false;
-} }
 onMounted(boot);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -371,7 +715,7 @@ function __VLS_template() {
             ...{ class: ("primary") },
             disabled: ((__VLS_ctx.busy)),
         });
-        (__VLS_ctx.busy ? 'Entrando…' : 'Entrar');
+        (__VLS_ctx.busy ? "Entrando…" : "Entrar");
     }
     else {
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
@@ -422,7 +766,7 @@ function __VLS_template() {
         });
         (__VLS_ctx.schoolName);
         __VLS_elementAsFunction(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({});
-        (__VLS_ctx.nav.find(n => n[0] === __VLS_ctx.active)?.[1]);
+        (__VLS_ctx.nav.find((n) => n[0] === __VLS_ctx.active)?.[1]);
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: ("header-actions") },
         });
@@ -573,7 +917,7 @@ function __VLS_template() {
                     ...{ class: ("pill") },
                     ...{ class: ((r.published_at ? 'ok' : 'warn')) },
                 });
-                (r.published_at ? 'Publicado' : 'Pendente');
+                (r.published_at ? "Publicado" : "Pendente");
             }
         }
         else if (__VLS_ctx.active === 'students') {
@@ -746,7 +1090,7 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.registration_number);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-                (r.cpf || '—');
+                (r.cpf || "—");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                     ...{ class: ("pill ok") },
@@ -778,7 +1122,7 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.program_name);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-                (r.class_group_name || '—');
+                (r.class_group_name || "—");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.state);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1006,7 +1350,8 @@ function __VLS_template() {
                         ...{ class: ("small") },
                     });
                 }
-                if (r.status === 'submitted_for_review' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
+                if (r.status === 'submitted_for_review' &&
+                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(!((!__VLS_ctx.ready))))
@@ -1019,14 +1364,16 @@ function __VLS_template() {
                                     return;
                                 if (!((__VLS_ctx.active === 'planning')))
                                     return;
-                                if (!((r.status === 'submitted_for_review' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
+                                if (!((r.status === 'submitted_for_review' &&
+                                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
                                     return;
                                 __VLS_ctx.planAction(r, 'approve');
                             } },
                         ...{ class: ("small ok-btn") },
                     });
                 }
-                if (r.status === 'submitted_for_review' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
+                if (r.status === 'submitted_for_review' &&
+                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(!((!__VLS_ctx.ready))))
@@ -1039,7 +1386,8 @@ function __VLS_template() {
                                     return;
                                 if (!((__VLS_ctx.active === 'planning')))
                                     return;
-                                if (!((r.status === 'submitted_for_review' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
+                                if (!((r.status === 'submitted_for_review' &&
+                                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
                                     return;
                                 __VLS_ctx.planAction(r, 'request-changes');
                             } },
@@ -1230,7 +1578,12 @@ function __VLS_template() {
                         ...{ class: ("small") },
                     });
                 }
-                if (['attendance_submitted', 'completed', 'started', 'attendance_open'].includes(r.status)) {
+                if ([
+                    'attendance_submitted',
+                    'completed',
+                    'started',
+                    'attendance_open',
+                ].includes(r.status)) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(!((!__VLS_ctx.ready))))
@@ -1245,14 +1598,20 @@ function __VLS_template() {
                                     return;
                                 if (!((__VLS_ctx.active === 'attendance')))
                                     return;
-                                if (!((['attendance_submitted', 'completed', 'started', 'attendance_open'].includes(r.status))))
+                                if (!(([
+                                    'attendance_submitted',
+                                    'completed',
+                                    'started',
+                                    'attendance_open',
+                                ].includes(r.status))))
                                     return;
                                 __VLS_ctx.sessionAction(r, 'close');
                             } },
                         ...{ class: ("small") },
                     });
                 }
-                if (r.status === 'closed' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
+                if (r.status === 'closed' &&
+                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator')) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(!((!__VLS_ctx.ready))))
@@ -1267,7 +1626,8 @@ function __VLS_template() {
                                     return;
                                 if (!((__VLS_ctx.active === 'attendance')))
                                     return;
-                                if (!((r.status === 'closed' && __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
+                                if (!((r.status === 'closed' &&
+                                    __VLS_ctx.can('tenant_owner', 'institution_director', 'academic_coordinator'))))
                                     return;
                                 __VLS_ctx.sessionAction(r, 'reopen');
                             } },
@@ -1340,7 +1700,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: ("big-number") },
             });
-            (__VLS_ctx.secondary.filter(x => ['open', 'partial'].includes(x.state)).length);
+            (__VLS_ctx.secondary.filter((x) => ["open", "partial"].includes(x.state)).length);
             __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
                 ...{ class: ("panel") },
@@ -1360,7 +1720,7 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.description);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-                (r.enrollment_id || '—');
+                (r.enrollment_id || "—");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (__VLS_ctx.money(r.total_amount));
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1474,7 +1834,27 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_0));
             let __VLS_5;
             const __VLS_6 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'canteen')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_2;
             let __VLS_3;
@@ -1494,7 +1874,29 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_7));
             let __VLS_12;
             const __VLS_13 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'events')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_9;
             let __VLS_10;
@@ -1557,7 +1959,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (__VLS_ctx.rows.filter(x => x.state === 'active').length);
+            (__VLS_ctx.rows.filter((x) => x.state === "active").length);
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
@@ -1567,9 +1969,9 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (__VLS_ctx.secondary[0]?.competence || '—');
+            (__VLS_ctx.secondary[0]?.competence || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-            (__VLS_ctx.secondary[0]?.state || 'sem processamento');
+            (__VLS_ctx.secondary[0]?.state || "sem processamento");
             __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
                 ...{ class: ("panel") },
             });
@@ -1612,7 +2014,35 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_14));
             let __VLS_19;
             const __VLS_20 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'requests')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_16;
             let __VLS_17;
@@ -1658,7 +2088,12 @@ function __VLS_template() {
                             return;
                         if (!((__VLS_ctx.active === 'integrations')))
                             return;
-                        __VLS_ctx.integrationForm.name = __VLS_ctx.integrationForm.provider === 'cloudflare' ? 'Cloudflare' : __VLS_ctx.integrationForm.provider === 'mailcow' ? 'Mail institucional' : 'WhatsApp Evolution';
+                        __VLS_ctx.integrationForm.name =
+                            __VLS_ctx.integrationForm.provider === 'cloudflare'
+                                ? 'Cloudflare'
+                                : __VLS_ctx.integrationForm.provider === 'mailcow'
+                                    ? 'Mail institucional'
+                                    : 'WhatsApp Evolution';
                     } },
                 value: ((__VLS_ctx.integrationForm.provider)),
             });
@@ -1743,17 +2178,21 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.provider);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-                ((r.capabilities || []).join(', ') || '—');
+                ((r.capabilities || []).join(", ") || "—");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                     ...{ class: ("pill") },
                     ...{ class: ((r.secret_configured ? 'ok' : 'warn')) },
                 });
-                (r.secret_configured ? 'Referenciado' : 'Não configurado');
+                (r.secret_configured ? "Referenciado" : "Não configurado");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                     ...{ class: ("pill") },
-                    ...{ class: ((r.last_health_state === 'healthy' ? 'ok' : r.last_health_state === 'failed' ? 'danger' : 'warn')) },
+                    ...{ class: ((r.last_health_state === 'healthy'
+                            ? 'ok'
+                            : r.last_health_state === 'failed'
+                                ? 'danger'
+                                : 'warn')) },
                 });
                 (r.last_health_state || r.state);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1833,7 +2272,39 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_21));
             let __VLS_26;
             const __VLS_27 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'analytics')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_23;
             let __VLS_24;
@@ -1853,7 +2324,41 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_28));
             let __VLS_33;
             const __VLS_34 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'analytics'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'workflows')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_30;
             let __VLS_31;
@@ -1873,7 +2378,43 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_35));
             let __VLS_40;
             const __VLS_41 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'analytics'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'workflows'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'communication')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_37;
             let __VLS_38;
@@ -1893,7 +2434,45 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_42));
             let __VLS_47;
             const __VLS_48 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'analytics'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'workflows'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'communication'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'reports')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_44;
             let __VLS_45;
@@ -1913,7 +2492,47 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_49));
             let __VLS_54;
             const __VLS_55 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'analytics'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'workflows'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'communication'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'reports'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'mail')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_51;
             let __VLS_52;
@@ -1933,7 +2552,49 @@ function __VLS_template() {
             }, ...__VLS_functionalComponentArgsRest(__VLS_56));
             let __VLS_61;
             const __VLS_62 = {
-                onError: (m => __VLS_ctx.error = m)
+                onError: (...[$event]) => {
+                    if (!(!((!__VLS_ctx.ready))))
+                        return;
+                    if (!(!((!__VLS_ctx.authenticated))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'dashboard'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'students'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'planning'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'attendance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'finance'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'sales'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'canteen'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'events'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'fiscal'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'hr'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'requests'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'integrations'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'analytics'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'workflows'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'communication'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'reports'))))
+                        return;
+                    if (!(!((__VLS_ctx.active === 'mail'))))
+                        return;
+                    if (!((__VLS_ctx.active === 'student_services')))
+                        return;
+                    __VLS_ctx.error = $event;
+                }
             };
             let __VLS_58;
             let __VLS_59;
@@ -1990,7 +2651,7 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
                 (r.attempts);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-                (r.published_at ? __VLS_ctx.dateBR(r.published_at) : 'Pendente');
+                (r.published_at ? __VLS_ctx.dateBR(r.published_at) : "Pendente");
             }
         }
     }

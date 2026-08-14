@@ -7,78 +7,357 @@ const refs = ref({ people: [], students: [] });
 const items = ref([]), loans = ref([]), reservations = ref([]), fines = ref([]), policies = ref([]);
 const routes = ref([]), riders = ref([]), schedules = ref([]), occurrences = ref([]);
 const healthRecords = ref([]), incidents = ref([]), medications = ref([]), accessLog = ref([]);
-const itemForm = reactive({ inventory_code: "", title: "", authors: "", isbn: "", category: "", item_type: "book" });
+const itemForm = reactive({
+    inventory_code: "",
+    title: "",
+    authors: "",
+    isbn: "",
+    category: "",
+    item_type: "book",
+});
 const loanForm = reactive({ library_item_id: "", person_id: "" });
-const policyForm = reactive({ code: "default", effective_from: new Date().toISOString().slice(0, 10), max_loan_days: 14, max_renewals: 2, grace_days: 0, daily_fine: "0.00", reservation_hold_hours: 48 });
-const routeForm = reactive({ code: "", name: "", vehicle: "", driver_person_id: "", monitor_person_id: "", stops_text: "" });
-const riderForm = reactive({ route_id: "", student_id: "", boarding_stop: "", dropoff_stop: "" });
-const scheduleForm = reactive({ route_id: "", weekdays: [0, 1, 2, 3, 4], outbound_time: "07:00", return_time: "17:00", valid_from: new Date().toISOString().slice(0, 10), valid_until: "" });
-const occurrenceForm = reactive({ route_id: "", student_id: "", occurrence_type: "delay", description: "", severity: "normal" });
-const recordForm = reactive({ person_id: "", record_type: "allergy", summary: "", sensitivity: "restricted", valid_from: "", valid_until: "" });
-const incidentForm = reactive({ person_id: "", incident_type: "first_aid", occurred_at: new Date().toISOString().slice(0, 16), location: "", summary: "", referred_to: "", guardian_notified: false });
-const medicationForm = reactive({ person_id: "", medication_name: "", dosage: "", instructions: "", starts_on: new Date().toISOString().slice(0, 10), ends_on: "", prescriber: "", guardian_person_id: "" });
-const administrationForm = reactive({ authorization_id: "", administered_at: new Date().toISOString().slice(0, 16), dosage: "", notes: "" });
-function msg(e) { return e instanceof Error ? e.message : "Falha na operação"; }
-function dateBR(v) { if (!v)
-    return "—"; try {
-    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: String(v).includes("T") ? "short" : undefined }).format(new Date(String(v)));
+const policyForm = reactive({
+    code: "default",
+    effective_from: new Date().toISOString().slice(0, 10),
+    max_loan_days: 14,
+    max_renewals: 2,
+    grace_days: 0,
+    daily_fine: "0.00",
+    reservation_hold_hours: 48,
+});
+const routeForm = reactive({
+    code: "",
+    name: "",
+    vehicle: "",
+    driver_person_id: "",
+    monitor_person_id: "",
+    stops_text: "",
+});
+const riderForm = reactive({
+    route_id: "",
+    student_id: "",
+    boarding_stop: "",
+    dropoff_stop: "",
+});
+const scheduleForm = reactive({
+    route_id: "",
+    weekdays: [0, 1, 2, 3, 4],
+    outbound_time: "07:00",
+    return_time: "17:00",
+    valid_from: new Date().toISOString().slice(0, 10),
+    valid_until: "",
+});
+const occurrenceForm = reactive({
+    route_id: "",
+    student_id: "",
+    occurrence_type: "delay",
+    description: "",
+    severity: "normal",
+});
+const recordForm = reactive({
+    person_id: "",
+    record_type: "allergy",
+    summary: "",
+    sensitivity: "restricted",
+    valid_from: "",
+    valid_until: "",
+});
+const incidentForm = reactive({
+    person_id: "",
+    incident_type: "first_aid",
+    occurred_at: new Date().toISOString().slice(0, 16),
+    location: "",
+    summary: "",
+    referred_to: "",
+    guardian_notified: false,
+});
+const medicationForm = reactive({
+    person_id: "",
+    medication_name: "",
+    dosage: "",
+    instructions: "",
+    starts_on: new Date().toISOString().slice(0, 10),
+    ends_on: "",
+    prescriber: "",
+    guardian_person_id: "",
+});
+const administrationForm = reactive({
+    authorization_id: "",
+    administered_at: new Date().toISOString().slice(0, 16),
+    dosage: "",
+    notes: "",
+});
+function msg(e) {
+    return e instanceof Error ? e.message : "Falha na operação";
 }
-catch {
-    return String(v);
-} }
-function money(v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v || 0)); }
-function label(list, id) { return list?.find(x => x.id === id)?.label || id || "—"; }
-function idem(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-async function post(path, body, key) { const headers = { "Content-Type": "application/json" }; if (key)
-    headers["Idempotency-Key"] = key; return props.api.request(path, { method: "POST", headers, body: JSON.stringify(body) }); }
-async function loadRefs() { try {
-    refs.value = await props.api.request("/references/catalog");
+function dateBR(v) {
+    if (!v)
+        return "—";
+    try {
+        return new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: String(v).includes("T") ? "short" : undefined,
+        }).format(new Date(String(v)));
+    }
+    catch {
+        return String(v);
+    }
 }
-catch {
-    refs.value = { people: [], students: [] };
-} }
-async function loadLibrary() { const [i, l, r, f, p] = await Promise.all([props.api.request("/library/items"), props.api.request("/library/loans"), props.api.request("/library/reservations"), props.api.request("/library/fines"), props.api.request("/library/policies")]); items.value = i.items || []; loans.value = l.items || []; reservations.value = r.items || []; fines.value = f.items || []; policies.value = p.items || []; }
-async function loadTransport() { const [r, ri, s, o] = await Promise.all([props.api.request("/transport/routes"), props.api.request("/transport/riders"), props.api.request("/transport/schedules"), props.api.request("/transport/occurrences")]); routes.value = r.items || []; riders.value = ri.items || []; schedules.value = s.items || []; occurrences.value = o.items || []; }
-async function loadHealth() { const [r, i, m, a] = await Promise.all([props.api.request("/health/records"), props.api.request("/health/incidents"), props.api.request("/health/medication-authorizations"), props.api.request("/health/access-log")]); healthRecords.value = r.items || []; incidents.value = i.items || []; medications.value = m.items || []; accessLog.value = a.items || []; }
-async function load() { loading.value = true; try {
-    await loadRefs();
-    await Promise.all([loadLibrary(), loadTransport(), loadHealth()]);
+function money(v) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(Number(v || 0));
 }
-catch (e) {
-    emit("error", msg(e));
+function label(list, id) {
+    return list?.find((x) => x.id === id)?.label || id || "—";
 }
-finally {
-    loading.value = false;
-} }
-async function op(fn, reload) { loading.value = true; try {
-    await fn();
-    await reload();
+function idem(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
 }
-catch (e) {
-    emit("error", msg(e));
+async function post(path, body, key) {
+    const headers = {
+        "Content-Type": "application/json",
+    };
+    if (key)
+        headers["Idempotency-Key"] = key;
+    return props.api.request(path, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+    });
 }
-finally {
-    loading.value = false;
-} }
-async function createItem() { await op(() => post("/library/items", { ...itemForm, authors: itemForm.authors || null, isbn: itemForm.isbn || null, category: itemForm.category || null }), loadLibrary); Object.assign(itemForm, { inventory_code: "", title: "", authors: "", isbn: "", category: "", item_type: "book" }); }
-async function createLoan() { await op(() => post("/library/loans", { ...loanForm, due_at: null }), loadLibrary); Object.assign(loanForm, { library_item_id: "", person_id: "" }); }
-async function returnLoan(id) { await op(() => post(`/library/loans/${id}/return`, {}), loadLibrary); }
-async function renewLoan(id) { await op(() => post(`/library/loans/${id}/renew`, { reason: "Renovação administrativa" }), loadLibrary); }
-async function settleFine(id, action) { await op(() => post(`/library/fines/${id}/settle`, { action, reason: action === "paid" ? "Pagamento registrado" : "Abono autorizado" }), loadLibrary); }
-async function publishPolicy() { await op(() => post("/library/policies", policyForm), loadLibrary); }
-async function createRoute() { const stops = routeForm.stops_text.split("\n").map(x => x.trim()).filter(Boolean).map((name, index) => ({ name, sequence: index + 1 })); await op(() => post("/transport/routes", { ...routeForm, driver_person_id: routeForm.driver_person_id || null, monitor_person_id: routeForm.monitor_person_id || null, stops }), loadTransport); Object.assign(routeForm, { code: "", name: "", vehicle: "", driver_person_id: "", monitor_person_id: "", stops_text: "" }); }
-async function assignRider() { await op(() => post("/transport/riders", { ...riderForm, boarding_stop: riderForm.boarding_stop || null, dropoff_stop: riderForm.dropoff_stop || null }), loadTransport); Object.assign(riderForm, { route_id: "", student_id: "", boarding_stop: "", dropoff_stop: "" }); }
-async function createSchedule() { await op(() => post("/transport/schedules", { ...scheduleForm, outbound_time: scheduleForm.outbound_time || null, return_time: scheduleForm.return_time || null, valid_until: scheduleForm.valid_until || null }), loadTransport); }
-async function createOccurrence() { await op(() => post("/transport/occurrences", { ...occurrenceForm, student_id: occurrenceForm.student_id || null }), loadTransport); Object.assign(occurrenceForm, { route_id: "", student_id: "", occurrence_type: "delay", description: "", severity: "normal" }); }
-async function resolveOccurrence(id) { await op(() => post(`/transport/occurrences/${id}/resolve`, { resolution: "Ocorrência tratada e encerrada." }), loadTransport); }
-async function createRecord() { await op(() => post("/health/records", { ...recordForm, details: {}, valid_from: recordForm.valid_from || null, valid_until: recordForm.valid_until || null }), loadHealth); Object.assign(recordForm, { person_id: "", record_type: "allergy", summary: "", sensitivity: "restricted", valid_from: "", valid_until: "" }); }
-async function accessRecord(r) { const reason = window.prompt("Informe o motivo do acesso ao registro sensível:", "Atendimento autorizado"); if (!reason)
-    return; await op(async () => { const detail = await post(`/health/records/${r.id}/access`, { reason }); window.alert(`${detail.summary}\n\n${JSON.stringify(detail.details || {}, null, 2)}`); }, loadHealth); }
-async function createIncident() { await op(() => post("/health/incidents", { ...incidentForm, occurred_at: new Date(incidentForm.occurred_at).toISOString(), first_aid: [], referred_to: incidentForm.referred_to || null }), loadHealth); }
-async function closeIncident(id) { await op(() => post(`/health/incidents/${id}/close`, { reason: "Atendimento concluído" }), loadHealth); }
-async function createMedication() { await op(() => post("/health/medication-authorizations", { ...medicationForm, ends_on: medicationForm.ends_on || null, prescriber: medicationForm.prescriber || null, guardian_person_id: medicationForm.guardian_person_id || null, consent_document_id: null }), loadHealth); }
-async function administer() { await op(() => post("/health/medication-administrations", { ...administrationForm, administered_at: new Date(administrationForm.administered_at).toISOString(), dosage: administrationForm.dosage || null, notes: administrationForm.notes || null }, idem("medication")), loadHealth); Object.assign(administrationForm, { authorization_id: "", administered_at: new Date().toISOString().slice(0, 16), dosage: "", notes: "" }); }
-const openLoans = computed(() => loans.value.filter(x => x.state === "open"));
+async function loadRefs() {
+    try {
+        refs.value = await props.api.request("/references/catalog");
+    }
+    catch {
+        refs.value = { people: [], students: [] };
+    }
+}
+async function loadLibrary() {
+    const [i, l, r, f, p] = await Promise.all([
+        props.api.request("/library/items"),
+        props.api.request("/library/loans"),
+        props.api.request("/library/reservations"),
+        props.api.request("/library/fines"),
+        props.api.request("/library/policies"),
+    ]);
+    items.value = i.items || [];
+    loans.value = l.items || [];
+    reservations.value = r.items || [];
+    fines.value = f.items || [];
+    policies.value = p.items || [];
+}
+async function loadTransport() {
+    const [r, ri, s, o] = await Promise.all([
+        props.api.request("/transport/routes"),
+        props.api.request("/transport/riders"),
+        props.api.request("/transport/schedules"),
+        props.api.request("/transport/occurrences"),
+    ]);
+    routes.value = r.items || [];
+    riders.value = ri.items || [];
+    schedules.value = s.items || [];
+    occurrences.value = o.items || [];
+}
+async function loadHealth() {
+    const [r, i, m, a] = await Promise.all([
+        props.api.request("/health/records"),
+        props.api.request("/health/incidents"),
+        props.api.request("/health/medication-authorizations"),
+        props.api.request("/health/access-log"),
+    ]);
+    healthRecords.value = r.items || [];
+    incidents.value = i.items || [];
+    medications.value = m.items || [];
+    accessLog.value = a.items || [];
+}
+async function load() {
+    loading.value = true;
+    try {
+        await loadRefs();
+        await Promise.all([loadLibrary(), loadTransport(), loadHealth()]);
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
+}
+async function op(fn, reload) {
+    loading.value = true;
+    try {
+        await fn();
+        await reload();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
+}
+async function createItem() {
+    await op(() => post("/library/items", {
+        ...itemForm,
+        authors: itemForm.authors || null,
+        isbn: itemForm.isbn || null,
+        category: itemForm.category || null,
+    }), loadLibrary);
+    Object.assign(itemForm, {
+        inventory_code: "",
+        title: "",
+        authors: "",
+        isbn: "",
+        category: "",
+        item_type: "book",
+    });
+}
+async function createLoan() {
+    await op(() => post("/library/loans", { ...loanForm, due_at: null }), loadLibrary);
+    Object.assign(loanForm, { library_item_id: "", person_id: "" });
+}
+async function returnLoan(id) {
+    await op(() => post(`/library/loans/${id}/return`, {}), loadLibrary);
+}
+async function renewLoan(id) {
+    await op(() => post(`/library/loans/${id}/renew`, {
+        reason: "Renovação administrativa",
+    }), loadLibrary);
+}
+async function settleFine(id, action) {
+    await op(() => post(`/library/fines/${id}/settle`, {
+        action,
+        reason: action === "paid" ? "Pagamento registrado" : "Abono autorizado",
+    }), loadLibrary);
+}
+async function publishPolicy() {
+    await op(() => post("/library/policies", policyForm), loadLibrary);
+}
+async function createRoute() {
+    const stops = routeForm.stops_text
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean)
+        .map((name, index) => ({ name, sequence: index + 1 }));
+    await op(() => post("/transport/routes", {
+        ...routeForm,
+        driver_person_id: routeForm.driver_person_id || null,
+        monitor_person_id: routeForm.monitor_person_id || null,
+        stops,
+    }), loadTransport);
+    Object.assign(routeForm, {
+        code: "",
+        name: "",
+        vehicle: "",
+        driver_person_id: "",
+        monitor_person_id: "",
+        stops_text: "",
+    });
+}
+async function assignRider() {
+    await op(() => post("/transport/riders", {
+        ...riderForm,
+        boarding_stop: riderForm.boarding_stop || null,
+        dropoff_stop: riderForm.dropoff_stop || null,
+    }), loadTransport);
+    Object.assign(riderForm, {
+        route_id: "",
+        student_id: "",
+        boarding_stop: "",
+        dropoff_stop: "",
+    });
+}
+async function createSchedule() {
+    await op(() => post("/transport/schedules", {
+        ...scheduleForm,
+        outbound_time: scheduleForm.outbound_time || null,
+        return_time: scheduleForm.return_time || null,
+        valid_until: scheduleForm.valid_until || null,
+    }), loadTransport);
+}
+async function createOccurrence() {
+    await op(() => post("/transport/occurrences", {
+        ...occurrenceForm,
+        student_id: occurrenceForm.student_id || null,
+    }), loadTransport);
+    Object.assign(occurrenceForm, {
+        route_id: "",
+        student_id: "",
+        occurrence_type: "delay",
+        description: "",
+        severity: "normal",
+    });
+}
+async function resolveOccurrence(id) {
+    await op(() => post(`/transport/occurrences/${id}/resolve`, {
+        resolution: "Ocorrência tratada e encerrada.",
+    }), loadTransport);
+}
+async function createRecord() {
+    await op(() => post("/health/records", {
+        ...recordForm,
+        details: {},
+        valid_from: recordForm.valid_from || null,
+        valid_until: recordForm.valid_until || null,
+    }), loadHealth);
+    Object.assign(recordForm, {
+        person_id: "",
+        record_type: "allergy",
+        summary: "",
+        sensitivity: "restricted",
+        valid_from: "",
+        valid_until: "",
+    });
+}
+async function accessRecord(r) {
+    const reason = window.prompt("Informe o motivo do acesso ao registro sensível:", "Atendimento autorizado");
+    if (!reason)
+        return;
+    await op(async () => {
+        const detail = await post(`/health/records/${r.id}/access`, { reason });
+        window.alert(`${detail.summary}\n\n${JSON.stringify(detail.details || {}, null, 2)}`);
+    }, loadHealth);
+}
+async function createIncident() {
+    await op(() => post("/health/incidents", {
+        ...incidentForm,
+        occurred_at: new Date(incidentForm.occurred_at).toISOString(),
+        first_aid: [],
+        referred_to: incidentForm.referred_to || null,
+    }), loadHealth);
+}
+async function closeIncident(id) {
+    await op(() => post(`/health/incidents/${id}/close`, {
+        reason: "Atendimento concluído",
+    }), loadHealth);
+}
+async function createMedication() {
+    await op(() => post("/health/medication-authorizations", {
+        ...medicationForm,
+        ends_on: medicationForm.ends_on || null,
+        prescriber: medicationForm.prescriber || null,
+        guardian_person_id: medicationForm.guardian_person_id || null,
+        consent_document_id: null,
+    }), loadHealth);
+}
+async function administer() {
+    await op(() => post("/health/medication-administrations", {
+        ...administrationForm,
+        administered_at: new Date(administrationForm.administered_at).toISOString(),
+        dosage: administrationForm.dosage || null,
+        notes: administrationForm.notes || null,
+    }, idem("medication")), loadHealth);
+    Object.assign(administrationForm, {
+        authorization_id: "",
+        administered_at: new Date().toISOString().slice(0, 16),
+        dosage: "",
+        notes: "",
+    });
+}
+const openLoans = computed(() => loans.value.filter((x) => x.state === "open"));
 onMounted(load);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -130,12 +409,13 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.reservations.filter(x => ['queued', 'ready'].includes(x.state)).length);
+        (__VLS_ctx.reservations.filter((x) => ["queued", "ready"].includes(x.state))
+            .length);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.fines.filter(x => x.state === 'open').length);
+        (__VLS_ctx.fines.filter((x) => x.state === "open").length);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("grid-2 forms") },
@@ -149,7 +429,7 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.itemForm.inventory_code);
@@ -170,21 +450,21 @@ function __VLS_template() {
             value: ("other"),
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.itemForm.title);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.itemForm.authors);
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.itemForm.isbn);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.itemForm.category);
         __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
             ...{ class: ("primary") },
@@ -203,7 +483,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             value: (""),
         });
-        for (const [i] of __VLS_getVForSourceType((__VLS_ctx.items.filter(x => ['available', 'reserved'].includes(x.state))))) {
+        for (const [i] of __VLS_getVForSourceType((__VLS_ctx.items.filter((x) => ['available', 'reserved'].includes(x.state))))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((i.id)),
                 value: ((i.id)),
@@ -350,13 +630,13 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("date"),
             required: (true),
         });
         (__VLS_ctx.policyForm.effective_from);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("number"),
             min: ("1"),
         });
@@ -365,13 +645,13 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("number"),
             min: ("0"),
         });
         (__VLS_ctx.policyForm.max_renewals);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("number"),
             min: ("0"),
             step: ("0.01"),
@@ -408,7 +688,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.occurrences.filter(x => x.state !== 'resolved').length);
+        (__VLS_ctx.occurrences.filter((x) => x.state !== "resolved").length);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("grid-2 forms") },
@@ -422,15 +702,15 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.routeForm.code);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.routeForm.vehicle);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.routeForm.name);
@@ -509,10 +789,10 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.riderForm.boarding_stop);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.riderForm.dropoff_stop);
         __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
             ...{ class: ("primary") },
@@ -544,13 +824,13 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("date"),
             required: (true),
         });
         (__VLS_ctx.scheduleForm.valid_from);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("date"),
         });
         (__VLS_ctx.scheduleForm.valid_until);
@@ -558,12 +838,12 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("time"),
         });
         (__VLS_ctx.scheduleForm.outbound_time);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("time"),
         });
         (__VLS_ctx.scheduleForm.return_time);
@@ -571,12 +851,20 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: ("weekday-grid") },
         });
-        for (const [d] of __VLS_getVForSourceType(([{ n: 0, l: 'Seg' }, { n: 1, l: 'Ter' }, { n: 2, l: 'Qua' }, { n: 3, l: 'Qui' }, { n: 4, l: 'Sex' }, { n: 5, l: 'Sáb' }, { n: 6, l: 'Dom' }]))) {
+        for (const [d] of __VLS_getVForSourceType(([
+            { n: 0, l: 'Seg' },
+            { n: 1, l: 'Ter' },
+            { n: 2, l: 'Qua' },
+            { n: 3, l: 'Qui' },
+            { n: 4, l: 'Sex' },
+            { n: 5, l: 'Sáb' },
+            { n: 6, l: 'Dom' },
+        ]))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
                 key: ((d.n)),
                 ...{ class: ("inline") },
             });
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("checkbox"),
                 value: ((d.n)),
             });
@@ -721,12 +1009,12 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.incidents.filter(x => x.state === 'open').length);
+        (__VLS_ctx.incidents.filter((x) => x.state === "open").length);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.medications.filter(x => x.state === 'active').length);
+        (__VLS_ctx.medications.filter((x) => x.state === "active").length);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
@@ -760,7 +1048,7 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.recordForm.record_type);
@@ -807,18 +1095,18 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.incidentForm.incident_type);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("datetime-local"),
             required: (true),
         });
         (__VLS_ctx.incidentForm.occurred_at);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.incidentForm.location);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.textarea, __VLS_intrinsicElements.textarea)({
@@ -829,7 +1117,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({
             ...{ class: ("inline") },
         });
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("checkbox"),
         });
         (__VLS_ctx.incidentForm.guardian_notified);
@@ -863,12 +1151,12 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.medicationForm.medication_name);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.medicationForm.dosage);
@@ -882,13 +1170,13 @@ function __VLS_template() {
             ...{ class: ("cols") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("date"),
             required: (true),
         });
         (__VLS_ctx.medicationForm.starts_on);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("date"),
         });
         (__VLS_ctx.medicationForm.ends_on);
@@ -908,7 +1196,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             value: (""),
         });
-        for (const [m] of __VLS_getVForSourceType((__VLS_ctx.medications.filter(x => x.state === 'active')))) {
+        for (const [m] of __VLS_getVForSourceType((__VLS_ctx.medications.filter((x) => x.state === 'active')))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((m.id)),
                 value: ((m.id)),
@@ -918,13 +1206,13 @@ function __VLS_template() {
             (m.dosage);
         }
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("datetime-local"),
             required: (true),
         });
         (__VLS_ctx.administrationForm.administered_at);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
         (__VLS_ctx.administrationForm.dosage);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.textarea, __VLS_intrinsicElements.textarea)({

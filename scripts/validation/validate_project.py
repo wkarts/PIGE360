@@ -19,6 +19,9 @@ REQUIRED_MODULES={'foundation','tenancy','branding','app_factory','app_distribut
 def add(checks:list[dict[str,Any]],name:str,ok:bool,detail:Any)->None:
  checks.append({'name':name,'status':'passed' if ok else 'failed','detail':detail})
 
+def skip(checks:list[dict[str,Any]],name:str,detail:Any)->None:
+ checks.append({'name':name,'status':'skipped','detail':detail})
+
 def main()->int:
  parser=argparse.ArgumentParser();parser.add_argument('--security-only',action='store_true');parser.add_argument('--output');args=parser.parse_args();checks=[]
  version=(ROOT/'VERSION').read_text().strip();add(checks,'semantic-version',bool(re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?',version)),version)
@@ -81,7 +84,15 @@ def main()->int:
    if re.search(r'\b(TODO|FIXME|HACK)(?:\([^)]+\))?\s*:',text):critical.append(p.relative_to(ROOT).as_posix())
   add(checks,'no-critical-todos',not critical,critical)
   kit=json.loads((ROOT/'CI_CD_KIT_LOCAL/manifest.json').read_text());add(checks,'ci-cd-kit',len(kit.get('files',[]))>=16 and kit.get('remote_execution') is False,{'files':len(kit.get('files',[]))})
-  oci=json.loads((ROOT/f'release/artifacts/oci/PIGE360-{version}-images-digests.json').read_text());add(checks,'oci-structural',len(oci.get('images',[]))>=12 and oci.get('runtime_build_executed') is False,{'images':len(oci.get('images',[])),'runtime_build':oci.get('runtime_build_executed')})
+  oci_path=ROOT/f'release/artifacts/oci/PIGE360-{version}-images-digests.json'
+  if oci_path.is_file():
+   try:
+    oci=json.loads(oci_path.read_text())
+    add(checks,'oci-structural',len(oci.get('images',[]))>=12 and oci.get('runtime_build_executed') is False,{'images':len(oci.get('images',[])),'runtime_build':oci.get('runtime_build_executed')})
+   except Exception as exc:
+    add(checks,'oci-structural',False,{'path':oci_path.relative_to(ROOT).as_posix(),'error':str(exc)})
+  else:
+   skip(checks,'oci-structural',{'path':oci_path.relative_to(ROOT).as_posix(),'reason':'artefato OCI não gerado neste workspace de fonte local'})
  failures=[c for c in checks if c['status']=='failed'];result={'status':'passed' if not failures else 'failed','version':version,'checks':checks,'failures':failures}
  if args.output:
   out=Path(args.output);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')

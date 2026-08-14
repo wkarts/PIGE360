@@ -377,7 +377,19 @@ def cancel_document(document_id:str,data:FiscalStateInput,request:Request,user:C
             add_audit(conn,tenant_id=tid,actor_id=user.id,action="request_cancel",aggregate_type="fiscal_document",aggregate_id=document_id,correlation_id=request.state.correlation_id,before=dict(row),after=result,reason=data.reason)
             add_outbox(conn,tenant_id=tid,event_type="FiscalDocumentCancellationRequested",aggregate_type="fiscal_document",aggregate_id=document_id,payload=result,correlation_id=request.state.correlation_id)
             return result
-        conn.execute("UPDATE fiscal_documents SET state='cancelled',updated_at=? WHERE id=?",(now,document_id));financial_adjustment=apply_fiscal_financial_adjustment(conn,tenant_id=tid,document_id=document_id,reason=data.reason,now=now);result={"id":document_id,"state":"cancelled","reason":data.reason,"financial_adjustment":financial_adjustment};conn.execute("INSERT INTO fiscal_document_events(id,tenant_id,fiscal_document_id,event_type,state,provider_connection_id,payload_json,created_at) VALUES(?,?,?,?,?,?,?,?)",(uuid7(),tid,document_id,"cancelled_locally","cancelled",row.get("provider_connection_id"),dumps(result),now));add_audit(conn,tenant_id=tid,actor_id=user.id,action="cancel",aggregate_type="fiscal_document",aggregate_id=document_id,correlation_id=request.state.correlation_id,before=dict(row),after=result,reason=data.reason);add_outbox(conn,tenant_id=tid,event_type="FiscalDocumentCancelledLocally",aggregate_type="fiscal_document",aggregate_id=document_id,payload=result,correlation_id=request.state.correlation_id)
+        conn.execute("UPDATE fiscal_documents SET state='cancelled',updated_at=? WHERE id=?",(now,document_id))
+        if row.get("source_type")=="service_order" and row.get("source_id"):
+            conn.execute("UPDATE service_fiscal_events SET state='cancelled',completed_at=?,updated_at=? WHERE tenant_id=? AND fiscal_document_id=?",(now,now,tid,document_id))
+            fiscal_states={str(item["state"]) for item in conn.execute("SELECT state FROM service_fiscal_events WHERE tenant_id=? AND service_order_id=?",(tid,row["source_id"])).fetchall()}
+            if fiscal_states:
+                if "blocked_validation" in fiscal_states:service_fiscal_status="blocked_validation"
+                elif fiscal_states <= {"authorized"}:service_fiscal_status="authorized"
+                elif "awaiting_provider_configuration" in fiscal_states:service_fiscal_status="awaiting_provider_configuration"
+                elif "rejected" in fiscal_states:service_fiscal_status="rejected"
+                elif "cancelled" in fiscal_states and fiscal_states <= {"cancelled","substituted"}:service_fiscal_status="cancelled"
+                else:service_fiscal_status="emission_requested"
+                conn.execute("UPDATE service_orders SET fiscal_status=?,updated_at=? WHERE tenant_id=? AND id=?",(service_fiscal_status,now,tid,row["source_id"]))
+        financial_adjustment=apply_fiscal_financial_adjustment(conn,tenant_id=tid,document_id=document_id,reason=data.reason,now=now);result={"id":document_id,"state":"cancelled","reason":data.reason,"financial_adjustment":financial_adjustment};conn.execute("INSERT INTO fiscal_document_events(id,tenant_id,fiscal_document_id,event_type,state,provider_connection_id,payload_json,created_at) VALUES(?,?,?,?,?,?,?,?)",(uuid7(),tid,document_id,"cancelled_locally","cancelled",row.get("provider_connection_id"),dumps(result),now));add_audit(conn,tenant_id=tid,actor_id=user.id,action="cancel",aggregate_type="fiscal_document",aggregate_id=document_id,correlation_id=request.state.correlation_id,before=dict(row),after=result,reason=data.reason);add_outbox(conn,tenant_id=tid,event_type="FiscalDocumentCancelledLocally",aggregate_type="fiscal_document",aggregate_id=document_id,payload=result,correlation_id=request.state.correlation_id)
     return result
 
 @router.get("/fiscal/documents/{document_id}/events",operation_id="list_fiscal_document_events")
@@ -415,15 +427,7 @@ def fiscal_document_artifacts_list(document_id: str, request: Request, user: Cur
 def fiscal_document_artifact_download(document_id: str, artifact_id: str, request: Request, user: CurrentUser = Depends(current_user)):
     require(user, FISCAL_ROLES | {"finance_operator"})
     content, artifact = read_fiscal_document_artifact(request, tenant(user), document_id, artifact_id, user)
-    return Response(
-        content=content,
-        media_type=artifact["content_type"],
-        headers={
-            "Content-Disposition": f'attachment; filename="{artifact["filename"]}"',
-            "X-Artifact-SHA256": artifact["sha256"],
-            "X-Artifact-Bytes": str(artifact["bytes_count"]),
-        },
-    )
+    return Response(content=content, media_type=artifact["content_type"], headers={"Content-Disposition": f'attachment; filename="{artifact["filename"]}"', "X-Artifact-SHA256": artifact["sha256"], "X-Artifact-Bytes": str(artifact["bytes_count"])})
 
 # Resiliência de entrega fiscal ------------------------------------------------
 

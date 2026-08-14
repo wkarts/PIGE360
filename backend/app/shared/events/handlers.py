@@ -188,6 +188,70 @@ def _record_fiscal_artifact(
     return artifact_id
 
 
+def _sync_service_fiscal_document_state(
+    conn,
+    *,
+    tenant_id: str,
+    document: dict[str, Any],
+    state: str,
+    provider_code: str | None,
+    failure_code: str | None = None,
+    failure_message: str | None = None,
+) -> None:
+    """Propaga o estado real de uma NFS-e aos eventos fiscais do serviço.
+
+    A relação é criada pelo roteamento fiscal. Esta função apenas espelha o
+    lifecycle do documento e preserva a origem por item no módulo de serviços.
+    """
+    if document.get("source_type") != "service_order":
+        return
+    document_id = str(document.get("id") or "")
+    service_order_id = str(document.get("source_id") or "")
+    if not document_id or not service_order_id:
+        return
+    now = iso_now()
+    completed_at = now if state in {"authorized", "rejected", "cancelled", "substituted"} else None
+    conn.execute(
+        """UPDATE service_fiscal_events
+           SET state=?, provider_code=COALESCE(?,provider_code), failure_code=?, failure_message=?,
+               completed_at=?, updated_at=?
+           WHERE tenant_id=? AND fiscal_document_id=?""",
+        (
+            state,
+            provider_code or None,
+            failure_code,
+            (failure_message or "")[:2000] or None,
+            completed_at,
+            now,
+            tenant_id,
+            document_id,
+        ),
+    )
+    rows = conn.execute(
+        "SELECT state FROM service_fiscal_events WHERE tenant_id=? AND service_order_id=?",
+        (tenant_id, service_order_id),
+    ).fetchall()
+    states = {str(row["state"]) for row in rows}
+    if not states:
+        return
+    if "blocked_validation" in states:
+        order_status = "blocked_validation"
+    elif states <= {"authorized"}:
+        order_status = "authorized"
+    elif "awaiting_provider_configuration" in states:
+        order_status = "awaiting_provider_configuration"
+    elif "rejected" in states:
+        order_status = "rejected"
+    elif "cancelled" in states and states <= {"cancelled", "substituted"}:
+        order_status = "cancelled"
+    else:
+        order_status = "emission_requested"
+    conn.execute(
+        "UPDATE service_orders SET fiscal_status=?,updated_at=? WHERE tenant_id=? AND id=?",
+        (order_status, now, tenant_id, service_order_id),
+    )
+
+
 def _find_connection(store, tenant_id: str, providers: tuple[str, ...], capability: str) -> dict[str, Any] | None:
     placeholders = ",".join("?" for _ in providers)
     rows = store.fetch_all(
@@ -253,6 +317,15 @@ def build_domain_event_handlers(
                 _record_fiscal_attempt(conn, tenant_id=tenant_id, document_id=document_id, provider_connection_id=document.get("provider_connection_id"), operation="issue", request_payload=request_payload, state="not_configured", error_code="FISCAL_PROVIDER_NOT_CONFIGURED")
                 _record_fiscal_event(conn, tenant_id=tenant_id, document_id=document_id, event_type="provider_not_configured", state="awaiting_provider_configuration", provider_connection_id=document.get("provider_connection_id"), payload={"provider_status": "not_configured"})
                 add_audit(conn, tenant_id=tenant_id, actor_id="system-worker", action="provider_not_configured", aggregate_type="fiscal_document", aggregate_id=document_id, correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]), after={"state":"awaiting_provider_configuration"})
+                _sync_service_fiscal_document_state(
+                    conn,
+                    tenant_id=tenant_id,
+                    document=dict(document),
+                    state="awaiting_provider_configuration",
+                    provider_code=None,
+                    failure_code="FISCAL_PROVIDER_NOT_CONFIGURED",
+                    failure_message="Provider fiscal não configurado.",
+                )
             return {"state": "awaiting_provider_configuration", "provider_status": "not_configured"}
         try:
             provider = _fiscal_provider(router, connection, transport=transport)
@@ -289,6 +362,15 @@ def build_domain_event_handlers(
                 add_audit(conn, tenant_id=tenant_id, actor_id="system-worker", action="provider_issue_failed", aggregate_type="fiscal_document", aggregate_id=document_id, correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]), after={"code":exc.code,"retryable":exc.retryable,"retry":plan,"rejection_id":rejection["id"]})
                 if not retry_pending:
                     add_outbox(conn, tenant_id=tenant_id, event_type="FiscalDocumentRejected", aggregate_type="fiscal_document", aggregate_id=document_id, payload={"id": document_id, "error_code": exc.code, "rejection_id": rejection["id"], "retry_limit_reached": bool(plan.get("limit_reached"))}, correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]))
+                _sync_service_fiscal_document_state(
+                    conn,
+                    tenant_id=tenant_id,
+                    document=dict(document),
+                    state=response_state,
+                    provider_code=str(connection.get("provider") or ""),
+                    failure_code=exc.code,
+                    failure_message=str(exc),
+                )
                 should_raise = bool(retry_pending and (policy is None or plan.get("auto_retry")))
             if should_raise:
                 if policy:
@@ -333,6 +415,15 @@ def build_domain_event_handlers(
                 add_outbox(conn, tenant_id=tenant_id, event_type="FiscalDocumentAuthorized", aggregate_type="fiscal_document", aggregate_id=document_id, payload={"id": document_id, "access_key": result.get("access_key"), "protocol": result.get("protocol")}, correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]))
             elif state == "rejected":
                 add_outbox(conn, tenant_id=tenant_id, event_type="FiscalDocumentRejected", aggregate_type="fiscal_document", aggregate_id=document_id, payload={"id": document_id, "error_code": result.get("error_code")}, correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]))
+            _sync_service_fiscal_document_state(
+                conn,
+                tenant_id=tenant_id,
+                document=dict(document),
+                state=state,
+                provider_code=str(connection.get("provider") or ""),
+                failure_code=result.get("error_code"),
+                failure_message=result.get("error_message"),
+            )
         return {"state": state, "document_id": document_id, "xml_sha256": xml_obj.sha256 if xml_obj else None}
 
     def fiscal_cancel_requested(_store, envelope: dict[str, Any]) -> dict[str, Any]:
@@ -361,6 +452,7 @@ def build_domain_event_handlers(
             _record_fiscal_event(conn,tenant_id=tenant_id,document_id=document_id,event_type="cancelled" if state=="cancelled" else "cancellation_provider_response",state=state,provider_connection_id=document.get("provider_connection_id"),provider_event_id=result.get("provider_event_id"),payload=normalized)
             add_audit(conn,tenant_id=tenant_id,actor_id="system-worker",action="provider_cancel_response",aggregate_type="fiscal_document",aggregate_id=document_id,correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]),before={"state":document["state"]},after={"state":state})
             if state=="cancelled": add_outbox(conn,tenant_id=tenant_id,event_type="FiscalDocumentCancelled",aggregate_type="fiscal_document",aggregate_id=document_id,payload={"id":document_id},correlation_id=str(envelope.get("correlation_id") or envelope["event_id"]))
+            _sync_service_fiscal_document_state(conn,tenant_id=tenant_id,document=dict(document),state=state,provider_code=str(connection.get("provider") or ""),failure_code=result.get("error_code"),failure_message=result.get("error_message"))
         return {"state":state,"document_id":document_id}
 
     def fiscal_query_requested(_store, envelope: dict[str, Any]) -> dict[str, Any]:

@@ -1,66 +1,148 @@
 import { computed, reactive, ref, watch } from "vue";
 const props = defineProps();
 const emit = defineEmits();
-const infantLevels = new Set(["infantil", "educacao_infantil", "educação_infantil", "early_childhood"]);
-const infantAssignments = computed(() => props.assignments.filter(a => infantLevels.has(String(a.education_level || "").toLowerCase().replace(/ /g, "_"))));
+const infantLevels = new Set([
+    "infantil",
+    "educacao_infantil",
+    "educação_infantil",
+    "early_childhood",
+]);
+const infantAssignments = computed(() => props.assignments.filter((a) => infantLevels.has(String(a.education_level || "")
+    .toLowerCase()
+    .replace(/ /g, "_"))));
 const assignmentId = ref("");
 const students = ref([]);
 const selectedStudent = ref("");
 const history = ref([]);
 const guardians = ref([]);
 const busy = ref(false);
-const form = reactive({ record_date: new Date().toISOString().slice(0, 10), mood: "", meal: "", consumption: "completo", sleep_start: "", sleep_end: "", hygiene: "", diaper_change: "", development_notes: "" });
-const pickup = reactive({ guardian_id: "", released_at: "", identity_document_masked: "", notes: "" });
-function message(e) { return e instanceof Error ? e.message : "Erro ao operar agenda infantil"; }
-async function loadStudents() { students.value = []; selectedStudent.value = ""; history.value = []; guardians.value = []; if (!assignmentId.value)
-    return; busy.value = true; try {
-    const r = await props.api.request(`/portal/teacher/assignments/${assignmentId.value}/students`);
-    students.value = r.items || [];
+const form = reactive({
+    record_date: new Date().toISOString().slice(0, 10),
+    mood: "",
+    meal: "",
+    consumption: "completo",
+    sleep_start: "",
+    sleep_end: "",
+    hygiene: "",
+    diaper_change: "",
+    development_notes: "",
+});
+const pickup = reactive({
+    guardian_id: "",
+    released_at: "",
+    identity_document_masked: "",
+    notes: "",
+});
+function message(e) {
+    return e instanceof Error ? e.message : "Erro ao operar agenda infantil";
 }
-catch (e) {
-    emit("error", message(e));
+async function loadStudents() {
+    students.value = [];
+    selectedStudent.value = "";
+    history.value = [];
+    guardians.value = [];
+    if (!assignmentId.value)
+        return;
+    busy.value = true;
+    try {
+        const r = await props.api.request(`/portal/teacher/assignments/${assignmentId.value}/students`);
+        students.value = r.items || [];
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function loadStudent() { history.value = []; guardians.value = []; if (!selectedStudent.value)
-    return; busy.value = true; try {
-    const [d, g] = await Promise.all([props.api.request(`/academic/early-childhood/students/${selectedStudent.value}/daily-records`), props.api.request(`/academic/early-childhood/students/${selectedStudent.value}/authorized-pickups`)]);
-    history.value = d.items || [];
-    guardians.value = g.items || [];
+async function loadStudent() {
+    history.value = [];
+    guardians.value = [];
+    if (!selectedStudent.value)
+        return;
+    busy.value = true;
+    try {
+        const [d, g] = await Promise.all([
+            props.api.request(`/academic/early-childhood/students/${selectedStudent.value}/daily-records`),
+            props.api.request(`/academic/early-childhood/students/${selectedStudent.value}/authorized-pickups`),
+        ]);
+        history.value = d.items || [];
+        guardians.value = g.items || [];
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    emit("error", message(e));
+async function save() {
+    if (!selectedStudent.value)
+        return;
+    busy.value = true;
+    try {
+        const body = {
+            student_id: selectedStudent.value,
+            record_date: form.record_date,
+            meals: form.meal
+                ? [{ meal: form.meal, consumption: form.consumption }]
+                : [],
+            sleep: form.sleep_start
+                ? { started_at: form.sleep_start, ended_at: form.sleep_end || null }
+                : {},
+            hygiene: form.hygiene ? [{ type: form.hygiene }] : [],
+            diaper_changes: form.diaper_change ? [{ type: form.diaper_change }] : [],
+            mood: form.mood || null,
+            development_notes: form.development_notes || null,
+            authorized_photos: [],
+        };
+        await props.api.request("/academic/early-childhood/daily-records", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+        });
+        emit("notice", "Agenda diária registrada.");
+        await loadStudent();
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function save() { if (!selectedStudent.value)
-    return; busy.value = true; try {
-    const body = { student_id: selectedStudent.value, record_date: form.record_date, meals: form.meal ? [{ meal: form.meal, consumption: form.consumption }] : [], sleep: form.sleep_start ? { started_at: form.sleep_start, ended_at: form.sleep_end || null } : {}, hygiene: form.hygiene ? [{ type: form.hygiene }] : [], diaper_changes: form.diaper_change ? [{ type: form.diaper_change }] : [], mood: form.mood || null, development_notes: form.development_notes || null, authorized_photos: [] };
-    await props.api.request("/academic/early-childhood/daily-records", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    emit("notice", "Agenda diária registrada.");
-    await loadStudent();
+async function release() {
+    if (!selectedStudent.value || !pickup.guardian_id || !pickup.released_at)
+        return;
+    busy.value = true;
+    try {
+        await props.api.request("/academic/early-childhood/pickups", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                student_id: selectedStudent.value,
+                guardian_id: pickup.guardian_id,
+                released_at: new Date(pickup.released_at).toISOString(),
+                identity_document_masked: pickup.identity_document_masked || null,
+                notes: pickup.notes || null,
+            }),
+        });
+        emit("notice", "Retirada registrada com responsável autorizado.");
+        Object.assign(pickup, {
+            guardian_id: "",
+            released_at: "",
+            identity_document_masked: "",
+            notes: "",
+        });
+        await loadStudent();
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    emit("error", message(e));
-}
-finally {
-    busy.value = false;
-} }
-async function release() { if (!selectedStudent.value || !pickup.guardian_id || !pickup.released_at)
-    return; busy.value = true; try {
-    await props.api.request("/academic/early-childhood/pickups", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ student_id: selectedStudent.value, guardian_id: pickup.guardian_id, released_at: new Date(pickup.released_at).toISOString(), identity_document_masked: pickup.identity_document_masked || null, notes: pickup.notes || null }) });
-    emit("notice", "Retirada registrada com responsável autorizado.");
-    Object.assign(pickup, { guardian_id: "", released_at: "", identity_document_masked: "", notes: "" });
-    await loadStudent();
-}
-catch (e) {
-    emit("error", message(e));
-}
-finally {
-    busy.value = false;
-} }
 watch(assignmentId, () => void loadStudents());
 watch(selectedStudent, () => void loadStudent());
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
@@ -126,7 +208,7 @@ function __VLS_template() {
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("date"),
                 required: (true),
             });
@@ -135,12 +217,12 @@ function __VLS_template() {
                 ...{ class: ("cols") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("alegre, tranquilo…"),
             });
             (__VLS_ctx.form.mood);
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("almoço"),
             });
             (__VLS_ctx.form.meal);
@@ -163,12 +245,12 @@ function __VLS_template() {
                 ...{ class: ("cols") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("time"),
             });
             (__VLS_ctx.form.sleep_start);
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("time"),
             });
             (__VLS_ctx.form.sleep_end);
@@ -176,12 +258,12 @@ function __VLS_template() {
                 ...{ class: ("cols") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("lavagem das mãos"),
             });
             (__VLS_ctx.form.hygiene);
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("troca de fralda/roupa"),
             });
             (__VLS_ctx.form.diaper_change);
@@ -215,13 +297,13 @@ function __VLS_template() {
                 (g.relationship);
             }
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("datetime-local"),
                 required: (true),
             });
             (__VLS_ctx.pickup.released_at);
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("CPF ***.***.***-00"),
             });
             (__VLS_ctx.pickup.identity_document_masked);
@@ -248,9 +330,9 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
                 (r.record_date);
-                (r.mood || 'Rotina registrada');
+                (r.mood || "Rotina registrada");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-                (r.development_notes || 'Sem observação de desenvolvimento.');
+                (r.development_notes || "Sem observação de desenvolvimento.");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                     ...{ class: ("pill") },
                 });

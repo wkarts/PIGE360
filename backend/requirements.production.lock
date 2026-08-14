@@ -1,8 +1,11 @@
 # Pins de produção preparados para resolução futura em CI autorizado.
 # Estes cinco pacotes opcionais não estavam disponíveis no cache local e, por isso,
 # não são declarados como validados nesta execução sem rede.
+# psycopg 3.2.0 publica metadados que dependem de psycopg-binary 3.2.0.dev1,
+# distribuição que não existe no índice público; a primeira linha 3.2 estável
+# adequada ao runtime Python 3.13 é fixada abaixo.
 asyncpg==0.30.0
-psycopg[binary]==3.2.0
+psycopg[binary]==3.2.13
 celery==5.5.0
 redis==6.0.0
 boto3==1.40.0

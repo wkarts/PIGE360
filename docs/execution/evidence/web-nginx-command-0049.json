@@ -1,0 +1,54 @@
+{
+  "increment": "0049_web_nginx_explicit_command",
+  "generated_at": "2026-08-14T13:55:00Z",
+  "scope": "Correção do comando de inicialização de pige360-web no smoke Compose de homologação.",
+  "incident": {
+    "source": "logs_86284239751.zip / workflow build-runtime-images",
+    "observed_at": "2026-08-14T13:35:00Z",
+    "symptom": "O Docker recusou criar pige360-web com a mensagem no command specified.",
+    "root_cause": "ENTRYPOINT [] removeu a configuração herdada da imagem Nginx sem declarar um CMD explícito para o container.",
+    "evidence": "PostgreSQL, Redis, RabbitMQ, MinIO, migrations e API foram criados antes da falha; o erro ocorreu exatamente na criação de pige360-web."
+  },
+  "implementation": {
+    "command": "Dockerfile.web declara CMD [\"nginx\", \"-g\", \"daemon off;\"] imediatamente após ENTRYPOINT [].",
+    "preserved_behavior": [
+      "execução com UID 10001",
+      "root filesystem read-only",
+      "endpoint /healthz em 8080",
+      "sem scripts mutáveis de bootstrap da imagem Nginx"
+    ]
+  },
+  "validation": [
+    {
+      "command": "python3 (execução direta de backend/tests/infrastructure/test_compose_homologation_smoke.py)",
+      "result": "6 testes estáticos aprovados, incluindo o contrato do CMD explícito e dos diagnósticos de startup.",
+      "status": "passed"
+    },
+    {
+      "command": "bash -n scripts/ci/smoke-compose-homologation.sh; python3 scripts/validation/validate_project.py; python3 scripts/validation/secret_scan.py",
+      "result": "Sintaxe Shell e validação estrutural aprovadas; 2202 arquivos examinados e 0 achados de segredo.",
+      "status": "passed"
+    },
+    {
+      "command": "docker build / smoke-compose-homologation.sh",
+      "result": "Pendente de runner com Docker/Compose; este workspace local não possui Docker.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0048-20260814.zip",
+    "baseline_sha256": "385ebde663df6903b7e089ba3df5620bf67e00696aa4e67c54436b3cd9aafef9",
+    "comparison": {
+      "baseline_files": 2850,
+      "current_files": 2851,
+      "added": 1,
+      "modified": 4,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0048 foi removido no incremento 0049."
+  },
+  "limits": [
+    "O smoke Compose real deve ser confirmado pelo workflow 20 em runner com Docker/Compose.",
+    "A correção preserva os requisitos de operação sem privilégios da imagem web."
+  ]
+}

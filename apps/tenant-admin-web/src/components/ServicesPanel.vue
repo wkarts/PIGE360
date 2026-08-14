@@ -166,6 +166,41 @@ async function showOrder(row: Row): Promise<void> {
   try { selectedOrder.value = await request<Row>(`/service-orders/${row.id}`); executionForm.order_item_id = selectedOrder.value?.items?.[0]?.id ?? ""; }
   catch (error) { emit("error", message(error)); }
 }
+async function refreshSelectedOrder(): Promise<void> {
+  if (selectedOrder.value?.id) await showOrder({ id: selectedOrder.value.id });
+}
+async function issueReceipt(payment: Row): Promise<void> {
+  if (!selectedOrder.value) return;
+  try {
+    const receipt = await post<Row>(`/service-orders/${selectedOrder.value.id}/receipts`, { payment_id: payment.id }, idempotency("service-receipt"));
+    emit("notice", receipt.idempotent ? "O recibo já estava emitido para este pagamento." : `Recibo ${receipt.receipt_number} emitido e protegido por SHA-256.`);
+    await load(); await refreshSelectedOrder();
+  } catch (error) { emit("error", message(error)); }
+}
+async function downloadReceipt(receipt: Row): Promise<void> {
+  try {
+    const response = await props.api.response(`/service-receipts/${receipt.id}/document`);
+    const data = await response.arrayBuffer();
+    const expected = (response.headers.get("x-content-sha256") || "").toLowerCase();
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    const actual = [...new Uint8Array(digest)].map((value) => value.toString(16).padStart(2, "0")).join("");
+    if (expected && actual !== expected) throw new Error("Integridade do recibo inválida: SHA-256 divergente.");
+    const blob = new Blob([data], { type: response.headers.get("content-type") || "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url; anchor.download = `${receipt.receipt_number || receipt.id}.pdf`; anchor.click();
+    URL.revokeObjectURL(url);
+  } catch (error) { emit("error", message(error)); }
+}
+async function voidReceipt(receipt: Row): Promise<void> {
+  const reason = window.prompt(`Informe o motivo da anulação do recibo ${receipt.receipt_number}:`);
+  if (!reason?.trim()) return;
+  try {
+    await post(`/service-receipts/${receipt.id}/void`, { reason: reason.trim() });
+    emit("notice", "Recibo anulado; o pagamento financeiro e seu histórico foram preservados.");
+    await load(); await refreshSelectedOrder();
+  } catch (error) { emit("error", message(error)); }
+}
 async function scheduleExecution(): Promise<void> {
   if (!selectedOrder.value) return;
   try { await post(`/service-orders/${selectedOrder.value.id}/executions`, { ...executionForm, scheduled_at: executionForm.scheduled_at ? new Date(executionForm.scheduled_at).toISOString() : null, performer_person_id: executionForm.performer_person_id || null, notes: executionForm.notes || null }, idempotency("service-execution")); emit("notice", "Execução agendada."); await load(); await showOrder(selectedOrder.value); }
@@ -222,11 +257,15 @@ onMounted(load);
     <template v-else-if="tab==='orders'">
       <section class="grid-2 forms"><form class="panel" @submit.prevent="createOrder"><h2>Novo pedido avulso</h2><label>Serviço<select v-model="orderForm.service_id" required><option v-for="row in services" :key="row.id" :value="row.id">{{ row.name }}</option></select></label><label>Assinante<select v-model="orderForm.subscriber_person_id"><option value="">Sem vínculo</option><option v-for="row in people" :key="row.id" :value="row.id">{{ row.full_name }}</option></select></label><div class="cols"><label>Quantidade<input v-model="orderForm.quantity" type="number" min="0.0001" step="0.0001" required /></label><label>Preço unitário<input v-model="orderForm.unit_price" type="number" min="0.01" step="0.01" /></label></div><div class="cols"><label>Vencimento<input v-model="orderForm.due_date" type="date" /></label><label>Desconto<input v-model="orderForm.discount_amount" type="number" min="0" step="0.01" /></label></div><button class="primary">Criar pedido</button></form><form class="panel" @submit.prevent="scheduleExecution"><h2>Agendar execução</h2><label>Pedido<select v-model="selectedOrder" @change="selectedOrder && showOrder(selectedOrder)"><option :value="null">Selecione</option><option v-for="row in orders" :key="row.id" :value="row">{{ row.order_number }} · {{ money(row.total_amount) }}</option></select></label><label>Item<select v-model="executionForm.order_item_id" required><option v-for="row in selectedOrder?.items || []" :key="row.id" :value="row.id">{{ row.description }}</option></select></label><div class="cols"><label>Quantidade<input v-model="executionForm.quantity" type="number" min="0.0001" step="0.0001" required /></label><label>Data/hora<input v-model="executionForm.scheduled_at" type="datetime-local" /></label></div><button class="primary" :disabled="!selectedOrder">Agendar</button></form></section>
       <section class="panel"><div class="panel-title"><h2>Pedidos</h2><span>{{ orders.length }}</span></div><table><thead><tr><th>Número</th><th>Assinante</th><th>Total</th><th>Financeiro</th><th>Fiscal</th><th>Estado</th><th>Ações</th></tr></thead><tbody><tr v-for="row in orders" :key="row.id"><td>{{ row.order_number }}</td><td>{{ row.subscriber_name || row.subscriber_person_id || '—' }}</td><td>{{ money(row.total_amount) }}</td><td>{{ row.charge_state || row.charge?.state || '—' }}</td><td>{{ row.fiscal_status }}</td><td><span class="pill">{{ row.status }}</span></td><td><button class="small" @click="showOrder(row)">Detalhes</button><button v-if="row.status==='draft'" class="small" @click="orderAction(row,'confirm')">Confirmar</button><button v-if="row.status==='confirmed'" class="small" @click="orderAction(row,'start')">Iniciar</button><button v-if="row.status==='in_progress'" class="small" @click="orderAction(row,'complete')">Concluir</button><button v-if="!['cancelled','completed'].includes(row.status)" class="small" @click="orderAction(row,'cancel')">Cancelar</button></td></tr></tbody></table></section>
+      <section v-if="selectedOrder" class="grid-2">
+        <div class="panel"><div class="panel-title"><div><h2>Pagamentos do pedido</h2><small>Recibos são emitidos automaticamente na confirmação do pagamento.</small></div><span>{{ selectedOrder.receipt_payments?.length ?? 0 }}</span></div><div class="rows"><div v-for="payment in selectedOrder.receipt_payments || []" :key="payment.id"><div><strong>{{ money(payment.service_amount) }} · {{ payment.method }}</strong><small>{{ dateTime(payment.paid_at) }} · {{ payment.external_reference || 'sem referência externa' }}</small></div><div><span v-if="payment.receipt_id" class="pill ok">Recibo emitido</span><button v-else-if="payment.state==='confirmed'" class="small" @click="issueReceipt(payment)">Emitir agora</button><span v-else class="pill warn">{{ payment.state }}</span></div></div><div v-if="!(selectedOrder.receipt_payments || []).length" class="empty">Ainda não há pagamento confirmado rateado para esta cobrança.</div></div></div>
+        <div class="panel"><div class="panel-title"><div><h2>Recibos preservados</h2><small>PDF privado, hash verificável e anulação auditável.</small></div><span>{{ selectedOrder.receipts?.length ?? 0 }}</span></div><div class="rows"><div v-for="receipt in selectedOrder.receipts || []" :key="receipt.id"><div><strong>{{ receipt.receipt_number }} · {{ money(receipt.amount) }}</strong><small>{{ receipt.state }} · SHA-256 {{ String(receipt.document_sha256).slice(0, 16) }}…</small></div><div><button class="small" @click="downloadReceipt(receipt)">Baixar PDF</button><button v-if="receipt.state==='issued'" class="small" @click="voidReceipt(receipt)">Anular</button></div></div><div v-if="!(selectedOrder.receipts || []).length" class="empty">Nenhum recibo emitido para este pedido.</div></div></div>
+      </section>
       <section class="panel"><div class="panel-title"><h2>Execuções</h2><span>{{ executions.length }}</span></div><table><thead><tr><th>Pedido</th><th>Programação</th><th>Quantidade</th><th>Estado</th><th>Ações</th></tr></thead><tbody><tr v-for="row in executions" :key="row.id"><td>{{ row.order_number || row.order_id }}</td><td>{{ dateTime(row.scheduled_at) }}</td><td>{{ row.completed_quantity || row.quantity }}</td><td>{{ row.status }}</td><td><button v-if="row.status==='scheduled'" class="small" @click="executionAction(row,'start')">Iniciar</button><button v-if="row.status==='in_progress'" class="small" @click="executionAction(row,'complete')">Concluir</button><button v-if="!['completed','cancelled'].includes(row.status)" class="small" @click="executionAction(row,'cancel')">Cancelar</button></td></tr></tbody></table></section>
     </template>
 
     <template v-else>
-      <section class="panel"><div class="panel-title"><h2>Eventos fiscais de serviços</h2><span>{{ fiscalEvents.length }}</span></div><table><thead><tr><th>Origem</th><th>Gatilho</th><th>Classificação</th><th>Provider</th><th>Falha</th><th>Atualização</th></tr></thead><tbody><tr v-for="row in fiscalEvents" :key="row.id"><td>{{ row.source_type }} / {{ row.source_id }}</td><td>{{ row.trigger_type }}</td><td>{{ row.classification_status }}</td><td><span class="pill" :class="row.status==='not_configured'?'warn':row.status==='blocked_validation'?'danger':'ok'">{{ row.status }}</span></td><td>{{ row.failure_code || '—' }}</td><td>{{ dateTime(row.updated_at) }}</td></tr><tr v-if="!fiscalEvents.length"><td colspan="6" class="empty">Nenhum evento fiscal de serviço.</td></tr></tbody></table></section>
+      <section class="panel"><div class="panel-title"><h2>Eventos fiscais de serviços</h2><span>{{ fiscalEvents.length }}</span></div><table><thead><tr><th>Origem</th><th>Gatilho</th><th>Classificação</th><th>Documento fiscal</th><th>Provider</th><th>Falha</th><th>Atualização</th></tr></thead><tbody><tr v-for="row in fiscalEvents" :key="row.id"><td>{{ row.source_type }} / {{ row.source_id }}</td><td>{{ row.trigger_type }}</td><td>{{ row.classification_status }}</td><td><code v-if="row.fiscal_document_id">{{ String(row.fiscal_document_id).slice(-12) }}</code><span v-else>—</span></td><td><span class="pill" :class="row.status==='not_configured'||row.status==='awaiting_provider_configuration'?'warn':row.status==='blocked_validation'||row.status==='rejected'?'danger':'ok'">{{ row.status }}</span></td><td>{{ row.failure_code || '—' }}</td><td>{{ dateTime(row.updated_at) }}</td></tr><tr v-if="!fiscalEvents.length"><td colspan="7" class="empty">Nenhum evento fiscal de serviço.</td></tr></tbody></table></section>
     </template>
   </div>
 </template>

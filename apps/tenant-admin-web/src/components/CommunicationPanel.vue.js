@@ -6,99 +6,207 @@ const templates = ref([]);
 const notifications = ref([]);
 const people = ref([]);
 const preferences = ref([]);
-const templateForm = reactive({ template_key: "", name: "", channel: "internal", subject_template: "", body_template: "", variables: "" });
-const sendForm = reactive({ recipient_person_id: "", channel: "internal", template_id: "", subject: "", body: "", scheduled_at: "" });
+const templateForm = reactive({
+    template_key: "",
+    name: "",
+    channel: "internal",
+    subject_template: "",
+    body_template: "",
+    variables: "",
+});
+const sendForm = reactive({
+    recipient_person_id: "",
+    channel: "internal",
+    template_id: "",
+    subject: "",
+    body: "",
+    scheduled_at: "",
+});
 const variables = reactive({});
-const selectedTemplate = computed(() => templates.value.find(x => x.id === sendForm.template_id));
-const selectedVersion = computed(() => selectedTemplate.value?.versions?.find((x) => x.version === selectedTemplate.value?.current_version && x.state === "published"));
+const selectedTemplate = computed(() => templates.value.find((x) => x.id === sendForm.template_id));
+const selectedVersion = computed(() => selectedTemplate.value?.versions?.find((x) => x.version === selectedTemplate.value?.current_version &&
+    x.state === "published"));
 const variableNames = computed(() => selectedVersion.value?.variables || []);
-function msg(e) { return e instanceof Error ? e.message : "Falha na comunicação"; }
-function dateBR(v) { if (!v)
-    return "—"; try {
-    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(String(v)));
+function msg(e) {
+    return e instanceof Error ? e.message : "Falha na comunicação";
 }
-catch {
-    return String(v);
-} }
-function idem(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-watch(() => sendForm.template_id, () => { for (const k of Object.keys(variables))
-    delete variables[k]; if (selectedTemplate.value)
-    sendForm.channel = selectedTemplate.value.channel; });
-async function load() { loading.value = true; try {
-    const [t, n, p, pr] = await Promise.all([props.api.request("/communication/templates"), props.api.request("/notifications?limit=100"), props.api.request("/people"), props.api.request("/communication/preferences/me").catch(() => ({ items: [] }))]);
-    templates.value = t.items || [];
-    notifications.value = n.items || [];
-    people.value = p.items || [];
-    preferences.value = pr.items || [];
-}
-catch (e) {
-    emit("error", msg(e));
-}
-finally {
-    loading.value = false;
-} }
-async function createTemplate() { loading.value = true; try {
-    await props.api.request("/communication/templates", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...templateForm, subject_template: templateForm.subject_template || null, variables: templateForm.variables.split(",").map(x => x.trim()).filter(Boolean) }) });
-    Object.assign(templateForm, { template_key: "", name: "", channel: "internal", subject_template: "", body_template: "", variables: "" });
-    await load();
-}
-catch (e) {
-    emit("error", msg(e));
-}
-finally {
-    loading.value = false;
-} }
-async function publish(row) { loading.value = true; try {
-    await props.api.request(`/communication/templates/${row.id}/publish`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ expected_version: row.current_version, reason: "Publicação pelo Branding/Comunicação administrativo" }) });
-    await load();
-}
-catch (e) {
-    emit("error", msg(e));
-}
-finally {
-    loading.value = false;
-} }
-async function send() { loading.value = true; try {
-    const template = selectedTemplate.value;
-    const body = { recipient_person_id: sendForm.recipient_person_id, channel: sendForm.channel, scheduled_at: sendForm.scheduled_at ? new Date(sendForm.scheduled_at).toISOString() : null };
-    if (template) {
-        body.template_key = template.template_key;
-        body.variables = { ...variables };
+function dateBR(v) {
+    if (!v)
+        return "—";
+    try {
+        return new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short",
+        }).format(new Date(String(v)));
     }
-    else {
-        body.subject = sendForm.subject || null;
-        body.body = sendForm.body;
+    catch {
+        return String(v);
     }
-    await props.api.request("/notifications", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": idem("notification") }, body: JSON.stringify(body) });
-    Object.assign(sendForm, { recipient_person_id: "", channel: "internal", template_id: "", subject: "", body: "", scheduled_at: "" });
-    await load();
 }
-catch (e) {
-    emit("error", msg(e));
+function idem(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
 }
-finally {
-    loading.value = false;
-} }
-async function retry(row) { loading.value = true; try {
-    await props.api.request(`/notifications/${row.id}/retry`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "Retry solicitado pelo administrativo" }) });
-    await load();
+watch(() => sendForm.template_id, () => {
+    for (const k of Object.keys(variables))
+        delete variables[k];
+    if (selectedTemplate.value)
+        sendForm.channel = selectedTemplate.value.channel;
+});
+async function load() {
+    loading.value = true;
+    try {
+        const [t, n, p, pr] = await Promise.all([
+            props.api.request("/communication/templates"),
+            props.api.request("/notifications?limit=100"),
+            props.api.request("/people"),
+            props.api
+                .request("/communication/preferences/me")
+                .catch(() => ({ items: [] })),
+        ]);
+        templates.value = t.items || [];
+        notifications.value = n.items || [];
+        people.value = p.items || [];
+        preferences.value = pr.items || [];
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-catch (e) {
-    emit("error", msg(e));
+async function createTemplate() {
+    loading.value = true;
+    try {
+        await props.api.request("/communication/templates", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                ...templateForm,
+                subject_template: templateForm.subject_template || null,
+                variables: templateForm.variables
+                    .split(",")
+                    .map((x) => x.trim())
+                    .filter(Boolean),
+            }),
+        });
+        Object.assign(templateForm, {
+            template_key: "",
+            name: "",
+            channel: "internal",
+            subject_template: "",
+            body_template: "",
+            variables: "",
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-finally {
-    loading.value = false;
-} }
-async function cancel(row) { loading.value = true; try {
-    await props.api.request(`/notifications/${row.id}/cancel`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "Cancelamento solicitado pelo administrativo" }) });
-    await load();
+async function publish(row) {
+    loading.value = true;
+    try {
+        await props.api.request(`/communication/templates/${row.id}/publish`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                expected_version: row.current_version,
+                reason: "Publicação pelo Branding/Comunicação administrativo",
+            }),
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-catch (e) {
-    emit("error", msg(e));
+async function send() {
+    loading.value = true;
+    try {
+        const template = selectedTemplate.value;
+        const body = {
+            recipient_person_id: sendForm.recipient_person_id,
+            channel: sendForm.channel,
+            scheduled_at: sendForm.scheduled_at
+                ? new Date(sendForm.scheduled_at).toISOString()
+                : null,
+        };
+        if (template) {
+            body.template_key = template.template_key;
+            body.variables = { ...variables };
+        }
+        else {
+            body.subject = sendForm.subject || null;
+            body.body = sendForm.body;
+        }
+        await props.api.request("/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Idempotency-Key": idem("notification"),
+            },
+            body: JSON.stringify(body),
+        });
+        Object.assign(sendForm, {
+            recipient_person_id: "",
+            channel: "internal",
+            template_id: "",
+            subject: "",
+            body: "",
+            scheduled_at: "",
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-finally {
-    loading.value = false;
-} }
+async function retry(row) {
+    loading.value = true;
+    try {
+        await props.api.request(`/notifications/${row.id}/retry`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reason: "Retry solicitado pelo administrativo" }),
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
+}
+async function cancel(row) {
+    loading.value = true;
+    try {
+        await props.api.request(`/notifications/${row.id}/cancel`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                reason: "Cancelamento solicitado pelo administrativo",
+            }),
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", msg(e));
+    }
+    finally {
+        loading.value = false;
+    }
+}
 onMounted(load);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -134,7 +242,7 @@ function __VLS_template() {
             value: ((p.id)),
         });
         (p.full_name);
-        (p.email || p.phone || 'sem contato externo');
+        (p.email || p.phone || "sem contato externo");
     }
     __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.select, __VLS_intrinsicElements.select)({
@@ -143,7 +251,7 @@ function __VLS_template() {
     __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
         value: (""),
     });
-    for (const [t] of __VLS_getVForSourceType((__VLS_ctx.templates.filter(x => x.state === 'published')))) {
+    for (const [t] of __VLS_getVForSourceType((__VLS_ctx.templates.filter((x) => x.state === 'published')))) {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             key: ((t.id)),
             value: ((t.id)),
@@ -331,15 +439,22 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         (__VLS_ctx.dateBR(n.created_at));
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-        (__VLS_ctx.people.find(x => x.id === n.recipient_person_id)?.full_name || n.recipient_person_id || '—');
+        (__VLS_ctx.people.find((x) => x.id === n.recipient_person_id)
+            ?.full_name ||
+            n.recipient_person_id ||
+            "—");
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         (n.channel);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-        (n.subject || n.template_key || 'Mensagem');
+        (n.subject || n.template_key || "Mensagem");
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
             ...{ class: ("pill") },
-            ...{ class: ((n.state === 'sent' ? 'ok' : n.state === 'failed' ? 'danger' : 'warn')) },
+            ...{ class: ((n.state === 'sent'
+                    ? 'ok'
+                    : n.state === 'failed'
+                        ? 'danger'
+                        : 'warn')) },
         });
         (n.state);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -393,7 +508,7 @@ function __VLS_template() {
                 ...{ class: ((p.enabled ? 'ok' : 'warn')) },
             });
             (p.channel);
-            (p.enabled ? 'ativo' : 'desativado');
+            (p.enabled ? "ativo" : "desativado");
         }
     }
     ['communication-grid', 'panel', 'panel-title', 'primary', 'panel', 'panel-title', 'primary', 'panel', 'panel-title', 'pill', 'small', 'empty', 'panel', 'panel-title', 'small', 'pill', 'row-actions', 'small', 'small', 'empty', 'panel', 'panel-title', 'preference-list', 'pill',];

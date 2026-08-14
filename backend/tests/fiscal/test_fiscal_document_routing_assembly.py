@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 from app.modules.fiscal.application.document_routing_service import _build_xml, process_emission_trigger
 from app.modules.fiscal.presentation.document_routing_schemas import FiscalDocumentAssemblyCreate, FiscalAssemblyItem, FiscalRoutingRecipient
+from app.shared.events.handlers import build_domain_event_handlers
 
 ROOT=Path(__file__).resolve().parents[1]/"fixtures"/"fiscal-routing"
 
@@ -323,3 +324,91 @@ def test_competence_and_billing_triggers_route_service_order(local_env):
     billing_run = store.fetch_one("SELECT trigger_type,source_id FROM fiscal_emission_trigger_runs WHERE tenant_id=? AND id=?", (local_env.alpha_tenant['id'], billing['id']))
     assert competence_run['trigger_type'] == 'competence' and competence_run['source_id'] == ids['order']
     assert billing_run['trigger_type'] == 'billing' and billing_run['source_id'] == ids['order']
+
+
+def test_service_fiscal_event_tracks_nfse_document_and_provider_state(local_env):
+    _, _, _, ids = _financial_service_order(local_env, suffix='service-event-link', paid=False)
+    tenant_id = local_env.alpha_tenant['id']
+    router = local_env.client.app.state.data_router
+    store = router.tenant_store(tenant_id)
+    now = '2026-08-11T04:00:00+00:00'
+    fiscal_event_id = 'service-fiscal-event-link'
+    with store.transaction() as conn:
+        conn.execute(
+            """INSERT INTO service_fiscal_events(
+                   id,tenant_id,event_key,service_order_id,service_order_item_id,competence_id,
+                   trigger_type,document_type,state,payload_snapshot_json,requested_at,created_at,updated_at
+               ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                fiscal_event_id, tenant_id, 'service-order-link:billing', ids['order'], ids['item'], None,
+                'service_order_confirmed', 'nfse', 'queued', '{}', now, now, now,
+            ),
+        )
+
+    first = process_emission_trigger(
+        router,
+        tenant_id,
+        'ServiceOrderConfirmed',
+        ids['order'],
+        {'id': ids['order'], 'charge_id': ids['charge']},
+        'corr-service-fiscal-event-link',
+    )
+    assert first['state'] == 'emission_requested'
+    assert first['documents'] and first['documents'][0]['document_type'] == 'NFS-e'
+    document_id = first['documents'][0]['id']
+
+    linked = store.fetch_one(
+        """SELECT fiscal_document_id,fiscal_assembly_id,state,failure_code
+           FROM service_fiscal_events WHERE tenant_id=? AND id=?""",
+        (tenant_id, fiscal_event_id),
+    )
+    assert linked == {
+        'fiscal_document_id': document_id,
+        'fiscal_assembly_id': first['assembly_id'],
+        'state': 'emission_requested',
+        'failure_code': None,
+    }
+    order = store.fetch_one("SELECT fiscal_status FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, ids['order']))
+    assert order == {'fiscal_status': 'emission_requested'}
+
+    handler = build_domain_event_handlers(router, tenant_id=tenant_id)['FiscalDocumentRequested']
+    handled = handler(store, {'aggregate_id': document_id, 'event_id': 'evt-service-fiscal-link', 'correlation_id': 'corr-service-fiscal-link'})
+    assert handled == {'state': 'awaiting_provider_configuration', 'provider_status': 'not_configured'}
+    synced = store.fetch_one(
+        """SELECT fiscal_document_id,state,failure_code
+           FROM service_fiscal_events WHERE tenant_id=? AND id=?""",
+        (tenant_id, fiscal_event_id),
+    )
+    assert synced == {
+        'fiscal_document_id': document_id,
+        'state': 'awaiting_provider_configuration',
+        'failure_code': 'FISCAL_PROVIDER_NOT_CONFIGURED',
+    }
+    order = store.fetch_one("SELECT fiscal_status FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, ids['order']))
+    assert order == {'fiscal_status': 'awaiting_provider_configuration'}
+
+    cancelled = local_env.client.post(
+        f'/api/v1/fiscal/documents/{document_id}/cancel',
+        headers=local_env.alpha_headers(),
+        json={'reason': 'Cancelamento local antes da transmissão ao provider.'},
+    )
+    assert cancelled.status_code == 200, cancelled.text
+    cancelled_event = store.fetch_one(
+        "SELECT state,completed_at FROM service_fiscal_events WHERE tenant_id=? AND id=?",
+        (tenant_id, fiscal_event_id),
+    )
+    assert cancelled_event['state'] == 'cancelled' and cancelled_event['completed_at']
+    order = store.fetch_one("SELECT fiscal_status FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, ids['order']))
+    assert order == {'fiscal_status': 'cancelled'}
+
+    replay = process_emission_trigger(
+        router,
+        tenant_id,
+        'ServiceOrderConfirmed',
+        ids['order'],
+        {'id': ids['order'], 'charge_id': ids['charge']},
+        'corr-service-fiscal-event-link',
+    )
+    assert replay['idempotent'] is True and replay['id'] == first['id']
+    order = store.fetch_one("SELECT fiscal_status FROM service_orders WHERE tenant_id=? AND id=?", (tenant_id, ids['order']))
+    assert order == {'fiscal_status': 'cancelled'}

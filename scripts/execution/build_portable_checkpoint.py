@@ -24,9 +24,9 @@ EXCLUDED_PREFIXES = (
 )
 EXCLUDED_PARTS = {"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules", ".venv", "venv", "dist", "build", "target", ".git"}
 EXCLUDED_SUFFIXES = {
-    ".pyc", ".pyo", ".log.tmp", ".key", ".pem", ".p12", ".pfx", ".jks", ".keystore",
+    ".pyc", ".pyo", ".tsbuildinfo", ".log.tmp", ".key", ".pem", ".p12", ".pfx", ".jks", ".keystore",
 }
-EXCLUDED_NAMES = {".env", "id_rsa", "id_ed25519", ".DS_Store", "Thumbs.db", "CHECKPOINT_MANIFEST.json"}
+EXCLUDED_NAMES = {".env", "id_rsa", "id_ed25519", ".DS_Store", "Thumbs.db", "CHECKPOINT_MANIFEST.json", "workspace-manifest.json"}
 
 
 def sha256_bytes(data: bytes) -> str:

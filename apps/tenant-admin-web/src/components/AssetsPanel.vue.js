@@ -13,11 +13,42 @@ const selectedLoan = ref(null);
 const today = new Date().toISOString().slice(0, 10);
 const month = new Date().toISOString().slice(0, 7);
 const locationForm = reactive({ code: "", name: "", parent_id: "" });
-const assetForm = reactive({ tag: "", name: "", location_id: "", product_id: "", receipt_item_id: "", description: "", serial_number: "", responsible_person_id: "", acquisition_date: today, acquisition_cost: "0", useful_life_months: 60, residual_value: "0", warranty_until: "" });
-const transferForm = reactive({ location_id: "", responsible_person_id: "", reason: "Transferência patrimonial autorizada." });
-const maintenanceForm = reactive({ maintenance_type: "preventive", scheduled_on: today, supplier_id: "", estimated_cost: "0", description: "" });
-const maintenanceCompleteForm = reactive({ result_notes: "Serviço concluído e bem liberado.", actual_cost: "0" });
-const loanForm = reactive({ borrower_person_id: "", expected_return_at: "", condition_out: "Bem entregue em condições regulares de uso." });
+const assetForm = reactive({
+    tag: "",
+    name: "",
+    location_id: "",
+    product_id: "",
+    receipt_item_id: "",
+    description: "",
+    serial_number: "",
+    responsible_person_id: "",
+    acquisition_date: today,
+    acquisition_cost: "0",
+    useful_life_months: 60,
+    residual_value: "0",
+    warranty_until: "",
+});
+const transferForm = reactive({
+    location_id: "",
+    responsible_person_id: "",
+    reason: "Transferência patrimonial autorizada.",
+});
+const maintenanceForm = reactive({
+    maintenance_type: "preventive",
+    scheduled_on: today,
+    supplier_id: "",
+    estimated_cost: "0",
+    description: "",
+});
+const maintenanceCompleteForm = reactive({
+    result_notes: "Serviço concluído e bem liberado.",
+    actual_cost: "0",
+});
+const loanForm = reactive({
+    borrower_person_id: "",
+    expected_return_at: "",
+    condition_out: "Bem entregue em condições regulares de uso.",
+});
 const loanReturnForm = reactive({ condition_in: "Bem devolvido e conferido." });
 const depreciationForm = reactive({ competence: month });
 const movements = computed(() => selectedAsset.value?.movements ?? selectedAsset.value?.events ?? []);
@@ -26,24 +57,53 @@ const loans = computed(() => selectedAsset.value?.loans ?? []);
 const depreciations = computed(() => selectedAsset.value?.depreciations ?? []);
 function message(error) {
     const candidate = error;
-    return candidate.problem?.detail || (error instanceof Error ? error.message : "Erro inesperado");
+    return (candidate.problem?.detail ||
+        (error instanceof Error ? error.message : "Erro inesperado"));
 }
-function idempotency(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-async function request(path, init = {}) { return props.api.request(path, init); }
+function idempotency(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
+}
+async function request(path, init = {}) {
+    return props.api.request(path, init);
+}
 async function post(path, body, key) {
-    const headers = { "Content-Type": "application/json" };
+    const headers = {
+        "Content-Type": "application/json",
+    };
     if (key)
         headers["Idempotency-Key"] = key;
-    return request(path, { method: "POST", headers, body: JSON.stringify(body) });
+    return request(path, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+    });
 }
-function nullable(value) { return value.trim() ? value.trim() : null; }
-function money(value) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value ?? 0)); }
-function dateTime(value) { return value ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value)) : "—"; }
+function nullable(value) {
+    return value.trim() ? value.trim() : null;
+}
+function money(value) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(Number(value ?? 0));
+}
+function dateTime(value) {
+    return value
+        ? new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short",
+        }).format(new Date(value))
+        : "—";
+}
 async function load() {
     loading.value = true;
     try {
-        const [locationResult, assetResult, peopleResult, productResult, supplierResult] = await Promise.all([
-            request("/asset-locations?limit=300"), request("/assets?limit=300"), request("/people?limit=300"), request("/products?limit=300"), request("/suppliers?limit=300"),
+        const [locationResult, assetResult, peopleResult, productResult, supplierResult,] = await Promise.all([
+            request("/asset-locations?limit=300"),
+            request("/assets?limit=300"),
+            request("/people?limit=300"),
+            request("/products?limit=300"),
+            request("/suppliers?limit=300"),
         ]);
         locations.value = locationResult.items ?? [];
         assets.value = assetResult.items ?? [];
@@ -70,7 +130,11 @@ async function load() {
 }
 async function createLocation() {
     try {
-        await post("/asset-locations", { code: locationForm.code, name: locationForm.name, parent_id: nullable(locationForm.parent_id) }, idempotency("asset-location"));
+        await post("/asset-locations", {
+            code: locationForm.code,
+            name: locationForm.name,
+            parent_id: nullable(locationForm.parent_id),
+        }, idempotency("asset-location"));
         Object.assign(locationForm, { code: "", name: "", parent_id: "" });
         emit("notice", "Localização patrimonial cadastrada.");
         await load();
@@ -81,8 +145,37 @@ async function createLocation() {
 }
 async function createAsset() {
     try {
-        const created = await post("/assets", { tag: assetForm.tag, name: assetForm.name, location_id: assetForm.location_id, product_id: nullable(assetForm.product_id), receipt_item_id: nullable(assetForm.receipt_item_id), description: nullable(assetForm.description), serial_number: nullable(assetForm.serial_number), responsible_person_id: nullable(assetForm.responsible_person_id), acquisition_date: assetForm.acquisition_date, acquisition_cost: assetForm.acquisition_cost, useful_life_months: assetForm.useful_life_months || null, residual_value: assetForm.residual_value, warranty_until: nullable(assetForm.warranty_until), metadata: {} }, idempotency("asset"));
-        Object.assign(assetForm, { tag: "", name: "", location_id: assetForm.location_id, product_id: assetForm.product_id, receipt_item_id: "", description: "", serial_number: "", responsible_person_id: assetForm.responsible_person_id, acquisition_date: today, acquisition_cost: "0", useful_life_months: 60, residual_value: "0", warranty_until: "" });
+        const created = await post("/assets", {
+            tag: assetForm.tag,
+            name: assetForm.name,
+            location_id: assetForm.location_id,
+            product_id: nullable(assetForm.product_id),
+            receipt_item_id: nullable(assetForm.receipt_item_id),
+            description: nullable(assetForm.description),
+            serial_number: nullable(assetForm.serial_number),
+            responsible_person_id: nullable(assetForm.responsible_person_id),
+            acquisition_date: assetForm.acquisition_date,
+            acquisition_cost: assetForm.acquisition_cost,
+            useful_life_months: assetForm.useful_life_months || null,
+            residual_value: assetForm.residual_value,
+            warranty_until: nullable(assetForm.warranty_until),
+            metadata: {},
+        }, idempotency("asset"));
+        Object.assign(assetForm, {
+            tag: "",
+            name: "",
+            location_id: assetForm.location_id,
+            product_id: assetForm.product_id,
+            receipt_item_id: "",
+            description: "",
+            serial_number: "",
+            responsible_person_id: assetForm.responsible_person_id,
+            acquisition_date: today,
+            acquisition_cost: "0",
+            useful_life_months: 60,
+            residual_value: "0",
+            warranty_until: "",
+        });
         emit("notice", "Bem patrimonial incorporado.");
         await load();
         await showAsset(created);
@@ -94,10 +187,14 @@ async function createAsset() {
 async function showAsset(row) {
     try {
         selectedAsset.value = await request(`/assets/${row.id}`);
-        transferForm.location_id = selectedAsset.value.location_id ?? locations.value[0]?.id ?? "";
-        transferForm.responsible_person_id = selectedAsset.value.responsible_person_id ?? "";
-        selectedMaintenance.value = maintenances.value.find((item) => ["scheduled", "in_progress"].includes(item.status)) ?? null;
-        selectedLoan.value = loans.value.find((item) => item.status === "active") ?? null;
+        transferForm.location_id =
+            selectedAsset.value.location_id ?? locations.value[0]?.id ?? "";
+        transferForm.responsible_person_id =
+            selectedAsset.value.responsible_person_id ?? "";
+        selectedMaintenance.value =
+            maintenances.value.find((item) => ["scheduled", "in_progress"].includes(item.status)) ?? null;
+        selectedLoan.value =
+            loans.value.find((item) => item.status === "active") ?? null;
     }
     catch (error) {
         emit("error", message(error));
@@ -107,7 +204,10 @@ async function transferAsset() {
     if (!selectedAsset.value)
         return;
     try {
-        selectedAsset.value = await post(`/assets/${selectedAsset.value.id}/transfers`, { ...transferForm, responsible_person_id: nullable(transferForm.responsible_person_id) });
+        selectedAsset.value = await post(`/assets/${selectedAsset.value.id}/transfers`, {
+            ...transferForm,
+            responsible_person_id: nullable(transferForm.responsible_person_id),
+        });
         emit("notice", "Transferência patrimonial registrada.");
         await load();
         await showAsset(selectedAsset.value.asset ?? selectedAsset.value);
@@ -120,7 +220,11 @@ async function createMaintenance() {
     if (!selectedAsset.value)
         return;
     try {
-        selectedMaintenance.value = await post(`/assets/${selectedAsset.value.id}/maintenances`, { ...maintenanceForm, scheduled_on: nullable(maintenanceForm.scheduled_on), supplier_id: nullable(maintenanceForm.supplier_id) }, idempotency("asset-maintenance"));
+        selectedMaintenance.value = await post(`/assets/${selectedAsset.value.id}/maintenances`, {
+            ...maintenanceForm,
+            scheduled_on: nullable(maintenanceForm.scheduled_on),
+            supplier_id: nullable(maintenanceForm.supplier_id),
+        }, idempotency("asset-maintenance"));
         emit("notice", "Manutenção agendada.");
         await load();
         await showAsset(selectedAsset.value);
@@ -143,7 +247,10 @@ async function startMaintenance(row) {
 }
 async function completeMaintenance(row) {
     try {
-        await post(`/asset-maintenances/${row.id}/complete`, { result_notes: maintenanceCompleteForm.result_notes, actual_cost: maintenanceCompleteForm.actual_cost || null });
+        await post(`/asset-maintenances/${row.id}/complete`, {
+            result_notes: maintenanceCompleteForm.result_notes,
+            actual_cost: maintenanceCompleteForm.actual_cost || null,
+        });
         emit("notice", "Manutenção concluída.");
         if (selectedAsset.value)
             await showAsset(selectedAsset.value);
@@ -157,7 +264,13 @@ async function createLoan() {
     if (!selectedAsset.value)
         return;
     try {
-        selectedLoan.value = await post(`/assets/${selectedAsset.value.id}/loans`, { borrower_person_id: loanForm.borrower_person_id, expected_return_at: loanForm.expected_return_at ? new Date(loanForm.expected_return_at).toISOString() : null, condition_out: nullable(loanForm.condition_out) }, idempotency("asset-loan"));
+        selectedLoan.value = await post(`/assets/${selectedAsset.value.id}/loans`, {
+            borrower_person_id: loanForm.borrower_person_id,
+            expected_return_at: loanForm.expected_return_at
+                ? new Date(loanForm.expected_return_at).toISOString()
+                : null,
+            condition_out: nullable(loanForm.condition_out),
+        }, idempotency("asset-loan"));
         emit("notice", "Empréstimo patrimonial registrado.");
         await load();
         await showAsset(selectedAsset.value);
@@ -209,17 +322,17 @@ function __VLS_template() {
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.assets.filter(row => !['disposed', 'written_off'].includes(row.status)).length);
+    (__VLS_ctx.assets.filter((row) => !["disposed", "written_off"].includes(row.status)).length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.assets.filter(row => row.status === 'loaned').length);
+    (__VLS_ctx.assets.filter((row) => row.status === "loaned").length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.assets.filter(row => row.status === 'maintenance').length);
+    (__VLS_ctx.assets.filter((row) => row.status === "maintenance").length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
@@ -392,7 +505,7 @@ function __VLS_template() {
         ...{ class: ("small") },
         disabled: ((__VLS_ctx.loading)),
     });
-    (__VLS_ctx.loading ? 'Atualizando…' : 'Atualizar');
+    (__VLS_ctx.loading ? "Atualizando…" : "Atualizar");
     __VLS_elementAsFunction(__VLS_intrinsicElements.table, __VLS_intrinsicElements.table)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.thead, __VLS_intrinsicElements.thead)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
@@ -415,13 +528,17 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         (row.location_name || row.location_id);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-        (row.responsible_name || '—');
+        (row.responsible_name || "—");
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         (__VLS_ctx.money(row.net_book_value ?? row.acquisition_cost));
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
             ...{ class: ("pill") },
-            ...{ class: ((row.status === 'active' ? 'ok' : row.status === 'maintenance' ? 'warn' : '')) },
+            ...{ class: ((row.status === 'active'
+                    ? 'ok'
+                    : row.status === 'maintenance'
+                        ? 'warn'
+                        : '')) },
         });
         (row.status);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -451,7 +568,7 @@ function __VLS_template() {
         (__VLS_ctx.selectedAsset.name);
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         (__VLS_ctx.selectedAsset.tag);
-        (__VLS_ctx.selectedAsset.serial_number || 'sem série');
+        (__VLS_ctx.selectedAsset.serial_number || "sem série");
         (__VLS_ctx.selectedAsset.status);
         __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
             ...{ onClick: (...[$event]) => {
@@ -483,7 +600,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-        (__VLS_ctx.selectedAsset.warranty_until || '—');
+        (__VLS_ctx.selectedAsset.warranty_until || "—");
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("grid-2 forms") },
@@ -700,7 +817,7 @@ function __VLS_template() {
             (row.maintenance_type);
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
             (row.status);
-            (row.scheduled_on || 'sem data');
+            (row.scheduled_on || "sem data");
             (__VLS_ctx.money(row.actual_cost ?? row.estimated_cost));
             __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
             if (row.status === 'scheduled') {
@@ -761,11 +878,11 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.movement_type || row.event_type);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.from_location_name || row.from_location_id || '—');
+            (row.from_location_name || row.from_location_id || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.to_location_name || row.to_location_id || '—');
+            (row.to_location_name || row.to_location_id || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.responsible_name || row.responsible_person_id || '—');
+            (row.responsible_name || row.responsible_person_id || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (__VLS_ctx.dateTime(row.created_at || row.occurred_at));
         }

@@ -4,173 +4,431 @@ const api = new Pige360SessionClient();
 const ready = ref(false), auth = ref(false), busy = ref(false), error = ref(""), notice = ref("");
 const privacyNotice = ref(null);
 const email = ref(""), password = ref("");
-const ctx = ref({ branding: {}, dependents: [], installments: [], bank_accounts: [], notices: [], requests: [], health: { people: [], records: [], incidents: [], medications: [] }, canteen_wallets: [], events: [], event_registrations: [], trips: [], consent_purposes: [], privacy_requests: [] });
+const ctx = ref({
+    branding: {},
+    dependents: [],
+    installments: [],
+    bank_accounts: [],
+    notices: [],
+    requests: [],
+    health: { people: [], records: [], incidents: [], medications: [] },
+    canteen_wallets: [],
+    events: [],
+    event_registrations: [],
+    trips: [],
+    consent_purposes: [],
+    privacy_requests: [],
+});
 const selected = ref(null);
 const pix = ref(null);
 const pendingAuthorization = ref(null);
 const consentText = ref("Autorizo a participação do meu dependente no evento e declaro ciência das informações apresentadas.");
-const policyForm = reactive({ blocked_allergens: "", blocked_product_ids: "", daily_limit: "", weekly_limit: "", notes: "" });
-const requestForm = reactive({ request_type: "administrative", subject: "", description: "", priority: "normal", department: "Secretaria", sla_hours: 72 });
+const policyForm = reactive({
+    blocked_allergens: "",
+    blocked_product_ids: "",
+    daily_limit: "",
+    weekly_limit: "",
+    notes: "",
+});
+const requestForm = reactive({
+    request_type: "administrative",
+    subject: "",
+    description: "",
+    priority: "normal",
+    department: "Secretaria",
+    sla_hours: 72,
+});
 const privacyForm = reactive({ request_type: "access", description: "" });
 const brand = computed(() => ctx.value.branding || {});
-const school = computed(() => brand.value.short_name || brand.value.trade_name || brand.value.legal_name || "Instituição");
-function msg(e) { const p = e?.problem; return p?.detail || (e instanceof Error ? e.message : "Erro inesperado"); }
-function applyBrand() { document.documentElement.style.setProperty("--brand-primary", brand.value.primary_color || "#006D77"); document.documentElement.style.setProperty("--brand-secondary", brand.value.secondary_color || "#0D1B2A"); document.documentElement.style.setProperty("--brand-accent", brand.value.accent_color || "#F59E0B"); document.title = `${school.value} — Família`; }
-async function load() { const [portal, health, wallets, events, registrations, trips, purposes, privacyRequests] = await Promise.all([api.request("/portal/family/me"), api.request("/health/me").catch(() => ({ people: [], records: [], incidents: [], medications: [] })), api.request("/canteen/wallets/me").catch(() => ({ items: [] })), api.request("/events").catch(() => ({ items: [] })), api.request("/events/me/registrations").catch(() => ({ items: [] })), api.request("/trips/me").catch(() => ({ items: [] })), api.request("/compliance/consent-purposes").catch(() => ({ items: [] })), api.request("/compliance/data-subject-requests").catch(() => ({ items: [] }))]); ctx.value = { ...portal, health, canteen_wallets: wallets.items || [], events: events.items || [], event_registrations: registrations.items || [], trips: trips.items || [], consent_purposes: purposes.items || [], privacy_requests: privacyRequests.items || [] }; applyBrand(); if (ctx.value.dependents?.length && !selected.value)
-    await openDependent(ctx.value.dependents[0]); }
-async function boot() { try {
-    await api.initialize();
-    auth.value = !!api.tokens;
-    if (auth.value)
+const school = computed(() => brand.value.short_name ||
+    brand.value.trade_name ||
+    brand.value.legal_name ||
+    "Instituição");
+function msg(e) {
+    const p = e?.problem;
+    return p?.detail || (e instanceof Error ? e.message : "Erro inesperado");
+}
+function applyBrand() {
+    document.documentElement.style.setProperty("--brand-primary", brand.value.primary_color || "#006D77");
+    document.documentElement.style.setProperty("--brand-secondary", brand.value.secondary_color || "#0D1B2A");
+    document.documentElement.style.setProperty("--brand-accent", brand.value.accent_color || "#F59E0B");
+    document.title = `${school.value} — Família`;
+}
+async function load() {
+    const [portal, health, wallets, events, registrations, trips, purposes, privacyRequests,] = await Promise.all([
+        api.request("/portal/family/me"),
+        api.request("/health/me").catch(() => ({
+            people: [],
+            records: [],
+            incidents: [],
+            medications: [],
+        })),
+        api.request("/canteen/wallets/me").catch(() => ({ items: [] })),
+        api.request("/events").catch(() => ({ items: [] })),
+        api.request("/events/me/registrations").catch(() => ({ items: [] })),
+        api.request("/trips/me").catch(() => ({ items: [] })),
+        api
+            .request("/compliance/consent-purposes")
+            .catch(() => ({ items: [] })),
+        api
+            .request("/compliance/data-subject-requests")
+            .catch(() => ({ items: [] })),
+    ]);
+    ctx.value = {
+        ...portal,
+        health,
+        canteen_wallets: wallets.items || [],
+        events: events.items || [],
+        event_registrations: registrations.items || [],
+        trips: trips.items || [],
+        consent_purposes: purposes.items || [],
+        privacy_requests: privacyRequests.items || [],
+    };
+    applyBrand();
+    if (ctx.value.dependents?.length && !selected.value)
+        await openDependent(ctx.value.dependents[0]);
+}
+async function boot() {
+    try {
+        await api.initialize();
+        auth.value = !!api.tokens;
+        if (auth.value)
+            await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        ready.value = true;
+    }
+}
+async function login() {
+    busy.value = true;
+    error.value = "";
+    try {
+        await api.login(email.value, password.value);
+        auth.value = true;
         await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = msg(e);
+async function logout() {
+    await api.logout();
+    auth.value = false;
+    ctx.value = {};
+    selected.value = null;
+    pix.value = null;
 }
-finally {
-    ready.value = true;
-} }
-async function login() { busy.value = true; error.value = ""; try {
-    await api.login(email.value, password.value);
-    auth.value = true;
-    await load();
+async function openDependent(dep) {
+    busy.value = true;
+    try {
+        const [base, events, policy, reportCard, daily, pickups, integralization] = await Promise.all([
+            api.request(`/portal/family/dependents/${dep.student_id}`),
+            api
+                .request(`/transport/students/${dep.student_id}/events`)
+                .catch(() => ({ items: [] })),
+            api
+                .request(`/canteen/students/${dep.student_id}/policy`)
+                .catch(() => ({
+                blocked_allergens: [],
+                blocked_product_ids: [],
+                daily_limit: "",
+                weekly_limit: "",
+                notes: "",
+            })),
+            api
+                .request(`/pedagogy/students/${dep.student_id}/report-card`)
+                .catch(() => ({ enrollments: [] })),
+            api
+                .request(`/academic/early-childhood/students/${dep.student_id}/daily-records`)
+                .catch(() => ({ items: [] })),
+            api
+                .request(`/academic/early-childhood/students/${dep.student_id}/pickups`)
+                .catch(() => ({ items: [] })),
+            api
+                .request(`/academic/students/${dep.student_id}/integralization`)
+                .catch(() => ({ enrollments: [] })),
+        ]);
+        const consents = await api
+            .request(`/compliance/persons/${base.student.person_id}/consents`)
+            .catch(() => ({ items: [] }));
+        selected.value = {
+            ...base,
+            transport_events: events.items || [],
+            canteen_policy: policy,
+            report_card: reportCard,
+            daily_records: daily.items || [],
+            pickup_records: pickups.items || [],
+            integralization,
+            consents: consents.items || [],
+        };
+        Object.assign(policyForm, {
+            blocked_allergens: (policy.blocked_allergens || []).join(", "),
+            blocked_product_ids: (policy.blocked_product_ids || []).join(", "),
+            daily_limit: policy.daily_limit ?? "",
+            weekly_limit: policy.weekly_limit ?? "",
+            notes: policy.notes ?? "",
+        });
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = msg(e);
+async function generatePix(inst) {
+    const account = ctx.value.bank_accounts?.[0];
+    if (!account) {
+        error.value = "A escola ainda não configurou uma conta PIX ativa.";
+        return;
+    }
+    busy.value = true;
+    try {
+        pix.value = await api.request(`/banking/accounts/${account.id}/pix-charges`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ installment_id: inst.id }),
+        });
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function logout() { await api.logout(); auth.value = false; ctx.value = {}; selected.value = null; pix.value = null; }
-async function openDependent(dep) { busy.value = true; try {
-    const [base, events, policy, reportCard, daily, pickups, integralization] = await Promise.all([api.request(`/portal/family/dependents/${dep.student_id}`), api.request(`/transport/students/${dep.student_id}/events`).catch(() => ({ items: [] })), api.request(`/canteen/students/${dep.student_id}/policy`).catch(() => ({ blocked_allergens: [], blocked_product_ids: [], daily_limit: "", weekly_limit: "", notes: "" })), api.request(`/pedagogy/students/${dep.student_id}/report-card`).catch(() => ({ enrollments: [] })), api.request(`/academic/early-childhood/students/${dep.student_id}/daily-records`).catch(() => ({ items: [] })), api.request(`/academic/early-childhood/students/${dep.student_id}/pickups`).catch(() => ({ items: [] })), api.request(`/academic/students/${dep.student_id}/integralization`).catch(() => ({ enrollments: [] }))]);
-    const consents = await api.request(`/compliance/persons/${base.student.person_id}/consents`).catch(() => ({ items: [] }));
-    selected.value = { ...base, transport_events: events.items || [], canteen_policy: policy, report_card: reportCard, daily_records: daily.items || [], pickup_records: pickups.items || [], integralization, consents: consents.items || [] };
-    Object.assign(policyForm, { blocked_allergens: (policy.blocked_allergens || []).join(", "), blocked_product_ids: (policy.blocked_product_ids || []).join(", "), daily_limit: policy.daily_limit ?? "", weekly_limit: policy.weekly_limit ?? "", notes: policy.notes ?? "" });
+async function copyPix() {
+    if (pix.value?.br_code) {
+        await navigator.clipboard.writeText(pix.value.br_code);
+        notice.value = "Código PIX copiado.";
+    }
 }
-catch (e) {
-    error.value = msg(e);
+function walletForSelected() {
+    return (ctx.value.canteen_wallets?.find((x) => x.student?.id === selected.value?.student?.id)?.wallet || null);
 }
-finally {
-    busy.value = false;
-} }
-async function generatePix(inst) { const account = ctx.value.bank_accounts?.[0]; if (!account) {
-    error.value = "A escola ainda não configurou uma conta PIX ativa.";
-    return;
-} busy.value = true; try {
-    pix.value = await api.request(`/banking/accounts/${account.id}/pix-charges`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ installment_id: inst.id }) });
+function registrationFor(eventId) {
+    return (ctx.value.event_registrations?.find((x) => x.event_id === eventId && x.student_id === selected.value?.student?.id) || null);
 }
-catch (e) {
-    error.value = msg(e);
+async function saveFoodPolicy() {
+    if (!selected.value?.student?.id)
+        return;
+    busy.value = true;
+    try {
+        await api.request(`/canteen/students/${selected.value.student.id}/policy`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                blocked_allergens: policyForm.blocked_allergens
+                    .split(",")
+                    .map((x) => x.trim())
+                    .filter(Boolean),
+                blocked_product_ids: policyForm.blocked_product_ids
+                    .split(",")
+                    .map((x) => x.trim())
+                    .filter(Boolean),
+                daily_limit: policyForm.daily_limit || null,
+                weekly_limit: policyForm.weekly_limit || null,
+                notes: policyForm.notes || null,
+            }),
+        });
+        notice.value = "Política alimentar atualizada.";
+        await openDependent({ student_id: selected.value.student.id });
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function copyPix() { if (pix.value?.br_code) {
-    await navigator.clipboard.writeText(pix.value.br_code);
-    notice.value = "Código PIX copiado.";
-} }
-function walletForSelected() { return ctx.value.canteen_wallets?.find((x) => x.student?.id === selected.value?.student?.id)?.wallet || null; }
-function registrationFor(eventId) { return ctx.value.event_registrations?.find((x) => x.event_id === eventId && x.student_id === selected.value?.student?.id) || null; }
-async function saveFoodPolicy() { if (!selected.value?.student?.id)
-    return; busy.value = true; try {
-    await api.request(`/canteen/students/${selected.value.student.id}/policy`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ blocked_allergens: policyForm.blocked_allergens.split(",").map(x => x.trim()).filter(Boolean), blocked_product_ids: policyForm.blocked_product_ids.split(",").map(x => x.trim()).filter(Boolean), daily_limit: policyForm.daily_limit || null, weekly_limit: policyForm.weekly_limit || null, notes: policyForm.notes || null }) });
-    notice.value = "Política alimentar atualizada.";
-    await openDependent({ student_id: selected.value.student.id });
+async function registerEvent(event) {
+    if (!selected.value?.student?.id)
+        return;
+    busy.value = true;
+    try {
+        const r = await api.request(`/events/${event.id}/registrations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Idempotency-Key": `event-${crypto.randomUUID()}`,
+            },
+            body: JSON.stringify({ student_id: selected.value.student.id }),
+        });
+        notice.value =
+            r.state === "awaiting_authorization"
+                ? "Inscrição reservada; confirme a autorização."
+                : "Inscrição confirmada.";
+        pendingAuthorization.value =
+            r.state === "awaiting_authorization" ? r : null;
+        await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = msg(e);
+async function authorizeEvent(registration) {
+    busy.value = true;
+    try {
+        await api.request(`/event-registrations/${registration.id}/authorization`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                decision: "approved",
+                consent_text: consentText.value,
+            }),
+        });
+        notice.value = "Participação autorizada.";
+        pendingAuthorization.value = null;
+        await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function registerEvent(event) { if (!selected.value?.student?.id)
-    return; busy.value = true; try {
-    const r = await api.request(`/events/${event.id}/registrations`, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": `event-${crypto.randomUUID()}` }, body: JSON.stringify({ student_id: selected.value.student.id }) });
-    notice.value = r.state === "awaiting_authorization" ? "Inscrição reservada; confirme a autorização." : "Inscrição confirmada.";
-    pendingAuthorization.value = r.state === "awaiting_authorization" ? r : null;
-    await load();
+function activeConsent(code) {
+    return (selected.value?.consents?.find((x) => x.purpose_code === code && x.state === "granted") || null);
 }
-catch (e) {
-    error.value = msg(e);
+async function readPrivacyNotice(purpose) {
+    if (!purpose.privacy_notice_id)
+        return;
+    busy.value = true;
+    try {
+        privacyNotice.value = await api.request(`/compliance/privacy-notices/${purpose.privacy_notice_id}`);
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function authorizeEvent(registration) { busy.value = true; try {
-    await api.request(`/event-registrations/${registration.id}/authorization`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision: "approved", consent_text: consentText.value }) });
-    notice.value = "Participação autorizada.";
-    pendingAuthorization.value = null;
-    await load();
+async function grantConsent(purpose) {
+    if (!selected.value?.student?.person_id ||
+        !ctx.value.person?.id ||
+        !purpose.privacy_notice_id)
+        return;
+    busy.value = true;
+    try {
+        await api.request("/compliance/consents", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                subject_person_id: selected.value.student.person_id,
+                granted_by_person_id: ctx.value.person.id,
+                purpose_code: purpose.code,
+                privacy_notice_id: purpose.privacy_notice_id,
+                channel: "mobile",
+                evidence: { surface: "family-app", affirmative_action: true },
+            }),
+        });
+        notice.value = "Consentimento registrado.";
+        await openDependent({ student_id: selected.value.student.id });
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = msg(e);
+async function revokeConsent(c) {
+    const dependent = selected.value;
+    if (!dependent?.student?.id)
+        return;
+    busy.value = true;
+    try {
+        await api.request(`/compliance/consents/${c.id}/revoke`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                reason: "Revogação solicitada pelo responsável no Portal da Família",
+            }),
+        });
+        notice.value = "Consentimento revogado.";
+        await openDependent({ student_id: dependent.student.id });
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-function activeConsent(code) { return selected.value?.consents?.find((x) => x.purpose_code === code && x.state === "granted") || null; }
-async function readPrivacyNotice(purpose) { if (!purpose.privacy_notice_id)
-    return; busy.value = true; try {
-    privacyNotice.value = await api.request(`/compliance/privacy-notices/${purpose.privacy_notice_id}`);
+async function createPrivacyRequest() {
+    if (!selected.value?.student?.person_id)
+        return;
+    busy.value = true;
+    try {
+        await api.request("/compliance/data-subject-requests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                subject_person_id: selected.value.student.person_id,
+                request_type: privacyForm.request_type,
+                description: privacyForm.description || null,
+                priority: "normal",
+            }),
+        });
+        notice.value = "Solicitação LGPD registrada.";
+        privacyForm.description = "";
+        await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-catch (e) {
-    error.value = msg(e);
+async function createRequest() {
+    busy.value = true;
+    try {
+        await api.request("/service-requests", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestForm),
+        });
+        notice.value = "Solicitação enviada.";
+        Object.assign(requestForm, {
+            request_type: "administrative",
+            subject: "",
+            description: "",
+            priority: "normal",
+            department: "Secretaria",
+            sla_hours: 72,
+        });
+        await load();
+    }
+    catch (e) {
+        error.value = msg(e);
+    }
+    finally {
+        busy.value = false;
+    }
 }
-finally {
-    busy.value = false;
-} }
-async function grantConsent(purpose) { if (!selected.value?.student?.person_id || !ctx.value.person?.id || !purpose.privacy_notice_id)
-    return; busy.value = true; try {
-    await api.request("/compliance/consents", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject_person_id: selected.value.student.person_id, granted_by_person_id: ctx.value.person.id, purpose_code: purpose.code, privacy_notice_id: purpose.privacy_notice_id, channel: "mobile", evidence: { surface: "family-app", affirmative_action: true } }) });
-    notice.value = "Consentimento registrado.";
-    await openDependent({ student_id: selected.value.student.id });
+function money(v) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(Number(v || 0));
 }
-catch (e) {
-    error.value = msg(e);
+function date(v) {
+    if (!v)
+        return "—";
+    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(v));
 }
-finally {
-    busy.value = false;
-} }
-async function revokeConsent(c) { busy.value = true; try {
-    await api.request(`/compliance/consents/${c.id}/revoke`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reason: "Revogação solicitada pelo responsável no Portal da Família" }) });
-    notice.value = "Consentimento revogado.";
-    await openDependent({ student_id: selected.value.student.id });
-}
-catch (e) {
-    error.value = msg(e);
-}
-finally {
-    busy.value = false;
-} }
-async function createPrivacyRequest() { if (!selected.value?.student?.person_id)
-    return; busy.value = true; try {
-    await api.request("/compliance/data-subject-requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject_person_id: selected.value.student.person_id, request_type: privacyForm.request_type, description: privacyForm.description || null, priority: "normal" }) });
-    notice.value = "Solicitação LGPD registrada.";
-    privacyForm.description = "";
-    await load();
-}
-catch (e) {
-    error.value = msg(e);
-}
-finally {
-    busy.value = false;
-} }
-async function createRequest() { busy.value = true; try {
-    await api.request("/service-requests", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestForm) });
-    notice.value = "Solicitação enviada.";
-    Object.assign(requestForm, { request_type: "administrative", subject: "", description: "", priority: "normal", department: "Secretaria", sla_hours: 72 });
-    await load();
-}
-catch (e) {
-    error.value = msg(e);
-}
-finally {
-    busy.value = false;
-} }
-function money(v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v || 0)); }
-function date(v) { if (!v)
-    return "—"; return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(v)); }
 onMounted(boot);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -199,14 +457,14 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("email"),
             required: (true),
             autocomplete: ("username"),
         });
         (__VLS_ctx.email);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             type: ("password"),
             required: (true),
             autocomplete: ("current-password"),
@@ -311,9 +569,9 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
             (d.social_name || d.full_name);
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-            (d.program_name || 'Sem programa');
+            (d.program_name || "Sem programa");
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-            (d.class_group_name || d.enrollment_state || 'Sem turma');
+            (d.class_group_name || d.enrollment_state || "Sem turma");
         }
         if (__VLS_ctx.selected) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
@@ -324,7 +582,7 @@ function __VLS_template() {
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (__VLS_ctx.selected.attendance?.percentage || '0.00');
+            (__VLS_ctx.selected.attendance?.percentage || "0.00");
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
             (__VLS_ctx.selected.attendance?.counted_sessions || 0);
             __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({
@@ -334,7 +592,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
             (__VLS_ctx.selected.student?.registration_number);
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-            (__VLS_ctx.selected.enrollments?.[0]?.state || 'sem vínculo ativo');
+            (__VLS_ctx.selected.enrollments?.[0]?.state || "sem vínculo ativo");
         }
         if (__VLS_ctx.selected) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
@@ -351,8 +609,9 @@ function __VLS_template() {
                     ...{ class: ("report-block") },
                 });
                 __VLS_elementAsFunction(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-                (en.enrollment.academic_year_name || en.enrollment.enrollment_number);
-                (en.enrollment.class_name || 'Turma');
+                (en.enrollment.academic_year_name ||
+                    en.enrollment.enrollment_number);
+                (en.enrollment.class_name || "Turma");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                     ...{ class: ("list") },
                 });
@@ -395,7 +654,8 @@ function __VLS_template() {
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-        (__VLS_ctx.ctx.installments?.filter((x) => x.state !== 'paid').length || 0);
+        (__VLS_ctx.ctx.installments?.filter((x) => x.state !== "paid").length ||
+            0);
         __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
             ...{ class: ("list") },
         });
@@ -414,7 +674,11 @@ function __VLS_template() {
                 ...{ class: ("right") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (__VLS_ctx.money(Number(i.original_amount) + Number(i.penalty_amount || 0) + Number(i.interest_amount || 0) - Number(i.discount_amount || 0) - Number(i.paid_amount || 0)));
+            (__VLS_ctx.money(Number(i.original_amount) +
+                Number(i.penalty_amount || 0) +
+                Number(i.interest_amount || 0) -
+                Number(i.discount_amount || 0) -
+                Number(i.paid_amount || 0)));
             if (i.state !== 'paid') {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                     ...{ onClick: (...[$event]) => {
@@ -487,19 +751,21 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
                 (__VLS_ctx.date(r.record_date));
-                (r.mood || 'Rotina registrada');
+                (r.mood || "Rotina registrada");
                 if (r.development_notes) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
                     (r.development_notes);
                 }
                 if (r.meals?.length) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-                    (r.meals.map((x) => `${x.meal || 'refeição'} (${x.consumption || 'registrada'})`).join(', '));
+                    (r.meals
+                        .map((x) => `${x.meal || "refeição"} (${x.consumption || "registrada"})`)
+                        .join(", "));
                 }
                 if (r.sleep?.started_at) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
                     (r.sleep.started_at);
-                    (r.sleep.ended_at || 'em andamento');
+                    (r.sleep.ended_at || "em andamento");
                 }
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
                     ...{ class: ("pill") },
@@ -524,7 +790,7 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
                 (p.pickup_person_name);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-                (p.relationship || 'Responsável');
+                (p.relationship || "Responsável");
                 (__VLS_ctx.date(p.released_at));
             }
         }
@@ -618,10 +884,14 @@ function __VLS_template() {
                 });
                 __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-                (t.event_type === 'boarded' ? 'Embarque' : t.event_type === 'disembarked' ? 'Desembarque' : t.event_type);
+                (t.event_type === "boarded"
+                    ? "Embarque"
+                    : t.event_type === "disembarked"
+                        ? "Desembarque"
+                        : t.event_type);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
                 (t.route_name);
-                (t.stop_name || 'sem parada informada');
+                (t.stop_name || "sem parada informada");
                 __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
                 (__VLS_ctx.date(t.occurred_at));
             }
@@ -637,7 +907,9 @@ function __VLS_template() {
                 ...{ class: ("section-title") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
-            for (const [i] of __VLS_getVForSourceType(((__VLS_ctx.ctx.health?.incidents || []).filter((x) => x.person_id === __VLS_ctx.selected.student?.person_id).slice(0, 6)))) {
+            for (const [i] of __VLS_getVForSourceType(((__VLS_ctx.ctx.health?.incidents || [])
+                .filter((x) => x.person_id === __VLS_ctx.selected.student?.person_id)
+                .slice(0, 6)))) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({
                     key: ((i.id)),
                     ...{ class: ("notice") },
@@ -650,7 +922,9 @@ function __VLS_template() {
                 (__VLS_ctx.date(i.occurred_at));
                 (i.state);
             }
-            for (const [m] of __VLS_getVForSourceType(((__VLS_ctx.ctx.health?.medications || []).filter((x) => x.person_id === __VLS_ctx.selected.student?.person_id).slice(0, 6)))) {
+            for (const [m] of __VLS_getVForSourceType(((__VLS_ctx.ctx.health?.medications || [])
+                .filter((x) => x.person_id === __VLS_ctx.selected.student?.person_id)
+                .slice(0, 6)))) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({
                     key: ((m.id)),
                     ...{ class: ("notice") },
@@ -664,7 +938,8 @@ function __VLS_template() {
                 (__VLS_ctx.date(m.starts_on));
                 (__VLS_ctx.date(m.ends_on));
             }
-            if (!(__VLS_ctx.ctx.health?.incidents || []).some((x) => x.person_id === __VLS_ctx.selected.student?.person_id) && !(__VLS_ctx.ctx.health?.medications || []).some((x) => x.person_id === __VLS_ctx.selected.student?.person_id)) {
+            if (!(__VLS_ctx.ctx.health?.incidents || []).some((x) => x.person_id === __VLS_ctx.selected.student?.person_id) &&
+                !(__VLS_ctx.ctx.health?.medications || []).some((x) => x.person_id === __VLS_ctx.selected.student?.person_id)) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
                     ...{ class: ("empty") },
                 });
@@ -689,7 +964,9 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
                 (__VLS_ctx.money(__VLS_ctx.walletForSelected().balance));
                 __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-                (__VLS_ctx.walletForSelected().daily_limit ? __VLS_ctx.money(__VLS_ctx.walletForSelected().daily_limit) : 'não definido');
+                (__VLS_ctx.walletForSelected().daily_limit
+                    ? __VLS_ctx.money(__VLS_ctx.walletForSelected().daily_limit)
+                    : "não definido");
             }
             else {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
@@ -701,7 +978,7 @@ function __VLS_template() {
                 ...{ class: ("form compact") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 placeholder: ("amendoim, lactose"),
             });
             (__VLS_ctx.policyForm.blocked_allergens);
@@ -709,13 +986,13 @@ function __VLS_template() {
                 ...{ class: ("cols") },
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("number"),
                 step: ("0.01"),
             });
             (__VLS_ctx.policyForm.daily_limit);
             __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-            __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+            __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
                 type: ("number"),
                 step: ("0.01"),
             });
@@ -745,9 +1022,9 @@ function __VLS_template() {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
                 (e.name);
                 __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
-                (e.location || 'Local a confirmar');
+                (e.location || "Local a confirmar");
                 (__VLS_ctx.date(e.starts_at));
-                __VLS_elementAsFunction(__VLS_intrinsicElements.br, __VLS_intrinsicElements.br)({});
+                __VLS_elementAsFunction(__VLS_intrinsicElements.br)({});
                 (__VLS_ctx.money(e.registration_fee || 0));
                 if (e.authorization_required) {
                     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
@@ -795,7 +1072,9 @@ function __VLS_template() {
                     });
                 }
             }
-            for (const [t] of __VLS_getVForSourceType((__VLS_ctx.ctx.trips?.filter((x) => x.student_id === __VLS_ctx.selected.student?.id).slice(0, 5)))) {
+            for (const [t] of __VLS_getVForSourceType((__VLS_ctx.ctx.trips
+                ?.filter((x) => x.student_id === __VLS_ctx.selected.student?.id)
+                .slice(0, 5)))) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                     key: ((t.id)),
                     ...{ class: ("list-row") },
@@ -969,7 +1248,9 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                 ...{ class: ("primary") },
             });
-            for (const [r] of __VLS_getVForSourceType((__VLS_ctx.ctx.privacy_requests?.filter((x) => x.subject_person_id === __VLS_ctx.selected.student.person_id).slice(0, 5)))) {
+            for (const [r] of __VLS_getVForSourceType((__VLS_ctx.ctx.privacy_requests
+                ?.filter((x) => x.subject_person_id === __VLS_ctx.selected.student.person_id)
+                .slice(0, 5)))) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({
                     key: ((r.id)),
                 });
@@ -1041,12 +1322,12 @@ function __VLS_template() {
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.requestForm.subject);
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
-        __VLS_elementAsFunction(__VLS_intrinsicElements.input, __VLS_intrinsicElements.input)({
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
             required: (true),
         });
         (__VLS_ctx.requestForm.request_type);

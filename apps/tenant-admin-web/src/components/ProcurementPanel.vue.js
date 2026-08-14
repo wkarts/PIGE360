@@ -19,46 +19,169 @@ const activeCount = ref(null);
 const editingPolicy = ref(null);
 const selectedSuggestion = ref(null);
 const today = new Date().toISOString().slice(0, 10);
-const supplierForm = reactive({ code: "", legal_name: "", trade_name: "", cnpj: "", email: "", phone: "", rating: "", contact_name: "", contact_email: "" });
-const variantForm = reactive({ product_id: "", sku: "", name: "", sale_price: "", cost_price: "" });
-const barcodeForm = reactive({ product_id: "", variant_id: "", barcode: "", barcode_type: "ean13", primary: true });
-const requisitionForm = reactive({ needed_by: today, justification: "", product_id: "", quantity: "1", estimated_unit_price: "0" });
-const quotationForm = reactive({ requisition_id: "", response_deadline: "", supplier_id: "" });
-const proposalForm = reactive({ supplier_id: "", delivery_days: 5, payment_days: "30", unit_price: "", quantity_available: "", brand: "", notes: "" });
-const awardForm = reactive({ supplier_id: "", warehouse_id: "default", expected_on: today, reason: "Melhor combinação de preço, prazo e conformidade.", freight_amount: "0", discount_amount: "0" });
-const orderForm = reactive({ supplier_id: "", warehouse_id: "default", product_id: "", quantity: "1", unit_price: "0", expected_on: today, freight_amount: "0", discount_amount: "0", notes: "" });
-const receiptForm = reactive({ purchase_order_item_id: "", quantity: "1", unit_cost: "0", supplier_document_number: "", lot_number: "", manufactured_on: "", expires_on: "" });
-const returnForm = reactive({ purchase_order_item_id: "", quantity: "1", lot_id: "", reason: "Devolução ao fornecedor após conferência." });
-const reservationForm = reactive({ product_id: "", warehouse_id: "default", lot_id: "", source_type: "internal_request", source_id: "", quantity: "1", expires_at: "" });
-const countForm = reactive({ warehouse_id: "default", product_id: "", include_zero_balance: true });
+const supplierForm = reactive({
+    code: "",
+    legal_name: "",
+    trade_name: "",
+    cnpj: "",
+    email: "",
+    phone: "",
+    rating: "",
+    contact_name: "",
+    contact_email: "",
+});
+const variantForm = reactive({
+    product_id: "",
+    sku: "",
+    name: "",
+    sale_price: "",
+    cost_price: "",
+});
+const barcodeForm = reactive({
+    product_id: "",
+    variant_id: "",
+    barcode: "",
+    barcode_type: "ean13",
+    primary: true,
+});
+const requisitionForm = reactive({
+    needed_by: today,
+    justification: "",
+    product_id: "",
+    quantity: "1",
+    estimated_unit_price: "0",
+});
+const quotationForm = reactive({
+    requisition_id: "",
+    response_deadline: "",
+    supplier_id: "",
+});
+const proposalForm = reactive({
+    supplier_id: "",
+    delivery_days: 5,
+    payment_days: "30",
+    unit_price: "",
+    quantity_available: "",
+    brand: "",
+    notes: "",
+});
+const awardForm = reactive({
+    supplier_id: "",
+    warehouse_id: "default",
+    expected_on: today,
+    reason: "Melhor combinação de preço, prazo e conformidade.",
+    freight_amount: "0",
+    discount_amount: "0",
+});
+const orderForm = reactive({
+    supplier_id: "",
+    warehouse_id: "default",
+    product_id: "",
+    quantity: "1",
+    unit_price: "0",
+    expected_on: today,
+    freight_amount: "0",
+    discount_amount: "0",
+    notes: "",
+});
+const receiptForm = reactive({
+    purchase_order_item_id: "",
+    quantity: "1",
+    unit_cost: "0",
+    supplier_document_number: "",
+    lot_number: "",
+    manufactured_on: "",
+    expires_on: "",
+});
+const returnForm = reactive({
+    purchase_order_item_id: "",
+    quantity: "1",
+    lot_id: "",
+    reason: "Devolução ao fornecedor após conferência.",
+});
+const reservationForm = reactive({
+    product_id: "",
+    warehouse_id: "default",
+    lot_id: "",
+    source_type: "internal_request",
+    source_id: "",
+    quantity: "1",
+    expires_at: "",
+});
+const countForm = reactive({
+    warehouse_id: "default",
+    product_id: "",
+    include_zero_balance: true,
+});
 const countLines = reactive({});
-const reorderForm = reactive({ product_id: "", warehouse_id: "default", minimum_quantity: "1", target_quantity: "5", lead_time_days: 0, preferred_supplier_id: "" });
-const suggestionActionForm = reactive({ needed_by: today, justification: "Reposição automática validada pela administração.", reason: "Sugestão descartada após revisão operacional e orçamentária." });
+const reorderForm = reactive({
+    product_id: "",
+    warehouse_id: "default",
+    minimum_quantity: "1",
+    target_quantity: "5",
+    lead_time_days: 0,
+    preferred_supplier_id: "",
+});
+const suggestionActionForm = reactive({
+    needed_by: today,
+    justification: "Reposição automática validada pela administração.",
+    reason: "Sugestão descartada após revisão operacional e orçamentária.",
+});
 const quotationItems = computed(() => selectedQuotation.value?.items ?? []);
 const quotationSuppliers = computed(() => selectedQuotation.value?.suppliers ?? []);
 const selectedOrderItems = computed(() => selectedOrder.value?.items ?? []);
 function message(error) {
     const candidate = error;
-    return candidate.problem?.detail || (error instanceof Error ? error.message : "Erro inesperado");
+    return (candidate.problem?.detail ||
+        (error instanceof Error ? error.message : "Erro inesperado"));
 }
-function idempotency(prefix) { return `${prefix}-${crypto.randomUUID()}`; }
-async function request(path, init = {}) { return props.api.request(path, init); }
+function idempotency(prefix) {
+    return `${prefix}-${crypto.randomUUID()}`;
+}
+async function request(path, init = {}) {
+    return props.api.request(path, init);
+}
 async function post(path, body, key) {
-    const headers = { "Content-Type": "application/json" };
+    const headers = {
+        "Content-Type": "application/json",
+    };
     if (key)
         headers["Idempotency-Key"] = key;
-    return request(path, { method: "POST", headers, body: JSON.stringify(body) });
+    return request(path, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+    });
 }
-async function patch(path, body) { return request(path, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
-function nullable(value) { return value.trim() ? value.trim() : null; }
-function money(value) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value ?? 0)); }
+async function patch(path, body) {
+    return request(path, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+}
+function nullable(value) {
+    return value.trim() ? value.trim() : null;
+}
+function money(value) {
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+    }).format(Number(value ?? 0));
+}
 async function load() {
     loading.value = true;
     try {
-        const [supplierResult, productResult, requisitionResult, quotationResult, orderResult, lotResult, reservationResult, reorderResult, suggestionResult] = await Promise.all([
-            request("/suppliers?limit=200"), request("/products?limit=300"), request("/procurement/requisitions?limit=200"),
-            request("/procurement/quotations?limit=200"), request("/procurement/orders?limit=200"), request("/inventory/lots?limit=300"), request("/inventory/reservations?limit=300"),
-            request("/inventory/reorder-policies"), request("/inventory/purchase-suggestions"),
+        const [supplierResult, productResult, requisitionResult, quotationResult, orderResult, lotResult, reservationResult, reorderResult, suggestionResult,] = await Promise.all([
+            request("/suppliers?limit=200"),
+            request("/products?limit=300"),
+            request("/procurement/requisitions?limit=200"),
+            request("/procurement/quotations?limit=200"),
+            request("/procurement/orders?limit=200"),
+            request("/inventory/lots?limit=300"),
+            request("/inventory/reservations?limit=300"),
+            request("/inventory/reorder-policies"),
+            request("/inventory/purchase-suggestions"),
         ]);
         suppliers.value = supplierResult.items ?? [];
         products.value = productResult.items ?? [];
@@ -109,9 +232,37 @@ async function load() {
 }
 async function createSupplier() {
     try {
-        const contacts = supplierForm.contact_name ? [{ name: supplierForm.contact_name, email: nullable(supplierForm.contact_email), role: "commercial", primary: true }] : [];
-        await post("/suppliers", { code: nullable(supplierForm.code), legal_name: supplierForm.legal_name, trade_name: nullable(supplierForm.trade_name), cnpj: nullable(supplierForm.cnpj), email: nullable(supplierForm.email), phone: nullable(supplierForm.phone), rating: nullable(supplierForm.rating), contacts }, idempotency("supplier"));
-        Object.assign(supplierForm, { code: "", legal_name: "", trade_name: "", cnpj: "", email: "", phone: "", rating: "", contact_name: "", contact_email: "" });
+        const contacts = supplierForm.contact_name
+            ? [
+                {
+                    name: supplierForm.contact_name,
+                    email: nullable(supplierForm.contact_email),
+                    role: "commercial",
+                    primary: true,
+                },
+            ]
+            : [];
+        await post("/suppliers", {
+            code: nullable(supplierForm.code),
+            legal_name: supplierForm.legal_name,
+            trade_name: nullable(supplierForm.trade_name),
+            cnpj: nullable(supplierForm.cnpj),
+            email: nullable(supplierForm.email),
+            phone: nullable(supplierForm.phone),
+            rating: nullable(supplierForm.rating),
+            contacts,
+        }, idempotency("supplier"));
+        Object.assign(supplierForm, {
+            code: "",
+            legal_name: "",
+            trade_name: "",
+            cnpj: "",
+            email: "",
+            phone: "",
+            rating: "",
+            contact_name: "",
+            contact_email: "",
+        });
         emit("notice", "Fornecedor e contato cadastrados.");
         await load();
     }
@@ -121,7 +272,10 @@ async function createSupplier() {
 }
 async function toggleSupplier(row) {
     try {
-        await patch(`/suppliers/${row.id}`, { status: row.status === "active" ? "inactive" : "active", expected_version: row.version });
+        await patch(`/suppliers/${row.id}`, {
+            status: row.status === "active" ? "inactive" : "active",
+            expected_version: row.version,
+        });
         emit("notice", "Estado do fornecedor atualizado.");
         await load();
     }
@@ -131,9 +285,20 @@ async function toggleSupplier(row) {
 }
 async function createVariant() {
     try {
-        await post("/inventory/product-variants", { ...variantForm, sale_price: nullable(variantForm.sale_price), cost_price: nullable(variantForm.cost_price), attributes: {} }, idempotency("product-variant"));
+        await post("/inventory/product-variants", {
+            ...variantForm,
+            sale_price: nullable(variantForm.sale_price),
+            cost_price: nullable(variantForm.cost_price),
+            attributes: {},
+        }, idempotency("product-variant"));
         emit("notice", "Variação de produto cadastrada.");
-        Object.assign(variantForm, { product_id: variantForm.product_id, sku: "", name: "", sale_price: "", cost_price: "" });
+        Object.assign(variantForm, {
+            product_id: variantForm.product_id,
+            sku: "",
+            name: "",
+            sale_price: "",
+            cost_price: "",
+        });
         await load();
     }
     catch (error) {
@@ -153,7 +318,17 @@ async function createBarcode() {
 }
 async function createRequisition() {
     try {
-        await post("/procurement/requisitions", { needed_by: nullable(requisitionForm.needed_by), justification: requisitionForm.justification, items: [{ product_id: requisitionForm.product_id, quantity: requisitionForm.quantity, estimated_unit_price: requisitionForm.estimated_unit_price }] }, idempotency("purchase-requisition"));
+        await post("/procurement/requisitions", {
+            needed_by: nullable(requisitionForm.needed_by),
+            justification: requisitionForm.justification,
+            items: [
+                {
+                    product_id: requisitionForm.product_id,
+                    quantity: requisitionForm.quantity,
+                    estimated_unit_price: requisitionForm.estimated_unit_price,
+                },
+            ],
+        }, idempotency("purchase-requisition"));
         requisitionForm.justification = "";
         emit("notice", "Requisição de compra criada.");
         await load();
@@ -174,11 +349,24 @@ async function showRequisition(row) {
 async function requisitionAction(row, action) {
     try {
         const detail = await request(`/procurement/requisitions/${row.id}`);
-        const body = action === "approve" ? { approved_quantities: Object.fromEntries((detail.items ?? []).map((item) => [item.id, item.requested_quantity ?? item.quantity])), reason: "Necessidade e disponibilidade orçamentária validadas." } : action === "submit" ? {} : { reason: `${action === "reject" ? "Rejeição" : "Cancelamento"} registrado pela administração.` };
+        const body = action === "approve"
+            ? {
+                approved_quantities: Object.fromEntries((detail.items ?? []).map((item) => [
+                    item.id,
+                    item.requested_quantity ?? item.quantity,
+                ])),
+                reason: "Necessidade e disponibilidade orçamentária validadas.",
+            }
+            : action === "submit"
+                ? {}
+                : {
+                    reason: `${action === "reject" ? "Rejeição" : "Cancelamento"} registrado pela administração.`,
+                };
         await post(`/procurement/requisitions/${row.id}/${action}`, body);
         emit("notice", "Requisição atualizada.");
         await load();
-        if (selectedRequisition.value?.requisition?.id === row.id || selectedRequisition.value?.id === row.id)
+        if (selectedRequisition.value?.requisition?.id === row.id ||
+            selectedRequisition.value?.id === row.id)
             await showRequisition(row);
     }
     catch (error) {
@@ -187,7 +375,15 @@ async function requisitionAction(row, action) {
 }
 async function createQuotation() {
     try {
-        const created = await post("/procurement/quotations", { requisition_id: quotationForm.requisition_id || null, response_deadline: quotationForm.response_deadline ? new Date(quotationForm.response_deadline).toISOString() : null, currency: "BRL", supplier_ids: [quotationForm.supplier_id], items: [] }, idempotency("quotation"));
+        const created = await post("/procurement/quotations", {
+            requisition_id: quotationForm.requisition_id || null,
+            response_deadline: quotationForm.response_deadline
+                ? new Date(quotationForm.response_deadline).toISOString()
+                : null,
+            currency: "BRL",
+            supplier_ids: [quotationForm.supplier_id],
+            items: [],
+        }, idempotency("quotation"));
         emit("notice", "Cotação criada e fornecedor convidado.");
         await load();
         await showQuotation(created.quotation ?? created);
@@ -199,8 +395,12 @@ async function createQuotation() {
 async function showQuotation(row) {
     try {
         selectedQuotation.value = await request(`/procurement/quotations/${row.id}`);
-        proposalForm.supplier_id = quotationSuppliers.value[0]?.supplier_id ?? proposalForm.supplier_id;
-        proposalForm.quantity_available = quotationItems.value[0]?.quantity ?? quotationItems.value[0]?.requested_quantity ?? "1";
+        proposalForm.supplier_id =
+            quotationSuppliers.value[0]?.supplier_id ?? proposalForm.supplier_id;
+        proposalForm.quantity_available =
+            quotationItems.value[0]?.quantity ??
+                quotationItems.value[0]?.requested_quantity ??
+                "1";
         awardForm.supplier_id = proposalForm.supplier_id;
     }
     catch (error) {
@@ -211,7 +411,22 @@ async function submitProposal() {
     if (!selectedQuotation.value || !quotationItems.value.length)
         return;
     try {
-        await post(`/procurement/quotations/${selectedQuotation.value.quotation?.id ?? selectedQuotation.value.id}/suppliers/${proposalForm.supplier_id}/proposal`, { delivery_days: proposalForm.delivery_days, payment_terms: { days: proposalForm.payment_days.split(",").map(value => Number(value.trim())).filter(Number.isFinite) }, notes: nullable(proposalForm.notes), items: quotationItems.value.map((item) => ({ quotation_item_id: item.id, unit_price: proposalForm.unit_price, quantity_available: proposalForm.quantity_available || item.quantity, brand: nullable(proposalForm.brand) })) }, idempotency("supplier-proposal"));
+        await post(`/procurement/quotations/${selectedQuotation.value.quotation?.id ?? selectedQuotation.value.id}/suppliers/${proposalForm.supplier_id}/proposal`, {
+            delivery_days: proposalForm.delivery_days,
+            payment_terms: {
+                days: proposalForm.payment_days
+                    .split(",")
+                    .map((value) => Number(value.trim()))
+                    .filter(Number.isFinite),
+            },
+            notes: nullable(proposalForm.notes),
+            items: quotationItems.value.map((item) => ({
+                quotation_item_id: item.id,
+                unit_price: proposalForm.unit_price,
+                quantity_available: proposalForm.quantity_available || item.quantity,
+                brand: nullable(proposalForm.brand),
+            })),
+        }, idempotency("supplier-proposal"));
         emit("notice", "Proposta do fornecedor registrada.");
         await showQuotation(selectedQuotation.value.quotation ?? selectedQuotation.value);
         await load();
@@ -235,7 +450,22 @@ async function awardQuotation() {
 }
 async function createOrder() {
     try {
-        const created = await post("/procurement/orders", { supplier_id: orderForm.supplier_id, warehouse_id: orderForm.warehouse_id, expected_on: nullable(orderForm.expected_on), freight_amount: orderForm.freight_amount, discount_amount: orderForm.discount_amount, notes: nullable(orderForm.notes), items: [{ product_id: orderForm.product_id, quantity: orderForm.quantity, unit_price: orderForm.unit_price, discount_amount: "0" }] }, idempotency("purchase-order"));
+        const created = await post("/procurement/orders", {
+            supplier_id: orderForm.supplier_id,
+            warehouse_id: orderForm.warehouse_id,
+            expected_on: nullable(orderForm.expected_on),
+            freight_amount: orderForm.freight_amount,
+            discount_amount: orderForm.discount_amount,
+            notes: nullable(orderForm.notes),
+            items: [
+                {
+                    product_id: orderForm.product_id,
+                    quantity: orderForm.quantity,
+                    unit_price: orderForm.unit_price,
+                    discount_amount: "0",
+                },
+            ],
+        }, idempotency("purchase-order"));
         emit("notice", "Pedido de compra criado em rascunho.");
         await load();
         await showOrder(created.order ?? created);
@@ -260,7 +490,9 @@ async function showOrder(row) {
 }
 async function approveOrder(row) {
     try {
-        await post(`/procurement/orders/${row.id}/approve`, { reason: "Pedido aprovado pela administração." });
+        await post(`/procurement/orders/${row.id}/approve`, {
+            reason: "Pedido aprovado pela administração.",
+        });
         emit("notice", "Pedido aprovado.");
         await load();
         await showOrder(row);
@@ -273,7 +505,19 @@ async function receiveOrder() {
     if (!selectedOrder.value)
         return;
     try {
-        await post(`/procurement/orders/${selectedOrder.value.order?.id ?? selectedOrder.value.id}/receipts`, { supplier_document_number: nullable(receiptForm.supplier_document_number), items: [{ purchase_order_item_id: receiptForm.purchase_order_item_id, quantity: receiptForm.quantity, unit_cost: receiptForm.unit_cost, lot_number: nullable(receiptForm.lot_number), manufactured_on: nullable(receiptForm.manufactured_on), expires_on: nullable(receiptForm.expires_on) }] }, idempotency("goods-receipt"));
+        await post(`/procurement/orders/${selectedOrder.value.order?.id ?? selectedOrder.value.id}/receipts`, {
+            supplier_document_number: nullable(receiptForm.supplier_document_number),
+            items: [
+                {
+                    purchase_order_item_id: receiptForm.purchase_order_item_id,
+                    quantity: receiptForm.quantity,
+                    unit_cost: receiptForm.unit_cost,
+                    lot_number: nullable(receiptForm.lot_number),
+                    manufactured_on: nullable(receiptForm.manufactured_on),
+                    expires_on: nullable(receiptForm.expires_on),
+                },
+            ],
+        }, idempotency("goods-receipt"));
         emit("notice", "Recebimento registrado com estoque e custo médio atualizados.");
         await load();
         await showOrder(selectedOrder.value.order ?? selectedOrder.value);
@@ -286,7 +530,16 @@ async function returnOrderItem() {
     if (!selectedOrder.value)
         return;
     try {
-        await post(`/procurement/orders/${selectedOrder.value.order?.id ?? selectedOrder.value.id}/returns`, { reason: returnForm.reason, items: [{ purchase_order_item_id: returnForm.purchase_order_item_id, quantity: returnForm.quantity, lot_id: nullable(returnForm.lot_id) }] }, idempotency("purchase-return"));
+        await post(`/procurement/orders/${selectedOrder.value.order?.id ?? selectedOrder.value.id}/returns`, {
+            reason: returnForm.reason,
+            items: [
+                {
+                    purchase_order_item_id: returnForm.purchase_order_item_id,
+                    quantity: returnForm.quantity,
+                    lot_id: nullable(returnForm.lot_id),
+                },
+            ],
+        }, idempotency("purchase-return"));
         emit("notice", "Devolução registrada e estoque compensado.");
         await load();
         await showOrder(selectedOrder.value.order ?? selectedOrder.value);
@@ -297,7 +550,13 @@ async function returnOrderItem() {
 }
 async function createReservation() {
     try {
-        await post("/inventory/reservations", { ...reservationForm, lot_id: nullable(reservationForm.lot_id), expires_at: reservationForm.expires_at ? new Date(reservationForm.expires_at).toISOString() : null }, idempotency("inventory-reservation"));
+        await post("/inventory/reservations", {
+            ...reservationForm,
+            lot_id: nullable(reservationForm.lot_id),
+            expires_at: reservationForm.expires_at
+                ? new Date(reservationForm.expires_at).toISOString()
+                : null,
+        }, idempotency("inventory-reservation"));
         emit("notice", "Reserva de estoque registrada.");
         reservationForm.source_id = "";
         await load();
@@ -309,7 +568,9 @@ async function createReservation() {
 async function reservationAction(row, action) {
     try {
         await post(`/inventory/reservations/${row.id}/${action}`, {});
-        emit("notice", action === "consume" ? "Reserva consumida e estoque baixado." : "Reserva liberada.");
+        emit("notice", action === "consume"
+            ? "Reserva consumida e estoque baixado."
+            : "Reserva liberada.");
         await load();
     }
     catch (error) {
@@ -318,7 +579,11 @@ async function reservationAction(row, action) {
 }
 async function createCount() {
     try {
-        activeCount.value = await post("/inventory/counts", { warehouse_id: countForm.warehouse_id, product_ids: countForm.product_id ? [countForm.product_id] : [], include_zero_balance: countForm.include_zero_balance }, idempotency("inventory-count"));
+        activeCount.value = await post("/inventory/counts", {
+            warehouse_id: countForm.warehouse_id,
+            product_ids: countForm.product_id ? [countForm.product_id] : [],
+            include_zero_balance: countForm.include_zero_balance,
+        }, idempotency("inventory-count"));
         for (const item of activeCount.value.items ?? [])
             countLines[item.id] = String(item.expected_quantity ?? "0");
         emit("notice", "Inventário aberto para contagem física.");
@@ -332,7 +597,14 @@ async function completeCount() {
         return;
     try {
         const countId = activeCount.value.count?.id ?? activeCount.value.id;
-        activeCount.value = await post(`/inventory/counts/${countId}/complete`, { reason: "Contagem física conferida pela administração.", items: (activeCount.value.items ?? []).map((item) => ({ item_id: item.id, counted_quantity: countLines[item.id] ?? item.expected_quantity, notes: null })) });
+        activeCount.value = await post(`/inventory/counts/${countId}/complete`, {
+            reason: "Contagem física conferida pela administração.",
+            items: (activeCount.value.items ?? []).map((item) => ({
+                item_id: item.id,
+                counted_quantity: countLines[item.id] ?? item.expected_quantity,
+                notes: null,
+            })),
+        });
         emit("notice", "Inventário concluído e divergências ajustadas.");
         await load();
     }
@@ -342,7 +614,14 @@ async function completeCount() {
 }
 function clearPolicyEditor() {
     editingPolicy.value = null;
-    Object.assign(reorderForm, { product_id: products.value[0]?.id ?? "", warehouse_id: "default", minimum_quantity: "1", target_quantity: "5", lead_time_days: 0, preferred_supplier_id: suppliers.value[0]?.id ?? "" });
+    Object.assign(reorderForm, {
+        product_id: products.value[0]?.id ?? "",
+        warehouse_id: "default",
+        minimum_quantity: "1",
+        target_quantity: "5",
+        lead_time_days: 0,
+        preferred_supplier_id: suppliers.value[0]?.id ?? "",
+    });
 }
 function editReorderPolicy(row) {
     editingPolicy.value = row;
@@ -364,11 +643,18 @@ async function saveReorderPolicy() {
             preferred_supplier_id: nullable(reorderForm.preferred_supplier_id),
         };
         if (editingPolicy.value) {
-            await patch(`/inventory/reorder-policies/${editingPolicy.value.id}`, { ...body, expected_version: editingPolicy.value.version });
+            await patch(`/inventory/reorder-policies/${editingPolicy.value.id}`, {
+                ...body,
+                expected_version: editingPolicy.value.version,
+            });
             emit("notice", "Política de estoque mínimo atualizada.");
         }
         else {
-            await post("/inventory/reorder-policies", { product_id: reorderForm.product_id, warehouse_id: reorderForm.warehouse_id, ...body }, idempotency("reorder-policy"));
+            await post("/inventory/reorder-policies", {
+                product_id: reorderForm.product_id,
+                warehouse_id: reorderForm.warehouse_id,
+                ...body,
+            }, idempotency("reorder-policy"));
             emit("notice", "Política de estoque mínimo cadastrada.");
         }
         clearPolicyEditor();
@@ -380,8 +666,13 @@ async function saveReorderPolicy() {
 }
 async function toggleReorderPolicy(row) {
     try {
-        await patch(`/inventory/reorder-policies/${row.id}`, { state: row.status === "active" ? "inactive" : "active", expected_version: row.version });
-        emit("notice", row.status === "active" ? "Política inativada e sugestões abertas encerradas." : "Política reativada.");
+        await patch(`/inventory/reorder-policies/${row.id}`, {
+            state: row.status === "active" ? "inactive" : "active",
+            expected_version: row.version,
+        });
+        emit("notice", row.status === "active"
+            ? "Política inativada e sugestões abertas encerradas."
+            : "Política reativada.");
         await load();
     }
     catch (error) {
@@ -404,13 +695,18 @@ function selectSuggestion(row) {
     selectedSuggestion.value = row;
     suggestionActionForm.needed_by = today;
     suggestionActionForm.justification = `Reposição automática de ${row.product_name} validada pela administração.`;
-    suggestionActionForm.reason = "Sugestão descartada após revisão operacional e orçamentária.";
+    suggestionActionForm.reason =
+        "Sugestão descartada após revisão operacional e orçamentária.";
 }
 async function convertSelectedSuggestion() {
     if (!selectedSuggestion.value)
         return;
     try {
-        const result = await post(`/inventory/purchase-suggestions/${selectedSuggestion.value.id}/convert`, { expected_version: selectedSuggestion.value.version, needed_by: nullable(suggestionActionForm.needed_by), justification: suggestionActionForm.justification }, idempotency("purchase-suggestion-convert"));
+        const result = await post(`/inventory/purchase-suggestions/${selectedSuggestion.value.id}/convert`, {
+            expected_version: selectedSuggestion.value.version,
+            needed_by: nullable(suggestionActionForm.needed_by),
+            justification: suggestionActionForm.justification,
+        }, idempotency("purchase-suggestion-convert"));
         emit("notice", `Sugestão convertida na requisição ${result.requisition?.requisition_number ?? result.requisition?.id}.`);
         selectedSuggestion.value = null;
         await load();
@@ -423,7 +719,10 @@ async function dismissSelectedSuggestion() {
     if (!selectedSuggestion.value)
         return;
     try {
-        await post(`/inventory/purchase-suggestions/${selectedSuggestion.value.id}/dismiss`, { expected_version: selectedSuggestion.value.version, reason: suggestionActionForm.reason }, idempotency("purchase-suggestion-dismiss"));
+        await post(`/inventory/purchase-suggestions/${selectedSuggestion.value.id}/dismiss`, {
+            expected_version: selectedSuggestion.value.version,
+            reason: suggestionActionForm.reason,
+        }, idempotency("purchase-suggestion-dismiss"));
         emit("notice", "Sugestão descartada com justificativa e trilha de auditoria.");
         selectedSuggestion.value = null;
         await load();
@@ -450,12 +749,12 @@ function __VLS_template() {
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.suppliers.filter(row => row.status === 'active').length);
+    (__VLS_ctx.suppliers.filter((row) => row.status === "active").length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.requisitions.filter(row => !['cancelled', 'rejected', 'converted'].includes(row.status)).length);
+    (__VLS_ctx.requisitions.filter((row) => !["cancelled", "rejected", "converted"].includes(row.status)).length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
@@ -465,17 +764,17 @@ function __VLS_template() {
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.orders.filter(row => !['received', 'cancelled'].includes(row.status)).length);
+    (__VLS_ctx.orders.filter((row) => !["received", "cancelled"].includes(row.status)).length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.lots.filter(row => Number(row.quantity) > 0).length);
+    (__VLS_ctx.lots.filter((row) => Number(row.quantity) > 0).length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.article, __VLS_intrinsicElements.article)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-    (__VLS_ctx.purchaseSuggestions.filter(row => row.status === 'open').length);
+    (__VLS_ctx.purchaseSuggestions.filter((row) => row.status === "open").length);
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
         ...{ class: ("procurement-tabs") },
@@ -521,7 +820,7 @@ function __VLS_template() {
         ...{ class: ("small refresh") },
         disabled: ((__VLS_ctx.loading)),
     });
-    (__VLS_ctx.loading ? 'Atualizando…' : 'Atualizar');
+    (__VLS_ctx.loading ? "Atualizando…" : "Atualizar");
     if (__VLS_ctx.tab === 'suppliers') {
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("grid-2 forms") },
@@ -716,15 +1015,15 @@ function __VLS_template() {
                 key: ((row.id)),
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.code || '—');
+            (row.code || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.trade_name || row.legal_name);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.cnpj || '—');
+            (row.cnpj || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.email || row.contacts?.[0]?.email || '—');
+            (row.email || row.contacts?.[0]?.email || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.rating ?? '—');
+            (row.rating ?? "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.status);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -736,7 +1035,7 @@ function __VLS_template() {
                     } },
                 ...{ class: ("small") },
             });
-            (row.status === 'active' ? 'Inativar' : 'Ativar');
+            (row.status === "active" ? "Inativar" : "Ativar");
         }
         if (!__VLS_ctx.suppliers.length) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
@@ -806,8 +1105,10 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (__VLS_ctx.selectedRequisition.requisition?.number || __VLS_ctx.selectedRequisition.number);
-            (__VLS_ctx.selectedRequisition.requisition?.status || __VLS_ctx.selectedRequisition.status);
+            (__VLS_ctx.selectedRequisition.requisition?.number ||
+                __VLS_ctx.selectedRequisition.number);
+            (__VLS_ctx.selectedRequisition.requisition?.status ||
+                __VLS_ctx.selectedRequisition.status);
             __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
                 ...{ class: ("rows") },
             });
@@ -856,7 +1157,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.number);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.needed_by || '—');
+            (row.needed_by || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.justification);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -949,7 +1250,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             value: (""),
         });
-        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.requisitions.filter(item => item.status === 'approved')))) {
+        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.requisitions.filter((item) => item.status === 'approved')))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((row.id)),
                 value: ((row.id)),
@@ -962,7 +1263,7 @@ function __VLS_template() {
             value: ((__VLS_ctx.quotationForm.supplier_id)),
             required: (true),
         });
-        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter(item => item.status === 'active')))) {
+        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter((item) => item.status === 'active')))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((row.id)),
                 value: ((row.id)),
@@ -1065,7 +1366,7 @@ function __VLS_template() {
                 value: ((__VLS_ctx.awardForm.supplier_id)),
                 required: (true),
             });
-            for (const [row] of __VLS_getVForSourceType((__VLS_ctx.quotationSuppliers.filter(item => item.status === 'responded')))) {
+            for (const [row] of __VLS_getVForSourceType((__VLS_ctx.quotationSuppliers.filter((item) => item.status === 'responded')))) {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                     key: ((row.supplier_id)),
                     value: ((row.supplier_id)),
@@ -1138,9 +1439,9 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.number);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.requisition_number || row.requisition_id || '—');
+            (row.requisition_number || row.requisition_id || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.response_deadline || '—');
+            (row.response_deadline || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.supplier_count ?? row.suppliers?.length ?? 0);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1174,7 +1475,7 @@ function __VLS_template() {
             value: ((__VLS_ctx.orderForm.supplier_id)),
             required: (true),
         });
-        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter(item => item.status === 'active')))) {
+        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter((item) => item.status === 'active')))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((row.id)),
                 value: ((row.id)),
@@ -1466,7 +1767,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             value: (""),
         });
-        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.lots.filter(item => item.product_id === __VLS_ctx.reservationForm.product_id)))) {
+        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.lots.filter((item) => item.product_id === __VLS_ctx.reservationForm.product_id)))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((row.id)),
                 value: ((row.id)),
@@ -1609,7 +1910,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.lot_number);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.expires_on || '—');
+            (row.expires_on || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.quantity);
         }
@@ -1699,7 +2000,9 @@ function __VLS_template() {
             ...{ class: ("panel-title") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
-        (__VLS_ctx.editingPolicy ? 'Editar política' : 'Nova política de estoque mínimo');
+        (__VLS_ctx.editingPolicy
+            ? "Editar política"
+            : "Nova política de estoque mínimo");
         if (__VLS_ctx.editingPolicy) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
             (__VLS_ctx.editingPolicy.version);
@@ -1760,7 +2063,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
             value: (""),
         });
-        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter(item => item.status === 'active')))) {
+        for (const [row] of __VLS_getVForSourceType((__VLS_ctx.suppliers.filter((item) => item.status === 'active')))) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
                 key: ((row.id)),
                 value: ((row.id)),
@@ -1773,7 +2076,7 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
             ...{ class: ("primary") },
         });
-        (__VLS_ctx.editingPolicy ? 'Salvar alterações' : 'Cadastrar política');
+        (__VLS_ctx.editingPolicy ? "Salvar alterações" : "Cadastrar política");
         if (__VLS_ctx.editingPolicy) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                 ...{ onClick: (__VLS_ctx.clearPolicyEditor) },
@@ -1797,7 +2100,8 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
             ...{ onClick: (__VLS_ctx.generatePurchaseSuggestions) },
             ...{ class: ("primary") },
-            disabled: ((__VLS_ctx.loading || !__VLS_ctx.reorderPolicies.some(row => row.status === 'active'))),
+            disabled: ((__VLS_ctx.loading ||
+                !__VLS_ctx.reorderPolicies.some((row) => row.status === 'active'))),
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("panel") },
@@ -1842,7 +2146,7 @@ function __VLS_template() {
             (row.minimum_quantity);
             (row.target_quantity);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-            (row.preferred_supplier_name || '—');
+            (row.preferred_supplier_name || "—");
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
             (row.status);
             __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
@@ -1878,7 +2182,7 @@ function __VLS_template() {
                     } },
                 ...{ class: ("small") },
             });
-            (row.status === 'active' ? 'Inativar' : 'Ativar');
+            (row.status === "active" ? "Inativar" : "Ativar");
         }
         if (!__VLS_ctx.reorderPolicies.length) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.tr, __VLS_intrinsicElements.tr)({});
@@ -1954,7 +2258,7 @@ function __VLS_template() {
             }
             else {
                 __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
-                (row.closure_reason || '—');
+                (row.closure_reason || "—");
             }
         }
         if (!__VLS_ctx.purchaseSuggestions.length) {

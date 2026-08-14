@@ -2144,6 +2144,22 @@
     ]
   },
   {
+    "operationId": "list_fiscal_document_artifacts",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/artifacts",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
+    "operationId": "download_fiscal_document_artifact",
+    "method": "GET",
+    "path": "/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download",
+    "tags": [
+      "fiscal"
+    ]
+  },
+  {
     "operationId": "cancel_fiscal_document_local",
     "method": "POST",
     "path": "/api/v1/fiscal/documents/{document_id}/cancel",
@@ -2187,22 +2203,6 @@
     "operationId": "render_fiscal_document_local",
     "method": "POST",
     "path": "/api/v1/fiscal/documents/{document_id}/render",
-    "tags": [
-      "fiscal"
-    ]
-  },
-  {
-    "operationId": "list_fiscal_document_artifacts",
-    "method": "GET",
-    "path": "/api/v1/fiscal/documents/{document_id}/artifacts",
-    "tags": [
-      "fiscal"
-    ]
-  },
-  {
-    "operationId": "download_fiscal_document_artifact",
-    "method": "GET",
-    "path": "/api/v1/fiscal/documents/{document_id}/artifacts/{artifact_id}/download",
     "tags": [
       "fiscal"
     ]
@@ -4680,9 +4680,57 @@
     ]
   },
   {
+    "operationId": "list_service_receipt_payments",
+    "method": "GET",
+    "path": "/api/v1/service-orders/{order_id}/receipt-payments",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "list_service_payment_receipts",
+    "method": "GET",
+    "path": "/api/v1/service-orders/{order_id}/receipts",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "create_service_payment_receipt",
+    "method": "POST",
+    "path": "/api/v1/service-orders/{order_id}/receipts",
+    "tags": [
+      "services"
+    ]
+  },
+  {
     "operationId": "start_service_order",
     "method": "POST",
     "path": "/api/v1/service-orders/{order_id}/start",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "get_service_payment_receipt",
+    "method": "GET",
+    "path": "/api/v1/service-receipts/{receipt_id}",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "download_service_payment_receipt",
+    "method": "GET",
+    "path": "/api/v1/service-receipts/{receipt_id}/document",
+    "tags": [
+      "services"
+    ]
+  },
+  {
+    "operationId": "void_service_payment_receipt",
+    "method": "POST",
+    "path": "/api/v1/service-receipts/{receipt_id}/void",
     "tags": [
       "services"
     ]

@@ -1,0 +1,61 @@
+{
+  "increment": "0047_compose_rabbitmq_readiness",
+  "generated_at": "2026-08-14T07:30:00Z",
+  "scope": "Correção do boot e da observabilidade do RabbitMQ no smoke Compose de homologação.",
+  "incident": {
+    "source": "logs_86213441665.zip / workflow build-runtime-images",
+    "observed_at": "2026-08-14T07:16:15Z",
+    "symptom": "O Compose interrompeu o smoke porque pige360-rabbitmq foi marcado como unhealthy antes do início de API e web.",
+    "root_cause": "O manifesto combinava um health check sem período de inicialização com RABBITMQ_DEFAULT_PASS_FILE, variante não suportada pela imagem oficial moderna. O log original não continha o stdout do container, porque o artefato do workflow 20 só era enviado em caso de sucesso.",
+    "evidence": "O log registra o broker iniciado às 07:16:03 e unhealthy às 07:16:15; o manifesto continha RABBITMQ_DEFAULT_PASS_FILE e não definia start_period."
+  },
+  "implementation": {
+    "secret_bootstrap": "O entrypoint lê /run/secrets/rabbitmq_password no boot e exporta RABBITMQ_DEFAULT_PASS somente para iniciar docker-entrypoint.sh rabbitmq-server.",
+    "readiness": "O health check executa ping e check_running, com start_period de 45s, intervalo de 10s, timeout de 10s e 12 tentativas.",
+    "observability": "Em falha de startup, o smoke salva e imprime compose-startup-diagnostics.log com ps --all e logs sanitizados apenas do RabbitMQ.",
+    "workflow": "Os workflows 20 canônico e do kit local são acionados por compose.yaml e infra/templates/**; o artefato Docker é enviado também em falha."
+  },
+  "validation": [
+    {
+      "command": "python3 (execução direta de backend/tests/infrastructure/test_compose_homologation_smoke.py)",
+      "result": "6 testes estáticos aprovados, incluindo secret loader, janela de startup e preservação de diagnósticos.",
+      "status": "passed"
+    },
+    {
+      "command": "bash -n scripts/ci/smoke-compose-homologation.sh; PyYAML parse de compose.yaml e infra/templates/compose.yaml.tmpl",
+      "result": "Sintaxe Shell e os dois manifests aprovados.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/validate_project.py",
+      "result": "Validador estrutural aprovado, sem falhas.",
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/validation/secret_scan.py",
+      "result": "2200 arquivos examinados; 0 achados.",
+      "status": "passed"
+    },
+    {
+      "command": "bash scripts/ci/smoke-compose-homologation.sh release/artifacts/docker/compose-smoke",
+      "result": "Não executado localmente: Docker/Compose não está disponível neste workspace. A confirmação real ocorrerá no workflow GitHub Actions.",
+      "status": "blocked_environment"
+    }
+  ],
+  "non_regression": {
+    "baseline": "PIGE360-workspace-alpha-1-evolved-0046-20260814.zip",
+    "baseline_sha256": "b0072538eaae4bd8d720cf89665d0bfb0ea8f9d5f64ecba14ed03dc0667b9179",
+    "comparison": {
+      "baseline_files": 2848,
+      "current_files": 2849,
+      "added": 1,
+      "modified": 8,
+      "deleted": 0
+    },
+    "result": "Nenhum arquivo do checkpoint 0046 foi removido no incremento 0047."
+  },
+  "limits": [
+    "Não houve push, Pull Request remota, publicação de imagem ou deploy.",
+    "O log original não permite atribuir o detalhe interno do processo RabbitMQ; o novo diagnóstico o preservará numa eventual reincidência."
+  ]
+}

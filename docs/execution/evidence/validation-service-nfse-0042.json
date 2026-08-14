@@ -1,0 +1,129 @@
+{
+  "status": "passed",
+  "version": "1.0.0",
+  "checks": [
+    {
+      "name": "semantic-version",
+      "status": "passed",
+      "detail": "1.0.0"
+    },
+    {
+      "name": "remote-disabled-default",
+      "status": "passed",
+      "detail": {
+        "REMOTE_CI_ENABLED": "false",
+        "REMOTE_REGISTRY_ENABLED": "false",
+        "REMOTE_RELEASE_ENABLED": "false",
+        "REMOTE_DEPLOY_ENABLED": "false"
+      }
+    },
+    {
+      "name": "tenant-selector-rejected",
+      "status": "passed",
+      "detail": "hostname-only"
+    },
+    {
+      "name": "no-font-files",
+      "status": "passed",
+      "detail": "font binaries absent"
+    },
+    {
+      "name": "applications",
+      "status": "passed",
+      "detail": {
+        "count": 13,
+        "missing": [],
+        "extra": []
+      }
+    },
+    {
+      "name": "application-source-contracts",
+      "status": "passed",
+      "detail": []
+    },
+    {
+      "name": "no-obsolete-frontend-dist",
+      "status": "passed",
+      "detail": []
+    },
+    {
+      "name": "backend-modules",
+      "status": "passed",
+      "detail": {
+        "required": 51,
+        "present": 51,
+        "missing": []
+      }
+    },
+    {
+      "name": "workflows",
+      "status": "passed",
+      "detail": {
+        "count": 15,
+        "missing": []
+      }
+    },
+    {
+      "name": "compose-services",
+      "status": "passed",
+      "detail": {
+        "count": 46,
+        "missing": []
+      }
+    },
+    {
+      "name": "openapi-semantic-contract",
+      "status": "passed",
+      "detail": {
+        "paths": 559,
+        "operations": 689,
+        "duplicates": [],
+        "missing_required": [],
+        "generic_paths": [],
+        "generic_operations": []
+      }
+    },
+    {
+      "name": "visual-evidence",
+      "status": "passed",
+      "detail": {
+        "screens": 40,
+        "screenshots": 132
+      }
+    },
+    {
+      "name": "reference-inventory",
+      "status": "passed",
+      "detail": {
+        "assets": 118,
+        "known_issue": null
+      }
+    },
+    {
+      "name": "declarative-syntax",
+      "status": "passed",
+      "detail": []
+    },
+    {
+      "name": "no-critical-todos",
+      "status": "passed",
+      "detail": []
+    },
+    {
+      "name": "ci-cd-kit",
+      "status": "passed",
+      "detail": {
+        "files": 18
+      }
+    },
+    {
+      "name": "oci-structural",
+      "status": "skipped",
+      "detail": {
+        "path": "release/artifacts/oci/PIGE360-1.0.0-images-digests.json",
+        "reason": "artefato OCI não gerado neste workspace de fonte local"
+      }
+    }
+  ],
+  "failures": []
+}

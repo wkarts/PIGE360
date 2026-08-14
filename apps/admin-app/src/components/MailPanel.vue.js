@@ -14,165 +14,302 @@ const compose = ref({ to: "", cc: "", bcc: "", subject: "", body_text: "" });
 const composeMode = ref("new");
 const sourceMessageId = ref(null);
 const replyAll = ref(false);
-function problem(e) { const x = e; return x.problem?.detail || x.message || "Falha no e-mail"; }
-function emails(value) { return value.split(/[;,\s]+/).map(x => x.trim()).filter(Boolean); }
-function resetCompose() { compose.value = { to: "", cc: "", bcc: "", subject: "", body_text: "" }; composeMode.value = "new"; sourceMessageId.value = null; replyAll.value = false; }
-async function load() { busy.value = true; try {
-    status.value = await props.api.request("/mail/me/status");
-    if (!(status.value.folders || []).some((f) => f.remote_name === folder.value))
-        folder.value = status.value.folders?.[0]?.remote_name || "INBOX";
-    await Promise.all([loadMessages(), loadDrafts()]);
+function problem(e) {
+    const x = e;
+    return x.problem?.detail || x.message || "Falha no e-mail";
 }
-catch (e) {
-    status.value = null;
-    emit("error", problem(e));
+function emails(value) {
+    return value
+        .split(/[;,\s]+/)
+        .map((x) => x.trim())
+        .filter(Boolean);
 }
-finally {
-    busy.value = false;
-} }
-async function sync() { busy.value = true; notice.value = ""; try {
-    const r = await props.api.request("/mail/me/sync", { method: "POST" });
-    notice.value = `Sincronização concluída: ${r.messages_synced || 0} mensagem(ns).`;
-    await load();
+function resetCompose() {
+    compose.value = { to: "", cc: "", bcc: "", subject: "", body_text: "" };
+    composeMode.value = "new";
+    sourceMessageId.value = null;
+    replyAll.value = false;
 }
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-async function loadMessages() { try {
-    const q = new URLSearchParams();
-    if (folder.value)
-        q.set("folder", folder.value);
-    if (search.value)
-        q.set("search", search.value);
-    const r = await props.api.request(`/mail/me/messages?${q}`);
-    messages.value = r.items || [];
-}
-catch (e) {
-    emit("error", problem(e));
-} }
-async function openMessage(row) { try {
-    detail.value = await props.api.request(`/mail/me/messages/${row.id}`);
-    const flags = Array.isArray(row.flags) ? row.flags : [];
-    if (!flags.includes("\\Seen")) {
-        await setSeen(true, false);
+async function load() {
+    busy.value = true;
+    try {
+        const mailboxStatus = await props.api.request("/mail/me/status");
+        status.value = mailboxStatus;
+        if (!(mailboxStatus.folders || []).some((f) => f.remote_name === folder.value))
+            folder.value = mailboxStatus.folders?.[0]?.remote_name || "INBOX";
+        await Promise.all([loadMessages(), loadDrafts()]);
+    }
+    catch (e) {
+        status.value = null;
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
     }
 }
-catch (e) {
-    emit("error", problem(e));
-} }
-async function setSeen(seen, reload = true) { if (!detail.value?.metadata?.id)
-    return; try {
-    await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/seen`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ seen }) });
-    notice.value = seen ? "Mensagem marcada como lida." : "Mensagem marcada como não lida.";
-    if (reload)
+async function sync() {
+    busy.value = true;
+    notice.value = "";
+    try {
+        const r = await props.api.request("/mail/me/sync", { method: "POST" });
+        notice.value = `Sincronização concluída: ${r.messages_synced || 0} mensagem(ns).`;
         await load();
-}
-catch (e) {
-    emit("error", problem(e));
-} }
-async function moveMessage(destination) { if (!detail.value?.metadata?.id)
-    return; const target = destination || moveTarget.value; if (!target)
-    return; busy.value = true; try {
-    await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/move`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ destination_folder: target }) });
-    notice.value = `Mensagem movida para ${target}.`;
-    detail.value = null;
-    await load();
-}
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-async function trash() { if (!detail.value?.metadata?.id)
-    return; busy.value = true; try {
-    await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/trash`, { method: "POST" });
-    notice.value = "Mensagem movida para a lixeira.";
-    detail.value = null;
-    await load();
-}
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-function beginReply(all = false) { if (!detail.value)
-    return; const m = detail.value.metadata || {}; const sender = JSON.parse(m.sender_json || "{}"); composeMode.value = "reply"; sourceMessageId.value = m.id; replyAll.value = all; compose.value = { to: sender.email || "", cc: "", bcc: "", subject: m.subject || "", body_text: "" }; }
-function beginForward() { if (!detail.value)
-    return; const m = detail.value.metadata || {}; composeMode.value = "forward"; sourceMessageId.value = m.id; replyAll.value = false; compose.value = { to: "", cc: "", bcc: "", subject: m.subject || "", body_text: "" }; }
-async function send() { busy.value = true; try {
-    const key = `mail-${crypto.randomUUID()}`;
-    if (composeMode.value === "reply" && sourceMessageId.value) {
-        await props.api.request(`/mail/me/messages/${sourceMessageId.value}/reply`, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": key }, body: JSON.stringify({ body_text: compose.value.body_text, reply_all: replyAll.value }) });
     }
-    else if (composeMode.value === "forward" && sourceMessageId.value) {
-        await props.api.request(`/mail/me/messages/${sourceMessageId.value}/forward`, { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": key }, body: JSON.stringify({ to: emails(compose.value.to), cc: emails(compose.value.cc), bcc: emails(compose.value.bcc), subject: compose.value.subject, body_text: compose.value.body_text }) });
+    catch (e) {
+        emit("error", problem(e));
     }
-    else {
-        await props.api.request("/mail/me/send", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": key }, body: JSON.stringify({ to: emails(compose.value.to), cc: emails(compose.value.cc), bcc: emails(compose.value.bcc), subject: compose.value.subject, body_text: compose.value.body_text }) });
+    finally {
+        busy.value = false;
     }
-    notice.value = "Mensagem enviada.";
-    resetCompose();
 }
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-async function saveDraft() { busy.value = true; try {
-    await props.api.request("/mail/me/drafts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: emails(compose.value.to), cc: emails(compose.value.cc), bcc: emails(compose.value.bcc), subject: compose.value.subject, body_text: compose.value.body_text }) });
-    notice.value = "Rascunho salvo.";
-    await loadDrafts();
-}
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-async function loadDrafts() { try {
-    const r = await props.api.request("/mail/me/drafts");
-    drafts.value = r.items || [];
-}
-catch {
-    drafts.value = [];
-} }
-async function sendDraft(row) { busy.value = true; try {
-    await props.api.request(`/mail/me/drafts/${row.id}/send`, { method: "POST", headers: { "Idempotency-Key": `draft-${row.id}-${row.version}` } });
-    notice.value = "Rascunho enviado.";
-    await loadDrafts();
-}
-catch (e) {
-    emit("error", problem(e));
-}
-finally {
-    busy.value = false;
-} }
-async function downloadAttachment(index, item) { if (!detail.value?.metadata?.id)
-    return; try {
-    const response = await props.api.response(`/mail/me/messages/${detail.value.metadata.id}/attachments/${index}`, { headers: { Accept: item.content_type || "application/octet-stream" } });
-    const blob = await response.blob();
-    const expected = response.headers.get("x-content-sha256");
-    if (expected && crypto.subtle) {
-        const digest = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", await blob.arrayBuffer()))).map(v => v.toString(16).padStart(2, "0")).join("");
-        if (digest !== expected)
-            throw new Error("Integridade SHA-256 do anexo inválida");
+async function loadMessages() {
+    try {
+        const q = new URLSearchParams();
+        if (folder.value)
+            q.set("folder", folder.value);
+        if (search.value)
+            q.set("search", search.value);
+        const r = await props.api.request(`/mail/me/messages?${q}`);
+        messages.value = r.items || [];
     }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = item.filename || `anexo-${index + 1}`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    catch (e) {
+        emit("error", problem(e));
+    }
 }
-catch (e) {
-    emit("error", problem(e));
-} }
+async function openMessage(row) {
+    try {
+        detail.value = await props.api.request(`/mail/me/messages/${row.id}`);
+        const flags = Array.isArray(row.flags) ? row.flags : [];
+        if (!flags.includes("\\Seen")) {
+            await setSeen(true, false);
+        }
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+}
+async function setSeen(seen, reload = true) {
+    if (!detail.value?.metadata?.id)
+        return;
+    try {
+        await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/seen`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ seen }),
+        });
+        notice.value = seen
+            ? "Mensagem marcada como lida."
+            : "Mensagem marcada como não lida.";
+        if (reload)
+            await load();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+}
+async function moveMessage(destination) {
+    if (!detail.value?.metadata?.id)
+        return;
+    const target = destination || moveTarget.value;
+    if (!target)
+        return;
+    busy.value = true;
+    try {
+        await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/move`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ destination_folder: target }),
+        });
+        notice.value = `Mensagem movida para ${target}.`;
+        detail.value = null;
+        await load();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
+    }
+}
+async function trash() {
+    if (!detail.value?.metadata?.id)
+        return;
+    busy.value = true;
+    try {
+        await props.api.request(`/mail/me/messages/${detail.value.metadata.id}/trash`, { method: "POST" });
+        notice.value = "Mensagem movida para a lixeira.";
+        detail.value = null;
+        await load();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
+    }
+}
+function beginReply(all = false) {
+    if (!detail.value)
+        return;
+    const m = detail.value.metadata || {};
+    const sender = JSON.parse(m.sender_json || "{}");
+    composeMode.value = "reply";
+    sourceMessageId.value = m.id;
+    replyAll.value = all;
+    compose.value = {
+        to: sender.email || "",
+        cc: "",
+        bcc: "",
+        subject: m.subject || "",
+        body_text: "",
+    };
+}
+function beginForward() {
+    if (!detail.value)
+        return;
+    const m = detail.value.metadata || {};
+    composeMode.value = "forward";
+    sourceMessageId.value = m.id;
+    replyAll.value = false;
+    compose.value = {
+        to: "",
+        cc: "",
+        bcc: "",
+        subject: m.subject || "",
+        body_text: "",
+    };
+}
+async function send() {
+    busy.value = true;
+    try {
+        const key = `mail-${crypto.randomUUID()}`;
+        if (composeMode.value === "reply" && sourceMessageId.value) {
+            await props.api.request(`/mail/me/messages/${sourceMessageId.value}/reply`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Idempotency-Key": key,
+                },
+                body: JSON.stringify({
+                    body_text: compose.value.body_text,
+                    reply_all: replyAll.value,
+                }),
+            });
+        }
+        else if (composeMode.value === "forward" && sourceMessageId.value) {
+            await props.api.request(`/mail/me/messages/${sourceMessageId.value}/forward`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Idempotency-Key": key,
+                },
+                body: JSON.stringify({
+                    to: emails(compose.value.to),
+                    cc: emails(compose.value.cc),
+                    bcc: emails(compose.value.bcc),
+                    subject: compose.value.subject,
+                    body_text: compose.value.body_text,
+                }),
+            });
+        }
+        else {
+            await props.api.request("/mail/me/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Idempotency-Key": key },
+                body: JSON.stringify({
+                    to: emails(compose.value.to),
+                    cc: emails(compose.value.cc),
+                    bcc: emails(compose.value.bcc),
+                    subject: compose.value.subject,
+                    body_text: compose.value.body_text,
+                }),
+            });
+        }
+        notice.value = "Mensagem enviada.";
+        resetCompose();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
+    }
+}
+async function saveDraft() {
+    busy.value = true;
+    try {
+        await props.api.request("/mail/me/drafts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                to: emails(compose.value.to),
+                cc: emails(compose.value.cc),
+                bcc: emails(compose.value.bcc),
+                subject: compose.value.subject,
+                body_text: compose.value.body_text,
+            }),
+        });
+        notice.value = "Rascunho salvo.";
+        await loadDrafts();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
+    }
+}
+async function loadDrafts() {
+    try {
+        const r = await props.api.request("/mail/me/drafts");
+        drafts.value = r.items || [];
+    }
+    catch {
+        drafts.value = [];
+    }
+}
+async function sendDraft(row) {
+    busy.value = true;
+    try {
+        await props.api.request(`/mail/me/drafts/${row.id}/send`, {
+            method: "POST",
+            headers: { "Idempotency-Key": `draft-${row.id}-${row.version}` },
+        });
+        notice.value = "Rascunho enviado.";
+        await loadDrafts();
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+    finally {
+        busy.value = false;
+    }
+}
+async function downloadAttachment(index, item) {
+    if (!detail.value?.metadata?.id)
+        return;
+    try {
+        const response = await props.api.response(`/mail/me/messages/${detail.value.metadata.id}/attachments/${index}`, { headers: { Accept: item.content_type || "application/octet-stream" } });
+        const blob = await response.blob();
+        const expected = response.headers.get("x-content-sha256");
+        if (expected && crypto.subtle) {
+            const digest = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", await blob.arrayBuffer())))
+                .map((v) => v.toString(16).padStart(2, "0"))
+                .join("");
+            if (digest !== expected)
+                throw new Error("Integridade SHA-256 do anexo inválida");
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = item.filename || `anexo-${index + 1}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    catch (e) {
+        emit("error", problem(e));
+    }
+}
 onMounted(load);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -199,7 +336,9 @@ function __VLS_template() {
     if (__VLS_ctx.status) {
         __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
         (__VLS_ctx.status.account?.email);
-        (__VLS_ctx.status.account?.last_sync_at ? new Date(__VLS_ctx.status.account.last_sync_at).toLocaleString('pt-BR') : 'ainda não sincronizado');
+        (__VLS_ctx.status.account?.last_sync_at
+            ? new Date(__VLS_ctx.status.account.last_sync_at).toLocaleString("pt-BR")
+            : "ainda não sincronizado");
     }
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
         ...{ class: ("mail-actions") },
@@ -235,6 +374,7 @@ function __VLS_template() {
                         __VLS_ctx.folder = f.remote_name;
                         __VLS_ctx.detail = null;
                         __VLS_ctx.loadMessages();
+                        ;
                     } },
                 key: ((f.id)),
                 ...{ class: (({ active: __VLS_ctx.folder === f.remote_name })) },
@@ -253,7 +393,7 @@ function __VLS_template() {
                 key: ((d.id)),
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (d.subject || '(sem assunto)');
+            (d.subject || "(sem assunto)");
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
             (d.version);
             __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
@@ -290,13 +430,15 @@ function __VLS_template() {
             });
             __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({});
             __VLS_elementAsFunction(__VLS_intrinsicElements.strong, __VLS_intrinsicElements.strong)({});
-            (m.sender?.name || m.sender?.email || 'Remetente');
+            (m.sender?.name || m.sender?.email || "Remetente");
             __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
-            (m.subject || '(sem assunto)');
+            (m.subject || "(sem assunto)");
             __VLS_elementAsFunction(__VLS_intrinsicElements.em, __VLS_intrinsicElements.em)({});
             (m.preview);
             __VLS_elementAsFunction(__VLS_intrinsicElements.time, __VLS_intrinsicElements.time)({});
-            (m.received_at ? new Date(m.received_at).toLocaleString('pt-BR') : '');
+            (m.received_at
+                ? new Date(m.received_at).toLocaleString("pt-BR")
+                : "");
         }
         if (!__VLS_ctx.messages.length) {
             __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
@@ -401,13 +543,17 @@ function __VLS_template() {
             ...{ class: ("panel mail-compose") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.h3, __VLS_intrinsicElements.h3)({});
-        (__VLS_ctx.composeMode === 'reply' ? 'Responder' : __VLS_ctx.composeMode === 'forward' ? 'Encaminhar' : 'Nova mensagem');
+        (__VLS_ctx.composeMode === "reply"
+            ? "Responder"
+            : __VLS_ctx.composeMode === "forward"
+                ? "Encaminhar"
+                : "Nova mensagem");
         if (__VLS_ctx.composeMode !== 'new') {
             __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
                 ...{ onClick: (__VLS_ctx.resetCompose) },
                 type: ("button"),
             });
-            (__VLS_ctx.composeMode === 'reply' ? 'resposta' : 'encaminhamento');
+            (__VLS_ctx.composeMode === "reply" ? "resposta" : "encaminhamento");
         }
         __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.input)({

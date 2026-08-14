@@ -8,72 +8,115 @@ const payrollRuns = ref([]);
 const selected = ref("");
 const format = ref("pdf");
 const parameters = reactive({});
-const current = computed(() => catalog.value.find(x => x.code === selected.value));
+const current = computed(() => catalog.value.find((x) => x.code === selected.value));
 const required = computed(() => current.value?.required_parameters || []);
-function message(e) { return e instanceof Error ? e.message : "Falha ao processar relatório"; }
-function dateBR(v) { if (!v)
-    return "—"; try {
-    return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(String(v)));
+function message(e) {
+    return e instanceof Error ? e.message : "Falha ao processar relatório";
 }
-catch {
-    return String(v);
-} }
-function select(code) { selected.value = code; const item = catalog.value.find(x => x.code === code); format.value = item?.formats[0] || "pdf"; for (const key of Object.keys(parameters))
-    delete parameters[key]; }
-async function load() { loading.value = true; try {
-    const [c, r, p] = await Promise.all([props.api.request("/reports/catalog"), props.api.request("/reports/runs"), props.api.request("/payroll/runs").catch(() => ({ items: [] }))]);
-    catalog.value = c.items || [];
-    runs.value = r.items || [];
-    payrollRuns.value = p.items || [];
-    if (!selected.value && catalog.value[0])
-        select(catalog.value[0].code);
-}
-catch (e) {
-    emit("error", message(e));
-}
-finally {
-    loading.value = false;
-} }
-async function run() { if (!current.value)
-    return; loading.value = true; try {
-    const clean = {};
-    for (const key of required.value) {
-        if (parameters[key])
-            clean[key] = parameters[key];
+function dateBR(v) {
+    if (!v)
+        return "—";
+    try {
+        return new Intl.DateTimeFormat("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short",
+        }).format(new Date(String(v)));
     }
-    await props.api.request("/reports/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ report_code: selected.value, format: format.value, parameters: clean }) });
-    await load();
+    catch {
+        return String(v);
+    }
 }
-catch (e) {
-    emit("error", message(e));
+function select(code) {
+    selected.value = code;
+    const item = catalog.value.find((x) => x.code === code);
+    format.value = item?.formats[0] || "pdf";
+    for (const key of Object.keys(parameters))
+        delete parameters[key];
 }
-finally {
-    loading.value = false;
-} }
-async function sha256(data) { const digest = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, "0")).join(""); }
-async function download(row) { loading.value = true; try {
-    const response = await props.api.response(`/reports/runs/${row.id}/download`);
-    const data = await response.arrayBuffer();
-    const expected = (response.headers.get("x-content-sha256") || "").toLowerCase();
-    const actual = await sha256(data);
-    if (expected && actual !== expected)
-        throw new Error("Integridade do relatório inválida: SHA-256 divergente.");
-    const blob = new Blob([data], { type: response.headers.get("content-type") || "application/octet-stream" });
-    const disposition = response.headers.get("content-disposition") || "";
-    const name = /filename="?([^";]+)"?/i.exec(disposition)?.[1] || `${row.report_code}.${row.format}`;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
+async function load() {
+    loading.value = true;
+    try {
+        const [c, r, p] = await Promise.all([
+            props.api.request("/reports/catalog"),
+            props.api.request("/reports/runs"),
+            props.api.request("/payroll/runs").catch(() => ({ items: [] })),
+        ]);
+        catalog.value = c.items || [];
+        runs.value = r.items || [];
+        payrollRuns.value = p.items || [];
+        if (!selected.value && catalog.value[0])
+            select(catalog.value[0].code);
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-catch (e) {
-    emit("error", message(e));
+async function run() {
+    if (!current.value)
+        return;
+    loading.value = true;
+    try {
+        const clean = {};
+        for (const key of required.value) {
+            if (parameters[key])
+                clean[key] = parameters[key];
+        }
+        await props.api.request("/reports/runs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                report_code: selected.value,
+                format: format.value,
+                parameters: clean,
+            }),
+        });
+        await load();
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        loading.value = false;
+    }
 }
-finally {
-    loading.value = false;
-} }
+async function sha256(data) {
+    const digest = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(digest)]
+        .map((x) => x.toString(16).padStart(2, "0"))
+        .join("");
+}
+async function download(row) {
+    loading.value = true;
+    try {
+        const response = await props.api.response(`/reports/runs/${row.id}/download`);
+        const data = await response.arrayBuffer();
+        const expected = (response.headers.get("x-content-sha256") || "").toLowerCase();
+        const actual = await sha256(data);
+        if (expected && actual !== expected)
+            throw new Error("Integridade do relatório inválida: SHA-256 divergente.");
+        const blob = new Blob([data], {
+            type: response.headers.get("content-type") || "application/octet-stream",
+        });
+        const disposition = response.headers.get("content-disposition") || "";
+        const name = /filename="?([^";]+)"?/i.exec(disposition)?.[1] ||
+            `${row.report_code}.${row.format}`;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    catch (e) {
+        emit("error", message(e));
+    }
+    finally {
+        loading.value = false;
+    }
+}
 onMounted(load);
 ; /* PartiallyEnd: #3632/scriptSetup.vue */
 function __VLS_template() {
@@ -123,7 +166,7 @@ function __VLS_template() {
     });
     __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
-    (__VLS_ctx.current?.title || 'Relatório');
+    (__VLS_ctx.current?.title || "Relatório");
     __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
     (__VLS_ctx.current?.description);
     __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
@@ -171,7 +214,7 @@ function __VLS_template() {
         ...{ class: ("primary") },
         disabled: ((__VLS_ctx.loading || !__VLS_ctx.current)),
     });
-    (__VLS_ctx.loading ? 'Processando…' : 'Gerar relatório');
+    (__VLS_ctx.loading ? "Processando…" : "Gerar relatório");
     __VLS_elementAsFunction(__VLS_intrinsicElements.small, __VLS_intrinsicElements.small)({});
     __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
         ...{ class: ("panel") },
@@ -199,15 +242,20 @@ function __VLS_template() {
             key: ((r.id)),
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-        (__VLS_ctx.catalog.find(x => x.code === r.report_code)?.title || r.report_code);
+        (__VLS_ctx.catalog.find((x) => x.code === r.report_code)
+            ?.title || r.report_code);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         (String(r.format).toUpperCase());
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
-        (r.rows_count ?? '—');
+        (r.rows_count ?? "—");
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
             ...{ class: ("pill") },
-            ...{ class: ((r.state === 'completed' ? 'ok' : r.state === 'failed' ? 'danger' : 'warn')) },
+            ...{ class: ((r.state === 'completed'
+                    ? 'ok'
+                    : r.state === 'failed'
+                        ? 'danger'
+                        : 'warn')) },
         });
         (r.state);
         __VLS_elementAsFunction(__VLS_intrinsicElements.td, __VLS_intrinsicElements.td)({});

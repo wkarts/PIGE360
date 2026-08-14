@@ -22,11 +22,32 @@ from app.shared.security.auth import CurrentUser, current_user
 router = APIRouter(tags=["inventory"])
 
 
+SchoolCatalogCategory = Literal[
+    "general",
+    "school_uniform",
+    "textbook",
+    "handout",
+    "learning_module",
+    "educational_material",
+    "school_kit",
+    "event_ticket",
+    "event",
+]
+
+_LEGACY_PRODUCT_TYPE_CATEGORY: dict[str, SchoolCatalogCategory] = {
+    "uniform": "school_uniform",
+    "book": "textbook",
+    "material": "educational_material",
+    "kit": "school_kit",
+}
+
+
 class ProductInput(BaseModel):
     sku: str
     barcode: str | None = None
     name: str
     product_type: Literal["product", "food", "uniform", "book", "material", "kit"] = "product"
+    school_catalog_category: SchoolCatalogCategory | None = None
     ncm: str | None = None
     cest: str | None = None
     unit: str = "UN"
@@ -48,6 +69,7 @@ class StockAdjustment(BaseModel):
 def list_products(
     request: Request,
     q: str | None = None,
+    school_catalog_category: SchoolCatalogCategory | None = None,
     user: CurrentUser = Depends(current_user),
 ):
     require(user, SALES_ROLES | {"finance_manager", "finance_operator"})
@@ -63,6 +85,9 @@ def list_products(
         sql += " AND (p.name LIKE ? OR p.sku LIKE ? OR p.barcode LIKE ?)"
         term = f"%{q}%"
         params.extend([term, term, term])
+    if school_catalog_category:
+        sql += " AND p.school_catalog_category=?"
+        params.append(school_catalog_category)
     sql += " ORDER BY p.name"
     return {"items": request.state.store.fetch_all(sql, params)}
 
@@ -77,19 +102,25 @@ def create_product(
     tenant_id = tenant(user)
     product_id = uuid7()
     now = iso_now()
+    school_catalog_category = (
+        data.school_catalog_category
+        or _LEGACY_PRODUCT_TYPE_CATEGORY.get(data.product_type, "general")
+    )
     result = {
         "id": product_id,
         "sku": data.sku,
         "barcode": data.barcode,
         "name": data.name,
+        "product_type": data.product_type,
+        "school_catalog_category": school_catalog_category,
         "sale_price": money_str(data.sale_price),
         "state": "active",
     }
     with request.state.store.transaction() as conn:
         conn.execute(
-            "INSERT INTO products(id,tenant_id,sku,barcode,name,product_type,ncm,cest,unit,cost,sale_price,"
+            "INSERT INTO products(id,tenant_id,sku,barcode,name,product_type,school_catalog_category,ncm,cest,unit,cost,sale_price,"
             "fiscal_profile_json,allergen_json,restriction_json,state,created_at,updated_at) "
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (
                 product_id,
                 tenant_id,
@@ -97,6 +128,7 @@ def create_product(
                 data.barcode,
                 data.name,
                 data.product_type,
+                school_catalog_category,
                 data.ncm,
                 data.cest,
                 data.unit,
