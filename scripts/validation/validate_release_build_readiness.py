@@ -69,9 +69,12 @@ def main() -> int:
         failures.append("build iOS não converte a versão alpha para CFBundleShortVersionString numérico")
     if 'version="$(tr -d' not in ios:
         failures.append("build iOS não deriva a versão canônica de VERSION")
+    for required in ("tauri ios init --ci", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS"):
+        if required not in ios:
+            failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
     android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    for required in ("tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Esperados 7 APKs", "Esperados 7 AABs"):
+    for required in ("NDK_HOME", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "Esperados 7 APKs", "Esperados 7 AABs"):
         if required not in android:
             failures.append(f"build Android sem regeneração/contagem verificável: {required}")
 
@@ -93,7 +96,7 @@ def main() -> int:
             failures.append(f"workflow manual desktop sem requisito nativo: {required}")
 
     android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "android-actions/setup-android@v3", "aarch64-linux-android"):
+    for required in ("pull_request:", "android-actions/setup-android@v3", "ndk_version='27.3.13750724'", "NDK_HOME", "aarch64-linux-android"):
         if required not in android_workflow:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 

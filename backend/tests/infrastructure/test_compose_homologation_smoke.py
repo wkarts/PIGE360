@@ -135,13 +135,20 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
 
     assert "*.ipa" in ios
     assert "Esperadas 5 IPAs unsigned" in ios
+    assert "tauri ios init --ci" in ios
+    assert "Falha ao gerar o projeto iOS" in ios
     assert "tauri android init --ci --skip-targets-install" in android
+    assert "NDK_HOME" in android
+    assert "Falha ao gerar o projeto Android" in android
     assert "Esperados 7 APKs" in android
     assert "Esperados 7 AABs" in android
     for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
         workflow = yaml.safe_load((ROOT / ".github/workflows" / workflow_name).read_text(encoding="utf-8"))
         triggers = workflow.get("on", workflow.get(True, {}))
         assert "pull_request" in triggers
+    android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
+    assert "ndk_version='27.3.13750724'" in android_workflow
+    assert "ANDROID_NDK_HOME" in android_workflow
     for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
         assert extension in publisher
     assert "versões publicadas são imutáveis" in publisher

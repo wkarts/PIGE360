@@ -2,6 +2,8 @@
 set -eu
 command -v cargo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Rust ausente.' >&2; exit 3; }
 [ -n "${ANDROID_HOME:-}" ] || { echo 'SKIPPED_NOT_CONFIGURED: ANDROID_HOME ausente.' >&2; exit 3; }
+[ -n "${NDK_HOME:-}" ] || { echo 'SKIPPED_NOT_CONFIGURED: NDK_HOME ausente.' >&2; exit 3; }
+[ -d "$NDK_HOME" ] || { echo "SKIPPED_NOT_CONFIGURED: NDK_HOME inválido: $NDK_HOME" >&2; exit 3; }
 bash scripts/frontend/install-dependencies.sh
 mkdir -p release/artifacts/android
 for app in family-app teacher-app student-app admin-app pos-app kiosk-app timeclock-app; do
@@ -15,6 +17,10 @@ for app in family-app teacher-app student-app admin-app pos-app kiosk-app timecl
     if [ ! -d src-tauri/gen/android/app ]; then
       npx --no-install tauri android init --ci --skip-targets-install
     fi
+    [ -d src-tauri/gen/android/app ] || {
+      echo "Falha ao gerar o projeto Android para $app." >&2
+      exit 4
+    }
     npx --no-install tauri android build --apk
     npx --no-install tauri android build --aab
   )

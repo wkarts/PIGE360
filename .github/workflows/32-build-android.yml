@@ -31,6 +31,17 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - uses: android-actions/setup-android@v3
+      - name: Fixar e expor Android NDK para o Tauri
+        shell: bash
+        run: |
+          ndk_version='27.3.13750724'
+          ndk_home="$ANDROID_HOME/ndk/$ndk_version"
+          if [ ! -d "$ndk_home" ]; then
+            sdkmanager --install "ndk;$ndk_version"
+          fi
+          test -d "$ndk_home"
+          printf 'NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
+          printf 'ANDROID_NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
