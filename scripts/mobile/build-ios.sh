@@ -2,6 +2,10 @@
 set -eu
 command -v xcodebuild >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Xcode ausente.' >&2; exit 3; }
 command -v cargo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Rust ausente.' >&2; exit 3; }
+[ -n "${APPLE_DEVELOPMENT_TEAM:-}" ] || {
+  echo 'CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM como variável ou segredo do repositório para gerar IPAs iOS.' >&2
+  exit 3
+}
 bash scripts/frontend/install-dependencies.sh
 mkdir -p release/artifacts/ios
 version="$(tr -d '[:space:]' < VERSION)"

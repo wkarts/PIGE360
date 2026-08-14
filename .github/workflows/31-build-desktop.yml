@@ -51,7 +51,7 @@ jobs:
             throw "Strawberry Perl não disponível para a compilação vendorizada do OpenSSL."
           }
           & $perl -MLocale::Maketext::Simple -e 1
-          (Split-Path $perl -Parent) | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "PIGE360_STRAWBERRY_PERL=$perl" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Instalar bibliotecas nativas do Tauri no Linux
         if: runner.os == 'Linux'
         run: |

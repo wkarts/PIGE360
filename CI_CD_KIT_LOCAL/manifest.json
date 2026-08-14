@@ -44,8 +44,8 @@
     },
     {
       "path": "workflows/31-build-desktop.yml",
-      "sha256": "53cbe10e33c7b1310a87dc756b3cfd8ab4fbcdf4553bf799197481a446b89426",
-      "bytes": 2253
+      "sha256": "d3a44d745b9ceaecf390cd688cbc04b21cd9696a57297112fe570f154341cd4d",
+      "bytes": 2257
     },
     {
       "path": "workflows/32-build-android.yml",
@@ -54,8 +54,8 @@
     },
     {
       "path": "workflows/33-build-ios.yml",
-      "sha256": "1ffb0857225c899d6baf119ec6c63c7c6ff2fda3e45dc6f0095f9d9e83c801e1",
-      "bytes": 1563
+      "sha256": "a661888e64a56107795ef350f85327af4e47266af6b8f766ac38b476c379000f",
+      "bytes": 1594
     },
     {
       "path": "workflows/34-build-tenant-apps.yml",
@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "29a1beccd721d5962e8e218f81e91a4e25d6b988909df74a127c071e3dda0d2a",
-      "bytes": 12120
+      "sha256": "9d20090c571f11e49416ba36b999428983cd02194bd6357f6f809fbb1dcec659",
+      "bytes": 12155
     },
     {
       "path": "workflows/60-deploy-saas.yml",

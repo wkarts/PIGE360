@@ -96,7 +96,7 @@ def main() -> int:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
     android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    for required in ("NDK_HOME", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "Esperados 7 APKs", "Esperados 7 AABs"):
+    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "Esperados 7 APKs", "Esperados 7 AABs"):
         if required not in android:
             failures.append(f"build Android sem regeneração/contagem verificável: {required}")
 
@@ -104,16 +104,19 @@ def main() -> int:
     for required in (
         "Strawberry\\perl\\bin\\perl.exe",
         "Locale::Maketext::Simple",
+        "PIGE360_STRAWBERRY_PERL",
+        "GITHUB_ENV",
         "choco install strawberryperl",
         "publishable: ${{ steps.release_version.outputs.publishable }}",
         'gh release view "$tag" --repo "$GITHUB_REPOSITORY"',
         "needs.version.outputs.publishable == 'true'",
+        "vars.APPLE_DEVELOPMENT_TEAM",
     ):
         if required not in release_workflow:
             failures.append(f"workflow desktop Windows sem preparação verificável para OpenSSL: {required}")
 
     desktop_workflow = (ROOT / ".github/workflows/31-build-desktop.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "Locale::Maketext::Simple", "libwebkit2gtk-4.1-dev"):
+    for required in ("pull_request:", "Locale::Maketext::Simple", "PIGE360_STRAWBERRY_PERL", "libwebkit2gtk-4.1-dev"):
         if required not in desktop_workflow:
             failures.append(f"workflow manual desktop sem requisito nativo: {required}")
 
@@ -123,9 +126,11 @@ def main() -> int:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 
     ios_workflow = (ROOT / ".github/workflows/33-build-ios.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "APPLE_DEVELOPMENT_TEAM"):
+    for required in ("pull_request:", "vars.APPLE_DEVELOPMENT_TEAM", "APPLE_DEVELOPMENT_TEAM"):
         if required not in ios_workflow:
             failures.append(f"workflow iOS sem requisito de compilação verificável: {required}")
+    if "CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM" not in ios:
+        failures.append("build iOS não informa a configuração de equipe Apple ausente")
 
     package_local = (ROOT / "scripts/release/package_local.py").read_text(encoding="utf-8")
     if "generate_evidence_pdf.py" not in package_local or "relatório de evidências ausente" not in package_local:
