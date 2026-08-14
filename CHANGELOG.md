@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — checkpoint 0047 (2026-08-14)
+## [Unreleased] — checkpoint 0048 (2026-08-14)
 
 ### Catálogo comercial escolar
 
@@ -19,6 +19,9 @@
   substituindo a variável `_FILE` não suportada pela imagem atual; seu health
   check recebeu janela de inicialização de 45 segundos e diagnóstico persistente
   do smoke Compose para impedir falhas opacas no GitHub Actions.
+- o container web inicia o Nginx diretamente em modo não privilegiado, sem os
+  scripts da imagem base que tentavam alterar `default.conf`; a configuração é
+  verificada no build e o diagnóstico do smoke agora inclui web e RabbitMQ.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 
