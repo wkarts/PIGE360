@@ -1,12 +1,12 @@
 {
   "format": "pige360-workspace-portable-checkpoint",
   "format_version": 1,
-  "created_at": "2026-08-14T07:25:51Z",
+  "created_at": "2026-08-14T07:51:02Z",
   "workspace_version": "1.0.0-alpha.1",
   "source_root": "local-workspace",
   "deterministic_zip_timestamp": "1980-01-01T00:00:00Z",
-  "files_count": 2849,
-  "uncompressed_bytes": 79979885,
+  "files_count": 2850,
+  "uncompressed_bytes": 79983609,
   "exclusions": {
     "prefixes": [
       ".recovery/",
@@ -141,8 +141,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "size": 4053,
-      "sha256": "e5c43cfb20c381f3a77d98fb1276baa1d10bbfd8b9eba6de1acab4b6a07c05a7"
+      "size": 4291,
+      "sha256": "5f6891a8c15829a6e04399f57a1fdb91a554b04ba360a0bfa19332896d28eaa6"
     },
     {
       "path": "CI_CD_KIT_LOCAL/README.md",
@@ -9836,8 +9836,8 @@
     },
     {
       "path": "backend/tests/infrastructure/test_compose_homologation_smoke.py",
-      "size": 3366,
-      "sha256": "a12e4b918f5b76d5985d95522c0240940ae4658d5a5be05aa5b7b3d4f6017bdd"
+      "size": 3606,
+      "sha256": "ffb05d8a49d4c51a25f372ed15e1547af5516ef8ae2747622566552baf3e6331"
     },
     {
       "path": "backend/tests/infrastructure/test_production_dependency_locks.py",
@@ -10121,8 +10121,8 @@
     },
     {
       "path": "docs/ci-cd/ALPHA_TEST_RELEASE.md",
-      "size": 5423,
-      "sha256": "584d2a3190a03f775a0fa99841376862a964e7814a52701e51cf3e2b9a5b43bd"
+      "size": 5607,
+      "sha256": "fff2f242535961af27ae49ddd328dfb31e35c69cb1aa26a64f2c6ede1d5c13b5"
     },
     {
       "path": "docs/ci-cd/README.md",
@@ -12635,6 +12635,11 @@
       "sha256": "d18afb31db9bbe79ddfc9de573e72e316974f36c03b7e7a2c1a1f9ce93f1001c"
     },
     {
+      "path": "docs/execution/evidence/web-nginx-entrypoint-0048.json",
+      "size": 2738,
+      "sha256": "86e9fae691be6897713cdaf92eb9a8020b05d5f742a2dc4f6cad97bc891cce15"
+    },
+    {
       "path": "docs/execution/evidence/workspace-checkpoint-build-r000016.json",
       "size": 541,
       "sha256": "0d84ebd6bb5c9e820a182a4dd0a114e3954eef7a322122f4955a2baa3037ccad"
@@ -12901,8 +12906,8 @@
     },
     {
       "path": "infra/docker/Dockerfile.web",
-      "size": 1704,
-      "sha256": "36e22e543b8a414857709239f667ad2053bcc86853d7a427c729d5863c63a6ee"
+      "size": 2008,
+      "sha256": "562ac3cf10616aec2cfbcb446c5ece5b65344ef10adfd0108fdca73445065f68"
     },
     {
       "path": "infra/docker/Dockerfile.worker",
@@ -14026,8 +14031,8 @@
     },
     {
       "path": "scripts/ci/smoke-compose-homologation.sh",
-      "size": 4554,
-      "sha256": "27c51f00cc699d96d13902d556bf09eb26471b087e0c8bffb246997e575caf00"
+      "size": 4574,
+      "sha256": "53ba263a1f90bac15bbdedb5dbb28d6f04fc0ccd8011b3b1f4d6ae4316f7fa25"
     },
     {
       "path": "scripts/deploy/deploy-saas-ssh.sh",

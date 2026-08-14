@@ -34,8 +34,8 @@ capture_startup_failure() {
     echo "Compose smoke startup diagnostics (sanitized)"
     docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml ps --all
     echo
-    echo "RabbitMQ logs"
-    docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml logs --no-color --timestamps pige360-rabbitmq
+    echo "Web and RabbitMQ logs"
+    docker compose -p "$project_name" -f compose.yaml -f infra/compose/compose.homologation-smoke.yaml logs --no-color --timestamps pige360-web pige360-rabbitmq
   } | tee "$output_dir/compose-startup-diagnostics.log" >&2
 }
 
