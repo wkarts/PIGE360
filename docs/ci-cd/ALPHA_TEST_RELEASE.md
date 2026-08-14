@@ -91,9 +91,11 @@ workflow coleta o estado dos containers e os logs sanitizados de web e RabbitMQ
 em `compose-startup-diagnostics.log`; o artefato do workflow 20 também é
 enviado em caso de erro. A imagem web valida a configuração do Nginx no build,
 inicia sem os scripts mutáveis da imagem base e declara explicitamente o
-comando `nginx -g "daemon off;"`, compatível com UID não privilegiado e root
-filesystem somente leitura. Os health checks de web e API, logs e manifesto do
-smoke test ficam no artefato do job.
+comando `nginx -g "daemon off;"`. Os diretórios transitórios `/var/cache/nginx`
+e `/var/run` são `tmpfs` de UID/GID 10001, de forma que `client_temp` e o PID
+possam ser criados sem abrir mão do UID não privilegiado e do root filesystem
+somente leitura. Os health checks de web e API, logs e manifesto do smoke test
+ficam no artefato do job.
 
 ## Critérios antes de produção
 
