@@ -1,1 +1,1 @@
-export const appContract = { name: "pos-app", version: "1.0.0-alpha.1", surface: "tenant", title: "PDV e Cantina", remotePublishingEnabled: false } as const;
+export const appContract = { name: "pos-app", version: "1.0.0-alpha.2", surface: "tenant", title: "PDV e Cantina", remotePublishingEnabled: false } as const;

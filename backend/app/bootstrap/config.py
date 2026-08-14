@@ -23,7 +23,7 @@ def _secret(env_name: str, file_env_name: str, default: str = "") -> str:
 class Settings:
     app_name: str = "PIGE360"
     app_full_name: str = "PIGE360 — Plataforma Integrada de Gestão Educacional"
-    version: str = "1.0.0-alpha.1"
+    version: str = "1.0.0-alpha.2"
     environment: str = "development"
     demo_mode: bool = False
     data_root: Path = Path("runtime-data")
@@ -106,7 +106,7 @@ class Settings:
         ).split(",") if x.strip())
         origins = tuple(x.strip() for x in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if x.strip())
         return cls(
-            version=os.getenv("APP_VERSION", "1.0.0-alpha.1"),
+            version=os.getenv("APP_VERSION", "1.0.0-alpha.2"),
             environment=environment,
             demo_mode=_bool("APP_DEMO_MODE"),
             data_root=data_root,

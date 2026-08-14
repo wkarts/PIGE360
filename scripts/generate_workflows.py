@@ -58,7 +58,7 @@ def main() -> None:
         shutil.copy2(src, dst)
     (KIT / "README.md").write_text(
         "# CI_CD_KIT_LOCAL\n\n"
-        "Espelho verificável dos workflows canônicos. Publicação e deploy remoto continuam desabilitados por padrão e exigem flags + segredos explícitos.\n",
+        "Espelho verificável dos workflows canônicos. O workflow `50` cria uma GitHub Release somente quando `VERSION` é promovida na `main` e todos os gates passam; deploy remoto, registro de imagens, assinatura e publicação em lojas continuam desabilitados por padrão e exigem flags + segredos explícitos.\n",
         encoding="utf-8",
     )
     files = []

@@ -1,4 +1,4 @@
-# Pré-lançamento `1.0.0-alpha.1`
+# Pré-lançamento `1.0.0-alpha.2`
 
 ## Finalidade
 
@@ -13,6 +13,9 @@ desabilitadas até validação específica.
 O workflow de pré-lançamento sempre anexa os relatórios de validação. Imagens
 executáveis e ZIPs reproduzíveis só são gerados quando todos os gates passam;
 em caso de falha, o job termina reprovado e preserva a evidência para correção.
+A promoção de `VERSION` na `main` é a única condição automática para criar uma
+GitHub Release com tag imutável; uma nova publicação exige um novo número de
+versão.
 
 ## Fluxos no GitHub
 
@@ -20,11 +23,12 @@ em caso de falha, o job termina reprovado e preserva a evidência para correçã
 | --- | --- | --- |
 | `10 · Imagens base Docker` | alteração de bases/Docker ou execução manual | quatro imagens base exportadas em TAR, com inspeção e checksum. |
 | `20 · Imagens Docker de aplicação` | alteração de backend, frontend, Docker, Compose ou pacote | bases + API, web, worker, migrations e reporting em TAR, seguidos de smoke test do Compose. |
-| `50 · Pré-lançamento Alpha` | execução manual | testes, contratos, imagens Docker, smoke test do Compose e pacote ZIP reproduzível como artefatos. |
+| `50 · Pré-lançamento Alpha` | mudança em `VERSION` já integrada na `main`, ou execução manual na `main` | testes, contratos, imagens Docker, smoke Compose, 13 PWAs, desktop, Android, iOS unsigned, pacotes e GitHub Release. |
 
-Os workflows somente constroem e disponibilizam artefatos do GitHub Actions.
-Eles não publicam imagens em registro, não fazem deploy e não criam release
-remota automaticamente.
+O workflow `50` cria a release remota somente após os gates e os builds de
+aplicação concluírem. Ele não publica imagens em registro, não faz deploy SaaS,
+não envia aplicativos a lojas e não assina APK/AAB/IPA; esses fluxos continuam
+opt-in e dependentes de credenciais específicas.
 
 ## Estado do candidato neste checkpoint
 
@@ -46,21 +50,21 @@ limpa em Python 3.13 exigida pelo workflow.
 O host local não possui Python 3.13 nem Docker/Compose. Por isso a suíte backend
 no interpretador-alvo, as imagens OCI executáveis e o smoke test do Compose não
 foram declarados aprovados localmente. Os workflows `20` e `50` executam esses
-gates em runner Ubuntu com Docker, e só geram artefato de pré-lançamento após
-todas as etapas passarem.
+gates em runner Ubuntu com Docker, e o workflow `50` só cria a GitHub Release
+depois de todas as etapas passarem.
 
 ## Imagens construídas no workflow
 
 ```text
-pige360-base-python:1.0.0-alpha.1
-pige360-base-node:1.0.0-alpha.1
-pige360-base-runtime:1.0.0-alpha.1
-pige360-base-rust-tauri:1.0.0-alpha.1
-pige360-api:1.0.0-alpha.1
-pige360-web:1.0.0-alpha.1
-pige360-worker:1.0.0-alpha.1
-pige360-migrations:1.0.0-alpha.1
-pige360-reporting:1.0.0-alpha.1
+pige360-base-python:1.0.0-alpha.2
+pige360-base-node:1.0.0-alpha.2
+pige360-base-runtime:1.0.0-alpha.2
+pige360-base-rust-tauri:1.0.0-alpha.2
+pige360-api:1.0.0-alpha.2
+pige360-web:1.0.0-alpha.2
+pige360-worker:1.0.0-alpha.2
+pige360-migrations:1.0.0-alpha.2
+pige360-reporting:1.0.0-alpha.2
 ```
 
 Cada imagem é exportada como arquivo TAR acompanhado de SHA-256 e metadados de

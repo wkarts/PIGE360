@@ -12,4 +12,8 @@ Quando a entrada `sign` estiver ativada, o workflow aceita `APPLE_SIGNING_CERTIF
 
 ## Limites desta configuração
 
-Esses workflows não publicam em lojas. Eles apenas processam artefatos locais do workflow e fazem upload dos artefatos da execução para consulta. Release, deploy remoto, registro de imagens e publicação em lojas permanecem desabilitados até uma etapa explícita e autorizada.
+Esses workflows não publicam em lojas. Eles processam artefatos locais e fazem
+upload para consulta; o workflow `50` pode anexar os binários **unsigned** a
+uma GitHub Release após a promoção de versão. Deploy remoto, registro de
+imagens, assinatura e publicação em lojas permanecem desabilitados até etapa
+explícita e autorizada.

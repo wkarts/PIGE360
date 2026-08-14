@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — checkpoint 0050 (2026-08-14)
+## [1.0.0-alpha.2] — checkpoint 0051 (2026-08-14)
 
 ### Catálogo comercial escolar
 
@@ -28,6 +28,15 @@
 - todos os serviços web em Compose agora montam `/var/cache/nginx` e `/var/run`
   como `tmpfs` pertencentes ao UID/GID 10001; isso preserva o filesystem
   somente leitura sem impedir a criação de `client_temp` e do PID do Nginx.
+- a promoção de versão na `main` agora cria uma GitHub Release imutável com
+  tag, checksums, SBOM e proveniência, em vez de limitar-se a artefatos
+  temporários do GitHub Actions;
+- o pré-lançamento monta os 13 PWAs, instaladores Tauri desktop, APK/AAB
+  Android, IPAs iOS unsigned e pacotes self-hosted depois dos gates de
+  validação, imagens Docker e smoke Compose;
+- a versão canônica passou a ser verificada contra os metadados públicos de
+  apps, pacotes, Docker e OpenAPI antes de qualquer publicação, evitando
+  regressão silenciosa em promoções futuras.
 
 ## [1.0.0-alpha.1] - 2026-08-13
 
