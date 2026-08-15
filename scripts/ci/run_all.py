@@ -50,6 +50,7 @@ def main()->int:
       ('visual-contract',[sys.executable,'scripts/visual/validate_visual_contract.py'],None,None),
       ('tenant-app-manifest',[sys.executable,'scripts/validation/tenant_app_manifest.py','deploy/local/tenant-app-manifest.demo.yaml'],None,None),
       ('version-consistency',[sys.executable,'scripts/validation/validate_version_consistency.py','--output','release/version-consistency.json'],None,None),
+      ('release-build-readiness',[sys.executable,'scripts/validation/validate_release_build_readiness.py'],None,None),
       ('dockerfile-policy',[sys.executable,'scripts/validation/validate_dockerfiles.py'],None,None),
       ('secret-scan',[sys.executable,'scripts/validation/secret_scan.py','--output','release/secret-scan-report.json'],None,None),
       ('backup-restore',[sys.executable,'scripts/backup/test_backup_restore.py'],None,None),

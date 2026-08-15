@@ -1,19 +1,49 @@
-# Assinatura móvel opcional
+# Builds móveis: validação e distribuição
 
-Os workflows Android e iOS tratam assinatura como capacidade opcional do ambiente. A ausência de variáveis, certificado, perfil de provisionamento, ferramenta nativa ou credencial válida não invalida a execução: o workflow registra um `WARNING`, preserva os artefatos não assinados e encerra essa etapa com sucesso.
+## Validação de pull request
 
-## Android
+O workflow **32 · Android APK/AAB** não executa mais a matriz completa de sete
+aplicações a cada PR. Ele constrói apenas o `family-app` em perfil `debug`,
+gera APK e AAB com nomes únicos, verifica a assinatura do APK com `apksigner`
+e a estrutura assinada do AAB com `jarsigner`, e publica o resultado como
+artefato de validação.
 
-Quando a entrada `sign` estiver ativada, o workflow aceita `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`. Se o keystore, a senha ou o alias forem rejeitados, o APK/AAB original é preservado e nenhuma publicação na Google Play é realizada.
+O APK debug é adequado para instalação em dispositivos de QA. O AAB é um
+pacote para distribuição pela Google Play; ele não é instalável diretamente em
+um dispositivo Android.
 
-## iOS
+Em execução manual, selecione `scope=all` para gerar a matriz debug completa.
+Esse modo continua sendo uma atividade de QA, não uma release.
 
-Quando a entrada `sign` estiver ativada, o workflow aceita `APPLE_SIGNING_CERTIFICATE_BASE64`, `APPLE_SIGNING_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY` e `APPLE_PROVISIONING_PROFILE_BASE64` (opcional). Se o certificado, a identidade ou o perfil forem inválidos, o aplicativo original é preservado e nenhuma publicação na App Store é realizada.
+## Release publicável
 
-## Limites desta configuração
+O workflow **50 · Pré-lançamento Alpha** só inicia a matriz de distribuição
+depois de conferir os materiais de assinatura. Se algum item estiver ausente ou
+for rejeitado, a release falha antes dos builds pesados e nenhum binário
+unsigned é publicado.
 
-Esses workflows não publicam em lojas. Eles processam artefatos locais e fazem
-upload para consulta; o workflow `50` pode anexar os binários **unsigned** a
-uma GitHub Release após a promoção de versão. Deploy remoto, registro de
-imagens, assinatura e publicação em lojas permanecem desabilitados até etapa
-explícita e autorizada.
+Android exige:
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+iOS exige:
+
+- `APPLE_DEVELOPMENT_TEAM` como variável ou segredo do repositório
+- `APPLE_SIGNING_CERTIFICATE_BASE64`
+- `APPLE_SIGNING_CERTIFICATE_PASSWORD`
+- `APPLE_SIGNING_IDENTITY`
+- `APPLE_PROVISIONING_PROFILE_BASE64`
+
+A assinatura Android alinha, assina e verifica cada APK; também assina e
+verifica cada AAB. Para iOS, o perfil é embutido, a assinatura é verificada e
+somente as IPAs resultantes da etapa assinada permanecem no artefato da
+release. A validade de instalação em um dispositivo iOS específico depende de
+o perfil conter esse dispositivo.
+
+Os workflows não fazem deploy SaaS ou publicação automática em lojas.
+
+
+Quando `APPLE_DEVELOPMENT_TEAM` não está configurado, a PR registra explicitamente que nenhuma IPA foi gerada e executa apenas a validação estática. A execução manual exige o Team ID e falha sem ele; a release continua exigindo todo o conjunto de assinatura.

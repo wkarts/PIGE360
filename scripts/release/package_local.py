@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,hashlib,json,os,shutil,stat,tempfile,zipfile
+import argparse,hashlib,json,os,shutil,stat,subprocess,sys,tempfile,zipfile
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Callable
@@ -63,6 +63,11 @@ def main():
  parser=argparse.ArgumentParser();parser.add_argument('--output-dir',default=str(DELIVERY));a=parser.parse_args();delivery=Path(a.output_dir)
  if delivery.exists():shutil.rmtree(delivery)
  delivery.mkdir(parents=True)
+ # O relatório é um asset obrigatório do bundle. Gere-o depois das evidências
+ # do CI e antes de calcular os manifests/ZIPs, para evitar pacote incompleto.
+ subprocess.run([sys.executable,str(ROOT/'scripts/release/generate_evidence_pdf.py')],check=True)
+ evidence_pdf=ROOT/f'release/artifacts/reports/PIGE360-{VERSION}-relatorio-evidencias.pdf'
+ if not evidence_pdf.is_file():raise RuntimeError(f'relatório de evidências ausente: {evidence_pdf}')
  # Preserve execution evidence inside the source tree before calculating the tree.
  ev_src=ROOT.parent/'evidence';ev_dst=ROOT/'release/evidence'
  if ev_dst.exists():shutil.rmtree(ev_dst)
@@ -95,7 +100,6 @@ def main():
  os.system(f"python3 '{ROOT/'scripts/release/generate-manifest.py'}' --packages-json '{ROOT/'release/packages-final.json'}' --output '{final_manifest}' >/dev/null") if False else None
  # Generate final manifest directly after writing package metadata.
  (ROOT/'release/packages-final.json').write_text(json.dumps(packages,ensure_ascii=False,indent=2),encoding='utf-8')
- import subprocess
  subprocess.run(['python3',str(ROOT/'scripts/release/generate-manifest.py'),'--packages-json',str(ROOT/'release/packages-final.json'),'--output',str(final_manifest)],check=True,capture_output=True,text=True)
  provenance=delivery/f'PIGE360-{VERSION}-release-provenance.intoto.json'
  subprocess.run(['python3',str(ROOT/'scripts/release/generate_provenance.py'),'--subjects-json',str(subjects_file),'--output',str(provenance)],check=True,capture_output=True,text=True)

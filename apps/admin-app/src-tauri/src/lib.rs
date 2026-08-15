@@ -3,7 +3,10 @@
 #[path = "../../../../rust/crates/native-bridge/src/tauri_commands.rs"]
 mod tauri_commands;
 
-fn main() {
+/// Ponto de entrada compartilhado pelo executável desktop e pelas bibliotecas
+/// móveis geradas pelo Tauri.
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             tauri_commands::secure_session_put,
@@ -22,3 +25,4 @@ fn main() {
         .run(tauri::generate_context!())
         .expect("falha ao executar PIGE360");
 }
+

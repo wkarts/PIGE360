@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -25,8 +27,9 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "smoke-compose-homologation.sh" in workflow
     assert "smoke-compose-homologation.sh" in release
     assert "runtime_images:" in release
-    assert "needs: [validation, runtime_images]" in release
-
+    # A release publicável só começa após o pré-check das credenciais de assinatura.
+    assert "needs: [version, validation, signing_preflight]" in release
+    assert "needs: [version, validation, runtime_images, signing_preflight]" in release
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
     override = (ROOT / "infra/compose/compose.homologation-smoke.yaml").read_text(encoding="utf-8")
@@ -120,18 +123,66 @@ def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts
         assert "build-ios.sh" in candidate
         assert "actions/download-artifact@v4" in candidate
         assert "publish-github-release.sh release/publish" in candidate
+        assert "publishable" in candidate
+        assert 'gh release view "$tag"' in candidate
 
 
 def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
+    android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
+    ios_signer = (ROOT / "scripts/mobile/sign-ios.sh").read_text(encoding="utf-8")
+    android_signer = (ROOT / "scripts/mobile/sign-android.sh").read_text(encoding="utf-8")
+    release = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
     publisher = (ROOT / "scripts/release/publish-github-release.sh").read_text(encoding="utf-8")
     version_check = (ROOT / "scripts/validation/validate_version_consistency.py").read_text(encoding="utf-8")
     ci = (ROOT / "scripts/ci/run_all.py").read_text(encoding="utf-8")
+    entrypoint = (ROOT / "scripts/ci/pytest_node_entry.py").read_text(encoding="utf-8")
 
     assert "*.ipa" in ios
-    assert "Esperadas 5 IPAs unsigned" in ios
+    assert "Esperadas 5 IPAs; encontradas $count." in ios
+    assert "tauri ios init --ci" in ios
+    assert "restore_ios_platform_config" in ios
+    assert "Falha ao gerar o projeto iOS" in ios
+    assert "tauri android init --ci --skip-targets-install" in android
+    assert "NDK_HOME" in android
+    assert "Falha ao gerar o projeto Android" in android
+    assert "Esperados $expected_count APKs" in android
+    assert "Esperados $expected_count AABs" in android
+    assert "PIGE360 PYTEST NODE FAILURE" in entrypoint
+    assert "report.longreprtext" in entrypoint
+    for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
+        workflow = yaml.safe_load((ROOT / ".github/workflows" / workflow_name).read_text(encoding="utf-8"))
+        triggers = workflow.get("on", workflow.get(True, {}))
+        assert "pull_request" in triggers
+    android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
+    assert "ndk_version='27.3.13750724'" in android_workflow
+    assert "ANDROID_NDK_HOME" in android_workflow
+    assert "--app family-app --profile debug --artifacts both --verify-signature" in android_workflow
+    for app in ("family-app", "teacher-app", "student-app", "admin-app", "pos-app", "kiosk-app", "timeclock-app"):
+        mobile_lib = (ROOT / "apps" / app / "src-tauri/src/lib.rs").read_text(encoding="utf-8")
+        mobile_main = (ROOT / "apps" / app / "src-tauri/src/main.rs").read_text(encoding="utf-8")
+        assert "#[cfg_attr(mobile, tauri::mobile_entry_point)]" in mobile_lib
+        assert "pub fn run()" in mobile_lib
+        assert "::run();" in mobile_main
     for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
         assert extension in publisher
     assert "versões publicadas são imutáveis" in publisher
     assert "version-consistency" in ci
     assert "mismatches" in version_check
+    assert "SIGN_REQUIRED: 'true'" in release
+    assert "scripts/mobile/sign-android.sh" in release
+    assert "scripts/mobile/sign-ios.sh" in release
+    assert "unsigned" not in release.lower()
+    assert "APKs estão prontos para distribuição fora da Play" in android_signer
+    assert "IPAs publicados contêm perfil de provisionamento e assinatura Apple" in ios_signer
+
+def test_release_build_readiness_prevents_known_native_build_regressions() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/validation/validate_release_build_readiness.py"],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
