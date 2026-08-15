@@ -111,9 +111,33 @@ def main() -> int:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
     android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "--profile", "--artifacts", "--verify-signature", "${app}-${profile}.$extension", "apksigner", "jarsigner -verify", "if [ \"$wants_apk\" = 'true' ]; then", "if [ \"$wants_aab\" = 'true' ]; then"):
+    for required in (
+        "NDK_HOME",
+        "llvm-ranlib",
+        "pige360-android-tools",
+        "for target in aarch64-linux-android",
+        "$target-ranlib",
+        "tauri android init --ci --skip-targets-install",
+        "rm -rf src-tauri/gen/android",
+        "rm -rf src-tauri/gen/android/app/build/outputs",
+        "Falha ao gerar o projeto Android",
+        "--profile",
+        "--artifacts",
+        "--targets",
+        "PIGE360_ANDROID_TARGETS",
+        "--split-per-abi",
+        "CARGO_PROFILE_DEV_DEBUG=0",
+        "${app}-${profile}-${abi}.${extension}",
+        "verify_apk_abi_and_size",
+        "APK não é exclusivo para",
+        "PIGE360_ANDROID_MAX_APK_BYTES",
+        "apksigner",
+        "jarsigner -verify",
+        'build_artifact "$app" "$target" apk',
+        'build_artifact "$app" "$target" aab',
+    ):
         if required not in android:
-            failures.append(f"build Android sem regeneração/contagem verificável: {required}")
+            failures.append(f"build Android sem isolamento de ABI/tamanho verificável: {required}")
 
     release_workflow = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
     for required in (
