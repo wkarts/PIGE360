@@ -3,14 +3,16 @@ set -eu
 
 usage() {
   cat <<'EOF'
-Uso: scripts/mobile/build-ios.sh [--mode <local-signing|store>]
+Uso: scripts/mobile/build-ios.sh [--mode <local-signing|store>] [--app <nome|all>]
 EOF
 }
 
 mode='store'
+app_scope='all'
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --mode) mode="${2:?Informe o modo após --mode}"; shift 2 ;;
+    --app) app_scope="${2:?Informe o app após --app}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Argumento iOS desconhecido: $1" >&2; usage >&2; exit 2 ;;
   esac
@@ -19,6 +21,10 @@ done
 case "$mode" in
   local-signing|store) ;;
   *) echo "Modo iOS inválido: $mode" >&2; exit 2 ;;
+esac
+case "$app_scope" in
+  all|family-app|teacher-app|student-app|admin-app|pos-app) ;;
+  *) echo "App iOS inválido: $app_scope" >&2; exit 2 ;;
 esac
 
 command -v xcodebuild >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Xcode ausente.' >&2; exit 3; }
@@ -247,7 +253,15 @@ package_for_local_signing() {
   verify_local_signing_ipa "$app" "$output"
 }
 
-for app in family-app teacher-app student-app admin-app pos-app; do
+if [ "$app_scope" = 'all' ]; then
+  apps='family-app teacher-app student-app admin-app pos-app'
+  expected_count=5
+else
+  apps="$app_scope"
+  expected_count=1
+fi
+
+for app in $apps; do
   initialize_ios_project "$app"
   # O xcode-script do Tauri 2.3 lê tauri.conf.json antes de reaplicar --config.
   # A cópia temporária contém a versão CFBundle numérica e é sempre restaurada.
@@ -267,7 +281,7 @@ for app in family-app teacher-app student-app admin-app pos-app; do
 done
 
 count="$(find "$artifact_dir" -maxdepth 1 -type f -name '*.ipa' | wc -l | tr -d '[:space:]')"
-[ "$count" -eq 5 ] || { echo "Esperadas 5 IPAs; encontradas $count." >&2; exit 4; }
+[ "$count" -eq "$expected_count" ] || { echo "Esperadas $expected_count IPAs; encontradas $count." >&2; exit 4; }
 (cd "$artifact_dir" && sha256sum ./*.ipa > SHA256SUMS)
 if [ "$mode" = 'local-signing' ]; then
   printf 'IPAs iOS arm64 geradas para assinatura local; aplique certificado e perfil de desenvolvimento antes de instalar em aparelho físico.\n'
