@@ -238,7 +238,7 @@ package_for_local_signing() {
     exit 4
   }
 
-  work="$(mktemp "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
+  work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
   mkdir -p "$work/Payload"
   cp -R "$app_bundle" "$work/Payload/"
   output="$artifact_dir/${app}-ready-for-local-signing.ipa"
