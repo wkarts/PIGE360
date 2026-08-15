@@ -18,6 +18,12 @@ on:
       - 'scripts/validation/**'
       - '.github/workflows/50-release.yml'
   workflow_dispatch:
+    inputs:
+      distribution_mode:
+        description: "Canal de distribuição: homologação instalável ou publicação em lojas"
+        type: choice
+        options: [homologation, store]
+        default: homologation
 
 permissions:
   contents: write
@@ -34,6 +40,7 @@ jobs:
       version: ${{ steps.release_version.outputs.version }}
       tag: ${{ steps.release_version.outputs.tag }}
       publishable: ${{ steps.release_version.outputs.publishable }}
+      distribution_mode: ${{ steps.release_version.outputs.distribution_mode }}
     steps:
       - uses: actions/checkout@v4
       - name: Garantir que a promoção ocorreu na main
@@ -47,8 +54,14 @@ jobs:
         run: |
           version="$(tr -d '[:space:]' < VERSION)"
           tag="v$version"
+          distribution_mode="${{ github.event.inputs.distribution_mode || 'homologation' }}"
+          case "$distribution_mode" in
+            homologation|store) ;;
+            *) echo "Canal de distribuição inválido: $distribution_mode" >&2; exit 2 ;;
+          esac
           printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
           printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
+          printf 'distribution_mode=%s\n' "$distribution_mode" >> "$GITHUB_OUTPUT"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             printf 'publishable=false\n' >> "$GITHUB_OUTPUT"
             echo "A release $tag já existe; a matriz de promoção será ignorada."
@@ -58,13 +71,13 @@ jobs:
           fi
 
   signing_preflight:
-    name: Pré-verificar credenciais de distribuição
+    name: Pré-verificar credenciais de publicação em lojas
     needs: version
-    if: needs.version.outputs.publishable == 'true'
+    if: needs.version.outputs.publishable == 'true' && needs.version.outputs.distribution_mode == 'store'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Recusar release sem materiais de assinatura
+      - name: Recusar publicação em loja sem materiais de assinatura
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -83,7 +96,7 @@ jobs:
             APPLE_DEVELOPMENT_TEAM APPLE_SIGNING_CERTIFICATE_BASE64 APPLE_SIGNING_CERTIFICATE_PASSWORD \
             APPLE_SIGNING_IDENTITY APPLE_PROVISIONING_PROFILE_BASE64; do
             if [ -z "${!variable}" ]; then
-              echo "::error::Release bloqueada: configure $variable antes de construir artefatos publicáveis."
+              echo "::error::Publicação em loja bloqueada: configure $variable antes de construir artefatos publicáveis."
               missing=1
             fi
           done
@@ -91,7 +104,7 @@ jobs:
 
   validation:
     name: Gates de qualidade
-    needs: [version, signing_preflight]
+    needs: [version]
     if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -122,7 +135,7 @@ jobs:
 
   runtime_images:
     name: Imagens de runtime e smoke Compose
-    needs: [version, validation, signing_preflight]
+    needs: [version, validation]
     if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
@@ -142,7 +155,7 @@ jobs:
 
   web_pwa:
     name: PWAs das 13 aplicações
-    needs: [version, validation, signing_preflight]
+    needs: [version, validation]
     if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -163,7 +176,7 @@ jobs:
 
   desktop:
     name: Desktop ${{ matrix.label }}
-    needs: [version, validation, signing_preflight]
+    needs: [version, validation]
     if: needs.version.outputs.publishable == 'true'
     strategy:
       fail-fast: false
@@ -228,7 +241,11 @@ jobs:
   android:
     name: Android APK e AAB
     needs: [version, validation, signing_preflight]
-    if: needs.version.outputs.publishable == 'true'
+    if: >-
+      ${{ always() && needs.version.outputs.publishable == 'true' &&
+          needs.validation.result == 'success' &&
+          (needs.version.outputs.distribution_mode == 'homologation' ||
+           needs.signing_preflight.result == 'success') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
@@ -257,9 +274,18 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
-      - name: Construir matriz Android de distribuição
-        run: bash scripts/mobile/build-android.sh --app all --profile release --artifacts both
+      - name: Construir matriz Android no canal selecionado
+        env:
+          DISTRIBUTION_MODE: ${{ needs.version.outputs.distribution_mode }}
+        shell: bash
+        run: |
+          if [ "$DISTRIBUTION_MODE" = 'homologation' ]; then
+            bash scripts/mobile/build-android.sh --app all --profile debug --artifacts apk --verify-signature
+          else
+            bash scripts/mobile/build-android.sh --app all --profile release --artifacts both
+          fi
       - name: Assinar e verificar APKs/AABs de distribuição
+        if: needs.version.outputs.distribution_mode == 'store'
         env:
           SIGN_REQUIRED: 'true'
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -276,7 +302,11 @@ jobs:
   ios:
     name: iOS IPA assinada
     needs: [version, validation, signing_preflight]
-    if: needs.version.outputs.publishable == 'true'
+    if: >-
+      ${{ always() && needs.version.outputs.publishable == 'true' &&
+          needs.version.outputs.distribution_mode == 'store' &&
+          needs.validation.result == 'success' &&
+          needs.signing_preflight.result == 'success' }}
     runs-on: macos-15
     timeout-minutes: 120
     steps:
@@ -310,7 +340,7 @@ jobs:
 
   release_bundle:
     name: Pacotes auto-hospedados e evidências
-    needs: [version, validation, runtime_images, signing_preflight]
+    needs: [version, validation, runtime_images]
     if: needs.version.outputs.publishable == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 150
@@ -343,14 +373,16 @@ jobs:
     needs: [version, signing_preflight, validation, runtime_images, web_pwa, desktop, android, ios, release_bundle]
     if: >-
       ${{ always() && needs.version.outputs.publishable == 'true' &&
-          needs.signing_preflight.result == 'success' &&
           needs.validation.result == 'success' &&
           needs.runtime_images.result == 'success' &&
           needs.web_pwa.result == 'success' &&
           needs.desktop.result == 'success' &&
           needs.android.result == 'success' &&
-          needs.ios.result == 'success' &&
-          needs.release_bundle.result == 'success' }}
+          needs.release_bundle.result == 'success' &&
+          (needs.version.outputs.distribution_mode == 'homologation' ||
+           (needs.version.outputs.distribution_mode == 'store' &&
+            needs.signing_preflight.result == 'success' &&
+            needs.ios.result == 'success')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -364,21 +396,37 @@ jobs:
         run: |
           find release/publish -type f -print0 | sort -z | xargs -0 sha256sum > "release/publish/PIGE360-${{ needs.version.outputs.version }}-release-assets-SHA256SUMS"
       - name: Registrar notas do pré-lançamento
+        env:
+          DISTRIBUTION_MODE: ${{ needs.version.outputs.distribution_mode }}
+        shell: bash
         run: |
-          cat > release/RELEASE_NOTES.md <<'EOF'
+          if [ "$DISTRIBUTION_MODE" = 'homologation' ]; then
+            cat > release/RELEASE_NOTES.md <<'EOF'
           ## PIGE360 ${{ needs.version.outputs.version }}
 
-          Pré-lançamento automático gerado após a promoção da versão na `main`.
+          Pré-lançamento de homologação gerado após a promoção da versão na `main`.
+
+          Inclui: 13 PWAs, instaladores desktop, APKs Android de depuração
+          instaláveis e verificados, pacotes self-hosted, fontes, SBOM,
+          proveniência e checksums.
+
+          Não realiza deploy SaaS nem publicação em lojas. Os APKs deste canal
+          usam a assinatura de depuração do Gradle e destinam-se somente a
+          homologação. A compilação iOS para aparelho físico requer materiais
+          Apple e é executada exclusivamente no canal `store`.
+          EOF
+          else
+            cat > release/RELEASE_NOTES.md <<'EOF'
+          ## PIGE360 ${{ needs.version.outputs.version }}
+
+          Pré-lançamento de distribuição em loja gerado após a promoção da versão na `main`.
 
           Inclui: 13 PWAs, instaladores desktop, APKs Android assinados e
           verificáveis, AABs Android assinados para envio à Google Play, IPAs iOS
           assinadas com perfil de provisionamento, pacotes self-hosted, fontes,
           SBOM, proveniência e checksums.
-
-          Não realiza deploy SaaS nem publicação automática em lojas. A ausência
-          ou rejeição de qualquer material de assinatura bloqueia a release antes
-          da matriz de distribuição.
           EOF
+          fi
       - name: Publicar tag e GitHub Release imutável
         env:
           GITHUB_TOKEN: ${{ github.token }}
