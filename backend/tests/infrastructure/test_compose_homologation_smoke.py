@@ -160,6 +160,8 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "tauri ios build --target aarch64 --open" in ios
     assert "CODE_SIGNING_ALLOWED=NO" in ios
     assert "cleanup_tauri_options" in ios
+    assert "prepare_ios_runtime_config" in ios
+    assert "restore_ios_runtime_config" in ios
     assert "verify_local_signing_ipa" in ios
     assert "lipo -archs" in ios
     assert "Payload" in ios
