@@ -102,6 +102,35 @@ verify_local_signing_ipa() {
   rm -rf "$work"
 }
 
+ios_runtime_config_backup=''
+ios_runtime_config_path=''
+
+prepare_ios_runtime_config() {
+  app="$1"
+  ios_runtime_config_path="$root_dir/apps/$app/src-tauri/tauri.conf.json"
+  ios_runtime_config_backup="$(mktemp "${TMPDIR:-/tmp}/pige360-ios-config.XXXXXX")"
+  cp "$ios_runtime_config_path" "$ios_runtime_config_backup"
+  python3 - "$ios_runtime_config_path" "$ios_version" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+config = json.loads(path.read_text(encoding="utf-8"))
+config["version"] = sys.argv[2]
+path.write_text(json.dumps(config), encoding="utf-8")
+PY
+}
+
+restore_ios_runtime_config() {
+  if [ -n "$ios_runtime_config_backup" ] && [ -f "$ios_runtime_config_backup" ]; then
+    cp "$ios_runtime_config_backup" "$ios_runtime_config_path"
+    rm -f "$ios_runtime_config_backup"
+  fi
+  ios_runtime_config_backup=''
+  ios_runtime_config_path=''
+}
+
 tauri_options_pid=''
 tauri_options_log=''
 cleanup_tauri_options() {
@@ -113,7 +142,11 @@ cleanup_tauri_options() {
   [ -z "$tauri_options_log" ] || rm -f "$tauri_options_log"
   tauri_options_log=''
 }
-trap cleanup_tauri_options EXIT HUP INT TERM
+cleanup_ios_build() {
+  cleanup_tauri_options
+  restore_ios_runtime_config
+}
+trap cleanup_ios_build EXIT HUP INT TERM
 
 start_tauri_options_server() {
   app="$1"
@@ -216,6 +249,9 @@ package_for_local_signing() {
 
 for app in family-app teacher-app student-app admin-app pos-app; do
   initialize_ios_project "$app"
+  # O xcode-script do Tauri 2.3 lê tauri.conf.json antes de reaplicar --config.
+  # A cópia temporária contém a versão CFBundle numérica e é sempre restaurada.
+  prepare_ios_runtime_config "$app"
   if [ "$mode" = 'store' ]; then
     (
       cd "apps/$app"
@@ -227,6 +263,7 @@ for app in family-app teacher-app student-app admin-app pos-app; do
   else
     package_for_local_signing "$app"
   fi
+  restore_ios_runtime_config
 done
 
 count="$(find "$artifact_dir" -maxdepth 1 -type f -name '*.ipa' | wc -l | tr -d '[:space:]')"
