@@ -111,7 +111,7 @@ def main() -> int:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
     android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "Esperados 7 APKs", "Esperados 7 AABs"):
+    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "--profile", "--artifacts", "--verify-signature", "${app}-${profile}.$extension", "apksigner", "jarsigner -verify"):
         if required not in android:
             failures.append(f"build Android sem regeneração/contagem verificável: {required}")
 
@@ -126,9 +126,20 @@ def main() -> int:
         'gh release view "$tag" --repo "$GITHUB_REPOSITORY"',
         "needs.version.outputs.publishable == 'true'",
         "vars.APPLE_DEVELOPMENT_TEAM",
+        "signing_preflight",
+        "SIGN_REQUIRED: 'true'",
+        "scripts/mobile/sign-android.sh",
+        "scripts/mobile/sign-ios.sh",
     ):
         if required not in release_workflow:
             failures.append(f"workflow desktop Windows sem preparação verificável para OpenSSL: {required}")
+
+    if "unsigned" in release_workflow.lower():
+        failures.append("workflow de release não pode publicar artefatos móveis unsigned")
+    if "Assinar e verificar APKs/AABs de distribuição" not in release_workflow:
+        failures.append("workflow de release Android não exige assinatura e verificação")
+    if "Assinar e verificar IPAs de distribuição" not in release_workflow:
+        failures.append("workflow de release iOS não exige assinatura e verificação")
 
     desktop_workflow = (ROOT / ".github/workflows/31-build-desktop.yml").read_text(encoding="utf-8")
     for required in ("pull_request:", "Locale::Maketext::Simple", "PIGE360_STRAWBERRY_PERL", "libwebkit2gtk-4.1-dev"):
@@ -136,7 +147,7 @@ def main() -> int:
             failures.append(f"workflow manual desktop sem requisito nativo: {required}")
 
     android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "android-actions/setup-android@v3", "ndk_version='27.3.13750724'", "NDK_HOME", "aarch64-linux-android"):
+    for required in ("pull_request:", "android-actions/setup-android@v3", "ndk_version='27.3.13750724'", "NDK_HOME", "aarch64-linux-android", "--profile debug", "--verify-signature", "timeout-minutes: 45"):
         if required not in android_workflow:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 

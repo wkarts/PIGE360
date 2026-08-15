@@ -49,8 +49,8 @@
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "06e4ce765bad436cb035e602e9a7a46c97f64dd2d65fcaee65a7f8c08408ef6d",
-      "bytes": 2146
+      "sha256": "4ddc0770f06a9cc19814e2fdaab273a352db74e2bf5289028752f0e958cebb8b",
+      "bytes": 3405
     },
     {
       "path": "workflows/33-build-ios.yml",
@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "9d20090c571f11e49416ba36b999428983cd02194bd6357f6f809fbb1dcec659",
-      "bytes": 12155
+      "sha256": "c9511e29fd2f7d37eed2803c57cbc7fd47946db90eda74057a6570dcef931179",
+      "bytes": 15244
     },
     {
       "path": "workflows/60-deploy-saas.yml",

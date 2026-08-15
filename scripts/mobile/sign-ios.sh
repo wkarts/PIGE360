@@ -1,32 +1,33 @@
 #!/bin/sh
-set -u
+set -eu
 
-warning() {
-  printf 'WARNING: assinatura/publicação iOS ignorada: %s\n' "$*"
+required="${SIGN_REQUIRED:-false}"
+requested="${SIGN_REQUESTED:-false}"
+
+fail_or_skip() {
+  if [ "$required" = 'true' ] || [ "$requested" = 'true' ]; then
+    printf 'ERROR: assinatura iOS obrigatória: %s\n' "$*" >&2
+    exit 4
+  fi
+  printf 'INFO: assinatura iOS não solicitada: %s\n' "$*"
+  exit 0
 }
 
 decode_base64() {
-  if base64 --decode </dev/null >/dev/null 2>&1; then
-    base64 --decode
-  else
-    base64 -D
-  fi
+  if base64 --decode </dev/null >/dev/null 2>&1; then base64 --decode; else base64 -D; fi
 }
 
-if [ "${SIGN_REQUESTED:-false}" != "true" ]; then
-  warning 'a assinatura não foi solicitada; os artefatos permanecem não assinados.'
+if [ "$required" != 'true' ] && [ "$requested" != 'true' ]; then
+  printf 'INFO: nenhum IPA será declarado publicável sem certificado e perfil Apple.\n'
   exit 0
 fi
 
-if [ -z "${APPLE_SIGNING_CERTIFICATE_BASE64:-}" ] || [ -z "${APPLE_SIGNING_CERTIFICATE_PASSWORD:-}" ] || [ -z "${APPLE_SIGNING_IDENTITY:-}" ]; then
-  warning 'configuração iOS incompleta. Nenhum envio à App Store será realizado.'
-  exit 0
-fi
+for variable in APPLE_SIGNING_CERTIFICATE_BASE64 APPLE_SIGNING_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_PROVISIONING_PROFILE_BASE64; do
+  eval "value=\${$variable:-}"
+  [ -n "$value" ] || fail_or_skip "variável $variable ausente"
+done
 
-command -v security >/dev/null 2>&1 || { warning 'security não disponível; assinatura iOS ignorada.'; exit 0; }
-command -v codesign >/dev/null 2>&1 || { warning 'codesign não disponível; assinatura iOS ignorada.'; exit 0; }
-command -v ditto >/dev/null 2>&1 || { warning 'ditto não disponível; assinatura iOS ignorada.'; exit 0; }
-command -v openssl >/dev/null 2>&1 || { warning 'openssl não disponível; assinatura iOS ignorada.'; exit 0; }
+for tool in security codesign ditto openssl; do command -v "$tool" >/dev/null 2>&1 || fail_or_skip "$tool não disponível"; done
 
 tmp="$(mktemp -d)"
 keychain="$tmp/pige360.keychain-db"
@@ -34,56 +35,54 @@ password="$(openssl rand -hex 24 2>/dev/null || true)"
 cleanup() { security delete-keychain "$keychain" >/dev/null 2>&1 || true; rm -rf "$tmp"; }
 trap cleanup EXIT INT TERM
 
-if [ -z "$password" ] || ! printf '%s' "$APPLE_SIGNING_CERTIFICATE_BASE64" | decode_base64 > "$tmp/signing.p12" 2>/dev/null; then
-  warning 'certificado Apple em Base64 inválido. Nenhum envio à App Store será realizado.'
-  exit 0
-fi
-
-if ! security create-keychain -p "$password" "$keychain" >/dev/null 2>&1 || ! security set-keychain-settings -lut 21600 "$keychain" >/dev/null 2>&1 || ! security unlock-keychain -p "$password" "$keychain" >/dev/null 2>&1 || ! security import "$tmp/signing.p12" -k "$keychain" -P "$APPLE_SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign >/dev/null 2>&1 || ! security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null 2>&1; then
-  warning 'certificado, senha ou chave Apple inválida. Nenhum envio à App Store será realizado.'
-  exit 0
-fi
-
-security list-keychains -d user -s "$keychain" >/dev/null 2>&1 || { warning 'não foi possível ativar o chaveiro Apple; assinatura iOS ignorada.'; exit 0; }
+[ -n "$password" ] || fail_or_skip 'não foi possível criar senha efêmera para o chaveiro'
+printf '%s' "$APPLE_SIGNING_CERTIFICATE_BASE64" | decode_base64 > "$tmp/signing.p12" 2>/dev/null || fail_or_skip 'certificado Apple em Base64 inválido'
+security create-keychain -p "$password" "$keychain" >/dev/null 2>&1
+security set-keychain-settings -lut 21600 "$keychain" >/dev/null 2>&1
+security unlock-keychain -p "$password" "$keychain" >/dev/null 2>&1
+security import "$tmp/signing.p12" -k "$keychain" -P "$APPLE_SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign >/dev/null 2>&1
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null 2>&1
+security list-keychains -d user -s "$keychain" >/dev/null 2>&1
 
 profile_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
-profile=''
-if [ -n "${APPLE_PROVISIONING_PROFILE_BASE64:-}" ]; then
-  mkdir -p "$profile_dir"
-  profile="$profile_dir/pige360.mobileprovision"
-  if ! printf '%s' "$APPLE_PROVISIONING_PROFILE_BASE64" | decode_base64 > "$profile" 2>/dev/null; then
-    warning 'perfil de provisionamento Apple inválido; assinatura foi ignorada.'
-    exit 0
-  fi
-fi
+mkdir -p "$profile_dir"
+profile="$profile_dir/pige360.mobileprovision"
+printf '%s' "$APPLE_PROVISIONING_PROFILE_BASE64" | decode_base64 > "$profile" 2>/dev/null || fail_or_skip 'perfil de provisionamento Apple inválido'
+security cms -D -i "$profile" >/dev/null 2>&1 || fail_or_skip 'perfil de provisionamento Apple não pôde ser lido'
 
-mkdir -p release/artifacts/ios/signed
+signed_dir='release/artifacts/ios/signed'
+mkdir -p "$signed_dir"
 found=0
+signed_count=0
 for app in $(find apps -type d \( -path '*/src-tauri/gen/apple/build/*/*.app' -o -path '*/src-tauri/target/*/release/bundle/macos/*.app' \)); do
   [ -d "$app" ] || continue
   found=1
   name="$(basename "$app" .app)"
-  backup="$tmp/$name-before-sign.app"
-  cp -R "$app" "$backup"
-  if [ -n "$profile" ]; then cp "$profile" "$app/embedded.mobileprovision"; fi
-  if ! codesign --force --deep --options runtime --timestamp --sign "$APPLE_SIGNING_IDENTITY" "$app" >/dev/null 2>&1 || ! codesign --verify --deep --strict "$app" >/dev/null 2>&1; then
-    rm -rf "$app"
-    cp -R "$backup" "$app"
-    warning "certificado Apple rejeitado para $name.app. O aplicativo original foi preservado."
-    exit 0
+  cp "$profile" "$app/embedded.mobileprovision"
+  entitlements="$tmp/$name.entitlements"
+  codesign -d --entitlements :- "$app" > "$entitlements" 2>/dev/null || true
+  if [ -s "$entitlements" ]; then
+    codesign --force --deep --sign "$APPLE_SIGNING_IDENTITY" --entitlements "$entitlements" "$app"
+  else
+    codesign --force --deep --sign "$APPLE_SIGNING_IDENTITY" "$app"
   fi
+  codesign --verify --deep --strict "$app"
   work="$tmp/$name"
-  output="$(pwd)/release/artifacts/ios/signed/${name}.ipa"
   mkdir -p "$work/Payload"
   cp -R "$app" "$work/Payload/"
-  if ! (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output") >/dev/null 2>&1; then
-    warning "não foi possível empacotar $name.app; nenhum envio à App Store será realizado."
-    exit 0
-  fi
+  output="$signed_dir/${name}.ipa"
+  (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
+  signed_count=$((signed_count + 1))
 done
 
-if [ "$found" -eq 0 ]; then
-  warning 'nenhum aplicativo iOS foi encontrado para assinatura.'
-else
-  printf 'Assinatura iOS concluída; publicação em loja permanece desativada.\n'
+[ "$found" -eq 1 ] || fail_or_skip 'nenhum aplicativo iOS foi encontrado para assinatura'
+expected="${EXPECTED_IOS_ARTIFACTS:-5}"
+[ "$signed_count" -eq "$expected" ] || fail_or_skip "esperadas $expected IPAs assinadas; encontradas $signed_count"
+
+if [ "$required" = 'true' ]; then
+  find release/artifacts/ios -maxdepth 1 -type f -name '*.ipa' -delete
+  find "$signed_dir" -maxdepth 1 -type f -name '*.ipa' -exec mv {} release/artifacts/ios/ \;
+  rmdir "$signed_dir" 2>/dev/null || true
 fi
+(cd release/artifacts/ios && sha256sum ./*.ipa > SHA256SUMS)
+printf 'Assinatura iOS concluída e verificada; os IPAs publicados contêm perfil de provisionamento e assinatura Apple.\n'

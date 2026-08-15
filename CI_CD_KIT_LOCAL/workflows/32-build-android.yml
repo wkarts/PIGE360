@@ -15,7 +15,16 @@ name: 32 · Android APK/AAB
       - 'package-lock.json'
   workflow_dispatch:
     inputs:
-      sign: {type: boolean, required: false, default: false}
+      scope:
+        description: Validação rápida de um app ou matriz completa para QA
+        type: choice
+        options: [validation, all]
+        default: validation
+      sign:
+        description: Reassinar a matriz completa com o keystore configurado
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -24,35 +33,59 @@ concurrency:
 jobs:
   android:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: {distribution: temurin, java-version: '21'}
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: android-native-${{ runner.os }}-${{ hashFiles('package-lock.json', 'rust/Cargo.lock', 'apps/*/src-tauri/Cargo.lock') }}
+          restore-keys: android-native-${{ runner.os }}-
       - uses: android-actions/setup-android@v3
       - name: Fixar e expor Android NDK para o Tauri
         shell: bash
         run: |
           ndk_version='27.3.13750724'
           ndk_home="$ANDROID_HOME/ndk/$ndk_version"
-          if [ ! -d "$ndk_home" ]; then
-            sdkmanager --install "ndk;$ndk_version"
-          fi
+          if [ ! -d "$ndk_home" ]; then sdkmanager --install "ndk;$ndk_version"; fi
           test -d "$ndk_home"
           printf 'NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
           printf 'ANDROID_NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
-      - run: bash scripts/mobile/build-android.sh
-      - name: Avaliar assinatura Android (opcional)
+      - name: Construir artefato Android de validação instalável
         env:
-          SIGN_REQUESTED: ${{ inputs.sign }}
+          BUILD_SCOPE: ${{ inputs.scope || 'validation' }}
+        shell: bash
+        run: |
+          if [ "$BUILD_SCOPE" = 'all' ]; then
+            bash scripts/mobile/build-android.sh --app all --profile debug --artifacts both --verify-signature
+          else
+            bash scripts/mobile/build-android.sh --app family-app --profile debug --artifacts both --verify-signature
+          fi
+      - name: Assinar matriz Android solicitada manualmente
+        if: ${{ inputs.scope == 'all' && inputs.sign }}
+        env:
+          SIGN_REQUESTED: 'true'
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: bash scripts/mobile/sign-android.sh
       - uses: actions/upload-artifact@v4
-        with: {name: android-apk-aab, path: release/artifacts/android/**, if-no-files-found: error}
+        with:
+          name: android-debug-validation-${{ github.run_id }}
+          path: release/artifacts/android/**
+          if-no-files-found: error
