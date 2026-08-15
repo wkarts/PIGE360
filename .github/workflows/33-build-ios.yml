@@ -71,7 +71,12 @@ jobs:
         if: steps.ios_gate.outputs.build_ios == 'true'
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
-        run: bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}"
+        run: |
+          if [ "${{ github.event_name }}" = 'pull_request' ]; then
+            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}" --app family-app
+          else
+            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}"
+          fi
       - name: Assinar IPA de distribuição solicitada manualmente
         if: steps.ios_gate.outputs.build_mode == 'store' && inputs.sign
         env:
