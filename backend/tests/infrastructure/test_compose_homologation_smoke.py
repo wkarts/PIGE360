@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -199,6 +200,80 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "APKs estão prontos para distribuição fora da Play" in android_signer
     assert "IPAs publicados contêm perfil de provisionamento e assinatura Apple" in ios_signer
     assert "iOS IPA para assinatura local" in release
+    assert "asset_source_id" in publisher
+    assert "Artefato idêntico deduplicado" in publisher
+    assert "Artefato com nome repetido preservado como" in publisher
+    assert "RELEASE_TARGET_SHA" in publisher
+    assert "'*SHA256SUMS'" in publisher
+
+    recovery = (ROOT / ".github/workflows/51-recover-release.yml").read_text(encoding="utf-8")
+    kit_recovery = (ROOT / "CI_CD_KIT_LOCAL/workflows/51-recover-release.yml").read_text(encoding="utf-8")
+    assert recovery == kit_recovery
+    assert "51-recover-release.yml" in (ROOT / "scripts/validation/validate_project.py").read_text(encoding="utf-8")
+    for required in (
+        "workflow_dispatch:",
+        "source_run_id:",
+        "actions/download-artifact@v4",
+        "merge-multiple: false",
+        "RELEASE_TARGET_SHA",
+        "pige360-${{ steps.source.outputs.version }}-*",
+    ):
+        assert required in recovery
+
+
+def test_release_publisher_preserves_colliding_assets_and_deduplicates_identical_files(tmp_path: Path) -> None:
+    assets = tmp_path / "assets"
+    (assets / "one").mkdir(parents=True)
+    (assets / "two").mkdir()
+    (assets / "three").mkdir()
+    (assets / "one" / "build-report.json").write_text('{"source":"one"}', encoding="utf-8")
+    (assets / "two" / "build-report.json").write_text('{"source":"two"}', encoding="utf-8")
+    (assets / "three" / "build-report.json").write_text('{"source":"one"}', encoding="utf-8")
+    (tmp_path / "VERSION").write_text("1.0.0-alpha.2\n", encoding="utf-8")
+
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    gh_log = tmp_path / "gh.log"
+    gh = bin_dir / "gh"
+    gh.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -eu\n"
+        "printf '%s\\n' \"$*\" >> \"$GH_LOG\"\n"
+        "if [ \"$1\" = release ] && [ \"$2\" = view ]; then exit 1; fi\n"
+        "if [ \"$1\" = release ] && [ \"$2\" = create ]; then exit 0; fi\n"
+        "exit 1\n",
+        encoding="utf-8",
+    )
+    gh.chmod(0o755)
+
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/release/publish-github-release.sh"), str(assets)],
+        cwd=tmp_path,
+        env={
+            **os.environ,
+            "PATH": f"{bin_dir}:{os.environ['PATH']}",
+            "GH_LOG": str(gh_log),
+            "GITHUB_TOKEN": "test-token",
+            "GITHUB_SHA": "c60d0dce44f3db25d46c1e62e4fc3f0432a55d77",
+            "REMOTE_RELEASE_ENABLED": "true",
+        },
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    stage = assets / ".github-release-assets"
+    assert sorted(item.name for item in stage.iterdir()) == [
+        "build-report.json",
+        "two--build-report.json",
+    ]
+    assert (stage / "build-report.json").read_text(encoding="utf-8") == '{"source":"one"}'
+    assert (stage / "two--build-report.json").read_text(encoding="utf-8") == '{"source":"two"}'
+    assert "Artefato idêntico deduplicado: build-report.json" in result.stdout
+    assert "Artefato com nome repetido preservado como: two--build-report.json" in result.stdout
+    assert "release create v1.0.0-alpha.2" in gh_log.read_text(encoding="utf-8")
+
 
 def test_release_build_readiness_prevents_known_native_build_regressions() -> None:
     result = subprocess.run(

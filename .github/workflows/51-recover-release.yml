@@ -1,0 +1,111 @@
+name: 51 · Recuperar publicação de artefatos
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: ID do run 50 que concluiu os builds e falhou apenas na publicação
+        required: true
+        type: string
+      distribution_mode:
+        description: Canal usado no run de origem
+        required: true
+        type: choice
+        options: [homologation, store]
+        default: homologation
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    name: Publicar artefatos já construídos
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - id: source
+        name: Validar run de origem e preservar seu commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        shell: bash
+        run: |
+          case "$SOURCE_RUN_ID" in
+            *[!0-9]*|'') echo "source_run_id inválido: $SOURCE_RUN_ID" >&2; exit 2 ;;
+          esac
+          version="$(tr -d '[:space:]' < VERSION)"
+          source="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")"
+          source_repository="$(jq -r '.repository.full_name // empty' <<<"$source")"
+          source_status="$(jq -r '.status // empty' <<<"$source")"
+          source_conclusion="$(jq -r '.conclusion // empty' <<<"$source")"
+          source_sha="$(jq -r '.head_sha // empty' <<<"$source")"
+          if [ "$source_repository" != "$GITHUB_REPOSITORY" ] || [ "$source_status" != 'completed' ]; then
+            echo "Run de origem inválido ou ainda não concluído." >&2
+            exit 3
+          fi
+          case "$source_conclusion" in
+            success|failure) ;;
+            *) echo "Run de origem não contém resultado recuperável: $source_conclusion" >&2; exit 3 ;;
+          esac
+          [ -n "$source_sha" ] || { echo "Commit de origem ausente." >&2; exit 3; }
+          if ! gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" --jq '.artifacts[] | select(.expired == false) | .name' | grep -F "pige360-$version-" >/dev/null; then
+            echo "O run de origem não contém artefatos ativos para a versão $version." >&2
+            exit 4
+          fi
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+          printf 'tag=v%s\n' "$version" >> "$GITHUB_OUTPUT"
+          printf 'target_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
+      - name: Baixar artefatos do run sem mesclar diretórios
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          pattern: pige360-${{ steps.source.outputs.version }}-*
+          path: release/publish
+          merge-multiple: false
+      - name: Consolidar checksums dos assets recuperados
+        run: |
+          find release/publish -type f -print0 | sort -z | xargs -0 sha256sum > "release/publish/PIGE360-${{ steps.source.outputs.version }}-release-assets-SHA256SUMS"
+      - name: Registrar notas do pré-lançamento recuperado
+        env:
+          DISTRIBUTION_MODE: ${{ inputs.distribution_mode }}
+        shell: bash
+        run: |
+          if [ "$DISTRIBUTION_MODE" = 'homologation' ]; then
+            cat > release/RELEASE_NOTES.md <<'EOF'
+          ## PIGE360 ${{ steps.source.outputs.version }}
+
+          Pré-lançamento de homologação recuperado de artefatos já validados.
+
+          Inclui PWAs, instaladores desktop, APKs Android de depuração instaláveis,
+          IPAs ARM64 para assinatura local, pacotes self-hosted, fontes, SBOM,
+          proveniência e checksums.
+
+          Não realiza deploy SaaS nem publicação em lojas. Antes de instalar uma
+          IPA em aparelho físico, aplique no Mac o certificado e o profile Apple
+          de desenvolvimento da sua conta.
+          EOF
+          else
+            cat > release/RELEASE_NOTES.md <<'EOF'
+          ## PIGE360 ${{ steps.source.outputs.version }}
+
+          Pré-lançamento de distribuição em loja recuperado de artefatos já
+          validados, com assinatura e checksums preservados.
+          EOF
+          fi
+      - name: Publicar tag e GitHub Release imutável
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          REMOTE_RELEASE_ENABLED: 'true'
+          RELEASE_TAG: ${{ steps.source.outputs.tag }}
+          RELEASE_TARGET_SHA: ${{ steps.source.outputs.target_sha }}
+          RELEASE_NOTES_FILE: release/RELEASE_NOTES.md
+        run: bash scripts/release/publish-github-release.sh release/publish

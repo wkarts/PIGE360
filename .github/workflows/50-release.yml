@@ -14,9 +14,7 @@ on:
       - 'scripts/desktop/**'
       - 'scripts/mobile/**'
       - 'scripts/oci/**'
-      - 'scripts/release/**'
       - 'scripts/validation/**'
-      - '.github/workflows/50-release.yml'
   workflow_dispatch:
     inputs:
       distribution_mode:
