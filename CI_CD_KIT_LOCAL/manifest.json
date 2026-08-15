@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "98e4642a53af0be7982ddf96d0e223df7d05ba6ec95786f20fd53175c7f49e80",
-      "bytes": 17984
+      "sha256": "36a0d3d13bab6e5e71d62f3ed8cb3495ad7fd12b769b5ab5703c38a15077de05",
+      "bytes": 17741
     },
     {
       "path": "workflows/51-recover-release.yml",
