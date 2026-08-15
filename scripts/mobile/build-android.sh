@@ -175,7 +175,9 @@ build_artifact() {
     [ -d src-tauri/gen/android/app ] || { echo "Falha ao gerar o projeto Android para $app." >&2; exit 4; }
     rm -rf src-tauri/gen/android/app/build/outputs
     if [ "$profile" = 'debug' ]; then
-      npx --no-install tauri android build "--$extension" --debug --target "$target" --split-per-abi
+      # Mantém a assinatura/variant debug instalável, sem embutir o debuginfo
+      # nativo do Rust no APK. O dev profile padrão inclui símbolos completos.
+      CARGO_PROFILE_DEV_DEBUG=0 npx --no-install tauri android build "--$extension" --debug --target "$target" --split-per-abi
     else
       npx --no-install tauri android build "--$extension" --target "$target" --split-per-abi
     fi
