@@ -152,6 +152,33 @@ def main() -> int:
     if "Assinar e verificar IPAs de distribuição" not in release_workflow:
         failures.append("workflow de release iOS não exige assinatura e verificação")
 
+    publisher = (ROOT / "scripts/release/publish-github-release.sh").read_text(encoding="utf-8")
+    for required in (
+        "asset_source_id",
+        "Artefato idêntico deduplicado",
+        "Artefato com nome repetido preservado como",
+        "RELEASE_TARGET_SHA",
+        "-name '*SHA256SUMS'",
+        "já contém todos os assets esperados",
+    ):
+        if required not in publisher:
+            failures.append(f"publicador de release sem deduplicação idempotente: {required}")
+
+    recovery_workflow = (ROOT / ".github/workflows/51-recover-release.yml").read_text(encoding="utf-8")
+    recovery_kit_workflow = (ROOT / "CI_CD_KIT_LOCAL/workflows/51-recover-release.yml").read_text(encoding="utf-8")
+    for required in (
+        "workflow_dispatch:",
+        "source_run_id:",
+        "actions/download-artifact@v4",
+        "merge-multiple: false",
+        "RELEASE_TARGET_SHA",
+        "runs/$SOURCE_RUN_ID/artifacts",
+    ):
+        if required not in recovery_workflow:
+            failures.append(f"workflow de recuperação sem reaproveitamento verificável: {required}")
+    if recovery_workflow != recovery_kit_workflow:
+        failures.append("workflow de recuperação diverge do espelho CI_CD_KIT_LOCAL")
+
     desktop_workflow = (ROOT / ".github/workflows/31-build-desktop.yml").read_text(encoding="utf-8")
     for required in ("pull_request:", "Locale::Maketext::Simple", "PIGE360_STRAWBERRY_PERL", "libwebkit2gtk-4.1-dev"):
         if required not in desktop_workflow:
