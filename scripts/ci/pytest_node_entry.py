@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pytest
 
@@ -24,10 +24,14 @@ class NodeOutcomePlugin:
     failed: bool = False
     skipped: bool = False
     saw_call: bool = False
+    failure_details: list[str] = field(default_factory=list)
 
     def pytest_runtest_logreport(self, report: pytest.TestReport) -> None:
         if report.failed:
             self.failed = True
+            detail = report.longreprtext
+            if detail:
+                self.failure_details.append(f"[{report.when}]\n{detail}")
         if report.skipped:
             self.skipped = True
         if report.when == "call":
@@ -37,6 +41,9 @@ class NodeOutcomePlugin:
 
         passed = self.saw_call and not self.failed and not self.skipped and report.passed
         stream = sys.__stdout__
+        if not passed and self.failure_details:
+            stream.write("\n=== PIGE360 PYTEST NODE FAILURE ===\n")
+            stream.write("\n\n".join(self.failure_details).rstrip() + "\n")
         stream.write((PASS_MARKER if passed else FAIL_MARKER) + "\n")
         stream.flush()
         sys.__stderr__.flush()
