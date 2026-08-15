@@ -32,6 +32,13 @@ if [ "$mode" = 'store' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
   exit 3
 fi
 
+# O Tauri exige uma equipe inclusive no comando de inicialização. No canal
+# local-signing isto só permite gerar o projeto Xcode: a compilação abaixo
+# desativa explicitamente a assinatura e não usa essa identidade técnica.
+if [ "$mode" = 'local-signing' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
+  export APPLE_DEVELOPMENT_TEAM='PIGE360000'
+fi
+
 bash scripts/frontend/install-dependencies.sh
 root_dir="$(pwd)"
 artifact_dir="$root_dir/release/artifacts/ios"

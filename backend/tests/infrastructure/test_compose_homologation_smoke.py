@@ -156,6 +156,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert 'if [ "$wants_apk" = \'true\' ]; then' in android
     assert 'if [ "$wants_aab" = \'true\' ]; then' in android
     assert '[ "$wants_aab" = \'true\' ] && copy_output' not in android
+    assert "PIGE360000" in ios
     assert "CODE_SIGNING_ALLOWED=NO" in ios
     assert "Payload" in ios
     assert "ready-for-local-signing" in ios
