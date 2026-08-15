@@ -27,9 +27,12 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "smoke-compose-homologation.sh" in workflow
     assert "smoke-compose-homologation.sh" in release
     assert "runtime_images:" in release
-    # A release publicável só começa após o pré-check das credenciais de assinatura.
+    # O canal de homologação não exige segredos de loja; o canal store continua protegido.
     assert "needs: [version, validation, signing_preflight]" in release
-    assert "needs: [version, validation, runtime_images, signing_preflight]" in release
+    assert "needs: [version, validation, runtime_images]" in release
+    assert "distribution_mode == 'homologation'" in release
+    assert "distribution_mode == 'store'" in release
+    assert "--app all --profile debug --artifacts apk --verify-signature" in release
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
     override = (ROOT / "infra/compose/compose.homologation-smoke.yaml").read_text(encoding="utf-8")

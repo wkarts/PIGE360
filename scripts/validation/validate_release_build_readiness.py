@@ -123,8 +123,12 @@ def main() -> int:
         "GITHUB_ENV",
         "choco install strawberryperl",
         "publishable: ${{ steps.release_version.outputs.publishable }}",
+        "distribution_mode: ${{ steps.release_version.outputs.distribution_mode }}",
         'gh release view "$tag" --repo "$GITHUB_REPOSITORY"',
         "needs.version.outputs.publishable == 'true'",
+        "needs.version.outputs.distribution_mode == 'homologation'",
+        "needs.version.outputs.distribution_mode == 'store'",
+        "scripts/mobile/build-android.sh --app all --profile debug --artifacts apk --verify-signature",
         "vars.APPLE_DEVELOPMENT_TEAM",
         "signing_preflight",
         "SIGN_REQUIRED: 'true'",
@@ -138,6 +142,10 @@ def main() -> int:
         failures.append("workflow de release não pode publicar artefatos móveis unsigned")
     if "Assinar e verificar APKs/AABs de distribuição" not in release_workflow:
         failures.append("workflow de release Android não exige assinatura e verificação")
+    if "APKs Android de depuração" not in release_workflow:
+        failures.append("workflow de homologação não identifica APKs instaláveis de depuração")
+    if "DISTRIBUTION_MODE" not in release_workflow:
+        failures.append("workflow de release não seleciona o canal de distribuição")
     if "Assinar e verificar IPAs de distribuição" not in release_workflow:
         failures.append("workflow de release iOS não exige assinatura e verificação")
 
