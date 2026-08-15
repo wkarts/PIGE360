@@ -29,7 +29,7 @@ esac
 
 command -v xcodebuild >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Xcode ausente.' >&2; exit 3; }
 command -v cargo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Rust ausente.' >&2; exit 3; }
-command -v ditto >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: ditto ausente.' >&2; exit 3; }
+command -v zip >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: zip ausente.' >&2; exit 3; }
 command -v lipo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: lipo ausente.' >&2; exit 3; }
 command -v python3 >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Python 3 ausente.' >&2; exit 3; }
 command -v unzip >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: unzip ausente.' >&2; exit 3; }
@@ -248,7 +248,7 @@ package_for_local_signing() {
   mkdir -p "$work/Payload"
   cp -R "$app_bundle" "$work/Payload/"
   output="$artifact_dir/${app}-ready-for-local-signing.ipa"
-  (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
+  (cd "$work" && zip -qry "$output" Payload)
   rm -rf "$work" "$derived_root"
   verify_local_signing_ipa "$app" "$output"
 }
