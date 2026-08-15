@@ -91,12 +91,17 @@ PY
 verify_local_signing_ipa() {
   app="$1"
   ipa="$2"
-  unzip -Z1 "$ipa" | grep -Eq '^Payload/[^/]+\.app/Info\.plist$' || {
+  work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
+  if ! unzip -qq "$ipa" -d "$work"; then
+    rm -rf "$work"
+    echo "IPA de $app não é um arquivo ZIP válido." >&2
+    exit 4
+  fi
+  [ -d "$work/Payload" ] || {
+    rm -rf "$work"
     echo "IPA de $app não possui estrutura Payload/<App>.app." >&2
     exit 4
   }
-  work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
-  unzip -qq "$ipa" -d "$work"
   app_bundle="$(find "$work/Payload" -maxdepth 1 -type d -name '*.app' -print 2>/dev/null | sort | tail -n 1)"
   [ -n "$app_bundle" ] || { echo "Bundle iOS não encontrado no IPA de $app." >&2; exit 4; }
   executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
