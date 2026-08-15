@@ -209,6 +209,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     recovery = (ROOT / ".github/workflows/51-recover-release.yml").read_text(encoding="utf-8")
     kit_recovery = (ROOT / "CI_CD_KIT_LOCAL/workflows/51-recover-release.yml").read_text(encoding="utf-8")
     assert recovery == kit_recovery
+    assert "51-recover-release.yml" in (ROOT / "scripts/validation/validate_project.py").read_text(encoding="utf-8")
     for required in (
         "workflow_dispatch:",
         "source_run_id:",
