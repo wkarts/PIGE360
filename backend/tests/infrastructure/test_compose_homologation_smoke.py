@@ -122,6 +122,7 @@ def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts
         assert "push:" in candidate
         assert "branches: [main]" in candidate
         assert "- VERSION" in candidate
+        assert "scripts/validation/**" not in candidate
         assert "contents: write" in candidate
         assert "package-web-pwa.sh" in candidate
         assert "build-all.sh" in candidate
