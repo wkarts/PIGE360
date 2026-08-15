@@ -14,8 +14,8 @@
     },
     {
       "path": "scripts/release/publish-github-release.sh",
-      "sha256": "777fd07a0128bf62647f74844b7fb61c7047de4f3aaa7a316e2f466884ca9230",
-      "bytes": 1886
+      "sha256": "b6f8e8eba3302fd86f7782153882efbf731bf5f2acde1dd0311ad3f64eec38fd",
+      "bytes": 3770
     },
     {
       "path": "workflows/00-ci.yml",
@@ -69,8 +69,13 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "9419e98dca9120355b977ce2819671576d5d7f5fbb42d16d82dd22135cbd94b3",
-      "bytes": 18056
+      "sha256": "98e4642a53af0be7982ddf96d0e223df7d05ba6ec95786f20fd53175c7f49e80",
+      "bytes": 17984
+    },
+    {
+      "path": "workflows/51-recover-release.yml",
+      "sha256": "0e4034f07ffdeedb330da118b7759ef508768161d682aa6ec644abe5c9c8458f",
+      "bytes": 4734
     },
     {
       "path": "workflows/60-deploy-saas.yml",
