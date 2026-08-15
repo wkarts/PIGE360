@@ -157,8 +157,16 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "Falha ao gerar o projeto Android" in android
     assert "Esperados $expected_count APKs" in android
     assert "Esperados $expected_count AABs" in android
-    assert 'if [ "$wants_apk" = \'true\' ]; then' in android
-    assert 'if [ "$wants_aab" = \'true\' ]; then' in android
+    assert "--targets" in android
+    assert "PIGE360_ANDROID_TARGETS" in android
+    assert "--split-per-abi" in android
+    assert "CARGO_PROFILE_DEV_DEBUG=0" in android
+    assert "${app}-${profile}-${abi}.${extension}" in android
+    assert "verify_apk_abi_and_size" in android
+    assert "APK não é exclusivo para" in android
+    assert "PIGE360_ANDROID_MAX_APK_BYTES" in android
+    assert 'build_artifact "$app" "$target" apk' in android
+    assert 'build_artifact "$app" "$target" aab' in android
     assert '[ "$wants_aab" = \'true\' ] && copy_output' not in android
     assert "PIGE360000" in ios
     assert "tauri ios build --target aarch64 --open" in ios
