@@ -104,7 +104,7 @@ package_for_local_signing() {
     CODE_SIGNING_ALLOWED=NO \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGN_IDENTITY= \
-    DEVELOPMENT_TEAM= \
+    DEVELOPMENT_TEAM="$APPLE_DEVELOPMENT_TEAM" \
     build
 
   app_bundle="$(find "$derived_data/Build/Products" -type d -path '*Debug-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
