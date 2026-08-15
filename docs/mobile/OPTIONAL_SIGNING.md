@@ -44,3 +44,6 @@ release. A validade de instalação em um dispositivo iOS específico depende de
 o perfil conter esse dispositivo.
 
 Os workflows não fazem deploy SaaS ou publicação automática em lojas.
+
+
+Quando `APPLE_DEVELOPMENT_TEAM` não está configurado, a PR registra explicitamente que nenhuma IPA foi gerada e executa apenas a validação estática. A execução manual exige o Team ID e falha sem ele; a release continua exigindo todo o conjunto de assinatura.

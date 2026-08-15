@@ -22,22 +22,48 @@ concurrency:
 jobs:
   ios:
     runs-on: macos-15
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Decidir a validação iOS sem ocultar credenciais pendentes
+        id: ios_gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
+        shell: bash
+        run: |
+          if [ -n "$APPLE_DEVELOPMENT_TEAM" ]; then
+            echo 'build_ios=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+            echo '::error::APPLE_DEVELOPMENT_TEAM é obrigatório para gerar IPA.'
+            exit 3
+          fi
+          echo 'build_ios=false' >> "$GITHUB_OUTPUT"
+          echo '::notice::Validação iOS concluída sem IPA: APPLE_DEVELOPMENT_TEAM não está configurado. A release continuará bloqueada até haver assinatura Apple válida.'
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
+        if: steps.ios_gate.outputs.build_ios == 'true'
+        with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
       - uses: dtolnay/rust-toolchain@stable
+        if: steps.ios_gate.outputs.build_ios == 'true'
       - name: Construir aplicações iOS
+        if: steps.ios_gate.outputs.build_ios == 'true'
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
         run: bash scripts/mobile/build-ios.sh
-      - name: Avaliar assinatura iOS (opcional)
+      - name: Avaliar assinatura iOS solicitada manualmente
+        if: steps.ios_gate.outputs.build_ios == 'true' && inputs.sign
         env:
-          SIGN_REQUESTED: ${{ inputs.sign }}
+          SIGN_REQUESTED: 'true'
           APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
           APPLE_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
           APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
         run: bash scripts/mobile/sign-ios.sh
       - uses: actions/upload-artifact@v4
-        with: {name: ios-app-xcarchive-ipa, path: release/artifacts/ios/**, if-no-files-found: error}
+        if: steps.ios_gate.outputs.build_ios == 'true'
+        with:
+          name: ios-app-xcarchive-ipa-${{ github.run_id }}
+          path: release/artifacts/ios/**
+          if-no-files-found: error

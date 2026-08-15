@@ -152,7 +152,7 @@ def main() -> int:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 
     ios_workflow = (ROOT / ".github/workflows/33-build-ios.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "vars.APPLE_DEVELOPMENT_TEAM", "APPLE_DEVELOPMENT_TEAM"):
+    for required in ("pull_request:", "vars.APPLE_DEVELOPMENT_TEAM", "APPLE_DEVELOPMENT_TEAM", "ios_gate", "build_ios=false", "timeout-minutes: 45"):
         if required not in ios_workflow:
             failures.append(f"workflow iOS sem requisito de compilação verificável: {required}")
     if "CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM" not in ios:
