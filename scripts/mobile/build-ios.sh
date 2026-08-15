@@ -100,7 +100,6 @@ package_for_local_signing() {
     -configuration Debug \
     -sdk iphoneos \
     -destination 'generic/platform=iOS' \
-    -arch arm64 \
     -derivedDataPath "$derived_data" \
     CODE_SIGNING_ALLOWED=NO \
     CODE_SIGNING_REQUIRED=NO \
