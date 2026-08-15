@@ -97,7 +97,7 @@ package_for_local_signing() {
   xcodebuild \
     -project "$project" \
     -scheme "$scheme" \
-    -configuration Debug \
+    -configuration Release \
     -sdk iphoneos \
     -destination 'generic/platform=iOS' \
     -derivedDataPath "$derived_data" \
@@ -107,7 +107,7 @@ package_for_local_signing() {
     DEVELOPMENT_TEAM="$APPLE_DEVELOPMENT_TEAM" \
     build
 
-  app_bundle="$(find "$derived_data/Build/Products" -type d -path '*Debug-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
+  app_bundle="$(find "$derived_data/Build/Products" -type d -path '*Release-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
   [ -n "$app_bundle" ] || { echo "Bundle iOS arm64 não encontrado para $app." >&2; exit 4; }
   executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
   [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no bundle de $app." >&2; exit 4; }
