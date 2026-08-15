@@ -106,12 +106,12 @@ def main() -> int:
         failures.append("build iOS não converte a versão alpha para CFBundleShortVersionString numérico")
     if 'version="$(tr -d' not in ios:
         failures.append("build iOS não deriva a versão canônica de VERSION")
-    for required in ("tauri ios init --ci", "tauri.ios.conf.json", "restore_ios_platform_config", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS"):
+    for required in ("tauri ios init --ci", "tauri.ios.conf.json", "restore_ios_platform_config", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS", "--mode", "local-signing", "PIGE360000", "tauri ios build --target aarch64 --open", "CODE_SIGNING_ALLOWED=NO", "cleanup_tauri_options", "prepare_ios_runtime_config", "restore_ios_runtime_config", "mktemp -d", "zip -qry", "verify_local_signing_ipa", "lipo -archs", "Payload", "ready-for-local-signing"):
         if required not in ios:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
     android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "--profile", "--artifacts", "--verify-signature", "${app}-${profile}.$extension", "apksigner", "jarsigner -verify"):
+    for required in ("NDK_HOME", "llvm-ranlib", "pige360-android-tools", "for target in aarch64-linux-android", "$target-ranlib", "tauri android init --ci --skip-targets-install", "rm -rf src-tauri/gen/android", "Falha ao gerar o projeto Android", "--profile", "--artifacts", "--verify-signature", "${app}-${profile}.$extension", "apksigner", "jarsigner -verify", "if [ \"$wants_apk\" = 'true' ]; then", "if [ \"$wants_aab\" = 'true' ]; then"):
         if required not in android:
             failures.append(f"build Android sem regeneração/contagem verificável: {required}")
 
@@ -129,6 +129,9 @@ def main() -> int:
         "needs.version.outputs.distribution_mode == 'homologation'",
         "needs.version.outputs.distribution_mode == 'store'",
         "scripts/mobile/build-android.sh --app all --profile debug --artifacts apk --verify-signature",
+        "scripts/mobile/build-ios.sh --mode local-signing",
+        "iOS IPA para assinatura local",
+        "needs.ios.result == 'success'",
         "vars.APPLE_DEVELOPMENT_TEAM",
         "signing_preflight",
         "SIGN_REQUIRED: 'true'",
@@ -160,11 +163,11 @@ def main() -> int:
             failures.append(f"workflow manual Android sem toolchain obrigatória: {required}")
 
     ios_workflow = (ROOT / ".github/workflows/33-build-ios.yml").read_text(encoding="utf-8")
-    for required in ("pull_request:", "vars.APPLE_DEVELOPMENT_TEAM", "APPLE_DEVELOPMENT_TEAM", "ios_gate", "build_ios=false", "timeout-minutes: 45"):
+    for required in ("pull_request:", "vars.APPLE_DEVELOPMENT_TEAM", "APPLE_DEVELOPMENT_TEAM", "ios_gate", "build_ios=true", "local-signing", "aarch64-apple-ios", "timeout-minutes: 60"):
         if required not in ios_workflow:
             failures.append(f"workflow iOS sem requisito de compilação verificável: {required}")
     if "CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM" not in ios:
-        failures.append("build iOS não informa a configuração de equipe Apple ausente")
+        failures.append("build iOS não informa a configuração de equipe Apple ausente para o canal store")
 
     package_local = (ROOT / "scripts/release/package_local.py").read_text(encoding="utf-8")
     if "generate_evidence_pdf.py" not in package_local or "relatório de evidências ausente" not in package_local:

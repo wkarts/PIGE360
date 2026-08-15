@@ -54,8 +54,8 @@
     },
     {
       "path": "workflows/33-build-ios.yml",
-      "sha256": "41db1a93d247bdc4ac766835bd24759b38fce142a9bd86f7a618efe3c470693b",
-      "bytes": 2846
+      "sha256": "1c0dc9af86b2f5f6c9cdd84bb1ca4773c4f9d507e3a9fe5efd81bc7910b1fef2",
+      "bytes": 3799
     },
     {
       "path": "workflows/34-build-tenant-apps.yml",
@@ -69,8 +69,8 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "19b87adb497536a3abec96809f2941baca1314fb1e522505f12d1c4abfa25cbe",
-      "bytes": 17553
+      "sha256": "9419e98dca9120355b977ce2819671576d5d7f5fbb42d16d82dd22135cbd94b3",
+      "bytes": 18056
     },
     {
       "path": "workflows/60-deploy-saas.yml",

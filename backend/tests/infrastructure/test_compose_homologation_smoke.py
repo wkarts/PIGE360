@@ -33,6 +33,8 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "distribution_mode == 'homologation'" in release
     assert "distribution_mode == 'store'" in release
     assert "--app all --profile debug --artifacts apk --verify-signature" in release
+    assert "scripts/mobile/build-ios.sh --mode local-signing" in release
+    assert "needs.ios.result == 'success'" in release
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
     override = (ROOT / "infra/compose/compose.homologation-smoke.yaml").read_text(encoding="utf-8")
@@ -142,7 +144,9 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     entrypoint = (ROOT / "scripts/ci/pytest_node_entry.py").read_text(encoding="utf-8")
 
     assert "*.ipa" in ios
-    assert "Esperadas 5 IPAs; encontradas $count." in ios
+    assert "expected_count=5" in ios
+    assert "Esperadas $expected_count IPAs; encontradas $count." in ios
+    assert "--app <nome|all>" in ios
     assert "tauri ios init --ci" in ios
     assert "restore_ios_platform_config" in ios
     assert "Falha ao gerar o projeto iOS" in ios
@@ -151,6 +155,22 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "Falha ao gerar o projeto Android" in android
     assert "Esperados $expected_count APKs" in android
     assert "Esperados $expected_count AABs" in android
+    assert 'if [ "$wants_apk" = \'true\' ]; then' in android
+    assert 'if [ "$wants_aab" = \'true\' ]; then' in android
+    assert '[ "$wants_aab" = \'true\' ] && copy_output' not in android
+    assert "PIGE360000" in ios
+    assert "tauri ios build --target aarch64 --open" in ios
+    assert "CODE_SIGNING_ALLOWED=NO" in ios
+    assert "cleanup_tauri_options" in ios
+    assert "prepare_ios_runtime_config" in ios
+    assert "restore_ios_runtime_config" in ios
+    assert 'work="$(mktemp -d' in ios
+    assert 'zip -qry "$output" Payload' in ios
+    assert '[ -d "$work/Payload" ]' in ios
+    assert "verify_local_signing_ipa" in ios
+    assert "lipo -archs" in ios
+    assert "Payload" in ios
+    assert "ready-for-local-signing" in ios
     assert "PIGE360 PYTEST NODE FAILURE" in entrypoint
     assert "report.longreprtext" in entrypoint
     for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
@@ -178,6 +198,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "unsigned" not in release.lower()
     assert "APKs estão prontos para distribuição fora da Play" in android_signer
     assert "IPAs publicados contêm perfil de provisionamento e assinatura Apple" in ios_signer
+    assert "iOS IPA para assinatura local" in release
 
 def test_release_build_readiness_prevents_known_native_build_regressions() -> None:
     result = subprocess.run(

@@ -13,7 +13,16 @@ name: 33 · iOS app/xcarchive/IPA
       - 'package-lock.json'
   workflow_dispatch:
     inputs:
-      sign: {type: boolean, required: false, default: false}
+      distribution_mode:
+        description: Tipo de IPA a validar
+        type: choice
+        options: [local-signing, store]
+        default: local-signing
+      sign:
+        description: Assinar para distribuição em loja (exige certificados configurados)
+        type: boolean
+        required: false
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -22,38 +31,54 @@ concurrency:
 jobs:
   ios:
     runs-on: macos-15
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Decidir a validação iOS sem ocultar credenciais pendentes
+      - name: Decidir o modo de empacotamento iOS
         id: ios_gate
         env:
-          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODE: ${{ inputs.distribution_mode || 'local-signing' }}
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
         shell: bash
         run: |
-          if [ -n "$APPLE_DEVELOPMENT_TEAM" ]; then
-            echo 'build_ios=true' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
-            echo '::error::APPLE_DEVELOPMENT_TEAM é obrigatório para gerar IPA.'
-            exit 3
-          fi
-          echo 'build_ios=false' >> "$GITHUB_OUTPUT"
-          echo '::notice::Validação iOS concluída sem IPA: APPLE_DEVELOPMENT_TEAM não está configurado. A release continuará bloqueada até haver assinatura Apple válida.'
+          case "$REQUESTED_MODE" in
+            local-signing)
+              echo 'build_ios=true' >> "$GITHUB_OUTPUT"
+              echo 'build_mode=local-signing' >> "$GITHUB_OUTPUT"
+              echo '::notice::Será gerado IPA arm64 com Payload para assinatura local; ele não é instalável até receber certificado e provisionamento Apple.'
+              ;;
+            store)
+              if [ -z "$APPLE_DEVELOPMENT_TEAM" ]; then
+                echo '::error::APPLE_DEVELOPMENT_TEAM é obrigatório para gerar IPA de distribuição em loja.'
+                exit 3
+              fi
+              echo 'build_ios=true' >> "$GITHUB_OUTPUT"
+              echo 'build_mode=store' >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Modo iOS inválido: $REQUESTED_MODE"
+              exit 2
+              ;;
+          esac
       - uses: actions/setup-node@v4
         if: steps.ios_gate.outputs.build_ios == 'true'
         with: {node-version: '22.16.0', cache: npm, cache-dependency-path: package-lock.json}
       - uses: dtolnay/rust-toolchain@stable
         if: steps.ios_gate.outputs.build_ios == 'true'
+        with:
+          targets: aarch64-apple-ios
       - name: Construir aplicações iOS
         if: steps.ios_gate.outputs.build_ios == 'true'
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
-        run: bash scripts/mobile/build-ios.sh
-      - name: Avaliar assinatura iOS solicitada manualmente
-        if: steps.ios_gate.outputs.build_ios == 'true' && inputs.sign
+        run: |
+          if [ "${{ github.event_name }}" = 'pull_request' ]; then
+            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}" --app family-app
+          else
+            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}"
+          fi
+      - name: Assinar IPA de distribuição solicitada manualmente
+        if: steps.ios_gate.outputs.build_mode == 'store' && inputs.sign
         env:
           SIGN_REQUESTED: 'true'
           APPLE_SIGNING_CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
@@ -64,6 +89,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.ios_gate.outputs.build_ios == 'true'
         with:
-          name: ios-app-xcarchive-ipa-${{ github.run_id }}
+          name: ios-app-ipa-${{ steps.ios_gate.outputs.build_mode }}-${{ github.run_id }}
           path: release/artifacts/ios/**
           if-no-files-found: error
