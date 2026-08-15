@@ -166,7 +166,8 @@ package_for_local_signing() {
   # mantém o servidor de opções exigido pelo build phase enquanto xcodebuild
   # compila com assinatura explicitamente desligada.
   start_tauri_options_server "$app"
-  derived_data="$(mktemp "${TMPDIR:-/tmp}/pige360-ios-derived.XXXXXX")"
+  derived_root="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-derived.XXXXXX")"
+  derived_data="$derived_root/DerivedData"
   if ! (
     cd "$app_dir"
     xcodebuild \
@@ -183,24 +184,24 @@ package_for_local_signing() {
       build
   ); then
     cleanup_tauri_options
-    rm -rf "$derived_data"
+    rm -rf "$derived_root"
     echo "Falha ao construir o bundle iOS sem assinatura para $app." >&2
     return 4
   fi
   cleanup_tauri_options
 
   app_bundle="$(find "$derived_data/Build/Products" -type d -path '*release-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
-  [ -n "$app_bundle" ] || { echo "Bundle iOS arm64 não encontrado para $app." >&2; rm -rf "$derived_data"; exit 4; }
+  [ -n "$app_bundle" ] || { echo "Bundle iOS arm64 não encontrado para $app." >&2; rm -rf "$derived_root"; exit 4; }
   executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
-  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no bundle de $app." >&2; rm -rf "$derived_data"; exit 4; }
+  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no bundle de $app." >&2; rm -rf "$derived_root"; exit 4; }
   lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
     echo "Bundle iOS de $app não contém executável arm64." >&2
-    rm -rf "$derived_data"
+    rm -rf "$derived_root"
     exit 4
   }
   [ ! -e "$app_bundle/embedded.mobileprovision" ] || {
     echo "O bundle iOS de $app contém provisioning profile, mas local-signing não aceita credenciais no CI." >&2
-    rm -rf "$derived_data"
+    rm -rf "$derived_root"
     exit 4
   }
 
@@ -209,7 +210,7 @@ package_for_local_signing() {
   cp -R "$app_bundle" "$work/Payload/"
   output="$artifact_dir/${app}-ready-for-local-signing.ipa"
   (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
-  rm -rf "$work" "$derived_data"
+  rm -rf "$work" "$derived_root"
   verify_local_signing_ipa "$app" "$output"
 }
 
