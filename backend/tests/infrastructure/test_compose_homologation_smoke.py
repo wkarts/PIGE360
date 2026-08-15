@@ -159,8 +159,8 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "PIGE360000" in ios
     assert "CODE_SIGNING_ALLOWED=NO" in ios
     assert 'DEVELOPMENT_TEAM="$APPLE_DEVELOPMENT_TEAM"' in ios
-    assert "    -configuration Release" in ios
-    assert "*Release-iphoneos/*.app" in ios
+    assert "    -configuration release" in ios
+    assert "*release-iphoneos/*.app" in ios
     assert "    -arch arm64 \\\n" not in ios
     assert "Payload" in ios
     assert "ready-for-local-signing" in ios
