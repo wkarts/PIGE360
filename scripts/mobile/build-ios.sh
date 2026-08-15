@@ -23,9 +23,9 @@ esac
 
 command -v xcodebuild >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Xcode ausente.' >&2; exit 3; }
 command -v cargo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Rust ausente.' >&2; exit 3; }
-command -v ditto >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: ditto ausente.' >&2; exit 3; }
 command -v lipo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: lipo ausente.' >&2; exit 3; }
 command -v python3 >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Python 3 ausente.' >&2; exit 3; }
+command -v unzip >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: unzip ausente.' >&2; exit 3; }
 
 if [ "$mode" = 'store' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
   echo 'CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM para gerar IPA de distribuição em loja.' >&2
@@ -33,8 +33,8 @@ if [ "$mode" = 'store' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
 fi
 
 # O Tauri exige uma equipe inclusive no comando de inicialização. No canal
-# local-signing isto só permite gerar o projeto Xcode: a compilação abaixo
-# desativa explicitamente a assinatura e não usa essa identidade técnica.
+# local-signing isto só permite gerar o projeto Xcode: --no-sign faz o
+# arquivamento sem certificado e sem perfil de provisionamento.
 if [ "$mode" = 'local-signing' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
   export APPLE_DEVELOPMENT_TEAM='PIGE360000'
 fi
@@ -81,65 +81,43 @@ PY
   )
 }
 
-package_for_local_signing() {
+verify_local_signing_ipa() {
   app="$1"
-  project_root="apps/$app/src-tauri/gen/apple"
-  project="$(find "$project_root" -type d -name '*.xcodeproj' -print 2>/dev/null | sort | head -n 1)"
-  [ -n "$project" ] || { echo "Projeto Xcode não encontrado para $app." >&2; exit 4; }
-  scheme="$(xcodebuild -list -project "$project" -json | python3 -c 'import json, sys; data = json.load(sys.stdin); schemes = data.get("project", {}).get("schemes", []); print(schemes[0] if schemes else "")')"
-  [ -n "$scheme" ] || { echo "Scheme Xcode não encontrada para $app." >&2; exit 4; }
-
-  (
-    cd "apps/$app"
-    npm run build
-  )
-  derived_data="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-derived.XXXXXX")"
-  xcodebuild \
-    -project "$project" \
-    -scheme "$scheme" \
-    -configuration release \
-    -sdk iphoneos \
-    -destination 'generic/platform=iOS' \
-    -derivedDataPath "$derived_data" \
-    CODE_SIGNING_ALLOWED=NO \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGN_IDENTITY= \
-    DEVELOPMENT_TEAM="$APPLE_DEVELOPMENT_TEAM" \
-    build
-
-  app_bundle="$(find "$derived_data/Build/Products" -type d -path '*release-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
-  [ -n "$app_bundle" ] || { echo "Bundle iOS arm64 não encontrado para $app." >&2; exit 4; }
-  executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
-  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no bundle de $app." >&2; exit 4; }
-  lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
-    echo "Bundle iOS de $app não contém executável arm64." >&2
-    exit 4
-  }
-
-  work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
-  mkdir -p "$work/Payload"
-  cp -R "$app_bundle" "$work/Payload/"
-  output="$artifact_dir/${app}-ready-for-local-signing.ipa"
-  (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
-  unzip -Z1 "$output" | grep -Eq '^Payload/[^/]+\.app/Info\.plist$' || {
+  ipa="$2"
+  unzip -Z1 "$ipa" | grep -Eq '^Payload/[^/]+\.app/Info\.plist$' || {
     echo "IPA de $app não possui estrutura Payload/<App>.app." >&2
     exit 4
   }
-  rm -rf "$work" "$derived_data"
+  work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
+  unzip -qq "$ipa" -d "$work"
+  app_bundle="$(find "$work/Payload" -maxdepth 1 -type d -name '*.app' -print 2>/dev/null | sort | tail -n 1)"
+  [ -n "$app_bundle" ] || { echo "Bundle iOS não encontrado no IPA de $app." >&2; exit 4; }
+  executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
+  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no IPA de $app." >&2; exit 4; }
+  lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
+    echo "IPA de $app não contém executável arm64." >&2
+    exit 4
+  }
+  rm -rf "$work"
 }
 
 for app in family-app teacher-app student-app admin-app pos-app; do
   initialize_ios_project "$app"
-  if [ "$mode" = 'store' ]; then
-    (
-      cd "apps/$app"
+  (
+    cd "apps/$app"
+    if [ "$mode" = 'store' ]; then
       npx --no-install tauri ios build --target aarch64 --config "$ios_config"
-    )
-    ipa="$(find "apps/$app/src-tauri/gen/apple/build/arm64" -maxdepth 1 -type f -name '*.ipa' -print 2>/dev/null | sort | tail -n 1)"
-    [ -n "$ipa" ] || { echo "IPA não encontrada para $app." >&2; exit 4; }
-    cp "$ipa" "$artifact_dir/${app}.ipa"
+    else
+      npx --no-install tauri ios build --target aarch64 --no-sign --config "$ios_config"
+    fi
+  )
+  ipa="$(find "apps/$app/src-tauri/gen/apple/build/arm64" -maxdepth 1 -type f -name '*.ipa' -print 2>/dev/null | sort | tail -n 1)"
+  [ -n "$ipa" ] || { echo "IPA não encontrada para $app." >&2; exit 4; }
+  if [ "$mode" = 'local-signing' ]; then
+    verify_local_signing_ipa "$app" "$ipa"
+    cp "$ipa" "$artifact_dir/${app}-ready-for-local-signing.ipa"
   else
-    package_for_local_signing "$app"
+    cp "$ipa" "$artifact_dir/${app}.ipa"
   fi
 done
 
