@@ -87,11 +87,19 @@ for app in $selected_apps; do
     if [ "${CI:-false}" = 'true' ]; then rm -rf src-tauri/gen/android; fi
     if [ ! -d src-tauri/gen/android/app ]; then npx --no-install tauri android init --ci --skip-targets-install; fi
     [ -d src-tauri/gen/android/app ] || { echo "Falha ao gerar o projeto Android para $app." >&2; exit 4; }
-    [ "$wants_apk" = 'true' ] && npx --no-install tauri android build --apk $build_profile_args
-    [ "$wants_aab" = 'true' ] && npx --no-install tauri android build --aab $build_profile_args
+    if [ "$wants_apk" = 'true' ]; then
+      npx --no-install tauri android build --apk $build_profile_args
+    fi
+    if [ "$wants_aab" = 'true' ]; then
+      npx --no-install tauri android build --aab $build_profile_args
+    fi
   )
-  [ "$wants_apk" = 'true' ] && copy_output "$app" apk
-  [ "$wants_aab" = 'true' ] && copy_output "$app" aab
+  if [ "$wants_apk" = 'true' ]; then
+    copy_output "$app" apk
+  fi
+  if [ "$wants_aab" = 'true' ]; then
+    copy_output "$app" aab
+  fi
 done
 
 expected_count="$(printf '%s\n' "$selected_apps" | wc -w | tr -d '[:space:]')"

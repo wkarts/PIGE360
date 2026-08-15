@@ -300,13 +300,13 @@ jobs:
           if-no-files-found: error
 
   ios:
-    name: iOS IPA assinada
+    name: iOS IPA para assinatura local
     needs: [version, validation, signing_preflight]
     if: >-
       ${{ always() && needs.version.outputs.publishable == 'true' &&
-          needs.version.outputs.distribution_mode == 'store' &&
           needs.validation.result == 'success' &&
-          needs.signing_preflight.result == 'success' }}
+          (needs.version.outputs.distribution_mode == 'homologation' ||
+           needs.signing_preflight.result == 'success') }}
     runs-on: macos-15
     timeout-minutes: 120
     steps:
@@ -319,11 +319,19 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
-      - name: Construir matriz iOS
+      - name: Construir matriz iOS no canal selecionado
         env:
+          DISTRIBUTION_MODE: ${{ needs.version.outputs.distribution_mode }}
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
-        run: bash scripts/mobile/build-ios.sh
+        shell: bash
+        run: |
+          if [ "$DISTRIBUTION_MODE" = 'homologation' ]; then
+            bash scripts/mobile/build-ios.sh --mode local-signing
+          else
+            bash scripts/mobile/build-ios.sh --mode store
+          fi
       - name: Assinar e verificar IPAs de distribuição
+        if: needs.version.outputs.distribution_mode == 'store'
         env:
           SIGN_REQUIRED: 'true'
           EXPECTED_IOS_ARTIFACTS: '5'
@@ -378,11 +386,11 @@ jobs:
           needs.web_pwa.result == 'success' &&
           needs.desktop.result == 'success' &&
           needs.android.result == 'success' &&
+          needs.ios.result == 'success' &&
           needs.release_bundle.result == 'success' &&
           (needs.version.outputs.distribution_mode == 'homologation' ||
            (needs.version.outputs.distribution_mode == 'store' &&
-            needs.signing_preflight.result == 'success' &&
-            needs.ios.result == 'success')) }}
+            needs.signing_preflight.result == 'success')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -412,8 +420,10 @@ jobs:
 
           Não realiza deploy SaaS nem publicação em lojas. Os APKs deste canal
           usam a assinatura de depuração do Gradle e destinam-se somente a
-          homologação. A compilação iOS para aparelho físico requer materiais
-          Apple e é executada exclusivamente no canal `store`.
+          homologação. As IPAs deste canal contêm um bundle arm64 em
+          `Payload/<App>.app` para assinatura local. Antes da instalação em
+          aparelho físico, aplique no Mac o certificado e o perfil de
+          desenvolvimento da sua conta Apple.
           EOF
           else
             cat > release/RELEASE_NOTES.md <<'EOF'
