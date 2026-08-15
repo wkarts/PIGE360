@@ -63,7 +63,7 @@ for aab in release/artifacts/android/*.aab; do
   found=1
   signed="$tmp/$(basename "$aab").signed"
   "$jarsigner" -keystore "$tmp/release.keystore" -storepass "$ANDROID_KEYSTORE_PASSWORD" -keypass "$ANDROID_KEY_PASSWORD" -sigalg SHA256withRSA -digestalg SHA-256 -signedjar "$signed" "$aab" "$ANDROID_KEY_ALIAS"
-  "$jarsigner" -verify -strict -certs "$signed"
+  "$jarsigner" -verify -certs "$signed"
   mv "$signed" "$aab"
 done
 

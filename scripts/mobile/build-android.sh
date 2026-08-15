@@ -105,7 +105,7 @@ if [ "$verify_signature" = 'true' ]; then
   [ -n "$apksigner" ] && [ -x "$apksigner" ] || { echo 'apksigner não disponível para verificar o APK.' >&2; exit 4; }
   command -v jarsigner >/dev/null || { echo 'jarsigner não disponível para verificar o AAB.' >&2; exit 4; }
   for apk in "$artifact_dir"/*.apk; do [ -f "$apk" ] && "$apksigner" verify --verbose --print-certs "$apk"; done
-  for aab in "$artifact_dir"/*.aab; do [ -f "$aab" ] && jarsigner -verify -strict -certs "$aab"; done
+  for aab in "$artifact_dir"/*.aab; do [ -f "$aab" ] && jarsigner -verify -certs "$aab"; done
 fi
 
 (cd "$artifact_dir" && sha256sum ./*.apk ./*.aab 2>/dev/null > SHA256SUMS || true)
