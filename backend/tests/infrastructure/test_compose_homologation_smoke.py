@@ -162,6 +162,7 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert "cleanup_tauri_options" in ios
     assert "prepare_ios_runtime_config" in ios
     assert "restore_ios_runtime_config" in ios
+    assert 'work="$(mktemp -d' in ios
     assert "verify_local_signing_ipa" in ios
     assert "lipo -archs" in ios
     assert "Payload" in ios
