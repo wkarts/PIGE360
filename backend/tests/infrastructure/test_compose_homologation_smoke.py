@@ -157,7 +157,9 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     assert 'if [ "$wants_aab" = \'true\' ]; then' in android
     assert '[ "$wants_aab" = \'true\' ] && copy_output' not in android
     assert "PIGE360000" in ios
-    assert "--no-sign" in ios
+    assert "tauri ios build --target aarch64 --open" in ios
+    assert "CODE_SIGNING_ALLOWED=NO" in ios
+    assert "cleanup_tauri_options" in ios
     assert "verify_local_signing_ipa" in ios
     assert "lipo -archs" in ios
     assert "Payload" in ios
