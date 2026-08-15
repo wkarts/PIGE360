@@ -144,7 +144,9 @@ def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
     entrypoint = (ROOT / "scripts/ci/pytest_node_entry.py").read_text(encoding="utf-8")
 
     assert "*.ipa" in ios
-    assert "Esperadas 5 IPAs; encontradas $count." in ios
+    assert "expected_count=5" in ios
+    assert "Esperadas $expected_count IPAs; encontradas $count." in ios
+    assert "--app <nome|all>" in ios
     assert "tauri ios init --ci" in ios
     assert "restore_ios_platform_config" in ios
     assert "Falha ao gerar o projeto iOS" in ios
