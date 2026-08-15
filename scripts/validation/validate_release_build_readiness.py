@@ -106,7 +106,7 @@ def main() -> int:
         failures.append("build iOS não converte a versão alpha para CFBundleShortVersionString numérico")
     if 'version="$(tr -d' not in ios:
         failures.append("build iOS não deriva a versão canônica de VERSION")
-    for required in ("tauri ios init --ci", "tauri.ios.conf.json", "restore_ios_platform_config", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS", "--mode", "local-signing", "PIGE360000", "--no-sign", "verify_local_signing_ipa", "lipo -archs", "Payload", "ready-for-local-signing"):
+    for required in ("tauri ios init --ci", "tauri.ios.conf.json", "restore_ios_platform_config", "rm -rf src-tauri/gen/apple", "Falha ao gerar o projeto iOS", "--mode", "local-signing", "PIGE360000", "tauri ios build --target aarch64 --open", "CODE_SIGNING_ALLOWED=NO", "cleanup_tauri_options", "verify_local_signing_ipa", "lipo -archs", "Payload", "ready-for-local-signing"):
         if required not in ios:
             failures.append(f"build iOS sem geração verificável do projeto Apple: {required}")
 
