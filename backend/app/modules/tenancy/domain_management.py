@@ -125,6 +125,56 @@ def remove_edge_route(hostname: str) -> None:
         pass
 
 
+def _cloudflare_validation_records(result: dict[str, Any]) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    ownership = result.get("ownership_verification")
+    if isinstance(ownership, dict) and ownership.get("name") and ownership.get("value"):
+        records.append(
+            {
+                "purpose": "hostname_ownership",
+                "type": str(ownership.get("type") or "TXT").upper(),
+                "name": ownership.get("name"),
+                "value": ownership.get("value"),
+            }
+        )
+
+    ssl_state = result.get("ssl") if isinstance(result.get("ssl"), dict) else {}
+    for item in ssl_state.get("validation_records") or []:
+        if not isinstance(item, dict):
+            continue
+        if item.get("txt_name") and item.get("txt_value"):
+            records.append(
+                {
+                    "purpose": "certificate_validation",
+                    "type": "TXT",
+                    "name": item.get("txt_name"),
+                    "value": item.get("txt_value"),
+                    "status": item.get("status"),
+                }
+            )
+        elif item.get("cname") and item.get("cname_target"):
+            records.append(
+                {
+                    "purpose": "certificate_validation",
+                    "type": "CNAME",
+                    "name": item.get("cname"),
+                    "value": item.get("cname_target"),
+                    "status": item.get("status"),
+                }
+            )
+        elif item.get("http_url") and item.get("http_body"):
+            records.append(
+                {
+                    "purpose": "certificate_validation",
+                    "type": "HTTP",
+                    "name": item.get("http_url"),
+                    "value": item.get("http_body"),
+                    "status": item.get("status"),
+                }
+            )
+    return records
+
+
 def request_certificate(hostname: str) -> dict[str, Any]:
     host = normalize_hostname(hostname)
     ensure_edge_route(host)
@@ -132,6 +182,7 @@ def request_certificate(hostname: str) -> dict[str, Any]:
         return {
             "provider": "edge_acme",
             "provider_reference": None,
+            "provider_validation": [],
             "certificate_status": "pending",
             "status": "pending_tls",
         }
@@ -152,6 +203,7 @@ def request_certificate(hostname: str) -> dict[str, Any]:
     return {
         "provider": "cloudflare_saas",
         "provider_reference": result.get("id"),
+        "provider_validation": _cloudflare_validation_records(result),
         "certificate_status": ssl_state.get("status") or "pending",
         "status": "pending_tls",
     }
@@ -175,7 +227,10 @@ def _cloudflare_status(reference: str) -> dict[str, Any]:
 
 def _edge_tls_status(hostname: str) -> dict[str, Any]:
     host = normalize_hostname(hostname)
-    request = urllib.request.Request(f"https://{host}/healthz", headers={"User-Agent": "PIGE360-Domain-Control/1"})
+    request = urllib.request.Request(
+        f"https://{host}/api/v1/health/live",
+        headers={"User-Agent": "PIGE360-Domain-Control/1"},
+    )
     context = ssl.create_default_context()
     try:
         with urllib.request.urlopen(request, timeout=8.0, context=context) as response:
@@ -185,6 +240,7 @@ def _edge_tls_status(hostname: str) -> dict[str, Any]:
     return {
         "status": "active" if active else "pending_tls",
         "certificate_status": "active" if active else "pending",
+        "provider_validation": [],
     }
 
 
@@ -202,5 +258,6 @@ def refresh_certificate(hostname: str, provider: str | None, provider_reference:
             "status": "active" if active else "pending_tls",
             "certificate_status": cert_state,
             "provider_state": host_state,
+            "provider_validation": _cloudflare_validation_records(result),
         }
     return _edge_tls_status(hostname)
