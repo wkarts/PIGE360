@@ -1,6 +1,21 @@
 services:
+  pige360-edge-init:
+    image: busybox:1.37.0
+    command:
+      - /bin/sh
+      - -ec
+      - mkdir -p /dynamic && chown -R 10001:10001 /dynamic && chmod 0770 /dynamic
+    volumes:
+      - pige360-traefik-dynamic:/dynamic
+    restart: 'no'
+    security_opt:
+      - no-new-privileges:true
+
   pige360-edge:
     image: ${TRAEFIK_IMAGE:-traefik:v3.7.12}
+    depends_on:
+      pige360-edge-init:
+        condition: service_completed_successfully
     command:
       - --global.checknewversion=false
       - --global.sendanonymoususage=false
@@ -40,6 +55,9 @@ services:
       - no-new-privileges:true
 
   pige360-api:
+    depends_on:
+      pige360-edge-init:
+        condition: service_completed_successfully
     environment:
       PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL: /var/lib/pige360/edge-dynamic
     volumes:
