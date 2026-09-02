@@ -31,7 +31,7 @@ services:
       - ${TRAEFIK_HTTPS_PORT:-443}:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${PIGE360_TRAEFIK_DYNAMIC_DIR:-./runtime-data/traefik/dynamic}:/etc/traefik/dynamic:ro
+      - pige360-traefik-dynamic:/etc/traefik/dynamic:ro
       - pige360-traefik-acme:/var/lib/traefik
     networks:
       - pige360-app
@@ -40,6 +40,10 @@ services:
       - no-new-privileges:true
 
   pige360-api:
+    environment:
+      PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL: /var/lib/pige360/edge-dynamic
+    volumes:
+      - pige360-traefik-dynamic:/var/lib/pige360/edge-dynamic
     labels:
       traefik.enable: 'true'
       traefik.docker.network: pige360-app
@@ -54,7 +58,7 @@ services:
       traefik.http.routers.pige360-console-api.tls: 'true'
       traefik.http.routers.pige360-console-api.tls.certresolver: cloudflare
       traefik.http.routers.pige360-console-api.priority: '120'
-      traefik.http.routers.pige360-tenant-api.rule: Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`) && PathPrefix(`/api`)
+      traefik.http.routers.pige360-tenant-api.rule: HostRegexp(`^[a-z0-9-]+\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`) && PathPrefix(`/api`)
       traefik.http.routers.pige360-tenant-api.entrypoints: websecure
       traefik.http.routers.pige360-tenant-api.tls: 'true'
       traefik.http.routers.pige360-tenant-api.tls.certresolver: cloudflare
@@ -67,7 +71,7 @@ services:
       traefik.enable: 'true'
       traefik.docker.network: pige360-app
       traefik.http.services.pige360-web.loadbalancer.server.port: '8080'
-      traefik.http.routers.pige360-tenant-web.rule: Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`)
+      traefik.http.routers.pige360-tenant-web.rule: HostRegexp(`^[a-z0-9-]+\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`)
       traefik.http.routers.pige360-tenant-web.entrypoints: websecure
       traefik.http.routers.pige360-tenant-web.tls: 'true'
       traefik.http.routers.pige360-tenant-web.tls.certresolver: cloudflare
@@ -107,3 +111,5 @@ secrets:
 volumes:
   pige360-traefik-acme:
     name: pige360-traefik-acme
+  pige360-traefik-dynamic:
+    name: pige360-traefik-dynamic
