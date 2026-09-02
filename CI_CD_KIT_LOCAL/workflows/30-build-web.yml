@@ -1,24 +1,50 @@
 name: 30 · Web e PWA
-'on':
+
+on:
   pull_request:
-    paths: ['apps/**','packages/**','scripts/frontend/**']
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'scripts/frontend/**'
+      - 'infra/docker/Dockerfile.web'
+      - 'infra/docker/nginx.conf'
+  push:
+    branches:
+      - develop
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+      - 'scripts/frontend/**'
+      - 'infra/docker/Dockerfile.web'
+      - 'infra/docker/nginx.conf'
+      - VERSION
   workflow_dispatch:
+
 permissions:
   contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build-web:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
+        with:
+          node-version: '22.16.0'
+          cache: npm
+          cache-dependency-path: package-lock.json
       - uses: actions/setup-python@v5
-        with: {python-version: '3.13'}
+        with:
+          python-version: '3.13'
       - run: bash scripts/frontend/install-dependencies.sh
       - run: npm run validate:ts
       - run: npm run build:web
       - uses: actions/upload-artifact@v4
-        with: {name: pige360-web-pwa, path: 'apps/*/dist', if-no-files-found: error}
+        with:
+          name: pige360-web-pwa-${{ github.run_id }}
+          path: 'apps/*/dist'
+          if-no-files-found: error
