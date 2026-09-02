@@ -50,6 +50,60 @@ class SQLiteStore:
             for column in ("last_error", "next_attempt_at"):
                 if column not in outbox_columns:
                     conn.execute(f"ALTER TABLE outbox_events ADD COLUMN {column} TEXT")
+
+        tenant_domains = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='tenant_domains'"
+        ).fetchone()
+        if tenant_domains:
+            columns = {row[1] for row in conn.execute("PRAGMA table_info(tenant_domains)").fetchall()}
+            additions = {
+                "certificate_policy": "TEXT NOT NULL DEFAULT 'edge_acme'",
+                "certificate_status": "TEXT NOT NULL DEFAULT 'not_requested'",
+                "verification_method": "TEXT",
+                "verification_name": "TEXT",
+                "verification_token": "TEXT",
+                "verification_status": "TEXT NOT NULL DEFAULT 'not_required'",
+                "provider": "TEXT",
+                "provider_reference": "TEXT",
+                "verified_at": "TEXT",
+                "activated_at": "TEXT",
+                "last_error": "TEXT",
+                "updated_at": "TEXT",
+            }
+            for column, ddl in additions.items():
+                if column not in columns:
+                    conn.execute(f"ALTER TABLE tenant_domains ADD COLUMN {column} {ddl}")
+
+            # Domínios canônicos antigos permanecem confiáveis porque são cobertos pelo
+            # wildcard da própria plataforma. Domínios externos legados precisam passar
+            # pela nova prova de posse antes de voltar a receber tráfego/TLS.
+            conn.execute(
+                """UPDATE tenant_domains
+                   SET certificate_policy='canonical_wildcard',
+                       certificate_status='active',
+                       verification_status='not_required',
+                       provider='platform_wildcard',
+                       activated_at=COALESCE(activated_at, created_at),
+                       updated_at=COALESCE(updated_at, created_at)
+                   WHERE is_canonical=1"""
+            )
+            conn.execute(
+                """UPDATE tenant_domains
+                   SET status='pending_verification',
+                       certificate_policy='edge_acme',
+                       certificate_status='not_requested',
+                       verification_status='pending',
+                       provider=NULL,
+                       provider_reference=NULL,
+                       verified_at=NULL,
+                       activated_at=NULL,
+                       last_error='Revalidação obrigatória após upgrade do ciclo de domínio personalizado.',
+                       updated_at=COALESCE(updated_at, created_at)
+                   WHERE is_canonical=0
+                     AND verification_name IS NULL
+                     AND verification_token IS NULL"""
+            )
+
         fiscal_profiles = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='fiscal_profiles'").fetchone()
         if fiscal_profiles:
             columns = {row[1] for row in conn.execute("PRAGMA table_info(fiscal_profiles)").fetchall()}
