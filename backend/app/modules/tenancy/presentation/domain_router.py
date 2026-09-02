@@ -10,6 +10,7 @@ from app.modules.tenancy.domain_management import (
     DomainLifecycleError,
     normalize_hostname,
     refresh_certificate,
+    remove_certificate_provider,
     remove_edge_route,
     request_certificate,
     verification_challenge,
@@ -295,15 +296,25 @@ def deactivate_domain(
     row = _domain(request, tenant_id, domain_id)
     if row.get("is_canonical"):
         raise DomainError("CANONICAL_DOMAIN_CANNOT_BE_REMOVED", "O domínio canônico do tenant não pode ser removido.", 409)
+    try:
+        remove_certificate_provider(row.get("provider"), row.get("provider_reference"))
+    except DomainLifecycleError as exc:
+        with request.state.store.transaction() as conn:
+            conn.execute("UPDATE tenant_domains SET last_error=?,updated_at=? WHERE id=?", (str(exc), iso_now(), domain_id))
+        raise DomainError(exc.code, str(exc), 503) from exc
     remove_edge_route(str(row["hostname"]))
     now = iso_now()
     with request.state.store.transaction() as conn:
-        conn.execute("UPDATE tenant_domains SET status='disabled',updated_at=? WHERE id=?", (now, domain_id))
+        conn.execute(
+            """UPDATE tenant_domains SET status='disabled',provider_reference=NULL,provider_validation_json='{}',updated_at=?
+               WHERE id=?""",
+            (now, domain_id),
+        )
         add_audit(
             conn, tenant_id=tenant_id, actor_id=user.id, action="custom_domain_disabled",
             aggregate_type="tenant_domain", aggregate_id=domain_id,
             correlation_id=request.state.correlation_id,
-            before={"hostname": row["hostname"], "status": row["status"]},
+            before={"hostname": row["hostname"], "status": row["status"], "provider": row.get("provider")},
             after={"hostname": row["hostname"], "status": "disabled"},
         )
     return {"id": domain_id, "hostname": row["hostname"], "status": "disabled"}
