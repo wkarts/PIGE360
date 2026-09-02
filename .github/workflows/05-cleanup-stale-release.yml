@@ -1,0 +1,77 @@
+name: 05 · Limpar release draft legada
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - '.github/workflows/05-cleanup-stale-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cleanup-stale-release
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Remover draft v1.0.0 legada
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Localizar e remover draft legada com retentativa
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t release_ids < <(
+            gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate \
+              --jq '.[] | select(.draft == true and .tag_name == "v1.0.0") | .id'
+          )
+
+          if [ "${#release_ids[@]}" -eq 0 ]; then
+            echo 'Nenhuma draft legada v1.0.0 encontrada.'
+            exit 0
+          fi
+
+          delete_with_retry() {
+            local endpoint="$1"
+            local attempts=6
+            local delay=2
+            local attempt
+            for attempt in $(seq 1 "$attempts"); do
+              if gh api --silent --method DELETE "$endpoint"; then
+                return 0
+              fi
+              if [ "$attempt" -lt "$attempts" ]; then
+                sleep "$delay"
+                delay=$(( delay < 16 ? delay * 2 : 16 ))
+              fi
+            done
+            return 1
+          }
+
+          for release_id in "${release_ids[@]}"; do
+            echo "Removendo draft legada ID $release_id..."
+            if delete_with_retry "repos/$GITHUB_REPOSITORY/releases/$release_id"; then
+              continue
+            fi
+
+            echo "Exclusão direta falhou; removendo assets da draft $release_id."
+            mapfile -t asset_ids < <(
+              gh api "repos/$GITHUB_REPOSITORY/releases/$release_id/assets?per_page=100" --paginate --jq '.[].id'
+            )
+            for asset_id in "${asset_ids[@]}"; do
+              delete_with_retry "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id"
+            done
+            delete_with_retry "repos/$GITHUB_REPOSITORY/releases/$release_id"
+          done
+
+          remaining="$(
+            gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate \
+              --jq '[.[] | select(.draft == true and .tag_name == "v1.0.0")] | length'
+          )"
+          test "$remaining" = '0'
+          echo 'Draft legada v1.0.0 removida com sucesso.'
