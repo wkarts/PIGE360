@@ -19,6 +19,7 @@ from app.modules.foundation.presentation.router import router as foundation_rout
 from app.modules.fiscal.presentation.router import router as fiscal_ibpt_router
 from app.modules.identity.presentation.router import router as identity_router
 from app.modules.integrations.presentation.router import router as integrations_router
+from app.modules.integrations.presentation.connect_api_router import router as connect_api_router
 from app.modules.lesson_planning.presentation.router import router as planning_router
 from app.modules.pedagogy.presentation.router import router as pedagogy_router
 from app.modules.mail.presentation.router import router as mail_router
@@ -55,33 +56,115 @@ from app.shared.presentation.errors import DomainError, domain_error_handler, pr
 from app.shared.security.middleware import RequestContextMiddleware
 
 
-def create_app(settings:Settings|None=None)->FastAPI:
-    settings=settings or Settings.from_env();data_router=DataRouter(settings)
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or Settings.from_env()
+    data_router = DataRouter(settings)
+
     @asynccontextmanager
-    async def lifespan(app:FastAPI):
+    async def lifespan(app: FastAPI):
         data_router.initialize()
         if settings.demo_mode:
             from pathlib import Path
-            seed_demo(data_router,settings,Path(__file__).resolve().parents[2])
+
+            seed_demo(data_router, settings, Path(__file__).resolve().parents[2])
         try:
             yield
         finally:
             data_router.close()
-    app=FastAPI(title=settings.app_full_name,version=settings.version,description="API REST multi-tenant do PIGE360",openapi_url="/api/v1/openapi.json",docs_url="/api/v1/docs",redoc_url="/api/v1/redoc",lifespan=lifespan)
-    app.state.settings=settings;app.state.data_router=data_router
+
+    app = FastAPI(
+        title=settings.app_full_name,
+        version=settings.version,
+        description="API REST multi-tenant do PIGE360",
+        openapi_url="/api/v1/openapi.json",
+        docs_url="/api/v1/docs",
+        redoc_url="/api/v1/redoc",
+        lifespan=lifespan,
+    )
+    app.state.settings = settings
+    app.state.data_router = data_router
+
     if settings.cors_origins:
-        app.add_middleware(CORSMiddleware,allow_origins=list(settings.cors_origins),allow_credentials=True,allow_methods=["GET","POST","PUT","PATCH","DELETE","OPTIONS"],allow_headers=["Authorization","Content-Type","Idempotency-Key","X-Correlation-ID"])
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=list(settings.cors_origins),
+            allow_credentials=True,
+            allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Correlation-ID"],
+        )
     app.add_middleware(RequestContextMiddleware)
-    app.add_exception_handler(DomainError,domain_error_handler)
+    app.add_exception_handler(DomainError, domain_error_handler)
+
     @app.exception_handler(RequestValidationError)
-    async def validation_handler(request:Request,exc:RequestValidationError):
-        errors=[]
-        for item in exc.errors():errors.append({"field":".".join(str(x) for x in item["loc"] if x not in {"body","query","path"}),"code":item["type"].upper(),"message":item["msg"]})
-        error=DomainError("VALIDATION_ERROR","Existem campos inválidos.",422,"Erro de validação",errors)
-        return JSONResponse(problem(error,getattr(request.state,"correlation_id",None)),status_code=422)
-    if settings.environment not in {"development","testing"}:app.add_exception_handler(Exception,unhandled_error_handler)
-    api_prefix="/api/v1"
-    for router in [foundation_router,identity_router,tenancy_router,branding_router,app_factory_router,academic_core_router,admissions_router,academic_progress_router,finance_router,banking_router,services_router,inventory_router,canteen_router,pos_router,sales_router,procurement_router,assets_router,hr_router,personnel_router,payroll_router,timekeeping_router,community_operations_router,government_education_router,portals_router,planning_router,pedagogy_router,attendance_router,contracts_router,integrations_router,mail_router,library_router,transportation_router,health_router,reporting_router,analytics_router,communication_router,compliance_router,notices_router,requests_router,workflows_router,fiscal_ibpt_router]:app.include_router(router,prefix=api_prefix)
+    async def validation_handler(request: Request, exc: RequestValidationError):
+        errors = []
+        for item in exc.errors():
+            errors.append(
+                {
+                    "field": ".".join(str(x) for x in item["loc"] if x not in {"body", "query", "path"}),
+                    "code": item["type"].upper(),
+                    "message": item["msg"],
+                }
+            )
+        error = DomainError(
+            "VALIDATION_ERROR",
+            "Existem campos inválidos.",
+            422,
+            "Erro de validação",
+            errors,
+        )
+        return JSONResponse(problem(error, getattr(request.state, "correlation_id", None)), status_code=422)
+
+    if settings.environment not in {"development", "testing"}:
+        app.add_exception_handler(Exception, unhandled_error_handler)
+
+    api_prefix = "/api/v1"
+    for router in [
+        foundation_router,
+        identity_router,
+        tenancy_router,
+        branding_router,
+        app_factory_router,
+        academic_core_router,
+        admissions_router,
+        academic_progress_router,
+        finance_router,
+        banking_router,
+        services_router,
+        inventory_router,
+        canteen_router,
+        pos_router,
+        sales_router,
+        procurement_router,
+        assets_router,
+        hr_router,
+        personnel_router,
+        payroll_router,
+        timekeeping_router,
+        community_operations_router,
+        government_education_router,
+        portals_router,
+        planning_router,
+        pedagogy_router,
+        attendance_router,
+        contracts_router,
+        integrations_router,
+        connect_api_router,
+        mail_router,
+        library_router,
+        transportation_router,
+        health_router,
+        reporting_router,
+        analytics_router,
+        communication_router,
+        compliance_router,
+        notices_router,
+        requests_router,
+        workflows_router,
+        fiscal_ibpt_router,
+    ]:
+        app.include_router(router, prefix=api_prefix)
     return app
 
-app=create_app()
+
+app = create_app()
