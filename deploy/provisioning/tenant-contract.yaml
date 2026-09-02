@@ -1,0 +1,33 @@
+schema_version: 1
+workflow: tenant_provisioning
+trigger: control_plane
+steps:
+- {id: validate_slug, action: reject_reserved_or_invalid_slug}
+- {id: reserve_tenant, action: create_control_plane_record, status: provisioning}
+- {id: database, action: create_postgresql_database_and_role, isolation: database_per_tenant}
+- {id: storage, action: create_minio_or_s3_bucket, isolation: bucket_per_tenant}
+- {id: migrations, action: apply_tenant_migrations}
+- {id: metadata, action: seed_tenant_metadata}
+- {id: canonical_domain, action: register_tenant_domain, pattern: '{slug}.pige360.com.br'}
+- {id: dns, action: reuse_wildcard, per_tenant_record: false}
+- {id: owner, action: create_tenant_owner}
+- {id: audit, action: append_control_plane_audit}
+- {id: outbox, action: emit_TenantProvisioned}
+- {id: activate, action: mark_tenant_and_domain_active}
+failure_policy:
+  tenant_status: failed
+  domain_status: failed
+  audit_required: true
+custom_domain:
+  initial_status: pending_verification
+  verification:
+  - dns_txt
+  - cname_target
+  activation_requires:
+  - ownership_verified
+  - tls_ready
+  - tenant_active
+canonical_domain:
+  activation_requires:
+  - tenant_active
+  - wildcard_edge_ready

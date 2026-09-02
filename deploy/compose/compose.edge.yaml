@@ -1,0 +1,109 @@
+services:
+  pige360-edge:
+    image: ${TRAEFIK_IMAGE:-traefik:v3.7.12}
+    command:
+      - --global.checknewversion=false
+      - --global.sendanonymoususage=false
+      - --api.dashboard=false
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --accesslog=true
+      - --accesslog.format=json
+      - --log.format=json
+      - --certificatesresolvers.cloudflare.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.cloudflare.acme.storage=/var/lib/traefik/acme.json
+      - --certificatesresolvers.cloudflare.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.public.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.public.acme.storage=/var/lib/traefik/acme-public.json
+      - --certificatesresolvers.public.acme.httpchallenge.entrypoint=web
+    environment:
+      CF_DNS_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+    secrets:
+      - cloudflare_api_token
+    ports:
+      - ${TRAEFIK_HTTP_PORT:-80}:80
+      - ${TRAEFIK_HTTPS_PORT:-443}:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PIGE360_TRAEFIK_DYNAMIC_DIR:-./runtime-data/traefik/dynamic}:/etc/traefik/dynamic:ro
+      - pige360-traefik-acme:/var/lib/traefik
+    networks:
+      - pige360-app
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  pige360-api:
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: pige360-app
+      traefik.http.services.pige360-api.loadbalancer.server.port: '8000'
+      traefik.http.routers.pige360-control-api.rule: Host(`${PLATFORM_API_HOST:-api.pige360.com.br}`)
+      traefik.http.routers.pige360-control-api.entrypoints: websecure
+      traefik.http.routers.pige360-control-api.tls: 'true'
+      traefik.http.routers.pige360-control-api.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-control-api.priority: '120'
+      traefik.http.routers.pige360-console-api.rule: Host(`${PLATFORM_CONSOLE_HOST:-console.pige360.com.br}`) && PathPrefix(`/api`)
+      traefik.http.routers.pige360-console-api.entrypoints: websecure
+      traefik.http.routers.pige360-console-api.tls: 'true'
+      traefik.http.routers.pige360-console-api.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-console-api.priority: '120'
+      traefik.http.routers.pige360-tenant-api.rule: Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`) && PathPrefix(`/api`)
+      traefik.http.routers.pige360-tenant-api.entrypoints: websecure
+      traefik.http.routers.pige360-tenant-api.tls: 'true'
+      traefik.http.routers.pige360-tenant-api.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-tenant-api.tls.domains[0].main: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}
+      traefik.http.routers.pige360-tenant-api.tls.domains[0].sans: '*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}'
+      traefik.http.routers.pige360-tenant-api.priority: '80'
+
+  pige360-web:
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: pige360-app
+      traefik.http.services.pige360-web.loadbalancer.server.port: '8080'
+      traefik.http.routers.pige360-tenant-web.rule: Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`)
+      traefik.http.routers.pige360-tenant-web.entrypoints: websecure
+      traefik.http.routers.pige360-tenant-web.tls: 'true'
+      traefik.http.routers.pige360-tenant-web.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-tenant-web.tls.domains[0].main: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}
+      traefik.http.routers.pige360-tenant-web.tls.domains[0].sans: '*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}'
+      traefik.http.routers.pige360-tenant-web.priority: '40'
+
+  pige360-platform-console:
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: pige360-app
+      traefik.http.services.pige360-platform-console.loadbalancer.server.port: '8080'
+      traefik.http.routers.pige360-platform-console.rule: Host(`${PLATFORM_CONSOLE_HOST:-console.pige360.com.br}`)
+      traefik.http.routers.pige360-platform-console.entrypoints: websecure
+      traefik.http.routers.pige360-platform-console.tls: 'true'
+      traefik.http.routers.pige360-platform-console.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-platform-console.priority: '100'
+
+  pige360-grafana:
+    networks:
+      - pige360-observability
+      - pige360-app
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: pige360-app
+      traefik.http.services.pige360-grafana.loadbalancer.server.port: '3000'
+      traefik.http.routers.pige360-ops.rule: Host(`${PLATFORM_OPS_HOST:-ops.pige360.com.br}`)
+      traefik.http.routers.pige360-ops.entrypoints: websecure
+      traefik.http.routers.pige360-ops.tls: 'true'
+      traefik.http.routers.pige360-ops.tls.certresolver: cloudflare
+      traefik.http.routers.pige360-ops.priority: '120'
+
+secrets:
+  cloudflare_api_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/cloudflare_api_token.txt
+
+volumes:
+  pige360-traefik-acme:
+    name: pige360-traefik-acme

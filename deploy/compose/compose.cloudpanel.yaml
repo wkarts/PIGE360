@@ -1,0 +1,13 @@
+services:
+  pige360-api:
+    ports:
+      - ${API_BIND_HOST:-127.0.0.1}:${API_PUBLISHED_PORT:-58000}:8000
+  pige360-web:
+    ports:
+      - ${WEB_BIND_HOST:-127.0.0.1}:${WEB_PUBLISHED_PORT:-58080}:8080
+  pige360-platform-console:
+    ports:
+      - ${CONTROL_WEB_BIND_HOST:-127.0.0.1}:${CONTROL_WEB_PUBLISHED_PORT:-58081}:8080
+  pige360-grafana:
+    ports:
+      - ${OPS_BIND_HOST:-127.0.0.1}:${OPS_PUBLISHED_PORT:-53000}:3000
