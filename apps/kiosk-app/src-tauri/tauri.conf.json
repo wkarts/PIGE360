@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Autoatendimento",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "identifier": "br.com.argws.pige360.kiosk",
   "build": {
     "beforeDevCommand": "npm run dev",

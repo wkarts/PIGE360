@@ -2,7 +2,7 @@ name: 00 · CI local reproduzível
 'on':
   pull_request:
   push:
-    branches: [main, dev]
+    branches: [main, develop]
   workflow_dispatch:
 permissions:
   contents: read

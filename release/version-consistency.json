@@ -1,10 +1,12 @@
 {
-  "schema_version": 1,
-  "version": "1.0.0-alpha.3",
+  "schema_version": 2,
+  "version": "1.0.0",
+  "stable_semver": true,
   "status": "passed",
   "checked_files": [
     ".env.example",
     "README.md",
+    "VERSION",
     "apps/admin-app/package.json",
     "apps/admin-app/public/sw.js",
     "apps/admin-app/src/app-contract.js",
@@ -98,9 +100,11 @@
     "apps/timeclock-app/src-tauri/tauri.conf.json",
     "backend/app/bootstrap/config.py",
     "backend/pyproject.toml",
+    "compose.production.yaml",
     "compose.yaml",
     "docs/ci-cd/ALPHA_TEST_RELEASE.md",
-    "package-lock.json",
+    "docs/ci-cd/GIT_FLOW.md",
+    "docs/ci-cd/README.md",
     "package.json",
     "packages/api-sdk/package.json",
     "packages/app-manifest/package.json",
@@ -118,5 +122,5 @@
     "packages/validation/package.json",
     "rust/Cargo.toml"
   ],
-  "mismatches": []
+  "product_prereleases": []
 }

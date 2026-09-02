@@ -1,12 +1,16 @@
-name: 04 · Sincronizar versão de release
+name: 04 · Sincronizar metadados SemVer
 
 on:
-  push:
-    branches:
-      - 'release/**'
-    paths:
-      - VERSION
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão estável X.Y.Z a materializar na branch selecionada"
+        required: true
+        type: string
+      from_version:
+        description: "Versão de origem opcional a substituir"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -25,13 +29,19 @@ jobs:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
       - name: Sincronizar manifests e validar
+        env:
+          TARGET_VERSION: ${{ inputs.version }}
+          FROM_VERSION: ${{ inputs.from_version }}
         shell: bash
         run: |
           set -euo pipefail
-          version="$(tr -d '[:space:]' < VERSION)"
-          python3 scripts/release/sync-version.py "$version"
+          args=("$TARGET_VERSION")
+          if [ -n "$FROM_VERSION" ]; then
+            args+=(--from-version "$FROM_VERSION")
+          fi
+          python3 scripts/release/sync-version.py "${args[@]}"
           python3 scripts/validation/validate_version_consistency.py --output release/version-consistency.json
-      - name: Persistir sincronização na branch de release
+      - name: Persistir sincronização
         shell: bash
         run: |
           set -euo pipefail
@@ -42,6 +52,6 @@ jobs:
           version="$(tr -d '[:space:]' < VERSION)"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m "chore(release): sincroniza metadados para ${version}"
+          git add -u
+          git commit -m "chore(version): sincroniza metadados para ${version} [skip release]"
           git push origin "HEAD:${GITHUB_REF_NAME}"
