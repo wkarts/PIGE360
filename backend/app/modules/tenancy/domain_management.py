@@ -225,6 +225,27 @@ def _cloudflare_status(reference: str) -> dict[str, Any]:
     return payload.get("result") or {}
 
 
+def remove_certificate_provider(provider: str | None, provider_reference: str | None) -> None:
+    if provider != "cloudflare_saas" or not provider_reference:
+        return
+    zone_id = os.getenv("CLOUDFLARE_TENANT_ZONE_ID", "").strip()
+    token = _read_secret("CLOUDFLARE_API_TOKEN_FILE")
+    if not zone_id or not token:
+        raise DomainLifecycleError("CLOUDFLARE_NOT_CONFIGURED", "Cloudflare for SaaS não está configurado para remover o hostname.")
+    url = f"https://api.cloudflare.com/client/v4/zones/{zone_id}/custom_hostnames/{provider_reference}"
+    try:
+        _, payload = UrlLibTransport().request_json(
+            "DELETE",
+            url,
+            headers={"Authorization": f"Bearer {token}"},
+            retries=2,
+        )
+    except IntegrationError as exc:
+        raise DomainLifecycleError(exc.code, str(exc)) from exc
+    if isinstance(payload, dict) and payload.get("success") is False:
+        raise DomainLifecycleError("CLOUDFLARE_CUSTOM_HOSTNAME_DELETE_FAILED", "Cloudflare não confirmou a remoção do Custom Hostname.")
+
+
 def _edge_tls_status(hostname: str) -> dict[str, Any]:
     host = normalize_hostname(hostname)
     request = urllib.request.Request(
