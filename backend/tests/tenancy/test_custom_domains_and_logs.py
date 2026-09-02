@@ -15,6 +15,10 @@ def test_custom_domain_requires_txt_then_requests_tls(local_env):
     assert domain["verification_record"]["type"] == "TXT"
     assert domain["verification_record"]["name"] == "_pige360-verification.portal.alpha-example.com"
     assert domain["verification_record"]["value"].startswith("pige360=")
+    assert domain["routing_record"]["type"] == "CNAME"
+    assert domain["routing_record"]["name"] == "portal.alpha-example.com"
+    assert domain["routing_record"]["value"] == "edge.pige360.com.br"
+    assert "verification_token" not in domain
 
     local_env.client.app.state.domain_txt_lookup = lambda _name: {"outro-token"}
     mismatch = local_env.client.post(
@@ -36,6 +40,8 @@ def test_custom_domain_requires_txt_then_requests_tls(local_env):
     assert result["status"] == "pending_tls"
     assert result["provider"] == "edge_acme"
     assert result["certificate_status"] == "pending"
+    assert "verification_record" not in result
+    assert result["routing_record"]["value"] == "edge.pige360.com.br"
 
     listed = local_env.client.get(
         f"/api/v1/platform/tenants/{tenant_id}/domains",
