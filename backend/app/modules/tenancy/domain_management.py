@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import secrets
 import ssl
@@ -73,8 +74,60 @@ def cloudflare_saas_enabled() -> bool:
     return os.getenv("CLOUDFLARE_SAAS_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _dynamic_dir() -> Path | None:
+    value = os.getenv("PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL", "").strip()
+    return Path(value) if value else None
+
+
+def _route_name(hostname: str) -> str:
+    return hashlib.sha256(normalize_hostname(hostname).encode("utf-8")).hexdigest()[:16]
+
+
+def ensure_edge_route(hostname: str) -> str | None:
+    directory = _dynamic_dir()
+    if directory is None:
+        return None
+    host = normalize_hostname(hostname)
+    directory.mkdir(parents=True, exist_ok=True)
+    route_id = _route_name(host)
+    target = directory / f"tenant-domain-{route_id}.yaml"
+    content = f'''http:
+  routers:
+    tenant-custom-api-{route_id}:
+      rule: "Host(`{host}`) && PathPrefix(`/api`)"
+      entryPoints: [websecure]
+      service: pige360-api@docker
+      priority: 70
+      tls:
+        certResolver: public
+    tenant-custom-web-{route_id}:
+      rule: "Host(`{host}`)"
+      entryPoints: [websecure]
+      service: pige360-web@docker
+      priority: 30
+      tls:
+        certResolver: public
+'''
+    temporary = target.with_suffix(".yaml.tmp")
+    temporary.write_text(content, encoding="utf-8")
+    temporary.replace(target)
+    return target.name
+
+
+def remove_edge_route(hostname: str) -> None:
+    directory = _dynamic_dir()
+    if directory is None:
+        return
+    target = directory / f"tenant-domain-{_route_name(hostname)}.yaml"
+    try:
+        target.unlink()
+    except FileNotFoundError:
+        pass
+
+
 def request_certificate(hostname: str) -> dict[str, Any]:
     host = normalize_hostname(hostname)
+    ensure_edge_route(host)
     if not cloudflare_saas_enabled():
         return {
             "provider": "edge_acme",
@@ -136,6 +189,7 @@ def _edge_tls_status(hostname: str) -> dict[str, Any]:
 
 
 def refresh_certificate(hostname: str, provider: str | None, provider_reference: str | None) -> dict[str, Any]:
+    ensure_edge_route(hostname)
     if provider == "cloudflare_saas":
         if not provider_reference:
             raise DomainLifecycleError("DOMAIN_PROVIDER_REFERENCE_MISSING", "Referência do Custom Hostname ausente.")
