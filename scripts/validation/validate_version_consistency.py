@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Impede releases cuja versão pública diverge da versão canônica."""
+"""Valida que o PIGE360 usa somente SemVer estável X.Y.Z e não contém prereleases públicas."""
 
 from __future__ import annotations
 
@@ -8,11 +8,12 @@ import json
 import re
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-VERSION_RE = re.compile(r"\b\d+\.\d+\.\d+-alpha\.\d+\b")
+STABLE_RE = re.compile(r"\d+\.\d+\.\d+")
+PRERELEASE_RE = re.compile(r"\b\d+\.\d+\.\d+-(?:alpha|beta|rc|pre|preview|dev|snapshot)(?:[.-][0-9A-Za-z.-]+)?\b", re.IGNORECASE)
 PATTERNS = (
+    "VERSION",
     "package.json",
     "package-lock.json",
     "README.md",
@@ -30,7 +31,7 @@ PATTERNS = (
     "apps/**/src/app-contract.js",
     "apps/**/public/sw.js",
     "packages/**/package.json",
-    "docs/ci-cd/ALPHA_TEST_RELEASE.md",
+    "docs/ci-cd/*.md",
 )
 
 
@@ -43,23 +44,25 @@ def main() -> int:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    valid_version = bool(re.fullmatch(r"\d+\.\d+\.\d+-alpha\.\d+", VERSION))
-    mismatches: list[dict[str, object]] = []
+    valid_version = bool(STABLE_RE.fullmatch(VERSION))
+    prereleases: list[dict[str, object]] = []
     checked: list[str] = []
     for path in targets():
-        found = sorted(set(VERSION_RE.findall(path.read_text(encoding="utf-8"))))
-        if not found:
-            continue
-        checked.append(path.relative_to(ROOT).as_posix())
-        if found != [VERSION]:
-            mismatches.append({"path": path.relative_to(ROOT).as_posix(), "versions": found})
+        text = path.read_text(encoding="utf-8")
+        found = sorted(set(PRERELEASE_RE.findall(text)))
+        relative = path.relative_to(ROOT).as_posix()
+        checked.append(relative)
+        matches = sorted(set(match.group(0) for match in PRERELEASE_RE.finditer(text)))
+        if matches:
+            prereleases.append({"path": relative, "versions": matches})
 
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
         "version": VERSION,
-        "status": "passed" if valid_version and not mismatches else "failed",
+        "stable_semver": valid_version,
+        "status": "passed" if valid_version and not prereleases else "failed",
         "checked_files": checked,
-        "mismatches": mismatches,
+        "prereleases": prereleases,
     }
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
