@@ -52,14 +52,21 @@ def _domain(request: Request, tenant_id: str, domain_id: str) -> dict:
     return row
 
 
-def _safe(row: dict) -> dict:
+def _safe(row: dict, request: Request) -> dict:
     result = dict(row)
-    token = result.get("verification_token")
-    if token:
+    token = result.pop("verification_token", None)
+    if token and result.get("verification_status") != "verified":
         result["verification_record"] = {
             "type": "TXT",
             "name": result.get("verification_name"),
             "value": token,
+        }
+    if not result.get("is_canonical"):
+        result["routing_record"] = {
+            "type": "CNAME",
+            "name": result.get("hostname"),
+            "value": request.app.state.settings.tenant_custom_domain_cname_target,
+            "apex_note": "Use ALIAS/ANAME ou CNAME flattening quando o provedor não permitir CNAME no apex.",
         }
     return result
 
@@ -76,7 +83,7 @@ def list_domains(
         "SELECT * FROM tenant_domains WHERE tenant_id=? ORDER BY is_canonical DESC, hostname",
         (tenant_id,),
     )
-    return {"items": [_safe(row) for row in rows]}
+    return {"items": [_safe(row, request) for row in rows]}
 
 
 @router.post("/platform/tenants/{tenant_id}/domains", operation_id="create_platform_tenant_custom_domain", status_code=201)
@@ -129,6 +136,7 @@ def create_domain(
             "surface": data.surface,
             "status": "pending_verification",
             "verification_name": name,
+            "routing_target": settings.tenant_custom_domain_cname_target,
         }
         add_audit(
             conn, tenant_id=tenant_id, actor_id=user.id, action="custom_domain_requested",
@@ -140,7 +148,7 @@ def create_domain(
             aggregate_type="tenant_domain", aggregate_id=domain_id,
             payload=after, correlation_id=request.state.correlation_id,
         )
-    return _safe(_domain(request, tenant_id, domain_id))
+    return _safe(_domain(request, tenant_id, domain_id), request)
 
 
 @router.post("/platform/tenants/{tenant_id}/domains/{domain_id}/verify", operation_id="verify_platform_tenant_custom_domain")
@@ -154,9 +162,9 @@ def verify_domain(
     _tenant(request, tenant_id)
     row = _domain(request, tenant_id, domain_id)
     if row.get("is_canonical"):
-        return _safe(row)
+        return _safe(row, request)
     if row.get("verification_status") == "verified" and row.get("status") in {"pending_tls", "active"}:
-        return _safe(row)
+        return _safe(row, request)
     lookup = getattr(request.app.state, "domain_txt_lookup", None)
     try:
         valid = verify_dns_txt(str(row["verification_name"]), str(row["verification_token"]), lookup=lookup)
@@ -191,7 +199,7 @@ def verify_domain(
             aggregate_type="tenant_domain", aggregate_id=domain_id,
             payload=after, correlation_id=request.state.correlation_id,
         )
-    return _safe(_domain(request, tenant_id, domain_id))
+    return _safe(_domain(request, tenant_id, domain_id), request)
 
 
 @router.post("/platform/tenants/{tenant_id}/domains/{domain_id}/refresh", operation_id="refresh_platform_tenant_custom_domain")
@@ -231,7 +239,7 @@ def refresh_domain(
                 aggregate_type="tenant_domain", aggregate_id=domain_id,
                 payload=after, correlation_id=request.state.correlation_id,
             )
-    return _safe(_domain(request, tenant_id, domain_id))
+    return _safe(_domain(request, tenant_id, domain_id), request)
 
 
 @router.delete("/platform/tenants/{tenant_id}/domains/{domain_id}", operation_id="deactivate_platform_tenant_custom_domain")
