@@ -17,6 +17,8 @@ services:
       CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
       CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
       CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+    secrets:
+      - connect_api_key
     deploy:
       resources:
         limits:
@@ -30,6 +32,8 @@ services:
       CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
       CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
       CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+    secrets:
+      - connect_api_key
 
   pige360-web:
     deploy:
@@ -51,3 +55,7 @@ services:
         limits:
           cpus: '4.0'
           memory: 8G
+
+secrets:
+  connect_api_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/connect_api_key.txt
