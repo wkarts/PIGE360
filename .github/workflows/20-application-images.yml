@@ -16,7 +16,7 @@ on:
       - 'package-lock.json'
       - 'VERSION'
   push:
-    branches: [main]
+    branches: [develop]
     paths:
       - 'backend/**'
       - 'apps/**'
