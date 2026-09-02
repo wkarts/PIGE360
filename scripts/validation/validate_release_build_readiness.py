@@ -163,8 +163,11 @@ def main() -> int:
     for required in (
         "traefik:v3.7.12",
         "dnschallenge.provider=cloudflare",
-        "Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`)",
+        "HostRegexp(`^[a-z0-9-]+\\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`)",
         "PathPrefix(`/api`)",
+        "PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL",
+        "pige360-traefik-dynamic",
+        "pige360-edge-init",
         "PLATFORM_CONSOLE_HOST",
         "PLATFORM_API_HOST",
         "PLATFORM_OPS_HOST",
