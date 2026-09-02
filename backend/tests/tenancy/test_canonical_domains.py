@@ -41,6 +41,19 @@ def test_tenant_without_hostname_receives_canonical_domain(local_env):
     assert tenant["canonical_hostname"] == "colegio-modelo.pige360.com.br"
     assert tenant["domain_mode"] == "wildcard"
 
+    domains_response = local_env.client.get(
+        f"/api/v1/platform/tenants/{tenant['id']}/domains",
+        headers=local_env.platform_headers(),
+    )
+    assert domains_response.status_code == 200, domains_response.text
+    canonical = next(item for item in domains_response.json()["items"] if item["is_canonical"])
+    assert canonical["hostname"] == "colegio-modelo.pige360.com.br"
+    assert canonical["status"] == "active"
+    assert canonical["certificate_policy"] == "canonical_wildcard"
+    assert canonical["certificate_status"] == "active"
+    assert canonical["verification_status"] == "not_required"
+    assert canonical["provider"] == "platform_wildcard"
+
     login = local_env.client.post(
         "/api/v1/auth/login",
         headers={"host": tenant["hostname"]},
