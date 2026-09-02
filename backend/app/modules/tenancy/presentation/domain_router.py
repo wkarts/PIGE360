@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Request
@@ -52,9 +53,21 @@ def _domain(request: Request, tenant_id: str, domain_id: str) -> dict:
     return row
 
 
+def _provider_validation(row: dict) -> list[dict]:
+    raw = row.get("provider_validation_json") or "{}"
+    try:
+        payload = json.loads(str(raw))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return []
+    if isinstance(payload, list):
+        return [item for item in payload if isinstance(item, dict)]
+    return []
+
+
 def _safe(row: dict, request: Request) -> dict:
     result = dict(row)
     token = result.pop("verification_token", None)
+    result.pop("provider_validation_json", None)
     if token and result.get("verification_status") != "verified":
         result["verification_record"] = {
             "type": "TXT",
@@ -68,6 +81,9 @@ def _safe(row: dict, request: Request) -> dict:
             "value": request.app.state.settings.tenant_custom_domain_cname_target,
             "apex_note": "Use ALIAS/ANAME ou CNAME flattening quando o provedor não permitir CNAME no apex.",
         }
+    records = _provider_validation(row)
+    if records:
+        result["provider_validation_records"] = records
     return result
 
 
@@ -120,12 +136,12 @@ def create_domain(
             """INSERT INTO tenant_domains(
                 id,tenant_id,hostname,surface,status,is_canonical,certificate_policy,certificate_status,
                 verification_method,verification_name,verification_token,verification_status,provider,
-                provider_reference,verified_at,activated_at,last_error,created_at,updated_at
-            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                provider_reference,provider_validation_json,verified_at,activated_at,last_error,created_at,updated_at
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 domain_id, tenant_id, hostname, data.surface, "pending_verification", 0,
                 "cloudflare_saas" if __import__("os").getenv("CLOUDFLARE_SAAS_ENABLED", "false").lower() in {"1","true","yes","on"} else "edge_acme",
-                "not_requested", "dns_txt", name, token, "pending", None, None, None, None, None, now, now,
+                "not_requested", "dns_txt", name, token, "pending", None, None, "{}", None, None, None, now, now,
             ),
         )
         after = {
@@ -182,13 +198,28 @@ def verify_domain(
             )
         raise DomainError(exc.code, str(exc), 503) from exc
     now = iso_now()
+    provider_validation = cert.get("provider_validation") or []
     with request.state.store.transaction() as conn:
         conn.execute(
             """UPDATE tenant_domains SET verification_status='verified',verified_at=?,status=?,certificate_status=?,
-               provider=?,provider_reference=?,last_error=NULL,updated_at=? WHERE id=?""",
-            (now, cert["status"], cert["certificate_status"], cert["provider"], cert["provider_reference"], now, domain_id),
+               provider=?,provider_reference=?,provider_validation_json=?,last_error=NULL,updated_at=? WHERE id=?""",
+            (
+                now,
+                cert["status"],
+                cert["certificate_status"],
+                cert["provider"],
+                cert["provider_reference"],
+                json.dumps(provider_validation, ensure_ascii=False, separators=(",", ":")),
+                now,
+                domain_id,
+            ),
         )
-        after = {"hostname": row["hostname"], "status": cert["status"], "provider": cert["provider"]}
+        after = {
+            "hostname": row["hostname"],
+            "status": cert["status"],
+            "provider": cert["provider"],
+            "provider_validation_records": len(provider_validation),
+        }
         add_audit(
             conn, tenant_id=tenant_id, actor_id=user.id, action="custom_domain_verified",
             aggregate_type="tenant_domain", aggregate_id=domain_id,
@@ -222,10 +253,21 @@ def refresh_domain(
         raise DomainError(exc.code, str(exc), 503) from exc
     now = iso_now()
     active = result["status"] == "active" and result["certificate_status"] == "active"
+    provider_validation = result.get("provider_validation") or _provider_validation(row)
     with request.state.store.transaction() as conn:
         conn.execute(
-            "UPDATE tenant_domains SET status=?,certificate_status=?,activated_at=CASE WHEN ? THEN COALESCE(activated_at,?) ELSE activated_at END,last_error=NULL,updated_at=? WHERE id=?",
-            (result["status"], result["certificate_status"], 1 if active else 0, now, now, domain_id),
+            """UPDATE tenant_domains SET status=?,certificate_status=?,provider_validation_json=?,
+               activated_at=CASE WHEN ? THEN COALESCE(activated_at,?) ELSE activated_at END,
+               last_error=NULL,updated_at=? WHERE id=?""",
+            (
+                result["status"],
+                result["certificate_status"],
+                json.dumps(provider_validation, ensure_ascii=False, separators=(",", ":")),
+                1 if active else 0,
+                now,
+                now,
+                domain_id,
+            ),
         )
         if active:
             after = {"hostname": row["hostname"], "status": "active", "certificate_status": "active"}
