@@ -1,16 +1,5 @@
-name: 33 · iOS app/xcarchive/IPA
+name: 33 · iOS app/xcarchive/IPA (manual)
 'on':
-  pull_request:
-    paths:
-      - 'apps/family-app/**'
-      - 'apps/teacher-app/**'
-      - 'apps/student-app/**'
-      - 'apps/admin-app/**'
-      - 'apps/pos-app/**'
-      - 'rust/**'
-      - 'scripts/mobile/**'
-      - '.github/workflows/33-build-ios.yml'
-      - 'package-lock.json'
   workflow_dispatch:
     inputs:
       distribution_mode:
@@ -37,7 +26,7 @@ jobs:
       - name: Decidir o modo de empacotamento iOS
         id: ios_gate
         env:
-          REQUESTED_MODE: ${{ inputs.distribution_mode || 'local-signing' }}
+          REQUESTED_MODE: ${{ inputs.distribution_mode }}
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
         shell: bash
         run: |
@@ -67,16 +56,11 @@ jobs:
         if: steps.ios_gate.outputs.build_ios == 'true'
         with:
           targets: aarch64-apple-ios
-      - name: Construir aplicações iOS
+      - name: Construir aplicações iOS para homologação manual
         if: steps.ios_gate.outputs.build_ios == 'true'
         env:
           APPLE_DEVELOPMENT_TEAM: ${{ vars.APPLE_DEVELOPMENT_TEAM || secrets.APPLE_DEVELOPMENT_TEAM }}
-        run: |
-          if [ "${{ github.event_name }}" = 'pull_request' ]; then
-            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}" --app family-app
-          else
-            bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}"
-          fi
+        run: bash scripts/mobile/build-ios.sh --mode "${{ steps.ios_gate.outputs.build_mode }}"
       - name: Assinar IPA de distribuição solicitada manualmente
         if: steps.ios_gate.outputs.build_mode == 'store' && inputs.sign
         env:
@@ -89,6 +73,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.ios_gate.outputs.build_ios == 'true'
         with:
-          name: ios-app-ipa-${{ steps.ios_gate.outputs.build_mode }}-${{ github.run_id }}
+          name: ios-manual-${{ steps.ios_gate.outputs.build_mode }}-${{ github.run_id }}
           path: release/artifacts/ios/**
           if-no-files-found: error
