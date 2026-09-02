@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from app.modules.tenancy.domain_management import _cloudflare_validation_records
+
 
 def test_custom_domain_requires_txt_then_requests_tls(local_env):
     tenant_id = local_env.alpha_tenant["id"]
@@ -56,6 +58,55 @@ def test_custom_domain_requires_txt_then_requests_tls(local_env):
     )
     assert disabled.status_code == 200, disabled.text
     assert disabled.json()["status"] == "disabled"
+
+
+def test_cloudflare_saas_validation_records_are_normalized():
+    records = _cloudflare_validation_records(
+        {
+            "ownership_verification": {
+                "type": "txt",
+                "name": "_cf-custom-hostname.portal.example.com",
+                "value": "ownership-token",
+            },
+            "ssl": {
+                "validation_records": [
+                    {
+                        "status": "pending",
+                        "txt_name": "_acme-challenge.portal.example.com",
+                        "txt_value": "certificate-token",
+                    },
+                    {
+                        "status": "pending",
+                        "cname": "_validation.portal.example.com",
+                        "cname_target": "validation.cloudflare.example",
+                    },
+                ]
+            },
+        }
+    )
+
+    assert records == [
+        {
+            "purpose": "hostname_ownership",
+            "type": "TXT",
+            "name": "_cf-custom-hostname.portal.example.com",
+            "value": "ownership-token",
+        },
+        {
+            "purpose": "certificate_validation",
+            "type": "TXT",
+            "name": "_acme-challenge.portal.example.com",
+            "value": "certificate-token",
+            "status": "pending",
+        },
+        {
+            "purpose": "certificate_validation",
+            "type": "CNAME",
+            "name": "_validation.portal.example.com",
+            "value": "validation.cloudflare.example",
+            "status": "pending",
+        },
+    ]
 
 
 def test_custom_domain_cannot_claim_canonical_zone(local_env):
