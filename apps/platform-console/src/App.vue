@@ -37,6 +37,10 @@ function clearFeedback() {
   notice.value = "";
 }
 
+function canonicalDomainHost(): string {
+  return String(domains.value.find((domain: Row) => Boolean(domain.is_canonical))?.hostname || "—");
+}
+
 async function load() {
   clearFeedback();
   const [t, s, a, ss] = await Promise.all([
@@ -213,7 +217,7 @@ async function createDomain() {
       body: JSON.stringify(domainForm),
     });
     Object.assign(domainForm, { hostname: "", surface: "admin" });
-    notice.value = "Domínio cadastrado. Publique o registro TXT exibido e execute a verificação.";
+    notice.value = "Domínio cadastrado. Configure CNAME/flattening e TXT antes de verificar.";
     await loadTenant();
   } catch (e) {
     error.value = msg(e);
@@ -336,17 +340,18 @@ onMounted(boot);
 
       <template v-else>
         <section class="grid two">
-          <div class="panel"><h2>Tenant</h2><dl class="facts"><div><dt>Código</dt><dd>{{selected.code}}</dd></div><div><dt>Status</dt><dd>{{selected.status}}</dd></div><div><dt>Branding</dt><dd>v{{branding.active_version||0}} · {{branding.state}}</dd></div><div><dt>Domínio canônico</dt><dd>{{domains.find(d=>d.is_canonical)?.hostname||'—'}}</dd></div></dl></div>
+          <div class="panel"><h2>Tenant</h2><dl class="facts"><div><dt>Código</dt><dd>{{selected.code}}</dd></div><div><dt>Status</dt><dd>{{selected.status}}</dd></div><div><dt>Branding</dt><dd>v{{branding.active_version||0}} · {{branding.state}}</dd></div><div><dt>Domínio canônico</dt><dd>{{canonicalDomainHost()}}</dd></div></dl></div>
           <form class="panel form" @submit.prevent="createSupport"><h2>Sessão de suporte</h2><label>Motivo<textarea v-model="supportForm.reason" minlength="10" required></textarea></label><label>Ticket<input v-model="supportForm.ticket"></label><label>Duração (min)<input v-model.number="supportForm.minutes" type="number" min="5" max="120"></label><button class="primary">Criar sessão auditada</button></form>
         </section>
 
         <section class="panel">
-          <div class="section-title"><div><h2>Domínios</h2><small>Canônico + domínios próprios com prova de posse e TLS</small></div><span>{{domains.length}} registrados</span></div>
+          <div class="section-title"><div><h2>Domínios</h2><small>Canônico + domínios próprios com prova de posse, roteamento e TLS</small></div><span>{{domains.length}} registrados</span></div>
           <form class="domain-form" @submit.prevent="createDomain"><input v-model="domainForm.hostname" placeholder="portal.escola.com.br" required><select v-model="domainForm.surface"><option value="admin">Admin</option><option value="public">Público</option><option value="family">Família</option><option value="student">Aluno</option><option value="teacher">Professor</option></select><button class="primary">Adicionar domínio</button></form>
           <article class="domain-card" v-for="d in domains" :key="d.id">
             <div class="domain-head"><div><strong>{{d.hostname}}</strong><span>{{d.surface}} · {{d.is_canonical?'canônico':'personalizado'}}</span></div><span class="status-pill">{{d.status}}</span></div>
             <div class="domain-meta"><span>TLS: {{d.certificate_status||'—'}}</span><span>Verificação: {{d.verification_status||'—'}}</span><span v-if="d.provider">Provider: {{d.provider}}</span></div>
-            <div v-if="d.verification_record && d.verification_status!=='verified'" class="dns-box"><strong>Publique este TXT no DNS</strong><code>{{d.verification_record.name}}</code><code>{{d.verification_record.value}}</code><div><button class="ghost-dark" @click="copy(d.verification_record.name)">Copiar nome</button><button class="ghost-dark" @click="copy(d.verification_record.value)">Copiar valor</button></div></div>
+            <div v-if="d.routing_record" class="dns-box"><strong>Roteie o domínio para o PIGE360</strong><code>{{d.routing_record.type}} {{d.routing_record.name}}</code><code>{{d.routing_record.value}}</code><small>{{d.routing_record.apex_note}}</small><div><button class="ghost-dark" @click="copy(d.routing_record.name)">Copiar host</button><button class="ghost-dark" @click="copy(d.routing_record.value)">Copiar destino</button></div></div>
+            <div v-if="d.verification_record && d.verification_status!=='verified'" class="dns-box"><strong>Publique este TXT para provar a posse</strong><code>{{d.verification_record.name}}</code><code>{{d.verification_record.value}}</code><div><button class="ghost-dark" @click="copy(d.verification_record.name)">Copiar nome</button><button class="ghost-dark" @click="copy(d.verification_record.value)">Copiar valor</button></div></div>
             <div class="row-actions" v-if="!d.is_canonical"><button v-if="d.verification_status!=='verified'" class="ghost-dark" @click="verifyDomain(d)">Verificar DNS</button><button v-if="d.verification_status==='verified' && d.status!=='active'" class="ghost-dark" @click="refreshDomain(d)">Verificar TLS</button><button class="danger-outline" @click="disableDomain(d)">Desativar</button></div>
             <p v-if="d.last_error" class="inline-error">{{d.last_error}}</p>
           </article>
