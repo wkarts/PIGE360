@@ -1,6 +1,6 @@
 {
   "name": "@pige360/branding-studio",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@pige360/auth": "1.0.0-alpha.3",
+    "@pige360/auth": "1.0.0",
     "echarts": "5.6.0",
     "pinia": "2.3.1",
     "vue": "3.5.13",

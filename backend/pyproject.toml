@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pige360-backend"
-version = "1.0.0-alpha.3"
+version = "1.0.0"
 description = "Backend do PIGE360"
 requires-python = ">=3.13"
 dependencies = [
