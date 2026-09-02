@@ -11,7 +11,8 @@ command -v gh >/dev/null 2>&1 || { echo "GitHub CLI (gh) é obrigatório." >&2; 
 version="$(tr -d '[:space:]' < VERSION)"
 tag="${RELEASE_TAG:-v${version}}"
 assets_dir="${1:-release/output}"
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-alpha\.[0-9]+$ ]] || { echo "VERSION inválida: $version" >&2; exit 2; }
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "VERSION inválida: $version. Use somente SemVer estável X.Y.Z." >&2; exit 2; }
+[[ "$tag" == "v$version" ]] || { echo "Tag inválida para a versão canônica: $tag" >&2; exit 2; }
 
 stage="$assets_dir/.github-release-assets"
 rm -rf "$stage"
@@ -52,7 +53,6 @@ while IFS= read -r -d '' asset; do
       echo "Artefato idêntico deduplicado: $filename"
       continue
     fi
-
     source_id="$(asset_source_id "$asset")"
     filename="$source_id--$filename"
     destination="$stage/$filename"
@@ -71,7 +71,8 @@ while IFS= read -r -d '' asset; do
     echo "Artefato com nome repetido preservado como: $filename"
   fi
   cp "$asset" "$destination"
-done < <(find "$assets_dir" -type f \( -name '*.zip' -o -name '*.tar' -o -name '*.json' -o -name '*.pdf' -o -name '*.apk' -o -name '*.aab' -o -name '*.ipa' -o -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.rpm' -o -name '*.AppImage' -o -name '*SHA256SUMS' \) -not -path "$stage/*" -print0 | sort -z)
+done < <(find "$assets_dir" -type f \( -name '*.zip' -o -name '*.tar' -o -name '*.json' -o -name '*.pdf' -o -name '*SHA256SUMS' \) -not -path "$stage/*" -print0 | sort -z)
+
 mapfile -t assets < <(find "$stage" -maxdepth 1 -type f -print | sort)
 ((${#assets[@]} > 0)) || { echo "Nenhum artefato publicável encontrado em $assets_dir" >&2; exit 4; }
 
@@ -94,6 +95,6 @@ if gh release view "$tag" >/dev/null 2>&1; then
 fi
 
 target="${RELEASE_TARGET_SHA:-${GITHUB_SHA:?GITHUB_SHA ausente}}"
-args=(release create "$tag" "${assets[@]}" --title "PIGE360 $version" --prerelease --target "$target")
+args=(release create "$tag" "${assets[@]}" --title "PIGE360 $version" --target "$target")
 [[ -f "$notes" ]] && args+=(--notes-file "$notes") || args+=(--generate-notes)
 gh "${args[@]}"
