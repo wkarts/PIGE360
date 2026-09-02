@@ -1,18 +1,5 @@
-name: 32 · Android APK/AAB
+name: 32 · Android APK/AAB (manual)
 'on':
-  pull_request:
-    paths:
-      - 'apps/family-app/**'
-      - 'apps/teacher-app/**'
-      - 'apps/student-app/**'
-      - 'apps/admin-app/**'
-      - 'apps/pos-app/**'
-      - 'apps/kiosk-app/**'
-      - 'apps/timeclock-app/**'
-      - 'rust/**'
-      - 'scripts/mobile/**'
-      - '.github/workflows/32-build-android.yml'
-      - 'package-lock.json'
   workflow_dispatch:
     inputs:
       scope:
@@ -65,9 +52,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
-      - name: Construir artefato Android de validação instalável
+      - name: Construir artefato Android de homologação manual
         env:
-          BUILD_SCOPE: ${{ inputs.scope || 'validation' }}
+          BUILD_SCOPE: ${{ inputs.scope }}
         shell: bash
         run: |
           if [ "$BUILD_SCOPE" = 'all' ]; then
@@ -86,6 +73,6 @@ jobs:
         run: bash scripts/mobile/sign-android.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: android-debug-validation-${{ github.run_id }}
+          name: android-manual-${{ github.run_id }}
           path: release/artifacts/android/**
           if-no-files-found: error
