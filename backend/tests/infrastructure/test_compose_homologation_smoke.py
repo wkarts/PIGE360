@@ -178,8 +178,11 @@ def test_canonical_multitenant_deploy_contract_is_present() -> None:
     assert {"api", "console", "ops", "www", "admin", "platform"} <= set(domain["reserved_slugs"])
     assert any(item["service"] == "web" and item["app"] == "apps/tenant-admin-web" for item in images["first_party"])
     assert any(step["id"] == "canonical_domain" for step in provisioning["steps"])
-    assert "Host(`*.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}`)" in edge
+    assert "HostRegexp(`^[a-z0-9-]+\\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`)" in edge
     assert "dnschallenge.provider=cloudflare" in edge
+    assert "PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL" in edge
+    assert "pige360-traefik-dynamic" in edge
+    assert "pige360-edge-init" in edge
     assert "pige360-alloy" in logging_compose["services"]
     assert "otlphttp/loki" in otel
     assert connect_api["provider"] == "connect_api"
