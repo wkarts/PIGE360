@@ -97,6 +97,7 @@ def test_old_sqlite_control_domain_schema_is_upgraded_in_place(tmp_path: Path) -
             "verification_status",
             "provider",
             "provider_reference",
+            "provider_validation_json",
             "verified_at",
             "activated_at",
             "last_error",
@@ -109,6 +110,7 @@ def test_old_sqlite_control_domain_schema_is_upgraded_in_place(tmp_path: Path) -
         assert canonical["certificate_status"] == "active"
         assert canonical["verification_status"] == "not_required"
         assert canonical["provider"] == "platform_wildcard"
+        assert canonical["provider_validation_json"] == "{}"
         assert canonical["activated_at"] == "2026-01-01T00:00:00Z"
 
         custom = dict(conn.execute("SELECT * FROM tenant_domains WHERE id='domain-custom'").fetchone())
@@ -117,6 +119,7 @@ def test_old_sqlite_control_domain_schema_is_upgraded_in_place(tmp_path: Path) -
         assert custom["certificate_status"] == "not_requested"
         assert custom["verification_status"] == "pending"
         assert custom["provider"] is None
+        assert custom["provider_validation_json"] == "{}"
         assert custom["activated_at"] is None
         assert "Revalidação obrigatória" in custom["last_error"]
 
