@@ -1,25 +1,31 @@
-name: 05 · Limpar release draft legada
+name: 05 · Limpar legado de prerelease
 
 on:
   push:
-    branches: [dev]
+    branches: [develop]
     paths:
       - '.github/workflows/05-cleanup-stale-release.yml'
+  workflow_run:
+    workflows: ['50 · Pré-lançamento Alpha Web/Server']
+    types: [completed]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: cleanup-stale-release
+  group: cleanup-pige360-prerelease-legacy
   cancel-in-progress: false
 
 jobs:
   cleanup:
-    name: Remover draft v1.0.0 legada
+    name: Remover releases tags e branches legadas
     runs-on: ubuntu-24.04
     steps:
-      - name: Localizar e remover draft legada com retentativa
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Remover releases draft/prerelease e tags prerelease
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -28,50 +34,42 @@ jobs:
 
           mapfile -t release_ids < <(
             gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate \
-              --jq '.[] | select(.draft == true and .tag_name == "v1.0.0") | .id'
+              --jq '.[] | select(.draft == true or .prerelease == true or (.tag_name | test("-(alpha|beta|rc|pre|preview)"; "i"))) | .id'
           )
-
-          if [ "${#release_ids[@]}" -eq 0 ]; then
-            echo 'Nenhuma draft legada v1.0.0 encontrada.'
-            exit 0
-          fi
-
-          delete_with_retry() {
-            local endpoint="$1"
-            local attempts=6
-            local delay=2
-            local attempt
-            for attempt in $(seq 1 "$attempts"); do
-              if gh api --silent --method DELETE "$endpoint"; then
-                return 0
-              fi
-              if [ "$attempt" -lt "$attempts" ]; then
-                sleep "$delay"
-                delay=$(( delay < 16 ? delay * 2 : 16 ))
-              fi
-            done
-            return 1
-          }
-
           for release_id in "${release_ids[@]}"; do
-            echo "Removendo draft legada ID $release_id..."
-            if delete_with_retry "repos/$GITHUB_REPOSITORY/releases/$release_id"; then
-              continue
-            fi
-
-            echo "Exclusão direta falhou; removendo assets da draft $release_id."
-            mapfile -t asset_ids < <(
-              gh api "repos/$GITHUB_REPOSITORY/releases/$release_id/assets?per_page=100" --paginate --jq '.[].id'
-            )
-            for asset_id in "${asset_ids[@]}"; do
-              delete_with_retry "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id"
-            done
-            delete_with_retry "repos/$GITHUB_REPOSITORY/releases/$release_id"
+            gh api --silent --method DELETE "repos/$GITHUB_REPOSITORY/releases/$release_id" || true
           done
 
-          remaining="$(
-            gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate \
-              --jq '[.[] | select(.draft == true and .tag_name == "v1.0.0")] | length'
-          )"
+          git fetch --tags --force
+          mapfile -t prerelease_tags < <(git tag -l | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta|rc|pre|preview)' || true)
+          for tag in "${prerelease_tags[@]}"; do
+            git push origin ":refs/tags/$tag" || true
+          done
+
+      - name: Remover branches legadas incompatíveis com o fluxo atual
+        shell: bash
+        run: |
+          set -euo pipefail
+          legacy_branches=(
+            dev
+            release/1.0.0-alpha.3
+            release/alpha-2-github-release
+            release/pige360-v1.0.0
+            fix/release-native-builds-alpha2
+          )
+          git fetch origin --prune
+          for branch in "${legacy_branches[@]}"; do
+            if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+              git push origin --delete "$branch" || true
+            fi
+          done
+
+      - name: Confirmar ausência de prereleases oficiais
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remaining="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate --jq '[.[] | select(.draft == true or .prerelease == true)] | length')"
           test "$remaining" = '0'
-          echo 'Draft legada v1.0.0 removida com sucesso.'
+          echo 'Legado de prerelease removido.'
