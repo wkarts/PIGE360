@@ -51,6 +51,8 @@ from app.modules.government_education.presentation.router import router as gover
 from app.modules.admissions.presentation.router import router as admissions_router
 from app.modules.portals.presentation.router import router as portals_router
 from app.modules.tenancy.presentation.router import router as tenancy_router
+from app.modules.tenancy.presentation.domain_router import router as tenancy_domain_router
+from app.modules.platform_operations.presentation.logs_router import router as platform_logs_router
 from app.shared.database.router import DataRouter
 from app.shared.presentation.errors import DomainError, domain_error_handler, problem, unhandled_error_handler
 from app.shared.security.middleware import RequestContextMiddleware
@@ -123,6 +125,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         foundation_router,
         identity_router,
         tenancy_router,
+        tenancy_domain_router,
         branding_router,
         app_factory_router,
         academic_core_router,
@@ -162,6 +165,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         requests_router,
         workflows_router,
         fiscal_ibpt_router,
+        platform_logs_router,
     ]:
         app.include_router(router, prefix=api_prefix)
     return app
