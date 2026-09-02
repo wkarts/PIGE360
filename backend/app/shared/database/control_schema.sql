@@ -20,7 +20,19 @@ CREATE TABLE IF NOT EXISTS tenant_domains (
     surface TEXT NOT NULL DEFAULT 'admin',
     status TEXT NOT NULL,
     is_canonical INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL
+    certificate_policy TEXT NOT NULL DEFAULT 'edge_acme',
+    certificate_status TEXT NOT NULL DEFAULT 'not_requested',
+    verification_method TEXT,
+    verification_name TEXT,
+    verification_token TEXT,
+    verification_status TEXT NOT NULL DEFAULT 'not_required',
+    provider TEXT,
+    provider_reference TEXT,
+    verified_at TEXT,
+    activated_at TEXT,
+    last_error TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -109,4 +121,5 @@ CREATE TABLE IF NOT EXISTS inbox_events (
 CREATE INDEX IF NOT EXISTS idx_control_inbox_event_consumer ON inbox_events(tenant_id,event_id,consumer);
 
 CREATE INDEX IF NOT EXISTS idx_domains_tenant ON tenant_domains(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_domains_status ON tenant_domains(status, verification_status, certificate_status);
 CREATE INDEX IF NOT EXISTS idx_control_outbox_pending ON outbox_events(published_at, created_at);
