@@ -1,9 +1,9 @@
-name: 04 · Sincronizar versão de release
+name: 04 · Sincronizar metadados SemVer
 
 on:
   push:
     branches:
-      - 'release/**'
+      - 'ci/connectapi-release-model'
     paths:
       - VERSION
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
           version="$(tr -d '[:space:]' < VERSION)"
           python3 scripts/release/sync-version.py "$version"
           python3 scripts/validation/validate_version_consistency.py --output release/version-consistency.json
-      - name: Persistir sincronização na branch de release
+      - name: Persistir sincronização
         shell: bash
         run: |
           set -euo pipefail
@@ -43,5 +43,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m "chore(release): sincroniza metadados para ${version}"
+          git commit -m "chore(version): sincroniza metadados para ${version} [skip release]"
           git push origin "HEAD:${GITHUB_REF_NAME}"
