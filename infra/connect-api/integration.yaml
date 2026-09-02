@@ -3,7 +3,7 @@ provider: connect_api
 display_name: Connect API
 enabled: false
 api_base_url: ''
-api_key_secret_ref: secrets/connect-api/api-key
+api_key_secret_ref: connect_api_key
 compatibility:
   meta: true
 webhook_replay_protection: true
@@ -13,4 +13,5 @@ mock_allowed_environments:
 - homologation
 legacy_provider_aliases:
 - evolution
+- EvolutionApiProvider
 migration_policy: read_legacy_write_connect_api
