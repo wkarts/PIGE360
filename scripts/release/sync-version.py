@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sincroniza a versão Alpha canônica do PIGE360 nos manifests públicos."""
+"""Sincroniza a versão SemVer canônica do PIGE360 nos manifests públicos."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSION_FILE = ROOT / "VERSION"
-VERSION_RE = re.compile(r"\b\d+\.\d+\.\d+-alpha\.\d+\b")
+STABLE_SEMVER_RE = re.compile(r"\d+\.\d+\.\d+")
 PATTERNS = (
     "package.json",
     "package-lock.json",
@@ -28,7 +28,7 @@ PATTERNS = (
     "apps/**/src/app-contract.js",
     "apps/**/public/sw.js",
     "packages/**/package.json",
-    "docs/ci-cd/ALPHA_TEST_RELEASE.md",
+    "docs/ci-cd/*.md",
 )
 
 
@@ -38,39 +38,38 @@ def targets() -> list[Path]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("version", nargs="?", help="Versão alvo; por padrão usa VERSION")
-    parser.add_argument("--check", action="store_true", help="Somente verifica se há divergências")
+    parser.add_argument("version", nargs="?", help="Versão alvo X.Y.Z; por padrão usa VERSION")
+    parser.add_argument("--check", action="store_true", help="Somente verifica se o valor atual aparece nos manifests")
     args = parser.parse_args()
 
-    target = (args.version or VERSION_FILE.read_text(encoding="utf-8").strip()).strip()
-    if not re.fullmatch(r"\d+\.\d+\.\d+-alpha\.\d+", target):
-        raise SystemExit(f"Versão Alpha inválida: {target}")
+    current = VERSION_FILE.read_text(encoding="utf-8").strip()
+    target = (args.version or current).strip()
+    if not STABLE_SEMVER_RE.fullmatch(target):
+        raise SystemExit(f"Versão SemVer estável inválida: {target}. Use somente X.Y.Z.")
 
     changed: list[str] = []
-    mismatches: list[str] = []
+    missing: list[str] = []
 
     for path in targets():
         original = path.read_text(encoding="utf-8")
-        found = sorted(set(VERSION_RE.findall(original)))
-        if not found:
-            continue
-        if found == [target]:
-            continue
         relative = path.relative_to(ROOT).as_posix()
         if args.check:
-            mismatches.append(f"{relative}: {', '.join(found)}")
+            if current in original and target not in original:
+                missing.append(relative)
             continue
-        updated = VERSION_RE.sub(target, original)
+        if current == target or current not in original:
+            continue
+        updated = original.replace(current, target)
         path.write_text(updated, encoding="utf-8")
         changed.append(relative)
 
     if args.check:
-        if mismatches:
+        if missing:
             print("Metadados divergentes:")
-            for item in mismatches:
+            for item in missing:
                 print(f" - {item}")
             return 1
-        print(f"Metadados sincronizados em {target}.")
+        print(f"Metadados compatíveis com {target}.")
         return 0
 
     VERSION_FILE.write_text(target + "\n", encoding="utf-8")
