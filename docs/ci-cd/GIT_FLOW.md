@@ -9,14 +9,18 @@
 
 Toda alteração comum nasce de `develop`:
 
-- `feature/*` — funcionalidades;
+- `feat/*` — funcionalidades; prefixo preferencial, alinhado ao Connect|API;
+- `resource/*` — incrementos de recursos/ativos operacionais quando esse recorte fizer sentido;
 - `fix/*` — correções;
+- `hotfix/*` — correções urgentes, podendo promover diretamente para `main` quando necessário;
 - `chore/*` — manutenção;
 - `refactor/*` — refatorações controladas;
 - `docs/*` — documentação;
 - `ci/*` — automação/CI;
 - `test/*` — testes;
 - `perf/*` — desempenho.
+
+`feature/*` continua aceito por compatibilidade, mas novos trabalhos devem preferir `feat/*`.
 
 Essas branches abrem Pull Request para `develop`.
 
@@ -44,7 +48,7 @@ A `main` publica somente após gates de qualidade concluídos com sucesso.
 
 A distribuição canônica contém:
 
-- 13 PWAs;
+- aplicações Web/PWA;
 - pacotes self-hosted e fontes;
 - imagens/runtime e evidências de Compose;
 - evidências, SBOM/proveniência quando presentes no bundle;
@@ -69,5 +73,5 @@ Hotfixes críticos podem nascer de `main` em `hotfix/*`, retornar por Pull Reque
 O workflow `03 · Git Flow` valida:
 
 - `main` aceita promoção de `develop` ou `hotfix/*`;
-- `develop` aceita branches de trabalho padronizadas e sincronização da `main`;
+- `develop` aceita `feat/*`, `resource/*`, `fix/*`, `hotfix/*`, `chore/*`, `refactor/*`, `docs/*`, `ci/*`, `test/*`, `perf/*` e sincronização da `main`;
 - PRs para outras bases são rejeitados pela política de CI.
