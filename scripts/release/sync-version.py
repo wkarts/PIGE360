@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 VERSION_FILE = ROOT / "VERSION"
 STABLE_SEMVER_RE = re.compile(r"\d+\.\d+\.\d+")
+LEGACY_ALPHA_RE = re.compile(r"\b\d+\.\d+\.\d+-alpha(?:[.-][0-9A-Za-z.-]+)?\b", re.IGNORECASE)
 PATTERNS = (
     "package.json",
     "package-lock.json",
@@ -36,6 +37,16 @@ def targets() -> list[Path]:
     return sorted({path for pattern in PATTERNS for path in ROOT.glob(pattern) if path.is_file()})
 
 
+def detect_legacy_source(paths: list[Path], target: str) -> str:
+    candidates: set[str] = set()
+    for path in paths:
+        for match in LEGACY_ALPHA_RE.finditer(path.read_text(encoding="utf-8")):
+            candidates.add(match.group(0))
+    if len(candidates) == 1:
+        return next(iter(candidates))
+    return target
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("version", nargs="?", help="Versão alvo X.Y.Z; por padrão usa VERSION")
@@ -45,14 +56,15 @@ def main() -> int:
 
     current = VERSION_FILE.read_text(encoding="utf-8").strip()
     target = (args.version or current).strip()
-    source = (args.from_version or current).strip()
     if not STABLE_SEMVER_RE.fullmatch(target):
         raise SystemExit(f"Versão SemVer estável inválida: {target}. Use somente X.Y.Z.")
 
+    paths = targets()
+    source = (args.from_version or detect_legacy_source(paths, current)).strip()
     changed: list[str] = []
     remaining: list[str] = []
 
-    for path in targets():
+    for path in paths:
         original = path.read_text(encoding="utf-8")
         relative = path.relative_to(ROOT).as_posix()
         if args.check:
