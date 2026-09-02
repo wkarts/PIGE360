@@ -1,6 +1,6 @@
 {
   "name": "pige360-monorepo",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "apps/*",

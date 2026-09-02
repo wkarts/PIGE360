@@ -1,60 +1,35 @@
-name: 50 · Pré-lançamento Alpha Web/Server
+name: 50 · Release SemVer Web/Server
 
 on:
   push:
     branches: [main]
-    paths:
-      - VERSION
   workflow_dispatch:
+    inputs:
+      force_bump:
+        description: "Override opcional do incremento SemVer"
+        required: false
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: pige360-release-main
   cancel-in-progress: false
 
 jobs:
-  version:
-    name: Validar promoção de versão
-    runs-on: ubuntu-24.04
-    outputs:
-      version: ${{ steps.release_version.outputs.version }}
-      tag: ${{ steps.release_version.outputs.tag }}
-      publishable: ${{ steps.release_version.outputs.publishable }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Garantir que a promoção ocorreu na main
-        run: test "$GITHUB_REF" = "refs/heads/main"
-      - name: Validar versão canônica e metadados de produto
-        run: python3 scripts/validation/validate_version_consistency.py --output release/version-consistency.json
-      - id: release_version
-        name: Expor versão, tag e estado da promoção
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          version="$(tr -d '[:space:]' < VERSION)"
-          tag="v$version"
-          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
-          printf 'tag=%s\n' "$tag" >> "$GITHUB_OUTPUT"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            printf 'publishable=false\n' >> "$GITHUB_OUTPUT"
-            echo "A release $tag já existe; a promoção será ignorada."
-          else
-            printf 'publishable=true\n' >> "$GITHUB_OUTPUT"
-            echo "A release $tag ainda não existe; a promoção web/server será executada."
-          fi
-
-  validation:
-    name: Gates de qualidade
-    needs: [version]
-    if: needs.version.outputs.publishable == 'true'
+  validate:
+    name: Validar fonte promovida
+    if: ${{ github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[skip release]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -65,45 +40,107 @@ jobs:
           node-version: '22.16.0'
           cache: npm
           cache-dependency-path: package-lock.json
-      - name: Instalar dependências e executar validações integrais
+      - name: Executar gates integrais
         run: |
           python -m pip install -r backend/requirements.lock
+          python3 scripts/validation/validate_version_consistency.py --output release/version-consistency.json
           bash scripts/ci/run-all.sh --ci
       - uses: actions/upload-artifact@v4
         with:
-          name: pige360-${{ needs.version.outputs.version }}-validation
+          name: pige360-release-validation-${{ github.run_id }}
           path: |
             release/reports/**
             release/*validation*.json
             release/project-validation.json
           if-no-files-found: error
 
-  runtime_images:
-    name: Imagens de runtime e smoke Compose
-    needs: [version, validation]
-    if: needs.version.outputs.publishable == 'true'
+  plan_version:
+    name: Planejar versão SemVer
+    needs: validate
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      tag: ${{ steps.plan.outputs.tag }}
+      bump: ${{ steps.plan.outputs.bump }}
+      previous: ${{ steps.plan.outputs.previous }}
+      source_version: ${{ steps.plan.outputs.source_version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolver metadados do PR promovido
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr_json="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls" 2>/dev/null || echo '[]')"
+          title="$(jq -r '.[0].title // empty' <<<"$pr_json")"
+          labels="$(jq -r '[.[0].labels[]?.name] | join(",")' <<<"$pr_json")"
+          {
+            echo "title=$title"
+            echo "labels=$labels"
+          } >> "$GITHUB_OUTPUT"
+      - name: Calcular próxima versão
+        id: plan
+        env:
+          LABELS: ${{ steps.pr.outputs.labels }}
+          PR_TITLE: ${{ steps.pr.outputs.title }}
+          FORCE_BUMP: ${{ inputs.force_bump || 'auto' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          latest="$(git tag -l --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || true)"
+          plan="$(node .github/scripts/compute-next-version.mjs "$latest" "$LABELS" "$PR_TITLE" "$FORCE_BUMP")"
+          version="$(jq -r '.version' <<<"$plan")"
+          bump="$(jq -r '.bump' <<<"$plan")"
+          previous="$(jq -r '.previous' <<<"$plan")"
+          source_version="$(tr -d '[:space:]' < VERSION)"
+          if git rev-parse "v${version}" >/dev/null 2>&1; then
+            echo "Tag v${version} já existe; publicação duplicada recusada." >&2
+            exit 1
+          fi
+          {
+            echo "version=$version"
+            echo "tag=v$version"
+            echo "bump=$bump"
+            echo "previous=$previous"
+            echo "source_version=$source_version"
+          } >> "$GITHUB_OUTPUT"
+          echo "PIGE360 v${version} planejada (${bump}); origem ${source_version}."
+
+  runtime_images:
+    name: Runtime e smoke Compose
+    needs: plan_version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - name: Construir imagens Docker da versão
+      - name: Materializar versão planejada
+        run: python3 scripts/release/sync-version.py "${{ needs.plan_version.outputs.version }}" --from-version "${{ needs.plan_version.outputs.source_version }}"
+      - name: Construir imagens executáveis
         run: bash scripts/oci/build-runtime-images.sh all release/artifacts/docker/runtime
-      - name: Executar smoke test isolado do Compose
+      - name: Validar inventário e checksums
+        run: |
+          test -s release/artifacts/docker/runtime/images-manifest.json
+          test "$(find release/artifacts/docker/runtime -name '*.tar' | wc -l)" -eq 9
+          sha256sum --check release/artifacts/docker/runtime/*.tar.sha256
+      - name: Executar smoke Compose
         run: bash scripts/ci/smoke-compose-homologation.sh release/artifacts/docker/compose-smoke
       - uses: actions/upload-artifact@v4
-        if: ${{ always() }}
         with:
-          name: pige360-${{ needs.version.outputs.version }}-runtime-images
+          name: pige360-${{ needs.plan_version.outputs.version }}-runtime-images
           path: release/artifacts/docker/**
           if-no-files-found: error
 
   web_pwa:
-    name: PWAs das 13 aplicações
-    needs: [version, validation]
-    if: needs.version.outputs.publishable == 'true'
+    name: Distribuição Web/PWA
+    needs: plan_version
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -111,20 +148,21 @@ jobs:
           node-version: '22.16.0'
           cache: npm
           cache-dependency-path: package-lock.json
+      - name: Materializar versão planejada
+        run: python3 scripts/release/sync-version.py "${{ needs.plan_version.outputs.version }}" --from-version "${{ needs.plan_version.outputs.source_version }}"
       - name: Gerar PWAs versionadas
         run: bash scripts/release/package-web-pwa.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: pige360-${{ needs.version.outputs.version }}-web-pwa
+          name: pige360-${{ needs.plan_version.outputs.version }}-web-pwa
           path: release/artifacts/web/**
           if-no-files-found: error
 
   release_bundle:
-    name: Pacotes auto-hospedados, fontes e evidências
-    needs: [version, validation, runtime_images]
-    if: needs.version.outputs.publishable == 'true'
+    name: Self-hosted, fontes e evidências
+    needs: plan_version
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -137,37 +175,75 @@ jobs:
           node-version: '22.16.0'
           cache: npm
           cache-dependency-path: package-lock.json
-      - name: Reproduzir evidências que compõem o pacote
+      - name: Materializar versão planejada
+        run: python3 scripts/release/sync-version.py "${{ needs.plan_version.outputs.version }}" --from-version "${{ needs.plan_version.outputs.source_version }}"
+      - name: Revalidar bundle versionado
         run: |
           python -m pip install -r backend/requirements.lock
+          python3 scripts/validation/validate_version_consistency.py
           bash scripts/ci/run-all.sh --ci
-      - name: Gerar ZIPs de fonte, self-hosted e CI/CD
+      - name: Gerar pacotes de distribuição
         run: bash scripts/release/package-local.sh --output-dir release/output
       - uses: actions/upload-artifact@v4
         with:
-          name: pige360-${{ needs.version.outputs.version }}-release-bundle
+          name: pige360-${{ needs.plan_version.outputs.version }}-release-bundle
           path: release/output/**
           if-no-files-found: error
 
-  publish:
-    name: Criar GitHub Release sem binários nativos
-    needs: [version, validation, runtime_images, web_pwa, release_bundle]
-    if: >-
-      ${{ always() && needs.version.outputs.publishable == 'true' &&
-          needs.validation.result == 'success' &&
-          needs.runtime_images.result == 'success' &&
-          needs.web_pwa.result == 'success' &&
-          needs.release_bundle.result == 'success' }}
+  persist_version:
+    name: Persistir versão oficial na main
+    needs: [plan_version, runtime_images, web_pwa, release_bundle]
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    outputs:
+      release_sha: ${{ steps.commit.outputs.release_sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Garantir que main não mudou durante a preparação
+        shell: bash
+        run: |
+          set -euo pipefail
+          current="$(git rev-parse HEAD)"
+          test "$current" = "$GITHUB_SHA" || {
+            echo "main avançou durante a preparação ($current != $GITHUB_SHA)." >&2
+            exit 1
+          }
+      - name: Persistir SemVer planejado
+        run: |
+          python3 scripts/release/sync-version.py "${{ needs.plan_version.outputs.version }}" --from-version "${{ needs.plan_version.outputs.source_version }}"
+          python3 scripts/validation/validate_version_consistency.py
+      - name: Criar commit de versão
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -u
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): v${{ needs.plan_version.outputs.version }} [skip release]"
+            git push origin HEAD:main
+          fi
+          echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publicar GitHub Release estável
+    needs: [plan_version, persist_version, runtime_images, web_pwa, release_bundle]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.persist_version.outputs.release_sha }}
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
-          pattern: pige360-${{ needs.version.outputs.version }}-*
+          pattern: pige360-${{ needs.plan_version.outputs.version }}-*
           path: release/publish
           merge-multiple: true
-      - name: Bloquear publicação acidental de binários mobile/desktop
+      - name: Bloquear binários mobile/desktop
         shell: bash
         run: |
           set -euo pipefail
@@ -176,35 +252,54 @@ jobs:
                -o -iname '*.msi' -o -iname '*.exe' -o -iname '*.appimage' -o -iname '*.deb' \
                -o -iname '*.rpm' \) -print)"
           if [ -n "$forbidden" ]; then
-            echo "::error::Binários mobile/desktop não podem compor a release automática."
+            echo "::error::Binários mobile/desktop não podem compor a distribuição oficial."
             printf '%s\n' "$forbidden"
             exit 1
           fi
-      - name: Consolidar checksums dos assets publicados
+      - name: Consolidar checksums
         run: |
-          find release/publish -type f -print0 | sort -z | xargs -0 sha256sum > "release/publish/PIGE360-${{ needs.version.outputs.version }}-release-assets-SHA256SUMS"
-      - name: Registrar notas do pré-lançamento
+          find release/publish -type f -print0 | sort -z | xargs -0 sha256sum > "release/publish/PIGE360-${{ needs.plan_version.outputs.version }}-release-assets-SHA256SUMS"
+      - name: Registrar notas da versão
         shell: bash
         run: |
-          cat > release/RELEASE_NOTES.md <<'EOF'
-          ## PIGE360 ${{ needs.version.outputs.version }}
+          cat > release/RELEASE_NOTES.md <<EOF
+          ## PIGE360 ${{ needs.plan_version.outputs.version }}
 
-          Pré-lançamento Alpha promovido pela `main` após integração pela `dev`.
+          Release oficial e estável promovida de \`develop\` para \`main\`.
 
-          Inclui as 13 aplicações em PWA, pacotes self-hosted, fontes, imagens de
-          runtime/Compose, evidências, SBOM/proveniência disponíveis no bundle e
-          checksums de integridade.
+          Incremento SemVer: **${{ needs.plan_version.outputs.bump }}**  
+          Versão anterior de referência: **${{ needs.plan_version.outputs.previous }}**
 
-          **Binários mobile e desktop estão deliberadamente desativados neste
-          canal de release.** APK/AAB/IPA e instaladores desktop não são gerados
-          nem anexados automaticamente. Os workflows nativos permanecem
-          disponíveis somente para execução manual de desenvolvimento e
-          homologação, sem fazer parte da release canônica.
+          Distribuição incluída:
+          - aplicações Web/PWA;
+          - pacotes self-hosted e fontes;
+          - runtime/Compose;
+          - evidências e checksums de integridade.
+
+          Binários Android, iOS e Desktop permanecem fora da distribuição oficial e só podem ser gerados manualmente para homologação técnica.
           EOF
       - name: Publicar tag e GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
           REMOTE_RELEASE_ENABLED: 'true'
-          RELEASE_TAG: ${{ needs.version.outputs.tag }}
+          RELEASE_TAG: ${{ needs.plan_version.outputs.tag }}
+          RELEASE_TARGET_SHA: ${{ needs.persist_version.outputs.release_sha }}
           RELEASE_NOTES_FILE: release/RELEASE_NOTES.md
         run: bash scripts/release/publish-github-release.sh release/publish
+
+  sync_develop:
+    name: Sincronizar versão publicada para develop
+    needs: [plan_version, persist_version, publish]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Fast-forward develop para o commit versionado da main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main develop
+          git merge --ff-only origin/main
+          git push origin HEAD:develop

@@ -1,6 +1,6 @@
 [package]
 name = "pige360-public-portal"
-version = "1.0.0-alpha.3"
+version = "1.0.0"
 edition = "2021"
 
 [dependencies]
