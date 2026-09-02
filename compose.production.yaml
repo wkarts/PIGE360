@@ -17,8 +17,13 @@ services:
       CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
       CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
       CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+      CLOUDFLARE_SAAS_ENABLED: ${CLOUDFLARE_SAAS_ENABLED:-false}
+      CLOUDFLARE_TENANT_ZONE_ID: ${CLOUDFLARE_TENANT_ZONE_ID:-}
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+      LOKI_INTERNAL_URL: ${LOKI_INTERNAL_URL:-http://pige360-loki:3100}
     secrets:
       - connect_api_key
+      - cloudflare_api_token
     deploy:
       resources:
         limits:
@@ -59,3 +64,5 @@ services:
 secrets:
   connect_api_key:
     file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/connect_api_key.txt
+  cloudflare_api_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/cloudflare_api_token.txt
