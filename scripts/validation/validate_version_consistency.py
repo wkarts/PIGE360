@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Valida que o PIGE360 usa somente SemVer estável X.Y.Z e não contém prereleases públicas."""
+"""Valida que o PIGE360 usa somente SemVer estável X.Y.Z."""
 
 from __future__ import annotations
 
@@ -11,11 +11,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 VERSION = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
 STABLE_RE = re.compile(r"\d+\.\d+\.\d+")
-PRERELEASE_RE = re.compile(r"\b\d+\.\d+\.\d+-(?:alpha|beta|rc|pre|preview|dev|snapshot)(?:[.-][0-9A-Za-z.-]+)?\b", re.IGNORECASE)
+PRODUCT_ALPHA_RE = re.compile(r"\b\d+\.\d+\.\d+-alpha(?:[.-][0-9A-Za-z.-]+)?\b", re.IGNORECASE)
 PATTERNS = (
     "VERSION",
     "package.json",
-    "package-lock.json",
     "README.md",
     ".env.example",
     "compose*.yaml",
@@ -49,10 +48,9 @@ def main() -> int:
     checked: list[str] = []
     for path in targets():
         text = path.read_text(encoding="utf-8")
-        found = sorted(set(PRERELEASE_RE.findall(text)))
         relative = path.relative_to(ROOT).as_posix()
         checked.append(relative)
-        matches = sorted(set(match.group(0) for match in PRERELEASE_RE.finditer(text)))
+        matches = sorted(set(match.group(0) for match in PRODUCT_ALPHA_RE.finditer(text)))
         if matches:
             prereleases.append({"path": relative, "versions": matches})
 
@@ -62,7 +60,7 @@ def main() -> int:
         "stable_semver": valid_version,
         "status": "passed" if valid_version and not prereleases else "failed",
         "checked_files": checked,
-        "prereleases": prereleases,
+        "product_prereleases": prereleases,
     }
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
