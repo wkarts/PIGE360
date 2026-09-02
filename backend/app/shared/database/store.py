@@ -65,6 +65,7 @@ class SQLiteStore:
                 "verification_status": "TEXT NOT NULL DEFAULT 'not_required'",
                 "provider": "TEXT",
                 "provider_reference": "TEXT",
+                "provider_validation_json": "TEXT NOT NULL DEFAULT '{}'",
                 "verified_at": "TEXT",
                 "activated_at": "TEXT",
                 "last_error": "TEXT",
@@ -83,6 +84,7 @@ class SQLiteStore:
                        certificate_status='active',
                        verification_status='not_required',
                        provider='platform_wildcard',
+                       provider_validation_json='{}',
                        activated_at=COALESCE(activated_at, created_at),
                        updated_at=COALESCE(updated_at, created_at)
                    WHERE is_canonical=1"""
@@ -95,6 +97,7 @@ class SQLiteStore:
                        verification_status='pending',
                        provider=NULL,
                        provider_reference=NULL,
+                       provider_validation_json='{}',
                        verified_at=NULL,
                        activated_at=NULL,
                        last_error='Revalidação obrigatória após upgrade do ciclo de domínio personalizado.',
