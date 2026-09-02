@@ -6,6 +6,9 @@ on:
       - 'ci/connectapi-release-model'
     paths:
       - VERSION
+      - 'scripts/release/sync-version.py'
+      - 'scripts/validation/validate_version_consistency.py'
+      - '.github/workflows/04-version-sync.yml'
   workflow_dispatch:
 
 permissions:
