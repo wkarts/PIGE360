@@ -39,34 +39,35 @@ def targets() -> list[Path]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("version", nargs="?", help="Versão alvo X.Y.Z; por padrão usa VERSION")
-    parser.add_argument("--check", action="store_true", help="Somente verifica se o valor atual aparece nos manifests")
+    parser.add_argument("--from-version", dest="from_version", help="Versão de origem a substituir")
+    parser.add_argument("--check", action="store_true", help="Somente verifica se a versão de origem ainda aparece")
     args = parser.parse_args()
 
     current = VERSION_FILE.read_text(encoding="utf-8").strip()
     target = (args.version or current).strip()
+    source = (args.from_version or current).strip()
     if not STABLE_SEMVER_RE.fullmatch(target):
         raise SystemExit(f"Versão SemVer estável inválida: {target}. Use somente X.Y.Z.")
 
     changed: list[str] = []
-    missing: list[str] = []
+    remaining: list[str] = []
 
     for path in targets():
         original = path.read_text(encoding="utf-8")
         relative = path.relative_to(ROOT).as_posix()
         if args.check:
-            if current in original and target not in original:
-                missing.append(relative)
+            if source != target and source in original:
+                remaining.append(relative)
             continue
-        if current == target or current not in original:
+        if source == target or source not in original:
             continue
-        updated = original.replace(current, target)
-        path.write_text(updated, encoding="utf-8")
+        path.write_text(original.replace(source, target), encoding="utf-8")
         changed.append(relative)
 
     if args.check:
-        if missing:
-            print("Metadados divergentes:")
-            for item in missing:
+        if remaining:
+            print("Metadados ainda contêm a versão de origem:")
+            for item in remaining:
                 print(f" - {item}")
             return 1
         print(f"Metadados compatíveis com {target}.")
@@ -74,6 +75,7 @@ def main() -> int:
 
     VERSION_FILE.write_text(target + "\n", encoding="utf-8")
     print(f"Versão canônica: {target}")
+    print(f"Versão substituída: {source}")
     print(f"Arquivos atualizados: {len(changed)}")
     for path in changed:
         print(f" - {path}")
