@@ -9,6 +9,7 @@ from app.modules.tenancy.domain_management import (
     DomainLifecycleError,
     normalize_hostname,
     refresh_certificate,
+    remove_edge_route,
     request_certificate,
     verification_challenge,
     verify_dns_txt,
@@ -244,6 +245,7 @@ def deactivate_domain(
     row = _domain(request, tenant_id, domain_id)
     if row.get("is_canonical"):
         raise DomainError("CANONICAL_DOMAIN_CANNOT_BE_REMOVED", "O domínio canônico do tenant não pode ser removido.", 409)
+    remove_edge_route(str(row["hostname"]))
     now = iso_now()
     with request.state.store.transaction() as conn:
         conn.execute("UPDATE tenant_domains SET status='disabled',updated_at=? WHERE id=?", (now, domain_id))
