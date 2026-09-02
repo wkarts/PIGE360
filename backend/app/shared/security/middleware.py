@@ -29,8 +29,10 @@ def _log_request(
     surface: str | None = None,
     error_code: str | None = None,
 ) -> None:
+    level = "error" if status >= 500 else ("warning" if status >= 400 else "info")
     payload = {
         "event": "http_request",
+        "level": level,
         "service": "pige360-api",
         "environment": request.app.state.settings.environment,
         "correlation_id": correlation_id,
@@ -47,7 +49,13 @@ def _log_request(
     }
     if error_code:
         payload["error_code"] = error_code
-    logger.info(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    log_line = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    if level == "error":
+        logger.error(log_line)
+    elif level == "warning":
+        logger.warning(log_line)
+    else:
+        logger.info(log_line)
 
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
