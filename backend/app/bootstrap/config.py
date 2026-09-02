@@ -24,6 +24,7 @@ _DEFAULT_RESERVED_TENANT_SLUGS = (
     "api",
     "console",
     "ops",
+    "edge",
     "status",
     "assets",
     "cdn",
@@ -50,6 +51,7 @@ class Settings:
     base_domain: str = "pige360.com.br"
     tenant_default_base_domain: str = "pige360.com.br"
     tenant_custom_domains_enabled: bool = True
+    tenant_custom_domain_cname_target: str = "edge.pige360.com.br"
     tenant_reserved_slugs: tuple[str, ...] = _DEFAULT_RESERVED_TENANT_SLUGS
     jwt_secret: str = ""
     jwt_issuer: str = "pige360"
@@ -108,6 +110,9 @@ class Settings:
 
         base_domain = os.getenv("PIGE360_BASE_DOMAIN", "pige360.com.br").strip().lower().rstrip(".")
         tenant_default_base_domain = os.getenv("TENANT_DEFAULT_BASE_DOMAIN", base_domain).strip().lower().rstrip(".")
+        tenant_custom_domain_cname_target = os.getenv(
+            "TENANT_CUSTOM_DOMAIN_CNAME_TARGET", f"edge.{base_domain}"
+        ).strip().lower().rstrip(".")
         reserved_raw = os.getenv("TENANT_RESERVED_SLUGS", ",".join(_DEFAULT_RESERVED_TENANT_SLUGS))
         tenant_reserved_slugs = tuple(
             dict.fromkeys(item.strip().lower() for item in reserved_raw.split(",") if item.strip())
@@ -116,6 +121,8 @@ class Settings:
             raise RuntimeError("PIGE360_BASE_DOMAIN deve ser um domínio válido.")
         if not tenant_default_base_domain or "." not in tenant_default_base_domain:
             raise RuntimeError("TENANT_DEFAULT_BASE_DOMAIN deve ser um domínio válido.")
+        if not tenant_custom_domain_cname_target or "." not in tenant_custom_domain_cname_target:
+            raise RuntimeError("TENANT_CUSTOM_DOMAIN_CNAME_TARGET deve ser um hostname válido.")
 
         if not jwt_secret and environment not in {"production", "staging"}:
             jwt_secret = "local-development-only-change-me-" + "x" * 32
@@ -152,6 +159,7 @@ class Settings:
             base_domain=base_domain,
             tenant_default_base_domain=tenant_default_base_domain,
             tenant_custom_domains_enabled=_bool("TENANT_CUSTOM_DOMAINS_ENABLED", True),
+            tenant_custom_domain_cname_target=tenant_custom_domain_cname_target,
             tenant_reserved_slugs=tenant_reserved_slugs,
             jwt_secret=jwt_secret,
             bootstrap_token=bootstrap_token,
