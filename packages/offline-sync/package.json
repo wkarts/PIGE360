@@ -1,10 +1,10 @@
 {
   "name": "@pige360/offline-sync",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
   "dependencies": {
-    "@pige360/app-manifest": "1.0.0-alpha.2"
+    "@pige360/app-manifest": "1.0.0-alpha.3"
   }
 }

@@ -1,4 +1,4 @@
-# Pré-lançamento `1.0.0-alpha.2`
+# Pré-lançamento `1.0.0-alpha.3`
 
 ## Finalidade
 
@@ -56,15 +56,15 @@ depois de todas as etapas passarem.
 ## Imagens construídas no workflow
 
 ```text
-pige360-base-python:1.0.0-alpha.2
-pige360-base-node:1.0.0-alpha.2
-pige360-base-runtime:1.0.0-alpha.2
-pige360-base-rust-tauri:1.0.0-alpha.2
-pige360-api:1.0.0-alpha.2
-pige360-web:1.0.0-alpha.2
-pige360-worker:1.0.0-alpha.2
-pige360-migrations:1.0.0-alpha.2
-pige360-reporting:1.0.0-alpha.2
+pige360-base-python:1.0.0-alpha.3
+pige360-base-node:1.0.0-alpha.3
+pige360-base-runtime:1.0.0-alpha.3
+pige360-base-rust-tauri:1.0.0-alpha.3
+pige360-api:1.0.0-alpha.3
+pige360-web:1.0.0-alpha.3
+pige360-worker:1.0.0-alpha.3
+pige360-migrations:1.0.0-alpha.3
+pige360-reporting:1.0.0-alpha.3
 ```
 
 Cada imagem é exportada como arquivo TAR acompanhado de SHA-256 e metadados de
