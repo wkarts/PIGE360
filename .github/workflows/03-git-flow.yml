@@ -24,24 +24,24 @@ jobs:
           case "$BASE" in
             main)
               case "$HEAD" in
-                release/*|hotfix/*) exit 0 ;;
+                develop|hotfix/*) exit 0 ;;
                 *)
-                  echo "::error::A main aceita somente PRs originadas de release/* ou hotfix/*."
+                  echo "::error::A main aceita promoção da develop ou hotfix/* emergencial."
                   exit 1
                   ;;
               esac
               ;;
-            dev)
+            develop)
               case "$HEAD" in
                 feature/*|fix/*|chore/*|refactor/*|docs/*|ci/*|test/*|perf/*|main) exit 0 ;;
                 *)
-                  echo "::error::A dev aceita branches de trabalho padronizadas ou back-merge da main."
+                  echo "::error::A develop aceita branches de trabalho padronizadas ou sincronização da main."
                   exit 1
                   ;;
               esac
               ;;
             *)
-              echo "::error::Pull Requests devem ter como base dev ou main. Base recebida: $BASE"
+              echo "::error::Pull Requests devem ter como base develop ou main. Base recebida: $BASE"
               exit 1
               ;;
           esac
