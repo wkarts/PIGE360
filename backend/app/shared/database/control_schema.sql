@@ -122,5 +122,8 @@ CREATE TABLE IF NOT EXISTS inbox_events (
 CREATE INDEX IF NOT EXISTS idx_control_inbox_event_consumer ON inbox_events(tenant_id,event_id,consumer);
 
 CREATE INDEX IF NOT EXISTS idx_domains_tenant ON tenant_domains(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_domains_status ON tenant_domains(status, verification_status, certificate_status);
+-- Compatível com bancos SQLite legados: as colunas de lifecycle são adicionadas
+-- depois por SQLiteStore._apply_compatibility_migrations(). O índice composto de
+-- lifecycle permanece no PostgreSQL/Alembic, onde a migration controla a ordem.
+CREATE INDEX IF NOT EXISTS idx_domains_status ON tenant_domains(status);
 CREATE INDEX IF NOT EXISTS idx_control_outbox_pending ON outbox_events(published_at, created_at);
