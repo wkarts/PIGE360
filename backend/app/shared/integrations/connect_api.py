@@ -5,7 +5,7 @@ import urllib.parse
 from typing import Any
 
 from app.shared.integrations import providers as provider_registry
-from app.shared.integrations.providers import BaseProvider, IntegrationError, ProviderHealth
+from app.shared.integrations.providers import EvolutionProvider, IntegrationError, ProviderHealth
 
 
 CONNECT_API_PROVIDER_ALIASES = frozenset(
@@ -21,19 +21,20 @@ CONNECT_API_PROVIDER_ALIASES = frozenset(
 )
 
 
-class ConnectApiProvider(BaseProvider):
+class ConnectApiProvider(EvolutionProvider):
     """Adapter canônico de comunicação do PIGE360 para Connect API.
 
-    Mantém o contrato HTTP historicamente compatível para permitir migração sem
-    interrupção, mas normaliza identidade, erros e telemetria para Connect API.
-    O payload de mensagem segue o contrato Meta-compatible usado pela plataforma:
-    número E.164 somente dígitos, texto e metadados opcionais de atraso/preview.
+    Mantém compatibilidade interna de tipo com ``EvolutionProvider`` somente para
+    workers e registros históricos anteriores à migração. A identidade pública,
+    telemetria, erros e novas gravações permanecem exclusivamente Connect API.
     """
 
     provider_name = "connect_api"
 
     def __init__(self, **kwargs: Any):
-        super().__init__(**kwargs)
+        # Não chama EvolutionProvider.__init__: o contrato canônico possui nomes
+        # de erro/configuração próprios, embora preserve isinstance interno.
+        super(EvolutionProvider, self).__init__(**kwargs)
         self.base = self._https_base(self.config, "base_url")
         auth_header = str(self.config.get("auth_header") or "apikey").strip()
         if not auth_header:
