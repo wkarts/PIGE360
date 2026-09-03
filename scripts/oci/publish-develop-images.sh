@@ -19,6 +19,9 @@ images=(
   pige360-base-rust-tauri
   pige360-api
   pige360-web
+  pige360-platform-console
+  pige360-branding-studio
+  pige360-tenant-download-center
   pige360-worker
   pige360-migrations
   pige360-reporting
@@ -28,7 +31,7 @@ manifest_dir="${1:-release/artifacts/docker/runtime}"
 manifest_path="${manifest_dir}/ghcr-develop-manifest.json"
 mkdir -p "$manifest_dir"
 
-echo "Publicando imagens de homologação do PIGE360 no GHCR"
+echo "Publicando imagens de develop/homologação do PIGE360 no GHCR"
 echo "  namespace : ${registry}"
 echo "  canal     : ${channel}"
 echo "  commit    : ${commit_sha}"
@@ -55,8 +58,6 @@ for image in "${images[@]}"; do
   docker tag "$local_ref" "$immutable_ref"
   docker push "$immutable_ref"
   docker push "$moving_ref"
-
-  # Confirma que a tag rastreável está realmente acessível no registry.
   docker buildx imagetools inspect "$immutable_ref" >/dev/null
   printf '%s\t%s\t%s\n' "$image" "$moving_ref" "$immutable_ref" >> "$records_file"
   echo "::endgroup::"
