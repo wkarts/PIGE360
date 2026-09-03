@@ -61,6 +61,9 @@ def main() -> int:
         "status": "passed" if valid_version and not prereleases else "failed",
         "checked_files": checked,
         "product_prereleases": prereleases,
+        # Alias preservado para consumidores internos anteriores à migração do
+        # relatório v2. Não muda a regra: qualquer prerelease de produto falha.
+        "mismatches": prereleases,
     }
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
