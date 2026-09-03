@@ -33,9 +33,9 @@ jobs:
               ;;
             develop)
               case "$HEAD" in
-                feature/*|fix/*|chore/*|refactor/*|docs/*|ci/*|test/*|perf/*|main) exit 0 ;;
+                feat/*|feature/*|resource/*|fix/*|hotfix/*|chore/*|refactor/*|docs/*|ci/*|test/*|perf/*|main) exit 0 ;;
                 *)
-                  echo "::error::A develop aceita branches de trabalho padronizadas ou sincronização da main."
+                  echo "::error::A develop aceita feat/*, resource/*, fix/*, chore/*, refactor/*, docs/*, ci/*, test/*, perf/* ou sincronização da main."
                   exit 1
                   ;;
               esac

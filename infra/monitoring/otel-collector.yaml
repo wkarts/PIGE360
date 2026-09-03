@@ -13,8 +13,10 @@ exporters:
     verbosity: basic
   prometheus:
     endpoint: 0.0.0.0:8889
+  otlphttp/loki:
+    endpoint: http://pige360-loki:3100/otlp
 service:
   pipelines:
     traces: {receivers: [otlp], processors: [memory_limiter, batch], exporters: [debug]}
     metrics: {receivers: [otlp], processors: [memory_limiter, batch], exporters: [prometheus]}
-    logs: {receivers: [otlp], processors: [memory_limiter, batch], exporters: [debug]}
+    logs: {receivers: [otlp], processors: [memory_limiter, batch], exporters: [otlphttp/loki]}

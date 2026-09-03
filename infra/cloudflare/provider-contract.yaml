@@ -1,5 +1,13 @@
+schema_version: 2
 enabled: false
-mode: not_configured
+mode: prepared
+canonical_zone: pige360.com.br
+canonical_records:
+  root: pige360.com.br
+  wildcard: '*.pige360.com.br'
+  control_console: console.pige360.com.br
+  control_api: api.pige360.com.br
+  operations: ops.pige360.com.br
 providers:
 - CloudflareDnsProvider
 - CloudflareTunnelProvider
@@ -8,7 +16,17 @@ providers:
 - LetsEncryptAcmeProvider
 - CpanelDnsProvider
 - ManualDnsProvider
-forbidden:
-- global_api_key
-- public_origin_a_record
+wildcard:
+  supported: true
+  strategy: dns01
+  provider: cloudflare
+custom_domains:
+  supported: true
+  preferred_strategy: cloudflare_for_saas
+  self_hosted_fallback: acme_http01
+security:
+  forbidden:
+  - global_api_key
+  - public_origin_a_record
+  token_source: docker_secret
 remote_execution: false

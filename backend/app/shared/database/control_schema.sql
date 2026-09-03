@@ -20,7 +20,20 @@ CREATE TABLE IF NOT EXISTS tenant_domains (
     surface TEXT NOT NULL DEFAULT 'admin',
     status TEXT NOT NULL,
     is_canonical INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL
+    certificate_policy TEXT NOT NULL DEFAULT 'canonical_wildcard',
+    certificate_status TEXT NOT NULL DEFAULT 'active',
+    verification_method TEXT,
+    verification_name TEXT,
+    verification_token TEXT,
+    verification_status TEXT NOT NULL DEFAULT 'not_required',
+    provider TEXT DEFAULT 'platform_wildcard',
+    provider_reference TEXT,
+    provider_validation_json TEXT NOT NULL DEFAULT '{}',
+    verified_at TEXT,
+    activated_at TEXT,
+    last_error TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -109,4 +122,8 @@ CREATE TABLE IF NOT EXISTS inbox_events (
 CREATE INDEX IF NOT EXISTS idx_control_inbox_event_consumer ON inbox_events(tenant_id,event_id,consumer);
 
 CREATE INDEX IF NOT EXISTS idx_domains_tenant ON tenant_domains(tenant_id);
+-- Compatível com bancos SQLite legados: as colunas de lifecycle são adicionadas
+-- depois por SQLiteStore._apply_compatibility_migrations(). O índice composto de
+-- lifecycle permanece no PostgreSQL/Alembic, onde a migration controla a ordem.
+CREATE INDEX IF NOT EXISTS idx_domains_status ON tenant_domains(status);
 CREATE INDEX IF NOT EXISTS idx_control_outbox_pending ON outbox_events(published_at, created_at);

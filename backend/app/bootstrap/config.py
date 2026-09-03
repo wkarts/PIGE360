@@ -19,6 +19,24 @@ def _secret(env_name: str, file_env_name: str, default: str = "") -> str:
     return default
 
 
+_DEFAULT_RESERVED_TENANT_SLUGS = (
+    "www",
+    "api",
+    "console",
+    "ops",
+    "edge",
+    "status",
+    "assets",
+    "cdn",
+    "mail",
+    "smtp",
+    "imap",
+    "admin",
+    "control",
+    "platform",
+)
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     app_name: str = "PIGE360"
@@ -30,6 +48,11 @@ class Settings:
     control_db_path: Path = Path("runtime-data/control/platform-control.db")
     storage_root: Path = Path("runtime-data/tenants")
     platform_hosts: tuple[str, ...] = ("console.platform.local", "api.platform.local")
+    base_domain: str = "pige360.com.br"
+    tenant_default_base_domain: str = "pige360.com.br"
+    tenant_custom_domains_enabled: bool = True
+    tenant_custom_domain_cname_target: str = "edge.pige360.com.br"
+    tenant_reserved_slugs: tuple[str, ...] = _DEFAULT_RESERVED_TENANT_SLUGS
     jwt_secret: str = ""
     jwt_issuer: str = "pige360"
     access_token_minutes: int = 15
@@ -84,6 +107,23 @@ class Settings:
         object_storage_access_key = _secret("MINIO_ACCESS_KEY", "MINIO_ACCESS_KEY_FILE")
         object_storage_secret_key = _secret("MINIO_SECRET_KEY", "MINIO_SECRET_KEY_FILE")
         build_farm_token = _secret("BUILD_FARM_TOKEN", "BUILD_FARM_TOKEN_FILE")
+
+        base_domain = os.getenv("PIGE360_BASE_DOMAIN", "pige360.com.br").strip().lower().rstrip(".")
+        tenant_default_base_domain = os.getenv("TENANT_DEFAULT_BASE_DOMAIN", base_domain).strip().lower().rstrip(".")
+        tenant_custom_domain_cname_target = os.getenv(
+            "TENANT_CUSTOM_DOMAIN_CNAME_TARGET", f"edge.{base_domain}"
+        ).strip().lower().rstrip(".")
+        reserved_raw = os.getenv("TENANT_RESERVED_SLUGS", ",".join(_DEFAULT_RESERVED_TENANT_SLUGS))
+        tenant_reserved_slugs = tuple(
+            dict.fromkeys(item.strip().lower() for item in reserved_raw.split(",") if item.strip())
+        )
+        if not base_domain or "." not in base_domain:
+            raise RuntimeError("PIGE360_BASE_DOMAIN deve ser um domínio válido.")
+        if not tenant_default_base_domain or "." not in tenant_default_base_domain:
+            raise RuntimeError("TENANT_DEFAULT_BASE_DOMAIN deve ser um domínio válido.")
+        if not tenant_custom_domain_cname_target or "." not in tenant_custom_domain_cname_target:
+            raise RuntimeError("TENANT_CUSTOM_DOMAIN_CNAME_TARGET deve ser um hostname válido.")
+
         if not jwt_secret and environment not in {"production", "staging"}:
             jwt_secret = "local-development-only-change-me-" + "x" * 32
         if environment in {"production", "staging"} and len(jwt_secret) < 64:
@@ -101,9 +141,12 @@ class Settings:
                 raise RuntimeError("MinIO/S3 deve estar configurado por secrets em produção.")
             if len(build_farm_token) < 32:
                 raise RuntimeError("BUILD_FARM_TOKEN_FILE deve fornecer um token forte em produção.")
-        hosts = tuple(x.strip().lower() for x in os.getenv(
-            "ALLOWED_PLATFORM_HOSTS", "console.platform.local,api.platform.local"
-        ).split(",") if x.strip())
+
+        hosts = tuple(
+            x.strip().lower()
+            for x in os.getenv("ALLOWED_PLATFORM_HOSTS", "console.platform.local,api.platform.local").split(",")
+            if x.strip()
+        )
         origins = tuple(x.strip() for x in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if x.strip())
         return cls(
             version=os.getenv("APP_VERSION", "1.0.0"),
@@ -113,6 +156,11 @@ class Settings:
             control_db_path=Path(os.getenv("APP_CONTROL_DB_PATH", str(data_root / "control/platform-control.db"))),
             storage_root=Path(os.getenv("APP_STORAGE_ROOT", str(data_root / "tenants"))),
             platform_hosts=hosts,
+            base_domain=base_domain,
+            tenant_default_base_domain=tenant_default_base_domain,
+            tenant_custom_domains_enabled=_bool("TENANT_CUSTOM_DOMAINS_ENABLED", True),
+            tenant_custom_domain_cname_target=tenant_custom_domain_cname_target,
+            tenant_reserved_slugs=tenant_reserved_slugs,
             jwt_secret=jwt_secret,
             bootstrap_token=bootstrap_token,
             access_token_minutes=int(os.getenv("APP_ACCESS_TOKEN_MINUTES", "15")),

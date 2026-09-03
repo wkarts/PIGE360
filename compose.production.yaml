@@ -1,7 +1,29 @@
 services:
+  pige360-app-init:
+    environment:
+      APP_ENV: production
+      ALLOWED_PLATFORM_HOSTS: console.platform.local,api.platform.local,${PLATFORM_CONSOLE_HOST:-console.pige360.com.br},${PLATFORM_API_HOST:-api.pige360.com.br}
+      PIGE360_BASE_DOMAIN: ${PIGE360_BASE_DOMAIN:-pige360.com.br}
+      TENANT_DEFAULT_BASE_DOMAIN: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}
+      TENANT_CUSTOM_DOMAINS_ENABLED: ${TENANT_CUSTOM_DOMAINS_ENABLED:-true}
+
   pige360-api:
     environment:
       APP_ENV: production
+      ALLOWED_PLATFORM_HOSTS: console.platform.local,api.platform.local,${PLATFORM_CONSOLE_HOST:-console.pige360.com.br},${PLATFORM_API_HOST:-api.pige360.com.br}
+      PIGE360_BASE_DOMAIN: ${PIGE360_BASE_DOMAIN:-pige360.com.br}
+      TENANT_DEFAULT_BASE_DOMAIN: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}
+      TENANT_CUSTOM_DOMAINS_ENABLED: ${TENANT_CUSTOM_DOMAINS_ENABLED:-true}
+      CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
+      CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
+      CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+      CLOUDFLARE_SAAS_ENABLED: ${CLOUDFLARE_SAAS_ENABLED:-false}
+      CLOUDFLARE_TENANT_ZONE_ID: ${CLOUDFLARE_TENANT_ZONE_ID:-}
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+      LOKI_INTERNAL_URL: ${LOKI_INTERNAL_URL:-http://pige360-loki:3100}
+    secrets:
+      - connect_api_key
+      - cloudflare_api_token
     deploy:
       resources:
         limits:
@@ -9,21 +31,38 @@ services:
           memory: 2G
         reservations:
           memory: 512M
+
+  pige360-worker-integrations:
+    environment:
+      CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
+      CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
+      CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+    secrets:
+      - connect_api_key
+
   pige360-web:
     deploy:
       resources:
         limits:
           cpus: '1.0'
           memory: 512M
+
   pige360-postgres-control:
     deploy:
       resources:
         limits:
           cpus: '2.0'
           memory: 4G
+
   pige360-postgres-tenants:
     deploy:
       resources:
         limits:
           cpus: '4.0'
           memory: 8G
+
+secrets:
+  connect_api_key:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/connect_api_key.txt
+  cloudflare_api_token:
+    file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/cloudflare_api_token.txt

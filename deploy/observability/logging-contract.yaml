@@ -1,0 +1,44 @@
+schema_version: 1
+stack:
+  container_logs: grafana_alloy
+  application_logs: opentelemetry
+  log_store: loki
+  metrics: prometheus
+  visualization: grafana
+required_log_attributes:
+- service
+- environment
+- correlation_id
+- request_host
+conditional_tenant_attributes:
+- tenant_id
+- tenant_code
+- plane
+- surface
+edge_access_log:
+  format: json
+  required_fields:
+  - RequestHost
+  - RequestMethod
+  - RequestPath
+  - DownstreamStatus
+  - Duration
+  - RouterName
+privacy:
+  redact:
+  - authorization
+  - cookie
+  - set-cookie
+  - api_key
+  - password
+  - token
+retention:
+  policy: configurable
+  production_default_days: 30
+query_dimensions:
+- service
+- container
+- request_host
+- tenant_id
+- tenant_code
+- correlation_id

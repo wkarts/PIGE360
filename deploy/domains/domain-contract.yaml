@@ -1,0 +1,41 @@
+schema_version: 1
+product: PIGE360
+base_domain: pige360.com.br
+platform:
+  console: console.pige360.com.br
+  api: api.pige360.com.br
+  operations: ops.pige360.com.br
+  public_root: pige360.com.br
+  www: www.pige360.com.br
+tenant:
+  canonical_pattern: '{slug}.pige360.com.br'
+  wildcard: '*.pige360.com.br'
+  surface: admin
+  web_service: pige360-web
+  api_service: pige360-api
+  api_path_prefix: /api
+  dns_per_tenant_required: false
+  custom_domains:
+    enabled: true
+    verification: dns_txt_or_cname
+    cloudflare_strategy: cloudflare_for_saas
+    self_hosted_strategy: acme_http01
+reserved_slugs:
+- www
+- api
+- console
+- ops
+- status
+- assets
+- cdn
+- mail
+- smtp
+- imap
+- admin
+- control
+- platform
+security:
+  tenant_selector: hostname_only
+  x_tenant_id_public: forbidden
+  unknown_host: reject
+  inactive_tenant: reject

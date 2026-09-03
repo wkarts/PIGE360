@@ -28,14 +28,12 @@ def test_runtime_image_workflow_runs_compose_smoke_after_build() -> None:
     assert "smoke-compose-homologation.sh" in workflow
     assert "smoke-compose-homologation.sh" in release
     assert "runtime_images:" in release
-    # O canal de homologação não exige segredos de loja; o canal store continua protegido.
-    assert "needs: [version, validation, signing_preflight]" in release
-    assert "needs: [version, validation, runtime_images]" in release
-    assert "distribution_mode == 'homologation'" in release
-    assert "distribution_mode == 'store'" in release
-    assert "--app all --profile debug --artifacts apk --verify-signature" in release
-    assert "scripts/mobile/build-ios.sh --mode local-signing" in release
-    assert "needs.ios.result == 'success'" in release
+    assert "needs: plan_version" in release
+    assert "pige360-${{ needs.plan_version.outputs.version }}-runtime-images" in release
+    assert "Bloquear binários mobile/desktop" in release
+    assert "scripts/mobile/build-android.sh" not in release
+    assert "scripts/mobile/build-ios.sh" not in release
+
 
 def test_smoke_override_uses_the_runtime_images_without_rebuilding() -> None:
     override = (ROOT / "infra/compose/compose.homologation-smoke.yaml").read_text(encoding="utf-8")
@@ -114,120 +112,82 @@ def test_web_tmpfs_is_writable_by_the_unprivileged_nginx_user() -> None:
             assert compose["services"][service]["tmpfs"] == expected_tmpfs
 
 
-def test_release_promotes_a_versioned_pre_release_with_all_application_artifacts() -> None:
+def test_release_promotes_stable_web_server_distribution() -> None:
     workflow = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
     kit_workflow = (ROOT / "CI_CD_KIT_LOCAL/workflows/50-release.yml").read_text(encoding="utf-8")
 
-    for candidate in (workflow, kit_workflow):
-        assert "push:" in candidate
-        assert "branches: [main]" in candidate
-        assert "- VERSION" in candidate
-        assert "scripts/validation/**" not in candidate
-        assert "contents: write" in candidate
-        assert "package-web-pwa.sh" in candidate
-        assert "build-all.sh" in candidate
-        assert "build-android.sh" in candidate
-        assert "build-ios.sh" in candidate
-        assert "actions/download-artifact@v4" in candidate
-        assert "publish-github-release.sh release/publish" in candidate
-        assert "publishable" in candidate
-        assert 'gh release view "$tag"' in candidate
+    assert workflow == kit_workflow
+    assert "push:" in workflow
+    assert "branches: [main]" in workflow
+    assert "contents: write" in workflow
+    assert "compute-next-version.mjs" in workflow
+    assert "package-web-pwa.sh" in workflow
+    assert "build-runtime-images.sh all" in workflow
+    assert "package-local.sh --output-dir release/output" in workflow
+    assert "actions/download-artifact@v4" in workflow
+    assert "publish-github-release.sh release/publish" in workflow
+    assert "Bloquear binários mobile/desktop" in workflow
+    assert "scripts/mobile/build-android.sh" not in workflow
+    assert "scripts/mobile/build-ios.sh" not in workflow
+    assert "scripts/desktop/build-all.sh" not in workflow
 
 
-def test_native_and_remote_release_scripts_emit_publishable_artifacts() -> None:
-    ios = (ROOT / "scripts/mobile/build-ios.sh").read_text(encoding="utf-8")
-    android = (ROOT / "scripts/mobile/build-android.sh").read_text(encoding="utf-8")
-    ios_signer = (ROOT / "scripts/mobile/sign-ios.sh").read_text(encoding="utf-8")
-    android_signer = (ROOT / "scripts/mobile/sign-android.sh").read_text(encoding="utf-8")
+def test_native_builds_are_manual_and_excluded_from_official_release() -> None:
     release = (ROOT / ".github/workflows/50-release.yml").read_text(encoding="utf-8")
-    publisher = (ROOT / "scripts/release/publish-github-release.sh").read_text(encoding="utf-8")
     version_check = (ROOT / "scripts/validation/validate_version_consistency.py").read_text(encoding="utf-8")
     ci = (ROOT / "scripts/ci/run_all.py").read_text(encoding="utf-8")
     entrypoint = (ROOT / "scripts/ci/pytest_node_entry.py").read_text(encoding="utf-8")
 
-    assert "*.ipa" in ios
-    assert "expected_count=5" in ios
-    assert "Esperadas $expected_count IPAs; encontradas $count." in ios
-    assert "--app <nome|all>" in ios
-    assert "tauri ios init --ci" in ios
-    assert "restore_ios_platform_config" in ios
-    assert "Falha ao gerar o projeto iOS" in ios
-    assert "tauri android init --ci --skip-targets-install" in android
-    assert "NDK_HOME" in android
-    assert "Falha ao gerar o projeto Android" in android
-    assert "Esperados $expected_count APKs" in android
-    assert "Esperados $expected_count AABs" in android
-    assert "--targets" in android
-    assert "PIGE360_ANDROID_TARGETS" in android
-    assert "--split-per-abi" in android
-    assert "CARGO_PROFILE_DEV_DEBUG=0" in android
-    assert "${app}-${profile}-${abi}.${extension}" in android
-    assert "verify_apk_abi_and_size" in android
-    assert "APK não é exclusivo para" in android
-    assert "PIGE360_ANDROID_MAX_APK_BYTES" in android
-    assert 'build_artifact "$app" "$target" apk' in android
-    assert 'build_artifact "$app" "$target" aab' in android
-    assert '[ "$wants_aab" = \'true\' ] && copy_output' not in android
-    assert "PIGE360000" in ios
-    assert "tauri ios build --target aarch64 --open" in ios
-    assert "CODE_SIGNING_ALLOWED=NO" in ios
-    assert "cleanup_tauri_options" in ios
-    assert "prepare_ios_runtime_config" in ios
-    assert "restore_ios_runtime_config" in ios
-    assert 'work="$(mktemp -d' in ios
-    assert 'zip -qry "$output" Payload' in ios
-    assert '[ -d "$work/Payload" ]' in ios
-    assert "verify_local_signing_ipa" in ios
-    assert "lipo -archs" in ios
-    assert "Payload" in ios
-    assert "ready-for-local-signing" in ios
     assert "PIGE360 PYTEST NODE FAILURE" in entrypoint
     assert "report.longreprtext" in entrypoint
-    for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
-        workflow = yaml.safe_load((ROOT / ".github/workflows" / workflow_name).read_text(encoding="utf-8"))
-        triggers = workflow.get("on", workflow.get(True, {}))
-        assert "pull_request" in triggers
-    android_workflow = (ROOT / ".github/workflows/32-build-android.yml").read_text(encoding="utf-8")
-    assert "ndk_version='27.3.13750724'" in android_workflow
-    assert "ANDROID_NDK_HOME" in android_workflow
-    assert "--app family-app --profile debug --artifacts both --verify-signature" in android_workflow
-    for app in ("family-app", "teacher-app", "student-app", "admin-app", "pos-app", "kiosk-app", "timeclock-app"):
-        mobile_lib = (ROOT / "apps" / app / "src-tauri/src/lib.rs").read_text(encoding="utf-8")
-        mobile_main = (ROOT / "apps" / app / "src-tauri/src/main.rs").read_text(encoding="utf-8")
-        assert "#[cfg_attr(mobile, tauri::mobile_entry_point)]" in mobile_lib
-        assert "pub fn run()" in mobile_lib
-        assert "::run();" in mobile_main
-    for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.AppImage"):
-        assert extension in publisher
-    assert "versões publicadas são imutáveis" in publisher
     assert "version-consistency" in ci
     assert "mismatches" in version_check
-    assert "SIGN_REQUIRED: 'true'" in release
-    assert "scripts/mobile/sign-android.sh" in release
-    assert "scripts/mobile/sign-ios.sh" in release
-    assert "unsigned" not in release.lower()
-    assert "APKs estão prontos para distribuição fora da Play" in android_signer
-    assert "IPAs publicados contêm perfil de provisionamento e assinatura Apple" in ios_signer
-    assert "iOS IPA para assinatura local" in release
-    assert "asset_source_id" in publisher
-    assert "Artefato idêntico deduplicado" in publisher
-    assert "Artefato com nome repetido preservado como" in publisher
-    assert "RELEASE_TARGET_SHA" in publisher
-    assert "'*SHA256SUMS'" in publisher
 
-    recovery = (ROOT / ".github/workflows/51-recover-release.yml").read_text(encoding="utf-8")
-    kit_recovery = (ROOT / "CI_CD_KIT_LOCAL/workflows/51-recover-release.yml").read_text(encoding="utf-8")
-    assert recovery == kit_recovery
-    assert "51-recover-release.yml" in (ROOT / "scripts/validation/validate_project.py").read_text(encoding="utf-8")
-    for required in (
-        "workflow_dispatch:",
-        "source_run_id:",
-        "actions/download-artifact@v4",
-        "merge-multiple: false",
-        "RELEASE_TARGET_SHA",
-        "pige360-${{ steps.source.outputs.version }}-*",
+    for workflow_name in ("31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml"):
+        workflow = yaml.safe_load((ROOT / ".github/workflows" / workflow_name).read_text(encoding="utf-8"))
+        workflow_triggers = workflow.get("on", workflow.get(True, {})) or {}
+        assert "workflow_dispatch" in workflow_triggers
+        assert "pull_request" not in workflow_triggers
+        assert "push" not in workflow_triggers
+
+    for forbidden in (
+        "scripts/mobile/build-android.sh",
+        "scripts/mobile/build-ios.sh",
+        "scripts/mobile/sign-android.sh",
+        "scripts/mobile/sign-ios.sh",
+        "scripts/desktop/build-all.sh",
     ):
-        assert required in recovery
+        assert forbidden not in release
+
+    for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.exe", "*.appimage", "*.deb", "*.rpm"):
+        assert extension in release.lower()
+
+
+def test_canonical_multitenant_deploy_contract_is_present() -> None:
+    domain = yaml.safe_load((ROOT / "deploy/domains/domain-contract.yaml").read_text(encoding="utf-8"))
+    images = yaml.safe_load((ROOT / "deploy/images/catalog.yaml").read_text(encoding="utf-8"))
+    provisioning = yaml.safe_load((ROOT / "deploy/provisioning/tenant-contract.yaml").read_text(encoding="utf-8"))
+    edge = (ROOT / "deploy/compose/compose.edge.yaml").read_text(encoding="utf-8")
+    logging_compose = yaml.safe_load((ROOT / "deploy/compose/compose.logging.yaml").read_text(encoding="utf-8"))
+    otel = (ROOT / "infra/monitoring/otel-collector.yaml").read_text(encoding="utf-8")
+    connect_api = yaml.safe_load((ROOT / "infra/connect-api/integration.yaml").read_text(encoding="utf-8"))
+
+    assert domain["base_domain"] == "pige360.com.br"
+    assert domain["tenant"]["wildcard"] == "*.pige360.com.br"
+    assert domain["tenant"]["dns_per_tenant_required"] is False
+    assert {"api", "console", "ops", "www", "admin", "platform"} <= set(domain["reserved_slugs"])
+    assert any(item["service"] == "web" and item["app"] == "apps/tenant-admin-web" for item in images["first_party"])
+    assert any(step["id"] == "canonical_domain" for step in provisioning["steps"])
+    assert "HostRegexp(`^[a-z0-9-]+\\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`)" in edge
+    assert "dnschallenge.provider=cloudflare" in edge
+    assert "PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL" in edge
+    assert "pige360-traefik-dynamic" in edge
+    assert "pige360-edge-init" in edge
+    assert "pige360-alloy" in logging_compose["services"]
+    assert "otlphttp/loki" in otel
+    assert connect_api["provider"] == "connect_api"
+    assert connect_api["compatibility"]["meta"] is True
+    assert not (ROOT / "infra/evolution/integration.yaml").exists()
 
 
 def test_release_publisher_preserves_colliding_assets_and_deduplicates_identical_files(tmp_path: Path) -> None:
@@ -238,7 +198,7 @@ def test_release_publisher_preserves_colliding_assets_and_deduplicates_identical
     (assets / "one" / "build-report.json").write_text('{"source":"one"}', encoding="utf-8")
     (assets / "two" / "build-report.json").write_text('{"source":"two"}', encoding="utf-8")
     (assets / "three" / "build-report.json").write_text('{"source":"one"}', encoding="utf-8")
-    (tmp_path / "VERSION").write_text("1.0.0-alpha.2\n", encoding="utf-8")
+    (tmp_path / "VERSION").write_text("1.0.1\n", encoding="utf-8")
 
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
@@ -281,10 +241,10 @@ def test_release_publisher_preserves_colliding_assets_and_deduplicates_identical
     assert (stage / "two--build-report.json").read_text(encoding="utf-8") == '{"source":"two"}'
     assert "Artefato idêntico deduplicado: build-report.json" in result.stdout
     assert "Artefato com nome repetido preservado como: two--build-report.json" in result.stdout
-    assert "release create v1.0.0-alpha.2" in gh_log.read_text(encoding="utf-8")
+    assert "release create v1.0.1" in gh_log.read_text(encoding="utf-8")
 
 
-def test_release_build_readiness_prevents_known_native_build_regressions() -> None:
+def test_release_build_readiness_matches_web_server_release_contract() -> None:
     result = subprocess.run(
         [sys.executable, "scripts/validation/validate_release_build_readiness.py"],
         cwd=ROOT,
