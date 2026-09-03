@@ -20,4 +20,34 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '22.16.0'}
       - run: python -m pip install -r backend/requirements.lock
-      - run: bash scripts/ci/run-all.sh --ci
+      - name: Executar validação integral com progresso visível
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bash scripts/ci/run-all.sh --ci &
+          ci_pid=$!
+          started_at=$(date +%s)
+
+          heartbeat() {
+            while kill -0 "$ci_pid" 2>/dev/null; do
+              sleep 60
+              if kill -0 "$ci_pid" 2>/dev/null; then
+                now=$(date +%s)
+                elapsed=$((now - started_at))
+                printf '[CI] validação integral ainda em execução — %dm%02ds decorridos\n' "$((elapsed / 60))" "$((elapsed % 60))"
+              fi
+            done
+          }
+
+          heartbeat &
+          heartbeat_pid=$!
+
+          set +e
+          wait "$ci_pid"
+          status=$?
+          set -e
+
+          kill "$heartbeat_pid" 2>/dev/null || true
+          wait "$heartbeat_pid" 2>/dev/null || true
+          exit "$status"
