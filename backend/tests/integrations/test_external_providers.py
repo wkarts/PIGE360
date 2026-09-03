@@ -58,13 +58,13 @@ def test_providers_health_actions_and_idempotency(local_env):
     local_env.client.app.state.integration_transport = transport
     _secret(local_env, "cloudflare-token")
     _secret(local_env, "mailcow-key")
-    _secret(local_env, "evolution-key")
+    _secret(local_env, "connect-api-key")
 
     cloudflare = _connection(local_env, "cloudflare", "Cloudflare principal", ["dns", "custom_hostnames"], "cloudflare-token", {})
     mailcow = _connection(local_env, "mailcow", "Mail institucional", ["mailboxes"], "mailcow-key", {"base_url": "https://mail.example.edu.br"})
-    evolution = _connection(local_env, "evolution", "WhatsApp", ["send_text"], "evolution-key", {"base_url": "https://whatsapp.example.edu.br"})
+    connect_api = _connection(local_env, "connect_api", "Connect API", ["send_text"], "connect-api-key", {"base_url": "https://whatsapp.example.edu.br"})
 
-    for item in (cloudflare, mailcow, evolution):
+    for item in (cloudflare, mailcow, connect_api):
         response = local_env.client.post(f"/api/v1/integration-connections/{item['id']}/test", headers=local_env.alpha_headers())
         assert response.status_code == 200, response.text
         assert response.json()["status"] == "healthy"
@@ -111,11 +111,12 @@ def test_providers_health_actions_and_idempotency(local_env):
     assert suspended.json()["state"] == "suspended"
 
     sent = local_env.client.post(
-        f"/api/v1/integration-connections/{evolution['id']}/evolution/messages/text",
-        headers=local_env.alpha_headers(**{"Idempotency-Key": "evolution-message-001"}),
+        f"/api/v1/integration-connections/{connect_api['id']}/connect-api/messages/text",
+        headers=local_env.alpha_headers(**{"Idempotency-Key": "connect-api-message-001"}),
         json={"instance": "school", "number": "5571999999999", "text": "Aviso institucional de teste local", "delay_ms": 0},
     )
     assert sent.status_code == 200, sent.text
+    assert sent.json()["provider"] == "connect_api"
     assert sent.json()["provider_message_id"] == "wamid-local-1"
 
     listed = local_env.client.get("/api/v1/integration-connections", headers=local_env.alpha_headers())
@@ -142,11 +143,11 @@ def test_secret_reference_path_traversal_is_rejected(local_env):
 def test_capability_and_tenant_scope_are_enforced(local_env):
     transport = FakeTransport()
     local_env.client.app.state.integration_transport = transport
-    _secret(local_env, "evolution-limited")
-    connection = _connection(local_env, "evolution", "Evolution limitada", [], "evolution-limited", {"base_url": "https://whatsapp.example.edu.br"})
+    _secret(local_env, "connect-api-limited")
+    connection = _connection(local_env, "connect_api", "Connect API limitada", [], "connect-api-limited", {"base_url": "https://whatsapp.example.edu.br"})
 
     forbidden = local_env.client.post(
-        f"/api/v1/integration-connections/{connection['id']}/evolution/messages/text",
+        f"/api/v1/integration-connections/{connection['id']}/connect-api/messages/text",
         headers=local_env.alpha_headers(**{"Idempotency-Key": "capability-check-001"}),
         json={"instance": "school", "number": "5571999999999", "text": "Não deve enviar"},
     )
