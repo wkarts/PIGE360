@@ -25,11 +25,6 @@ docker buildx version >/dev/null 2>&1 || {
   exit 3
 }
 
-# As imagens base são exportadas com --load, portanto ficam no Docker Engine
-# local. O builder docker-container ativado por docker/setup-buildx-action não
-# enxerga automaticamente essas tags e tenta buscá-las no Docker Hub. Forçamos
-# o builder padrão (driver docker) para manter a cadeia base -> API -> workers
-# inteiramente no Engine do runner, sem registro remoto.
 engine_builder="default"
 docker buildx inspect "$engine_builder" >/dev/null 2>&1 || {
   echo "O builder Docker Engine padrão '$engine_builder' não está disponível." >&2
@@ -63,6 +58,15 @@ build_image() {
   sha256sum "$output_dir/${safe_name}.tar" > "$output_dir/${safe_name}.tar.sha256"
 }
 
+build_web_image() {
+  local image_name="$1"
+  local app_dir="$2"
+  build_image "$image_name" "infra/docker/Dockerfile.web" \
+    --build-arg "NODE_BASE_IMAGE=pige360-base-node:${image_tag}" \
+    --build-arg "NPM_INSTALL_MODE=ci" \
+    --build-arg "APP_DIR=${app_dir}"
+}
+
 build_base() {
   build_image "pige360-base-python" "infra/docker/base/Dockerfile.python"
   build_image "pige360-base-node" "infra/docker/base/Dockerfile.node"
@@ -76,9 +80,10 @@ build_api() {
 }
 
 build_applications() {
-  build_image "pige360-web" "infra/docker/Dockerfile.web" \
-    --build-arg "NODE_BASE_IMAGE=pige360-base-node:${image_tag}" \
-    --build-arg "NPM_INSTALL_MODE=ci"
+  build_web_image "pige360-web" "apps/tenant-admin-web"
+  build_web_image "pige360-platform-console" "apps/platform-console"
+  build_web_image "pige360-branding-studio" "apps/branding-studio"
+  build_web_image "pige360-tenant-download-center" "apps/tenant-download-center"
   build_image "pige360-worker" "infra/docker/Dockerfile.worker" \
     --build-arg "API_IMAGE=pige360-api:${image_tag}"
   build_image "pige360-migrations" "infra/docker/Dockerfile.migrations" \
