@@ -55,7 +55,7 @@ jobs:
       - name: Validar inventário e arquivos exportados
         run: |
           test -s release/artifacts/docker/runtime/images-manifest.json
-          test "$(find release/artifacts/docker/runtime -name '*.tar' | wc -l)" -eq 9
+          test "$(find release/artifacts/docker/runtime -name '*.tar' | wc -l)" -eq 12
           sha256sum --check release/artifacts/docker/runtime/*.tar.sha256
 
       - name: Executar smoke test isolado do Compose
