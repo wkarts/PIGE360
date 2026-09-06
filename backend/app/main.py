@@ -15,6 +15,7 @@ from app.modules.branding.presentation.router import router as branding_router
 from app.modules.class_attendance.presentation.router import router as attendance_router
 from app.modules.canteen.presentation.router import router as canteen_router
 from app.modules.contracts.presentation.router import router as contracts_router
+from app.modules.foundation.application.metrics import HttpMetricsMiddleware, MetricsRegistry
 from app.modules.foundation.presentation.router import router as foundation_router
 from app.modules.fiscal.presentation.router import router as fiscal_ibpt_router
 from app.modules.identity.presentation.router import router as identity_router
@@ -29,6 +30,7 @@ from app.modules.health.presentation.router import router as health_router
 from app.modules.reporting.presentation.router import router as reporting_router
 from app.modules.analytics.presentation.router import router as analytics_router
 from app.modules.communication.presentation.router import router as communication_router
+from app.modules.commercial_administration.presentation.router import router as commercial_administration_router
 from app.modules.compliance.presentation.router import router as compliance_router
 from app.modules.notices.presentation.router import router as notices_router
 from app.modules.requests.presentation.router import router as requests_router
@@ -53,6 +55,8 @@ from app.modules.portals.presentation.router import router as portals_router
 from app.modules.tenancy.presentation.router import router as tenancy_router
 from app.modules.tenancy.presentation.domain_router import router as tenancy_domain_router
 from app.modules.platform_operations.presentation.logs_router import router as platform_logs_router
+from app.modules.platform_operations.presentation.router import router as platform_operations_router
+from app.modules.operational_control.presentation.router import router as operational_control_router
 from app.shared.database.router import DataRouter
 from app.shared.presentation.errors import DomainError, domain_error_handler, problem, unhandled_error_handler
 from app.shared.security.middleware import RequestContextMiddleware
@@ -61,6 +65,7 @@ from app.shared.security.middleware import RequestContextMiddleware
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     data_router = DataRouter(settings)
+    metrics = MetricsRegistry(environment=settings.environment, version=settings.version)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -85,6 +90,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.data_router = data_router
+    app.state.metrics = metrics
 
     if settings.cors_origins:
         app.add_middleware(
@@ -95,6 +101,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Correlation-ID"],
         )
     app.add_middleware(RequestContextMiddleware)
+    app.add_middleware(HttpMetricsMiddleware, registry=metrics)
     app.add_exception_handler(DomainError, domain_error_handler)
 
     @app.exception_handler(RequestValidationError)
@@ -160,12 +167,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         reporting_router,
         analytics_router,
         communication_router,
+        commercial_administration_router,
         compliance_router,
         notices_router,
         requests_router,
         workflows_router,
         fiscal_ibpt_router,
+        platform_operations_router,
         platform_logs_router,
+        operational_control_router,
     ]:
         app.include_router(router, prefix=api_prefix)
     return app

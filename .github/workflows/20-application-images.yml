@@ -10,6 +10,9 @@ on:
       - 'infra/compose/**'
       - 'infra/templates/**'
       - 'compose.yaml'
+      - 'compose.production.yaml'
+      - 'deploy/images/**'
+      - 'deployments/**'
       - 'scripts/ci/**'
       - 'scripts/oci/**'
       - 'package.json'
@@ -25,6 +28,9 @@ on:
       - 'infra/compose/**'
       - 'infra/templates/**'
       - 'compose.yaml'
+      - 'compose.production.yaml'
+      - 'deploy/images/**'
+      - 'deployments/**'
       - 'scripts/ci/**'
       - 'scripts/oci/**'
       - 'package.json'
@@ -43,7 +49,7 @@ concurrency:
 jobs:
   build-runtime-images:
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -55,7 +61,7 @@ jobs:
       - name: Validar inventário e arquivos exportados
         run: |
           test -s release/artifacts/docker/runtime/images-manifest.json
-          test "$(find release/artifacts/docker/runtime -name '*.tar' | wc -l)" -eq 9
+          test "$(find release/artifacts/docker/runtime -name '*.tar' | wc -l)" -eq 13
           sha256sum --check release/artifacts/docker/runtime/*.tar.sha256
 
       - name: Executar smoke test isolado do Compose
@@ -65,7 +71,7 @@ jobs:
       # nunca autenticam nem publicam pacotes. O GHCR é alimentado somente pelo
       # estado já integrado de develop.
       - name: Autenticar no GHCR
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -73,8 +79,30 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publicar canal develop no GHCR
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/develop' }}
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop' }}
         run: bash scripts/oci/publish-develop-images.sh release/artifacts/docker/runtime
+
+      - name: Validar manifesto em duas fases e digests do canal develop
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop' }}
+        run: |
+          jq -e '
+            .schema_version == 2 and
+            .publication_strategy == "two-phase-immutable-first" and
+            .cross_image_atomicity == false and
+            (.images | length == 13) and
+            all(.images[]; (.digest | startswith("sha256:")) and (.digest_ref | contains("@sha256:")))
+          ' release/artifacts/docker/runtime/ghcr-develop-manifest.json >/dev/null
+
+      - name: Subir deployment develop com imagens imutáveis do GHCR
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/develop' }}
+        env:
+          PIGE360_GHCR_NAMESPACE: ghcr.io/${{ github.repository_owner }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          immutable_tag="develop-${GITHUB_SHA:0:12}"
+          bash scripts/oci/smoke-published-images.sh \
+            develop "$immutable_tag" release/artifacts/docker/registry-smoke/develop
 
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}

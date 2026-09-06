@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-04T12:40:00Z",
+  "canonical_base": {
+    "name": "PIGE360-develop(1).zip",
+    "sha256": "dfc2950813fcb3ea239e9715b66527e55b914ee1241101fc8b986f44bf21a607",
+    "digest_method": "SHA-256 calculado diretamente do anexo",
+    "bytes": 65897504,
+    "archive_entries": 4739,
+    "regular_files": 2896,
+    "archive_comment_source_revision": "9fa139bc20fc2f7173ffd2f07c78673e36e6090f",
+    "vcs_checkout_verified": false,
+    "role": "única base canônica desta evolução"
+  },
+  "previous_attachment_comparison": {
+    "name": "PIGE360-develop.zip",
+    "result": "byte_identical",
+    "cmp_exit_code": 0,
+    "sha256": "dfc2950813fcb3ea239e9715b66527e55b914ee1241101fc8b986f44bf21a607",
+    "digest_method": "SHA-256 calculado diretamente do anexo"
+  },
+  "architectural_reference_only": {
+    "name": "Connect-API-Platform-v1.0.0-rc.34 (2).zip",
+    "sha256": "f10f59350a905daad9d884c514e055b3df17b36ce3bfd4e62b0fd3149397075b",
+    "digest_method": "SHA-256 calculado diretamente do anexo",
+    "bytes": 13530618,
+    "regular_files": 853,
+    "role": "referência de padrões administrativos; nunca usada como base nem copiada como identidade"
+  },
+  "integrity_policy": {
+    "original_files_removed": false,
+    "destructive_reorganization_allowed": false,
+    "generated_vue_javascript_preserved": true,
+    "source_zip_timestamp_policy": "source_mtime_utc"
+  }
+}

@@ -23,11 +23,23 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     user_id TEXT NOT NULL,
     tenant_id TEXT NOT NULL,
     token_hash TEXT NOT NULL UNIQUE,
+    family_id TEXT NOT NULL,
     expires_at TEXT NOT NULL,
     revoked_at TEXT,
     replaced_by TEXT,
     created_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS auth_login_attempts (
+    identifier_hash TEXT PRIMARY KEY,
+    tenant_id TEXT NOT NULL,
+    failed_attempts INTEGER NOT NULL CHECK(failed_attempts >= 0),
+    window_started_at TEXT NOT NULL,
+    locked_until TEXT,
+    updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_tenant_auth_login_attempts_updated ON auth_login_attempts(updated_at);
 
 CREATE TABLE IF NOT EXISTS idempotency_keys (
     scope TEXT NOT NULL,

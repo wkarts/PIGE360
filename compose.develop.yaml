@@ -1,0 +1,168 @@
+x-worker-image: &worker-image
+  image: ${PIGE360_WORKER_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-worker:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+  pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+services:
+  pige360-app-init:
+    image: ${PIGE360_MIGRATIONS_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-migrations:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+    environment:
+      APP_ENV: staging
+      APP_VERSION: ${APP_VERSION:?APP_VERSION obrigatoria}
+      ALLOWED_PLATFORM_HOSTS: console.platform.local,api.platform.local,pige360-api,${PLATFORM_CONSOLE_HOST:-console.pige360.argws.com.br},${PLATFORM_API_HOST:-api.pige360.argws.com.br},${PLATFORM_BRANDING_HOST:-branding.pige360.argws.com.br},${PLATFORM_DOWNLOADS_HOST:-downloads.pige360.argws.com.br}
+      PIGE360_BASE_DOMAIN: ${PIGE360_BASE_DOMAIN:-pige360.argws.com.br}
+      TENANT_DEFAULT_BASE_DOMAIN: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.argws.com.br}
+      TENANT_CUSTOM_DOMAINS_ENABLED: ${TENANT_CUSTOM_DOMAINS_ENABLED:-true}
+      PIGE360_SKIP_MIGRATIONS: ${PIGE360_SKIP_MIGRATIONS:-false}
+
+  pige360-api:
+    image: ${PIGE360_API_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-api:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+    environment:
+      APP_ENV: staging
+      APP_VERSION: ${APP_VERSION:?APP_VERSION obrigatoria}
+      ALLOWED_PLATFORM_HOSTS: console.platform.local,api.platform.local,pige360-api,${PLATFORM_CONSOLE_HOST:-console.pige360.argws.com.br},${PLATFORM_API_HOST:-api.pige360.argws.com.br},${PLATFORM_BRANDING_HOST:-branding.pige360.argws.com.br},${PLATFORM_DOWNLOADS_HOST:-downloads.pige360.argws.com.br}
+      PIGE360_BASE_DOMAIN: ${PIGE360_BASE_DOMAIN:-pige360.argws.com.br}
+      TENANT_DEFAULT_BASE_DOMAIN: ${TENANT_DEFAULT_BASE_DOMAIN:-pige360.argws.com.br}
+      TENANT_CUSTOM_DOMAINS_ENABLED: ${TENANT_CUSTOM_DOMAINS_ENABLED:-true}
+      CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
+      CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
+      CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+      CLOUDFLARE_SAAS_ENABLED: ${CLOUDFLARE_SAAS_ENABLED:-false}
+      CLOUDFLARE_TENANT_ZONE_ID: ${CLOUDFLARE_TENANT_ZONE_ID:-}
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/cloudflare_api_token
+      LOKI_INTERNAL_URL: ${LOKI_INTERNAL_URL:-http://pige360-loki:3100}
+    secrets:
+      - connect_api_key
+      - cloudflare_api_token
+
+  pige360-web:
+    image: ${PIGE360_WEB_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-web:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+  pige360-platform-console:
+    image: ${PIGE360_PLATFORM_CONSOLE_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-platform-console:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+  pige360-branding-studio:
+    image: ${PIGE360_BRANDING_STUDIO_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-branding-studio:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+  pige360-tenant-download-center:
+    image: ${PIGE360_TENANT_DOWNLOAD_CENTER_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-tenant-download-center:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+  pige360-app-factory-api:
+    image: ${PIGE360_APP_FACTORY_IMAGE:-${PIGE360_IMAGE_REGISTRY:?PIGE360_IMAGE_REGISTRY obrigatorio}/pige360-api:${PIGE360_IMAGE_TAG:?PIGE360_IMAGE_TAG obrigatoria}}
+    pull_policy: ${PIGE360_PULL_POLICY:-always}
+
+  pige360-beat:
+    <<: *worker-image
+  pige360-worker-app-builds:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-app-distribution:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-visual-regression:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-default:
+    <<: *worker-image
+    command:
+      - celery
+      - -A
+      - app.worker
+      - worker
+      - --loglevel=INFO
+      - --queues=default,high-priority,academic,pedagogy,attendance,finance,banking,fiscal,sales,hr,mail,notifications,documents,contracts,signatures,reports,integrations,app-builds,app-distribution,visual-regression
+      - --hostname=consolidated@%h
+      - --concurrency=${PIGE360_WORKER_CONCURRENCY:-1}
+    networks:
+      - pige360-data
+      - pige360-observability
+      - pige360-build-farm
+    secrets:
+      - app_jwt_secret
+      - bootstrap_token
+      - minio_access_key
+      - minio_secret_key
+      - postgres_control_password
+      - postgres_tenant_password
+      - database_secret_key
+      - redis_password
+      - rabbitmq_password
+      - worker_context_signing_key
+      - build_farm_token
+      - connect_api_key
+  pige360-worker-high-priority:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-academic:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-pedagogy:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-attendance:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-finance:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-banking:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-fiscal:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-sales:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-hr:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-mail:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-notifications:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-documents:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-contracts:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-signatures:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-reports:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+  pige360-worker-integrations:
+    <<: *worker-image
+    profiles: [dedicated-workers]
+    environment:
+      CONNECT_API_ENABLED: ${CONNECT_API_ENABLED:-false}
+      CONNECT_API_BASE_URL: ${CONNECT_API_BASE_URL:-}
+      CONNECT_API_META_COMPATIBLE: ${CONNECT_API_META_COMPATIBLE:-true}
+    secrets:
+      - app_jwt_secret
+      - bootstrap_token
+      - minio_access_key
+      - minio_secret_key
+      - postgres_control_password
+      - postgres_tenant_password
+      - database_secret_key
+      - redis_password
+      - rabbitmq_password
+      - worker_context_signing_key
+      - build_farm_token
+      - connect_api_key
+
+secrets:
+  connect_api_key:
+    file: ${PIGE360_SECRETS_DIR:?PIGE360_SECRETS_DIR obrigatorio}/connect_api_key.txt
+  cloudflare_api_token:
+    file: ${PIGE360_SECRETS_DIR:?PIGE360_SECRETS_DIR obrigatorio}/cloudflare_api_token.txt

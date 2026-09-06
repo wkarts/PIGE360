@@ -23,6 +23,7 @@ from app.shared.events.records import add_audit, add_outbox
 from app.shared.integrations.providers import IntegrationError, SecretResolver, build_provider
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser
+from app.shared.tenant_quotas import tenant_quota_limit
 
 PROVIDERS = {
     "SefazNfeProvider": {"documents": {"NF-e"}, "certificate_required": True},
@@ -155,11 +156,27 @@ def create_provider_configuration(data: FiscalProviderConfigurationCreate, reque
         cached = get_idempotent(conn, scope, idempotency_key, body)
         if cached:
             return cached
+        limit = tenant_quota_limit(
+            request.app.state.data_router.control,
+            tenant_id,
+            "max_integrations",
+        )
+        request.state.store.transaction_lock(conn, f"tenant-integration-quota:{tenant_id}")
         if conn.execute(
             "SELECT 1 FROM fiscal_provider_configurations WHERE tenant_id=? AND provider_code=? AND document_type=? AND environment=?",
             (tenant_id, data.provider_code, data.document_type, data.environment),
         ).fetchone():
             raise DomainError("FISCAL_PROVIDER_CONFIG_EXISTS", "Já existe configuração deste provider/documento/ambiente.", 409)
+        current_integrations = conn.execute(
+            "SELECT COUNT(*) AS n FROM integration_connections WHERE tenant_id=? AND state<>'archived'",
+            (tenant_id,),
+        ).fetchone()
+        if int(current_integrations["n"] if current_integrations else 0) >= limit:
+            raise DomainError(
+                "TENANT_QUOTA_EXCEEDED",
+                f"A quota de integrações não arquivadas ({limit}) foi atingida.",
+                409,
+            )
         if data.certificate_metadata_id and not conn.execute(
             "SELECT 1 FROM fiscal_certificate_metadata WHERE tenant_id=? AND id=?", (tenant_id, data.certificate_metadata_id)
         ).fetchone():
@@ -217,10 +234,43 @@ def patch_provider_configuration(configuration_id: str, data: FiscalProviderConf
     status, detail = _provider_status(request, tenant_id, current)
     now = iso_now(); version = int(row["version"]) + 1
     with request.state.store.transaction() as conn:
-        conn.execute(
-            """UPDATE fiscal_provider_configurations SET display_name=?,endpoint_url=?,secret_ref=?,certificate_metadata_id=?,capabilities_json=?,settings_json=?,enabled=?,status=?,last_health_detail=?,webhook_tolerance_seconds=?,version=?,updated_at=? WHERE tenant_id=? AND id=?""",
-            (current["display_name"], current.get("endpoint_url"), current.get("secret_ref"), current.get("certificate_metadata_id"), json.dumps(current["capabilities"]), json.dumps(current["settings"], ensure_ascii=False, sort_keys=True), 1 if current.get("enabled") else 0, status, detail, current.get("webhook_tolerance_seconds", 300), version, now, tenant_id, configuration_id),
+        request.state.store.transaction_lock(conn, f"tenant-integration-quota:{tenant_id}")
+        connection = conn.execute(
+            "SELECT state FROM integration_connections WHERE tenant_id=? AND id=?",
+            (tenant_id, configuration_id),
+        ).fetchone()
+        if not connection:
+            raise DomainError(
+                "INTEGRATION_CONNECTION_NOT_FOUND",
+                "Conexão de integração fiscal não localizada.",
+                409,
+            )
+        if connection["state"] == "archived" and status != "archived":
+            limit = tenant_quota_limit(
+                request.app.state.data_router.control,
+                tenant_id,
+                "max_integrations",
+            )
+            active = conn.execute(
+                "SELECT COUNT(*) AS n FROM integration_connections WHERE tenant_id=? AND state<>'archived'",
+                (tenant_id,),
+            ).fetchone()
+            if int(active["n"] if active else 0) >= limit:
+                raise DomainError(
+                    "TENANT_QUOTA_EXCEEDED",
+                    f"A quota de integrações não arquivadas ({limit}) foi atingida.",
+                    409,
+                )
+        changed = conn.execute(
+            """UPDATE fiscal_provider_configurations SET display_name=?,endpoint_url=?,secret_ref=?,certificate_metadata_id=?,capabilities_json=?,settings_json=?,enabled=?,status=?,last_health_detail=?,webhook_tolerance_seconds=?,version=?,updated_at=? WHERE tenant_id=? AND id=? AND version=?""",
+            (current["display_name"], current.get("endpoint_url"), current.get("secret_ref"), current.get("certificate_metadata_id"), json.dumps(current["capabilities"]), json.dumps(current["settings"], ensure_ascii=False, sort_keys=True), 1 if current.get("enabled") else 0, status, detail, current.get("webhook_tolerance_seconds", 300), version, now, tenant_id, configuration_id, row["version"]),
         )
+        if changed.rowcount != 1:
+            raise DomainError(
+                "VERSION_CONFLICT",
+                "A configuração fiscal foi alterada por outro processo.",
+                409,
+            )
         integration_config = dict(current["settings"])
         if current.get("endpoint_url"):
             integration_config["base_url"] = current["endpoint_url"]

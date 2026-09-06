@@ -1,5 +1,5 @@
 FROM debian:bookworm-slim
-ARG VERSION=1.0.0-alpha.2
+ARG VERSION=1.1.2
 LABEL org.opencontainers.image.title="pige360-base-runtime" org.opencontainers.image.version="$VERSION" org.opencontainers.image.source="local-workspace"
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates tini libssl3 libsqlite3-0 \
  && rm -rf /var/lib/apt/lists/* \

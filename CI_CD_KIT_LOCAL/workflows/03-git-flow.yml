@@ -1,0 +1,47 @@
+name: 03 · Git Flow
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  topology:
+    name: Validar topologia de branches
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validar origem e destino do Pull Request
+        shell: bash
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          echo "Validando Git Flow: $HEAD -> $BASE"
+
+          case "$BASE" in
+            main)
+              case "$HEAD" in
+                develop|hotfix/*) exit 0 ;;
+                *)
+                  echo "::error::A main aceita promoção da develop ou hotfix/* emergencial."
+                  exit 1
+                  ;;
+              esac
+              ;;
+            develop)
+              case "$HEAD" in
+                feat/*|feature/*|resource/*|fix/*|hotfix/*|chore/*|refactor/*|docs/*|ci/*|test/*|perf/*|main) exit 0 ;;
+                *)
+                  echo "::error::A develop aceita feat/*, resource/*, fix/*, chore/*, refactor/*, docs/*, ci/*, test/*, perf/* ou sincronização da main."
+                  exit 1
+                  ;;
+              esac
+              ;;
+            *)
+              echo "::error::Pull Requests devem ter como base develop ou main. Base recebida: $BASE"
+              exit 1
+              ;;
+          esac

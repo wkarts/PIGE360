@@ -5,8 +5,10 @@ services:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
       - /etc/alloy/config.alloy
+    environment:
+      PIGE360_PROJECT_NAME: ${PIGE360_PROJECT_NAME:-pige360}
     volumes:
-      - ../observability/alloy.config:/etc/alloy/config.alloy:ro
+      - ./deploy/observability/alloy.config:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       pige360-loki:

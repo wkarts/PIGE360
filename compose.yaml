@@ -1,4 +1,4 @@
-name: pige360
+name: ${PIGE360_PROJECT_NAME:-pige360}
 services:
   pige360-postgres-control:
     image: postgres:17.5-bookworm
@@ -152,12 +152,15 @@ services:
     - pige360-data
     restart: 'no'
   pige360-app-init:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.migrations
     environment: &id001
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
+      ALLOWED_PLATFORM_HOSTS: ${ALLOWED_PLATFORM_HOSTS:-console.platform.local,api.platform.local,pige360-api}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -206,10 +209,12 @@ services:
     - pige360-data
     restart: 'no'
   pige360-api:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.api
-    image: pige360-api:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-api:${PIGE360_IMAGE_TAG:-1.1.2}
     environment: *id001
     secrets: &id002
     - app_jwt_secret
@@ -238,6 +243,8 @@ services:
         condition: service_completed_successfully
     volumes:
     - pige360-tenant-storage:/var/lib/pige360/tenants
+    ports:
+    - ${API_BIND_HOST:-127.0.0.1}:${API_PUBLISHED_PORT:-58000}:8000
     healthcheck:
       test:
       - CMD
@@ -262,7 +269,7 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/tenant-admin-web
-    image: pige360-web:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-web:${PIGE360_IMAGE_TAG:-1.1.2}
     depends_on:
       pige360-api:
         condition: service_healthy
@@ -281,7 +288,12 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/platform-console
-    image: pige360-platform-console:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-platform-console:${PIGE360_IMAGE_TAG:-1.1.2}
+    depends_on:
+      pige360-api:
+        condition: service_healthy
+    ports:
+    - ${CONTROL_WEB_BIND_HOST:-127.0.0.1}:${CONTROL_WEB_PUBLISHED_PORT:-58081}:8080
     networks:
     - pige360-app
     restart: unless-stopped
@@ -295,7 +307,12 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/branding-studio
-    image: pige360-branding-studio:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-branding-studio:${PIGE360_IMAGE_TAG:-1.1.2}
+    depends_on:
+      pige360-api:
+        condition: service_healthy
+    ports:
+    - ${BRANDING_BIND_HOST:-127.0.0.1}:${BRANDING_PUBLISHED_PORT:-58082}:8080
     networks:
     - pige360-app
     restart: unless-stopped
@@ -309,7 +326,12 @@ services:
       dockerfile: infra/docker/Dockerfile.web
       args:
         APP_DIR: apps/tenant-download-center
-    image: pige360-tenant-download-center:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-tenant-download-center:${PIGE360_IMAGE_TAG:-1.1.2}
+    depends_on:
+      pige360-api:
+        condition: service_healthy
+    ports:
+    - ${DOWNLOADS_BIND_HOST:-127.0.0.1}:${DOWNLOADS_PUBLISHED_PORT:-58083}:8080
     networks:
     - pige360-app
     restart: unless-stopped
@@ -318,13 +340,16 @@ services:
     - /var/cache/nginx:mode=0755,uid=10001,gid=10001
     - /var/run:mode=0755,uid=10001,gid=10001
   pige360-app-factory-api:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.api
-    image: pige360-app-factory:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-app-factory:${PIGE360_IMAGE_TAG:-1.1.2}
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
+      ALLOWED_PLATFORM_HOSTS: ${ALLOWED_PLATFORM_HOSTS:-console.platform.local,api.platform.local,pige360-api}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -358,10 +383,12 @@ services:
     tmpfs:
     - /tmp:size=512m,mode=1777
   pige360-beat:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -376,10 +403,12 @@ services:
     - pige360-observability
     restart: unless-stopped
   pige360-worker-app-builds:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -390,7 +419,7 @@ services:
     - --hostname=app-builds@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -422,10 +451,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-app-distribution:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -436,7 +467,7 @@ services:
     - --hostname=app-distribution@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -468,10 +499,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-visual-regression:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -482,7 +515,7 @@ services:
     - --hostname=visual-regression@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -514,10 +547,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-default:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -528,7 +563,7 @@ services:
     - --hostname=default@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -559,10 +594,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-high-priority:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -573,7 +610,7 @@ services:
     - --hostname=high-priority@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -604,10 +641,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-academic:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -618,7 +657,7 @@ services:
     - --hostname=academic@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -649,10 +688,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-pedagogy:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -663,7 +704,7 @@ services:
     - --hostname=pedagogy@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -694,10 +735,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-attendance:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -708,7 +751,7 @@ services:
     - --hostname=attendance@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -739,10 +782,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-finance:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -753,7 +798,7 @@ services:
     - --hostname=finance@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -784,10 +829,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-banking:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -798,7 +845,7 @@ services:
     - --hostname=banking@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -829,10 +876,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-fiscal:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -843,7 +892,7 @@ services:
     - --hostname=fiscal@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -874,10 +923,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-sales:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -888,7 +939,7 @@ services:
     - --hostname=sales@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -919,10 +970,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-hr:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -933,7 +986,7 @@ services:
     - --hostname=hr@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -964,10 +1017,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-mail:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -978,7 +1033,7 @@ services:
     - --hostname=mail@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1009,10 +1064,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-notifications:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1023,7 +1080,7 @@ services:
     - --hostname=notifications@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1054,10 +1111,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-documents:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1068,7 +1127,7 @@ services:
     - --hostname=documents@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1099,10 +1158,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-contracts:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1113,7 +1174,7 @@ services:
     - --hostname=contracts@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1144,10 +1205,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-signatures:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1158,7 +1221,7 @@ services:
     - --hostname=signatures@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1189,10 +1252,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-reports:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1203,7 +1268,7 @@ services:
     - --hostname=reports@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1234,10 +1299,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 45s
   pige360-worker-integrations:
+    env_file:
+    - ${PIGE360_ENV_FILE:-.env}
     build:
       context: .
       dockerfile: infra/docker/Dockerfile.worker
-    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-worker:${PIGE360_IMAGE_TAG:-1.1.2}
     command:
     - celery
     - -A
@@ -1248,7 +1315,7 @@ services:
     - --hostname=integrations@%h
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      APP_VERSION: ${APP_VERSION:-1.1.2}
       REMOTE_CI_ENABLED: 'false'
       REMOTE_REGISTRY_ENABLED: 'false'
       REMOTE_RELEASE_ENABLED: 'false'
@@ -1282,7 +1349,7 @@ services:
     build:
       context: .
       dockerfile: infra/docker/build-farm/Dockerfile.linux
-    image: pige360-builder-linux:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-builder-linux:${PIGE360_IMAGE_TAG:-1.1.2}
     profiles:
     - build-farm
     environment:
@@ -1346,7 +1413,7 @@ services:
       PIGE360_SOURCE_ROOT: /workspace/source
       ANDROID_HOME: /opt/android-sdk
       ANDROID_SDK_ROOT: /opt/android-sdk
-    image: pige360-builder-android:${PIGE360_IMAGE_TAG:-1.0.0}
+    image: pige360-builder-android:${PIGE360_IMAGE_TAG:-1.1.2}
     networks:
     - pige360-build-farm
     profiles:
@@ -1408,6 +1475,8 @@ services:
     restart: unless-stopped
   pige360-otel-collector:
     image: otel/opentelemetry-collector-contrib:0.128.0
+    profiles:
+    - otel
     command:
     - --config=/etc/otel/config.yaml
     volumes:
@@ -1452,41 +1521,41 @@ services:
     restart: unless-stopped
 networks:
   pige360-app:
-    name: pige360-app
+    name: ${PIGE360_PROJECT_NAME:-pige360}-app
     driver: bridge
   pige360-data:
-    name: pige360-data
+    name: ${PIGE360_PROJECT_NAME:-pige360}-data
     driver: bridge
     internal: true
   pige360-observability:
-    name: pige360-observability
+    name: ${PIGE360_PROJECT_NAME:-pige360}-observability
     driver: bridge
     internal: true
   pige360-build-farm:
-    name: pige360-build-farm
+    name: ${PIGE360_PROJECT_NAME:-pige360}-build-farm
     driver: bridge
     internal: true
 volumes:
   pige360-control-db:
-    name: pige360-control-db
+    name: ${PIGE360_PROJECT_NAME:-pige360}-control-db
   pige360-tenant-dbs:
-    name: pige360-tenant-dbs
+    name: ${PIGE360_PROJECT_NAME:-pige360}-tenant-dbs
   pige360-redis:
-    name: pige360-redis
+    name: ${PIGE360_PROJECT_NAME:-pige360}-redis
   pige360-rabbitmq:
-    name: pige360-rabbitmq
+    name: ${PIGE360_PROJECT_NAME:-pige360}-rabbitmq
   pige360-minio:
-    name: pige360-minio
+    name: ${PIGE360_PROJECT_NAME:-pige360}-minio
   pige360-clamav:
-    name: pige360-clamav
+    name: ${PIGE360_PROJECT_NAME:-pige360}-clamav
   pige360-tenant-storage:
-    name: pige360-tenant-storage
+    name: ${PIGE360_PROJECT_NAME:-pige360}-tenant-storage
   pige360-prometheus:
-    name: pige360-prometheus
+    name: ${PIGE360_PROJECT_NAME:-pige360}-prometheus
   pige360-grafana:
-    name: pige360-grafana
+    name: ${PIGE360_PROJECT_NAME:-pige360}-grafana
   pige360-loki:
-    name: pige360-loki
+    name: ${PIGE360_PROJECT_NAME:-pige360}-loki
 secrets:
   app_jwt_secret:
     file: ${PIGE360_SECRETS_DIR:-./runtime-secrets}/app_jwt_secret.txt

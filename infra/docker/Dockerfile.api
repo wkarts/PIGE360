@@ -1,4 +1,4 @@
-ARG PYTHON_BASE_IMAGE=pige360-base-python:1.0.0-alpha.2
+ARG PYTHON_BASE_IMAGE=pige360-base-python:1.1.2
 FROM ${PYTHON_BASE_IMAGE} AS build
 USER root
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -6,12 +6,22 @@ WORKDIR /build
 COPY backend/pyproject.toml backend/requirements.lock backend/requirements.production.lock ./
 RUN python -m venv /venv && /venv/bin/pip install --no-cache-dir -r requirements.lock -r requirements.production.lock
 FROM ${PYTHON_BASE_IMAGE}
-ARG VERSION=1.0.0-alpha.2
+ARG VERSION=1.1.2
 LABEL org.opencontainers.image.title="pige360-api" org.opencontainers.image.version="$VERSION" org.opencontainers.image.source="local-workspace"
 COPY --from=build /venv /venv
 COPY backend /opt/pige360/backend
 WORKDIR /opt/pige360/backend
-ENV PATH=/venv/bin:$PATH PYTHONPATH=/opt/pige360/backend APP_DATA_ROOT=/var/lib/pige360
+USER root
+# O diretório existe na camada da imagem para que um volume nomeado novo herde
+# o ownership do usuário de runtime em vez de nascer gravável apenas por root.
+RUN mkdir -p /var/lib/pige360/control /var/lib/pige360/tenants \
+ && chown -R 10001:10001 /var/lib/pige360 \
+ && chmod 0750 /var/lib/pige360 /var/lib/pige360/control /var/lib/pige360/tenants
+ENV PATH=/venv/bin:$PATH \
+    PYTHONPATH=/opt/pige360/backend \
+    APP_DATA_ROOT=/var/lib/pige360 \
+    APP_STORAGE_ROOT=/var/lib/pige360/tenants \
+    TRUSTED_PROXY_CIDRS=127.0.0.1/32
 USER 10001:10001
 EXPOSE 8000
-CMD ["uvicorn","app.main:app","--host","0.0.0.0","--port","8000","--proxy-headers","--forwarded-allow-ips=127.0.0.1"]
+CMD ["sh","-c","exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips \"${TRUSTED_PROXY_CIDRS:-127.0.0.1/32}\""]

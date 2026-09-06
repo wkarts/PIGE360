@@ -22,6 +22,35 @@ SendTask = Callable[[dict[str, Any], str], Any]
 EventHandler = Callable[[EventStore, dict[str, Any]], dict[str, Any] | None]
 
 
+DEFERRED_EVENT_TYPES = frozenset(
+    {
+        "MailboxProvisionRequested",
+        "MailboxSuspendRequested",
+        "IntegrationWebhookRequested",
+        "DocumentGenerationRequested",
+        "WorkflowStartRequested",
+        "ChargeCreationRequested",
+        "CalendarEventCreationRequested",
+        "TaskCreationRequested",
+    }
+)
+
+
+class DeferredEventHandlerUnavailable(ConnectionError):
+    """Evento de efeito colateral que não pode ser confirmado por observação.
+
+    O subtipo de ``ConnectionError`` integra-se ao retry já configurado no Celery.
+    Depois de oito entregas, ``consume_event`` persiste um dead-letter de aplicação
+    em vez de produzir um falso ``completed``.
+    """
+
+    max_attempts = 8
+
+    def __init__(self, event_type: str):
+        self.event_type = event_type
+        super().__init__(f"handler obrigatório indisponível para {event_type}")
+
+
 @dataclass(frozen=True, slots=True)
 class PublishResult:
     published: int
@@ -221,6 +250,8 @@ class DomainEventDispatcher:
         event_type = str(envelope["event_type"])
         result: dict[str, Any] = {"event_type": event_type, "handler": "observed"}
         handler = self.handlers.get(event_type)
+        if handler is None and event_type in DEFERRED_EVENT_TYPES:
+            raise DeferredEventHandlerUnavailable(event_type)
         if handler is not None:
             domain = handler(store, envelope) or {}
             result = {"event_type": event_type, "handler": "executed", "domain": domain}
@@ -250,11 +281,13 @@ def consume_event(
             prior = {}
         return {"status": "duplicate", "event_id": event_id, "result": prior}
     if not existing:
+        attempt = 1
         store.execute(
             "INSERT INTO inbox_events(id,tenant_id,event_id,consumer,event_type,state,attempts,result_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(tenant_id,event_id,consumer) DO NOTHING",
             (uuid7(), tenant_id, event_id, consumer, event_type, "processing", 1, "{}", now, now),
         )
     else:
+        attempt = int(existing.get("attempts") or 0) + 1
         store.execute(
             "UPDATE inbox_events SET state='processing',attempts=attempts+1,last_error=NULL,updated_at=? WHERE tenant_id=? AND event_id=? AND consumer=?",
             (now, tenant_id, event_id, consumer),
@@ -262,6 +295,28 @@ def consume_event(
     try:
         result = dispatcher.dispatch(store, envelope)
     except Exception as exc:
+        if isinstance(exc, DeferredEventHandlerUnavailable) and attempt >= exc.max_attempts:
+            finished = iso_now()
+            result = {
+                "event_type": event_type,
+                "handler": "dead_lettered",
+                "reason": "required_handler_unavailable",
+                "attempts": attempt,
+            }
+            store.execute(
+                "UPDATE inbox_events SET state='dead_lettered',last_error=?,result_json=?,processed_at=?,updated_at=? "
+                "WHERE tenant_id=? AND event_id=? AND consumer=?",
+                (
+                    f"DeferredEventHandlerUnavailable: {event_type}",
+                    json.dumps(result, ensure_ascii=False, sort_keys=True),
+                    finished,
+                    finished,
+                    tenant_id,
+                    event_id,
+                    consumer,
+                ),
+            )
+            return {"status": "dead_lettered", "event_id": event_id, "result": result}
         store.execute(
             "UPDATE inbox_events SET state='failed',last_error=?,updated_at=? WHERE tenant_id=? AND event_id=? AND consumer=?",
             (f"{type(exc).__name__}: {str(exc)[:1000]}", iso_now(), tenant_id, event_id, consumer),

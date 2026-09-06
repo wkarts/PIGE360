@@ -1,0 +1,42 @@
+ARG API_IMAGE=pige360-api:1.1.2
+FROM ${API_IMAGE}
+ARG VERSION=1.1.2
+LABEL org.opencontainers.image.title="pige360-ops" \
+      org.opencontainers.image.version="$VERSION" \
+      org.opencontainers.image.source="local-workspace" \
+      org.pige360.role="deployment-operations"
+USER root
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends gnupg \
+ && install -d -m 0755 /usr/share/postgresql-common/pgdg \
+ && curl --fail --silent --show-error --location \
+      https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+      -o /tmp/postgresql-signing-key.asc \
+ && gpg --batch --dearmor \
+      -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg \
+      /tmp/postgresql-signing-key.asc \
+ && . /etc/os-release \
+ && printf '%s\n' \
+      "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.gpg] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" \
+      > /etc/apt/sources.list.d/pgdg.list \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-client-17 \
+ && apt-get purge -y --auto-remove gnupg \
+ && rm -f /tmp/postgresql-signing-key.asc \
+ && rm -rf /var/lib/apt/lists/*
+COPY infra/ops/pige360_ops.py /opt/pige360/ops/pige360_ops.py
+COPY scripts/backup/backup_manifest.py /opt/pige360/ops/backup_manifest.py
+COPY infra/scripts/init-minio.sh /opt/pige360/default-config/init-minio.sh
+COPY infra/monitoring/otel-collector.yaml /opt/pige360/default-config/observability/otel-collector.yaml
+COPY infra/monitoring/prometheus.yml /opt/pige360/default-config/observability/prometheus.yml
+COPY infra/monitoring/loki.yaml /opt/pige360/default-config/observability/loki.yaml
+COPY infra/monitoring/grafana/provisioning /opt/pige360/default-config/observability/grafana/provisioning
+COPY infra/monitoring/grafana/dashboards /opt/pige360/default-config/observability/grafana/dashboards
+COPY deploy/observability/alloy.config /opt/pige360/default-config/observability/alloy.config
+COPY infra/ops/config/gateway/default.conf.template /opt/pige360/default-config/gateway/default.conf.template
+RUN chmod 0555 /opt/pige360/ops/pige360_ops.py \
+ && find /opt/pige360/default-config -type d -exec chmod 0555 {} + \
+ && find /opt/pige360/default-config -type f -exec chmod 0444 {} +
+USER 10001:10001
+ENTRYPOINT ["/usr/bin/tini","--","python","/opt/pige360/ops/pige360_ops.py"]
+CMD ["diagnostics"]

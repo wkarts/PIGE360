@@ -1,0 +1,16 @@
+{
+  "environment": "develop",
+  "files": {
+    ".env.example": "d3c95729c0e61a47bb02b5b42e6fcd0eaff4aff7a36fd0f43d183acaef2b2f75",
+    "PLATFORM.md": "0cb5dc258831094c0b879eb2ca3e26f8e551d30b2082acc3c32588d3e5b61c64",
+    "README.md": "611eaef5c3d5214515e1d6790c7410cbd4c673fc300ccc8571e70186a865cce8",
+    "compose.yaml": "e098b3f6894ef974647aecdea72ef0c8a8e4dc3097a8fb9454fd7a411e71c828"
+  },
+  "generator": "scripts/deploy/generate_standalone_deployments.py",
+  "image_registry": "ghcr.io/wkarts",
+  "image_tag": "develop",
+  "mode": "service-native-image-only",
+  "platform": "cloudpanel",
+  "project_name": "pige360-develop",
+  "schema_version": 2
+}

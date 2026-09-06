@@ -44,12 +44,44 @@ class SQLiteStore:
     def _apply_compatibility_migrations(conn: sqlite3.Connection) -> None:
         # Migrations locais pequenas e idempotentes para instalações SQLite de desenvolvimento
         # criadas antes de o schema físico atual existir. Produção usa Alembic/PostgreSQL.
+        platform_tenants = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='platform_tenants'"
+        ).fetchone()
+        if platform_tenants:
+            tenant_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(platform_tenants)").fetchall()
+            }
+            if "quotas_json" not in tenant_columns:
+                conn.execute(
+                    "ALTER TABLE platform_tenants ADD COLUMN quotas_json TEXT NOT NULL DEFAULT '{}'"
+                )
+
         outbox = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='outbox_events'").fetchone()
         if outbox:
             outbox_columns = {row[1] for row in conn.execute("PRAGMA table_info(outbox_events)").fetchall()}
             for column in ("last_error", "next_attempt_at"):
                 if column not in outbox_columns:
                     conn.execute(f"ALTER TABLE outbox_events ADD COLUMN {column} TEXT")
+
+        refresh_tokens = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='refresh_tokens'"
+        ).fetchone()
+        if refresh_tokens:
+            refresh_columns = {
+                row[1] for row in conn.execute("PRAGMA table_info(refresh_tokens)").fetchall()
+            }
+            if "family_id" not in refresh_columns:
+                # SQLite não permite adicionar NOT NULL sem default a tabelas com dados.
+                # Mantemos a coluna compatível, preenchemos sessões legadas com o próprio
+                # JTI e o código novo sempre grava family_id explicitamente.
+                conn.execute("ALTER TABLE refresh_tokens ADD COLUMN family_id TEXT")
+            conn.execute(
+                "UPDATE refresh_tokens SET family_id=jti WHERE family_id IS NULL OR family_id=''"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family "
+                "ON refresh_tokens(tenant_id, family_id, user_id, revoked_at)"
+            )
 
         tenant_domains = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='tenant_domains'"
@@ -252,6 +284,17 @@ class SQLiteStore:
             raise
         finally:
             conn.close()
+
+    @staticmethod
+    def transaction_lock(conn: sqlite3.Connection, namespace: str) -> None:
+        """Serializa uma invariante dentro da transação atual.
+
+        ``BEGIN IMMEDIATE`` já reserva a escrita do banco SQLite inteiro. O método
+        existe para que regras concorrentes usem o mesmo contrato nos adapters sem
+        introduzir SQL específico de PostgreSQL nos handlers.
+        """
+
+        del conn, namespace
 
     def fetch_one(self, sql: str, params: Sequence[Any] = ()) -> dict[str, Any] | None:
         self.initialize()

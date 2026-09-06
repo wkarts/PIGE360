@@ -1,0 +1,57 @@
+x-runtime-env: &runtime-env
+  env_file:
+    - ${PIGE360_ENV_FILE:?PIGE360_ENV_FILE obrigatorio}
+
+services:
+  pige360-app-init:
+    <<: *runtime-env
+  pige360-api:
+    <<: *runtime-env
+  pige360-app-factory-api:
+    <<: *runtime-env
+  pige360-beat:
+    <<: *runtime-env
+  pige360-worker-app-builds:
+    <<: *runtime-env
+  pige360-worker-app-distribution:
+    <<: *runtime-env
+  pige360-worker-visual-regression:
+    <<: *runtime-env
+  pige360-worker-default:
+    <<: *runtime-env
+  pige360-worker-high-priority:
+    <<: *runtime-env
+  pige360-worker-academic:
+    <<: *runtime-env
+  pige360-worker-pedagogy:
+    <<: *runtime-env
+  pige360-worker-attendance:
+    <<: *runtime-env
+  pige360-worker-finance:
+    <<: *runtime-env
+  pige360-worker-banking:
+    <<: *runtime-env
+  pige360-worker-fiscal:
+    <<: *runtime-env
+  pige360-worker-sales:
+    <<: *runtime-env
+  pige360-worker-hr:
+    <<: *runtime-env
+  pige360-worker-mail:
+    <<: *runtime-env
+  pige360-worker-notifications:
+    <<: *runtime-env
+  pige360-worker-documents:
+    <<: *runtime-env
+  pige360-worker-contracts:
+    <<: *runtime-env
+  pige360-worker-signatures:
+    <<: *runtime-env
+  pige360-worker-reports:
+    <<: *runtime-env
+  pige360-worker-integrations:
+    <<: *runtime-env
+  pige360-builder-linux:
+    <<: *runtime-env
+  pige360-builder-android:
+    <<: *runtime-env

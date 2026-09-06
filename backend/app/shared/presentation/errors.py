@@ -16,6 +16,7 @@ class DomainError(Exception):
     status: int = 400
     title: str = "Regra de negócio não atendida"
     errors: list[dict[str, str]] | None = None
+    headers: dict[str, str] | None = None
 
 
 def problem(error: DomainError, correlation_id: str | None = None) -> dict[str, Any]:
@@ -34,7 +35,7 @@ def problem(error: DomainError, correlation_id: str | None = None) -> dict[str, 
 
 async def domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:
     correlation_id = getattr(request.state, "correlation_id", None)
-    return JSONResponse(problem(exc, correlation_id), status_code=exc.status)
+    return JSONResponse(problem(exc, correlation_id), status_code=exc.status, headers=exc.headers)
 
 
 async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:

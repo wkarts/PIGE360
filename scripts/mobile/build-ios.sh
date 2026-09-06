@@ -30,9 +30,22 @@ esac
 command -v xcodebuild >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Xcode ausente.' >&2; exit 3; }
 command -v cargo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Rust ausente.' >&2; exit 3; }
 command -v zip >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: zip ausente.' >&2; exit 3; }
+command -v tar >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: tar ausente.' >&2; exit 3; }
+command -v file >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: file ausente.' >&2; exit 3; }
 command -v lipo >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: lipo ausente.' >&2; exit 3; }
+command -v codesign >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: codesign ausente.' >&2; exit 3; }
 command -v python3 >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: Python 3 ausente.' >&2; exit 3; }
 command -v unzip >/dev/null || { echo 'SKIPPED_NOT_CONFIGURED: unzip ausente.' >&2; exit 3; }
+if command -v sha256sum >/dev/null 2>&1; then
+  checksum_write() { sha256sum "$@"; }
+  checksum_check() { sha256sum --check "$1"; }
+elif command -v shasum >/dev/null 2>&1; then
+  checksum_write() { shasum -a 256 "$@"; }
+  checksum_check() { shasum -a 256 --check "$1"; }
+else
+  echo 'SKIPPED_NOT_CONFIGURED: sha256sum ou shasum é obrigatório.' >&2
+  exit 3
+fi
 
 if [ "$mode" = 'store' ] && [ -z "${APPLE_DEVELOPMENT_TEAM:-}" ]; then
   echo 'CONFIGURATION_REQUIRED: defina APPLE_DEVELOPMENT_TEAM para gerar IPA de distribuição em loja.' >&2
@@ -52,9 +65,35 @@ artifact_dir="$root_dir/release/artifacts/ios"
 rm -rf "$artifact_dir"
 mkdir -p "$artifact_dir"
 version="$(tr -d '[:space:]' < VERSION)"
-case "$version" in [0-9]*.[0-9]*.[0-9]*-alpha.[0-9]*) ;; *) echo "Versão alpha inválida para o empacotamento iOS: $version" >&2; exit 4 ;; esac
-ios_version="${version%-alpha.*}"
+ios_version="$(python3 - "$version" <<'PY'
+import re
+import sys
+
+match = re.fullmatch(
+    r"((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))"
+    r"(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?"
+    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?",
+    sys.argv[1],
+)
+if not match:
+    raise SystemExit(4)
+print(match.group(1))
+PY
+)" || { echo "Versão SemVer inválida para o empacotamento iOS: $version" >&2; exit 4; }
 ios_config="{\"version\":\"$ios_version\"}"
+
+ensure_lockfile() {
+  manifest="$1"
+  lockfile="$(dirname "$manifest")/Cargo.lock"
+  if [ ! -f "$lockfile" ]; then
+    if [ "${PIGE360_REQUIRE_LOCKED:-false}" = 'true' ]; then
+      echo "Cargo.lock obrigatório e ausente: $lockfile" >&2
+      exit 4
+    fi
+    cargo generate-lockfile --manifest-path "$manifest"
+  fi
+  cargo metadata --manifest-path "$manifest" --locked --format-version 1 >/dev/null
+}
 
 initialize_ios_project() {
   app="$1"
@@ -88,6 +127,42 @@ PY
   )
 }
 
+verify_unsigned_app_bundle() {
+  app="$1"
+  app_bundle="$2"
+  [ -f "$app_bundle/Info.plist" ] || { echo "Info.plist ausente no bundle iOS de $app." >&2; return 4; }
+  executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
+  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || {
+    echo "Executável iOS ausente no bundle de $app." >&2
+    return 4
+  }
+  platform="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleSupportedPlatforms:0' "$app_bundle/Info.plist" 2>/dev/null || true)"
+  [ "$platform" = 'iPhoneOS' ] || {
+    echo "Bundle iOS de $app não pertence à plataforma física iPhoneOS: ${platform:-ausente}." >&2
+    return 4
+  }
+  file "$app_bundle/$executable" | grep -Eiq 'Mach-O.*arm64|Mach-O.*universal' || {
+    echo "Executável iOS de $app não é Mach-O ARM64." >&2
+    return 4
+  }
+  lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
+    echo "Bundle iOS de $app não contém executável arm64." >&2
+    return 4
+  }
+  [ ! -e "$app_bundle/embedded.mobileprovision" ] || {
+    echo "Bundle iOS de $app contém provisioning profile no canal sem assinatura." >&2
+    return 4
+  }
+  [ ! -d "$app_bundle/_CodeSignature" ] || {
+    echo "Bundle iOS de $app contém diretório de assinatura no canal unsigned." >&2
+    return 4
+  }
+  if codesign -d --verbose=2 "$app_bundle" >/dev/null 2>&1; then
+    echo "Bundle iOS de $app contém assinatura (inclusive ad-hoc) no canal unsigned." >&2
+    return 4
+  fi
+}
+
 verify_local_signing_ipa() {
   app="$1"
   ipa="$2"
@@ -103,13 +178,8 @@ verify_local_signing_ipa() {
     exit 4
   }
   app_bundle="$(find "$work/Payload" -maxdepth 1 -type d -name '*.app' -print 2>/dev/null | sort | tail -n 1)"
-  [ -n "$app_bundle" ] || { echo "Bundle iOS não encontrado no IPA de $app." >&2; exit 4; }
-  executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
-  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no IPA de $app." >&2; exit 4; }
-  lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
-    echo "IPA de $app não contém executável arm64." >&2
-    exit 4
-  }
+  [ -n "$app_bundle" ] || { rm -rf "$work"; echo "Bundle iOS não encontrado no IPA de $app." >&2; exit 4; }
+  verify_unsigned_app_bundle "$app" "$app_bundle" || { rm -rf "$work"; exit 4; }
   rm -rf "$work"
 }
 
@@ -212,6 +282,7 @@ package_for_local_signing() {
   start_tauri_options_server "$app"
   derived_root="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-derived.XXXXXX")"
   derived_data="$derived_root/DerivedData"
+  archive_path="$derived_root/${app}.xcarchive"
   if ! (
     cd "$app_dir"
     xcodebuild \
@@ -221,11 +292,12 @@ package_for_local_signing() {
       -sdk iphoneos \
       -destination 'generic/platform=iOS' \
       -derivedDataPath "$derived_data" \
+      -archivePath "$archive_path" \
       CODE_SIGNING_ALLOWED=NO \
       CODE_SIGNING_REQUIRED=NO \
       CODE_SIGN_IDENTITY= \
       DEVELOPMENT_TEAM="$APPLE_DEVELOPMENT_TEAM" \
-      build
+      archive
   ); then
     cleanup_tauri_options
     rm -rf "$derived_root"
@@ -234,28 +306,31 @@ package_for_local_signing() {
   fi
   cleanup_tauri_options
 
-  app_bundle="$(find "$derived_data/Build/Products" -type d -path '*release-iphoneos/*.app' -print 2>/dev/null | sort | tail -n 1)"
+  app_bundle="$(find "$archive_path/Products/Applications" -maxdepth 1 -type d -name '*.app' -print 2>/dev/null | sort | tail -n 1)"
   [ -n "$app_bundle" ] || { echo "Bundle iOS arm64 não encontrado para $app." >&2; rm -rf "$derived_root"; exit 4; }
-  executable="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app_bundle/Info.plist" 2>/dev/null || true)"
-  [ -n "$executable" ] && [ -f "$app_bundle/$executable" ] || { echo "Executável iOS ausente no bundle de $app." >&2; rm -rf "$derived_root"; exit 4; }
-  lipo -archs "$app_bundle/$executable" | tr ' ' '\n' | grep -Fx 'arm64' >/dev/null || {
-    echo "Bundle iOS de $app não contém executável arm64." >&2
-    rm -rf "$derived_root"
-    exit 4
-  }
-  [ ! -e "$app_bundle/embedded.mobileprovision" ] || {
-    echo "O bundle iOS de $app contém provisioning profile, mas local-signing não aceita credenciais no CI." >&2
-    rm -rf "$derived_root"
-    exit 4
-  }
+  verify_unsigned_app_bundle "$app" "$app_bundle" || { rm -rf "$derived_root"; exit 4; }
 
   work="$(mktemp -d "${TMPDIR:-/tmp}/pige360-ios-ipa.XXXXXX")"
   mkdir -p "$work/Payload"
   cp -R "$app_bundle" "$work/Payload/"
-  output="$artifact_dir/${app}-ready-for-local-signing.ipa"
+  output="$artifact_dir/PIGE360-v${version}-${app}-ios-arm64-unsigned.ipa"
   (cd "$work" && zip -qry "$output" Payload)
-  rm -rf "$work" "$derived_root"
   verify_local_signing_ipa "$app" "$output"
+
+  app_output="$artifact_dir/PIGE360-v${version}-${app}-ios-arm64-unsigned.app.zip"
+  (cd "$(dirname "$app_bundle")" && zip -qry "$app_output" "$(basename "$app_bundle")")
+  [ -s "$app_output" ] || { rm -rf "$work" "$derived_root"; echo "Pacote .app vazio para $app." >&2; exit 4; }
+
+  archive_output="$artifact_dir/PIGE360-v${version}-${app}-ios-arm64-unsigned.xcarchive.tar.gz"
+  tar -C "$derived_root" -czf "$archive_output" "$(basename "$archive_path")"
+  [ -s "$archive_output" ] || { rm -rf "$work" "$derived_root"; echo "XCArchive vazio para $app." >&2; exit 4; }
+
+  dsym="$(find "$archive_path/dSYMs" -maxdepth 1 -type d -name '*.dSYM' -print 2>/dev/null | sort | head -n 1)"
+  if [ -n "$dsym" ]; then
+    dsym_output="$artifact_dir/PIGE360-v${version}-${app}-ios-arm64.dSYM.zip"
+    (cd "$(dirname "$dsym")" && zip -qry "$dsym_output" "$(basename "$dsym")")
+  fi
+  rm -rf "$work" "$derived_root"
 }
 
 if [ "$app_scope" = 'all' ]; then
@@ -267,6 +342,7 @@ else
 fi
 
 for app in $apps; do
+  ensure_lockfile "$root_dir/apps/$app/src-tauri/Cargo.toml"
   initialize_ios_project "$app"
   # O xcode-script do Tauri 2.3 lê tauri.conf.json antes de reaplicar --config.
   # A cópia temporária contém a versão CFBundle numérica e é sempre restaurada.
@@ -278,7 +354,7 @@ for app in $apps; do
     )
     ipa="$(find "apps/$app/src-tauri/gen/apple/build/arm64" -maxdepth 1 -type f -name '*.ipa' -print 2>/dev/null | sort | tail -n 1)"
     [ -n "$ipa" ] || { echo "IPA não encontrada para $app." >&2; exit 4; }
-    cp "$ipa" "$artifact_dir/${app}.ipa"
+    cp "$ipa" "$artifact_dir/PIGE360-v${version}-${app}-ios-arm64-signed.ipa"
   else
     package_for_local_signing "$app"
   fi
@@ -287,7 +363,11 @@ done
 
 count="$(find "$artifact_dir" -maxdepth 1 -type f -name '*.ipa' | wc -l | tr -d '[:space:]')"
 [ "$count" -eq "$expected_count" ] || { echo "Esperadas $expected_count IPAs; encontradas $count." >&2; exit 4; }
-(cd "$artifact_dir" && sha256sum ./*.ipa > SHA256SUMS)
+(
+  cd "$artifact_dir"
+  checksum_write ./* > SHA256SUMS
+  checksum_check SHA256SUMS
+)
 if [ "$mode" = 'local-signing' ]; then
   printf 'IPAs iOS arm64 geradas para assinatura local; aplique certificado e perfil de desenvolvimento antes de instalar em aparelho físico.\n'
 fi

@@ -664,6 +664,14 @@
     ]
   },
   {
+    "operationId": "auth_logout",
+    "method": "POST",
+    "path": "/api/v1/auth/logout",
+    "tags": [
+      "identity"
+    ]
+  },
+  {
     "operationId": "auth_me",
     "method": "GET",
     "path": "/api/v1/auth/me",
@@ -2872,9 +2880,17 @@
     ]
   },
   {
-    "operationId": "evolution_send_text",
+    "operationId": "connect_api_send_text",
     "method": "POST",
-    "path": "/api/v1/integration-connections/{connection_id}/evolution/messages/text",
+    "path": "/api/v1/integration-connections/{connection_id}/connect-api/messages/text",
+    "tags": [
+      "integrations"
+    ]
+  },
+  {
+    "operationId": "connect_api_migrate_legacy_connection",
+    "method": "POST",
+    "path": "/api/v1/integration-connections/{connection_id}/connect-api/migrate",
     "tags": [
       "integrations"
     ]
@@ -3920,6 +3936,270 @@
     ]
   },
   {
+    "operationId": "list_commercial_partners",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/partners",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "create_commercial_partner",
+    "method": "POST",
+    "path": "/api/v1/platform/commercial/partners",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "get_commercial_partner",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "update_commercial_partner",
+    "method": "PATCH",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "archive_commercial_partner",
+    "method": "DELETE",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "reactivate_commercial_partner",
+    "method": "POST",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}/reactivate",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "suspend_commercial_partner",
+    "method": "POST",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}/suspend",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "link_commercial_partner_tenant",
+    "method": "PUT",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}/tenants/{tenant_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "unlink_commercial_partner_tenant",
+    "method": "DELETE",
+    "path": "/api/v1/platform/commercial/partners/{partner_id}/tenants/{tenant_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "list_commercial_plans",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/plans",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "create_commercial_plan",
+    "method": "POST",
+    "path": "/api/v1/platform/commercial/plans",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "get_commercial_plan",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/plans/{plan_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "update_commercial_plan",
+    "method": "PATCH",
+    "path": "/api/v1/platform/commercial/plans/{plan_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "archive_commercial_plan",
+    "method": "DELETE",
+    "path": "/api/v1/platform/commercial/plans/{plan_id}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "get_commercial_entitlements",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/tenants/{tenant_id}/entitlements",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "get_commercial_subscription",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/tenants/{tenant_id}/subscription",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "set_commercial_subscription",
+    "method": "PUT",
+    "path": "/api/v1/platform/commercial/tenants/{tenant_id}/subscription",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "list_commercial_usage",
+    "method": "GET",
+    "path": "/api/v1/platform/commercial/tenants/{tenant_id}/usage",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "record_commercial_usage",
+    "method": "PUT",
+    "path": "/api/v1/platform/commercial/tenants/{tenant_id}/usage/{period}",
+    "tags": [
+      "platform-commercial"
+    ]
+  },
+  {
+    "operationId": "get_platform_domain_policy",
+    "method": "GET",
+    "path": "/api/v1/platform/domain-policy",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "query_platform_logs",
+    "method": "GET",
+    "path": "/api/v1/platform/logs",
+    "tags": [
+      "platform-observability"
+    ]
+  },
+  {
+    "operationId": "heartbeat_operational_agent",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/agent/heartbeat",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "claim_operational_job",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/agent/jobs/claim",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "report_operational_job_state",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/agent/jobs/{job_id}/state",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "register_operational_agent",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/agents",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "list_operational_agents",
+    "method": "GET",
+    "path": "/api/v1/platform/operations/agents",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "revoke_operational_agent",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/agents/{agent_id}/revoke",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "get_platform_operations_inventory",
+    "method": "GET",
+    "path": "/api/v1/platform/operations/inventory",
+    "tags": [
+      "platform-operations"
+    ]
+  },
+  {
+    "operationId": "queue_operational_job",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/jobs",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "list_operational_jobs",
+    "method": "GET",
+    "path": "/api/v1/platform/operations/jobs",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "get_operational_job",
+    "method": "GET",
+    "path": "/api/v1/platform/operations/jobs/{job_id}",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "cancel_operational_job",
+    "method": "POST",
+    "path": "/api/v1/platform/operations/jobs/{job_id}/cancel",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
+    "operationId": "list_operational_providers",
+    "method": "GET",
+    "path": "/api/v1/platform/operations/providers",
+    "tags": [
+      "platform-operational-control"
+    ]
+  },
+  {
     "operationId": "get_platform_operational_status",
     "method": "GET",
     "path": "/api/v1/platform/status",
@@ -3931,6 +4211,14 @@
     "operationId": "list_platform_support_sessions",
     "method": "GET",
     "path": "/api/v1/platform/support-sessions",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "revoke_platform_support_session",
+    "method": "POST",
+    "path": "/api/v1/platform/support-sessions/{session_id}/revoke",
     "tags": [
       "tenancy"
     ]
@@ -4072,11 +4360,99 @@
     ]
   },
   {
+    "operationId": "list_platform_tenant_domains",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/domains",
+    "tags": [
+      "tenancy-domains"
+    ]
+  },
+  {
+    "operationId": "create_platform_tenant_custom_domain",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/domains",
+    "tags": [
+      "tenancy-domains"
+    ]
+  },
+  {
+    "operationId": "deactivate_platform_tenant_custom_domain",
+    "method": "DELETE",
+    "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}",
+    "tags": [
+      "tenancy-domains"
+    ]
+  },
+  {
+    "operationId": "refresh_platform_tenant_custom_domain",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/refresh",
+    "tags": [
+      "tenancy-domains"
+    ]
+  },
+  {
+    "operationId": "verify_platform_tenant_custom_domain",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/verify",
+    "tags": [
+      "tenancy-domains"
+    ]
+  },
+  {
+    "operationId": "get_platform_tenant_quotas",
+    "method": "GET",
+    "path": "/api/v1/platform/tenants/{tenant_id}/quotas",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "update_platform_tenant_quotas",
+    "method": "PUT",
+    "path": "/api/v1/platform/tenants/{tenant_id}/quotas",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "reactivate_platform_tenant",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/reactivate",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
     "operationId": "create_support_session",
     "method": "POST",
     "path": "/api/v1/platform/tenants/{tenant_id}/support-sessions",
     "tags": [
       "tenancy"
+    ]
+  },
+  {
+    "operationId": "suspend_platform_tenant",
+    "method": "POST",
+    "path": "/api/v1/platform/tenants/{tenant_id}/suspend",
+    "tags": [
+      "tenancy"
+    ]
+  },
+  {
+    "operationId": "list_platform_users",
+    "method": "GET",
+    "path": "/api/v1/platform/users",
+    "tags": [
+      "platform-operations"
+    ]
+  },
+  {
+    "operationId": "set_platform_user_active",
+    "method": "PATCH",
+    "path": "/api/v1/platform/users/{user_id}/active",
+    "tags": [
+      "platform-operations"
     ]
   },
   {

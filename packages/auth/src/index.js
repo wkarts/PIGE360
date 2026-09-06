@@ -99,8 +99,27 @@ export class Pige360SessionClient {
         return tokens;
     }
     async logout() {
-        this.tokens = null;
-        await clearSession(this.manifest);
+        const tokens = this.tokens;
+        try {
+            if (tokens?.access_token) {
+                await fetch(this.url("/auth/logout"), {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "Authorization": `Bearer ${tokens.access_token}`,
+                    },
+                    body: JSON.stringify({ refresh_token: tokens.refresh_token }),
+                });
+            }
+        }
+        catch {
+            // A indisponibilidade da API não pode manter credenciais no dispositivo.
+        }
+        finally {
+            this.tokens = null;
+            await clearSession(this.manifest);
+        }
     }
     async refresh() {
         if (!this.tokens?.refresh_token)

@@ -7,10 +7,12 @@ from pathlib import Path
 from typing import Any
 
 from app.shared.database.router import DataRouter
+from app.modules.workflows.application.service import start_workflow_in_connection
 from app.modules.fiscal.application.ibpt import execute_ibpt_sync
 from app.modules.fiscal.application.document_routing_service import process_emission_trigger, apply_fiscal_financial_adjustment
 from app.modules.fiscal.application.document_delivery_service import FiscalRetryScheduled, record_rejection, resolve_delivery_policy, resolve_rejections, retry_plan
 from app.shared.domain.ids import iso_now, uuid7
+from app.shared.application.idempotency import get_idempotent, save_idempotent
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.signatures.otp import derive_otp
 from app.shared.integrations.providers import (
@@ -736,6 +738,61 @@ def build_domain_event_handlers(
             return {"state": "ignored", "reason": "sync_run_id_missing"}
         return execute_ibpt_sync(router, tenant_id=tenant_id, run_id=run_id, transport=transport)
 
+    def workflow_start_requested(_store, envelope: dict[str, Any]) -> dict[str, Any]:
+        payload = dict(envelope.get("payload") or {})
+        action = payload.get("action")
+        if not isinstance(action, dict):
+            raise ValueError("WorkflowStartRequested exige action estruturada")
+        definition_id = str(action.get("definition_id") or "") or None
+        definition_code = str(action.get("definition_code") or "") or None
+        aggregate_type = str(action.get("aggregate_type") or "")
+        aggregate_id = str(action.get("aggregate_id") or "")
+        context = action.get("context") or {}
+        if not definition_id and not definition_code:
+            raise ValueError("WorkflowStartRequested exige definition_id ou definition_code")
+        if not aggregate_type or not aggregate_id or not isinstance(context, dict):
+            raise ValueError("WorkflowStartRequested exige agregado e contexto válidos")
+        raw_version = action.get("definition_version")
+        definition_version = int(raw_version) if raw_version is not None else None
+        if definition_version is not None and definition_version < 1:
+            raise ValueError("WorkflowStartRequested exige definition_version positiva")
+        request_payload = {
+            "definition_id": definition_id,
+            "definition_code": definition_code,
+            "definition_version": definition_version,
+            "aggregate_type": aggregate_type,
+            "aggregate_id": aggregate_id,
+            "context": context,
+        }
+        event_id = str(envelope["event_id"])
+        with store.transaction() as conn:
+            cached = get_idempotent(conn, f"automation:workflow:{tenant_id}", event_id, request_payload)
+            if cached:
+                result = dict(cached[1])
+                result["idempotent"] = True
+                return result
+            result = start_workflow_in_connection(
+                conn,
+                tenant_id=tenant_id,
+                actor_user_id="system-automation",
+                correlation_id=str(envelope.get("correlation_id") or event_id),
+                aggregate_type=aggregate_type,
+                aggregate_id=aggregate_id,
+                context={**context, "automation_event_id": event_id},
+                definition_id=definition_id,
+                definition_code=definition_code,
+                definition_version=definition_version,
+            )
+            save_idempotent(
+                conn,
+                f"automation:workflow:{tenant_id}",
+                event_id,
+                request_payload,
+                201,
+                result,
+            )
+        return result
+
     return {
         "FiscalDocumentRequested": fiscal_requested,
         "FiscalDocumentCancellationRequested": fiscal_cancel_requested,
@@ -752,4 +809,5 @@ def build_domain_event_handlers(
         "SignatureOtpDeliveryRequested": signature_otp_delivery_requested,
         "IbptSyncRequested": ibpt_sync_requested,
         "GovernmentEducationTransmissionRequested": government_education_transmission_requested,
+        "WorkflowStartRequested": workflow_start_requested,
     }

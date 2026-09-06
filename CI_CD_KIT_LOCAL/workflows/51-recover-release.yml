@@ -1,111 +1,120 @@
-name: 51 · Recuperar publicação de artefatos
+name: 51 · Retomar release coordenada
 
-on:
+'on':
   workflow_dispatch:
     inputs:
-      source_run_id:
-        description: ID do run 50 que concluiu os builds e falhou apenas na publicação
+      release_tag:
+        description: 'Tag imutável e incompleta a reconstruir (ex.: v1.2.3)'
         required: true
         type: string
-      distribution_mode:
-        description: Canal usado no run de origem
-        required: true
-        type: choice
-        options: [homologation, store]
-        default: homologation
+      source_run_id:
+        description: ID opcional do run 50 anterior, usado somente para auditoria
+        required: false
+        type: string
+      allow_partial_release:
+        description: Autorizar publicação parcial após a nova tentativa completa
+        required: false
+        type: boolean
+        default: false
 
 permissions:
-  contents: write
-  actions: read
+  actions: write
+  contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: pige360-release-recovery
   cancel-in-progress: false
 
 jobs:
-  recover:
-    name: Publicar artefatos já construídos
-    if: github.ref == 'refs/heads/main'
+  redispatch:
+    name: Validar tag e redisparar a matriz completa
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - id: source
-        name: Validar run de origem e preservar seu commit
+        with:
+          fetch-depth: 0
+      - name: Validar tag, draft e lockfiles imutáveis
+        id: validate
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
         shell: bash
         run: |
-          case "$SOURCE_RUN_ID" in
-            *[!0-9]*|'') echo "source_run_id inválido: $SOURCE_RUN_ID" >&2; exit 2 ;;
-          esac
-          version="$(tr -d '[:space:]' < VERSION)"
-          source="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")"
-          source_repository="$(jq -r '.repository.full_name // empty' <<<"$source")"
-          source_status="$(jq -r '.status // empty' <<<"$source")"
-          source_conclusion="$(jq -r '.conclusion // empty' <<<"$source")"
-          source_sha="$(jq -r '.head_sha // empty' <<<"$source")"
-          if [ "$source_repository" != "$GITHUB_REPOSITORY" ] || [ "$source_status" != 'completed' ]; then
-            echo "Run de origem inválido ou ainda não concluído." >&2
+          set -euo pipefail
+          [ "$GITHUB_REF" = 'refs/heads/main' ] || {
+            echo "A retomada deve ser disparada a partir da branch main; recebido $GITHUB_REF." >&2
+            exit 2
+          }
+          prerelease_id='(0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)'
+          semver_tag_re="^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-${prerelease_id}(\\.${prerelease_id})*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+          [[ "$RELEASE_TAG" =~ $semver_tag_re ]] || {
+            echo "Tag inválida: $RELEASE_TAG" >&2
+            exit 2
+          }
+          git fetch --force origin "refs/tags/$RELEASE_TAG:refs/tags/$RELEASE_TAG"
+          tag_sha="$(git rev-parse "${RELEASE_TAG}^{commit}")"
+          version="${RELEASE_TAG#v}"
+          [ "$(git show "$RELEASE_TAG:VERSION" | tr -d '[:space:]')" = "$version" ] || {
+            echo "VERSION diverge de $RELEASE_TAG." >&2
             exit 3
+          }
+          git cat-file -e "$RELEASE_TAG:rust/Cargo.lock"
+          missing_locks=0
+          manifest_count=0
+          while IFS= read -r manifest; do
+            manifest_count=$((manifest_count + 1))
+            lock="${manifest%Cargo.toml}Cargo.lock"
+            if ! git cat-file -e "$RELEASE_TAG:$lock"; then
+              echo "Cargo.lock ausente na tag: $lock" >&2
+              missing_locks=1
+            fi
+          done < <(git ls-tree -r --name-only "$RELEASE_TAG" apps | grep '/src-tauri/Cargo.toml$' | sort)
+          [ "$manifest_count" -eq 13 ] || {
+            echo "Esperados 13 manifests Tauri na tag; encontrados $manifest_count." >&2
+            exit 3
+          }
+          [ "$missing_locks" -eq 0 ] || exit 3
+
+          if release_json="$(gh release view "$RELEASE_TAG" --json isDraft 2>/dev/null)"; then
+            [ "$(jq -r '.isDraft' <<<"$release_json")" = 'true' ] || {
+              echo "A release $RELEASE_TAG já está publicada e não será reaberta." >&2
+              exit 5
+            }
           fi
-          case "$source_conclusion" in
-            success|failure) ;;
-            *) echo "Run de origem não contém resultado recuperável: $source_conclusion" >&2; exit 3 ;;
-          esac
-          [ -n "$source_sha" ] || { echo "Commit de origem ausente." >&2; exit 3; }
-          if ! gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID/artifacts?per_page=100" --jq '.artifacts[] | select(.expired == false) | .name' | grep -F "pige360-$version-" >/dev/null; then
-            echo "O run de origem não contém artefatos ativos para a versão $version." >&2
-            exit 4
+
+          if [ -n "$SOURCE_RUN_ID" ]; then
+            case "$SOURCE_RUN_ID" in *[!0-9]*|'') echo "source_run_id inválido: $SOURCE_RUN_ID" >&2; exit 2 ;; esac
+            source="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID")"
+            [ "$(jq -r '.repository.full_name // empty' <<<"$source")" = "$GITHUB_REPOSITORY" ] || exit 3
+            [ "$(jq -r '.path // empty' <<<"$source")" = '.github/workflows/50-release.yml' ] || {
+              echo 'source_run_id não pertence ao workflow 50.' >&2
+              exit 3
+            }
           fi
-          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
-          printf 'tag=v%s\n' "$version" >> "$GITHUB_OUTPUT"
-          printf 'target_sha=%s\n' "$source_sha" >> "$GITHUB_OUTPUT"
-      - name: Baixar artefatos do run sem mesclar diretórios
-        uses: actions/download-artifact@v4
-        with:
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: ${{ inputs.source_run_id }}
-          pattern: pige360-${{ steps.source.outputs.version }}-*
-          path: release/publish
-          merge-multiple: false
-      - name: Consolidar checksums dos assets recuperados
-        run: |
-          find release/publish -type f -print0 | sort -z | xargs -0 sha256sum > "release/publish/PIGE360-${{ steps.source.outputs.version }}-release-assets-SHA256SUMS"
-      - name: Registrar notas do pré-lançamento recuperado
+          {
+            echo "tag_sha=$tag_sha"
+            echo "version=$version"
+          } >> "$GITHUB_OUTPUT"
+      - name: Redisparar workflow 50 sem reutilizar artefatos antigos
         env:
-          DISTRIBUTION_MODE: ${{ inputs.distribution_mode }}
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          ALLOW_PARTIAL: ${{ inputs.allow_partial_release }}
         shell: bash
         run: |
-          if [ "$DISTRIBUTION_MODE" = 'homologation' ]; then
-            cat > release/RELEASE_NOTES.md <<'EOF'
-          ## PIGE360 ${{ steps.source.outputs.version }}
-
-          Pré-lançamento de homologação recuperado de artefatos já validados.
-
-          Inclui PWAs, instaladores desktop, APKs Android de depuração instaláveis,
-          IPAs ARM64 para assinatura local, pacotes self-hosted, fontes, SBOM,
-          proveniência e checksums.
-
-          Não realiza deploy SaaS nem publicação em lojas. Antes de instalar uma
-          IPA em aparelho físico, aplique no Mac o certificado e o profile Apple
-          de desenvolvimento da sua conta.
-          EOF
-          else
-            cat > release/RELEASE_NOTES.md <<'EOF'
-          ## PIGE360 ${{ steps.source.outputs.version }}
-
-          Pré-lançamento de distribuição em loja recuperado de artefatos já
-          validados, com assinatura e checksums preservados.
-          EOF
-          fi
-      - name: Publicar tag e GitHub Release imutável
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          REMOTE_RELEASE_ENABLED: 'true'
-          RELEASE_TAG: ${{ steps.source.outputs.tag }}
-          RELEASE_TARGET_SHA: ${{ steps.source.outputs.target_sha }}
-          RELEASE_NOTES_FILE: release/RELEASE_NOTES.md
-        run: bash scripts/release/publish-github-release.sh release/publish
+          set -euo pipefail
+          gh workflow run 50-release.yml \
+            --ref main \
+            -f "release_tag=$RELEASE_TAG" \
+            -f force_bump=auto \
+            -f "allow_partial_release=$ALLOW_PARTIAL"
+          {
+            echo "## Retomada solicitada para $RELEASE_TAG"
+            echo
+            echo "Commit imutável: \`${{ steps.validate.outputs.tag_sha }}\`"
+            echo
+            echo 'O workflow 50 reconstruirá os 12 alvos a partir da tag exata.'
+            echo 'Nenhum artefato de execução anterior foi publicado ou reaproveitado.'
+          } >> "$GITHUB_STEP_SUMMARY"

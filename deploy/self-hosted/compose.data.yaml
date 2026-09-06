@@ -1,0 +1,145 @@
+services:
+  pige360-storage-init:
+    image: alpine:3.22.0
+    user: "0:0"
+    network_mode: none
+    restart: "no"
+    # IDs dos usuarios nas imagens fixadas pelo compose.yaml:
+    # postgres/redis/rabbitmq=999:999, minio=1000:1000,
+    # clamav/clamav:1.4.2=100:101, PIGE360/loki=10001:10001,
+    # prometheus=65534:65534 e grafana=472:472.
+    # Nao use permissoes world-writable: cada runtime recebe somente seu estado.
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        chown -R 999:999 /data/postgres-control /data/postgres-tenants /data/redis /data/rabbitmq
+        chown -R 1000:1000 /data/minio
+        chown -R 100:101 /data/clamav
+        chown -R 10001:10001 /data/tenant-storage /data/loki
+        chown -R 65534:65534 /data/prometheus
+        chown -R 472:472 /data/grafana
+        chmod -R o-rwx \
+          /data/postgres-control /data/postgres-tenants /data/redis \
+          /data/rabbitmq /data/minio /data/clamav /data/tenant-storage \
+          /data/prometheus /data/grafana /data/loki
+        chmod 0750 \
+          /data/postgres-control /data/postgres-tenants /data/redis \
+          /data/rabbitmq /data/minio /data/clamav /data/tenant-storage \
+          /data/prometheus /data/grafana /data/loki
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/postgres-control
+        target: /data/postgres-control
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/postgres-tenants
+        target: /data/postgres-tenants
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/redis
+        target: /data/redis
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/rabbitmq
+        target: /data/rabbitmq
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/minio
+        target: /data/minio
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/clamav
+        target: /data/clamav
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/tenant-storage
+        target: /data/tenant-storage
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/prometheus
+        target: /data/prometheus
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/grafana
+        target: /data/grafana
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/loki
+        target: /data/loki
+    security_opt:
+      - no-new-privileges:true
+
+  pige360-postgres-control:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/postgres-control
+        target: /var/lib/postgresql/data
+  pige360-postgres-tenants:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/postgres-tenants
+        target: /var/lib/postgresql/data
+  pige360-redis:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/redis
+        target: /data
+  pige360-rabbitmq:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/rabbitmq
+        target: /var/lib/rabbitmq
+  pige360-minio:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/minio
+        target: /data
+  pige360-clamav:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/clamav
+        target: /var/lib/clamav
+  pige360-app-init:
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/tenant-storage
+        target: /var/lib/pige360/tenants
+  pige360-api:
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/tenant-storage
+        target: /var/lib/pige360/tenants
+  pige360-prometheus:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/prometheus
+        target: /prometheus
+  pige360-grafana:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/grafana
+        target: /var/lib/grafana
+  pige360-loki:
+    depends_on:
+      pige360-storage-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/loki
+        target: /loki

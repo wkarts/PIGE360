@@ -101,6 +101,27 @@ rm -rf "$artifact_dir"
 mkdir -p "$artifact_dir"
 bash scripts/frontend/install-dependencies.sh
 
+version="$(tr -d '[:space:]' < VERSION)"
+prerelease_id='(0|[1-9][0-9]*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)'
+semver_re="^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-${prerelease_id}(\\.${prerelease_id})*)?(\\+[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?$"
+printf '%s\n' "$version" | grep -Eq "$semver_re" || {
+  echo "Versão SemVer inválida para o empacotamento Android: $version" >&2
+  exit 4
+}
+
+ensure_lockfile() {
+  manifest="$1"
+  lockfile="$(dirname "$manifest")/Cargo.lock"
+  if [ ! -f "$lockfile" ]; then
+    if [ "${PIGE360_REQUIRE_LOCKED:-false}" = 'true' ]; then
+      echo "Cargo.lock obrigatório e ausente: $lockfile" >&2
+      exit 4
+    fi
+    cargo generate-lockfile --manifest-path "$manifest"
+  fi
+  cargo metadata --manifest-path "$manifest" --locked --format-version 1 >/dev/null
+}
+
 wants_apk='false'
 wants_aab='false'
 case "$artifacts" in apk|both) wants_apk='true' ;; esac
@@ -141,6 +162,16 @@ verify_aab_size() {
   printf 'AAB validado: %s (%s MiB)\n' "$(basename "$aab")" "$mib"
 }
 
+verify_unsigned_aab() {
+  aab="$1"
+  signature_entries="$(unzip -Z1 "$aab" | grep -Ei '^META-INF/[^/]+\.(RSA|DSA|EC|SF)$' || true)"
+  [ -z "$signature_entries" ] || {
+    echo "AAB release deveria permanecer sem assinatura, mas contém entradas JAR: $aab" >&2
+    printf '%s\n' "$signature_entries" >&2
+    exit 4
+  }
+}
+
 copy_output() {
   app="$1"
   target="$2"
@@ -155,12 +186,17 @@ copy_output() {
     exit 4
   }
   output="$outputs"
-  destination="$artifact_dir/${app}-${profile}-${abi}.${extension}"
+  suffix="$profile"
+  if [ "$extension" = 'aab' ] && [ "$profile" = 'release' ]; then
+    suffix='release-unsigned'
+  fi
+  destination="$artifact_dir/PIGE360-v${version}-${app}-android-${abi}-${suffix}.${extension}"
   cp "$output" "$destination"
   if [ "$extension" = 'apk' ]; then
     verify_apk_abi_and_size "$destination" "$abi"
   else
     verify_aab_size "$destination"
+    [ "$profile" != 'release' ] || verify_unsigned_aab "$destination"
   fi
 }
 
@@ -186,6 +222,7 @@ build_artifact() {
 }
 
 for app in $selected_apps; do
+  ensure_lockfile "$root_dir/apps/$app/src-tauri/Cargo.toml"
   for target in $selected_targets; do
     [ "$wants_apk" = 'false' ] || build_artifact "$app" "$target" apk
     [ "$wants_aab" = 'false' ] || build_artifact "$app" "$target" aab
@@ -208,5 +245,12 @@ if [ "$verify_signature" = 'true' ]; then
   for aab in "$artifact_dir"/*.aab; do [ -f "$aab" ] && jarsigner -verify -certs "$aab"; done
 fi
 
-(cd "$artifact_dir" && sha256sum ./*.apk ./*.aab 2>/dev/null > SHA256SUMS || true)
+( 
+  cd "$artifact_dir"
+  find . -maxdepth 1 -type f \( -name '*.apk' -o -name '*.aab' \) -print0 \
+    | sort -z \
+    | xargs -0 -r sha256sum > SHA256SUMS
+  [ -s SHA256SUMS ] || { echo 'Nenhum APK/AAB disponível para checksum.' >&2; exit 4; }
+  sha256sum --check SHA256SUMS
+)
 printf 'Android: perfil=%s apps=%s targets=%s apk=%s aab=%s\n' "$profile" "$app_count" "$target_count" "$apk_count" "$aab_count"

@@ -1,10 +1,10 @@
 {
   "openapi": "3.1.0",
   "title": "PIGE360 — Plataforma Integrada de Gestão Educacional",
-  "version": "1.0.0-alpha.1",
-  "paths": 564,
-  "operations": 695,
-  "schemas": 377,
+  "version": "1.1.2",
+  "paths": 599,
+  "operations": 742,
+  "schemas": 403,
   "duplicate_operation_ids": [],
   "operations_catalog": [
     {
@@ -53,6 +53,15 @@
       "summary": "Refresh"
     },
     {
+      "operationId": "auth_logout",
+      "method": "POST",
+      "path": "/api/v1/auth/logout",
+      "tags": [
+        "identity"
+      ],
+      "summary": "Logout"
+    },
+    {
       "operationId": "auth_me",
       "method": "GET",
       "path": "/api/v1/auth/me",
@@ -98,6 +107,51 @@
       "summary": "Create Tenant"
     },
     {
+      "operationId": "suspend_platform_tenant",
+      "method": "POST",
+      "path": "/api/v1/platform/tenants/{tenant_id}/suspend",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Suspend Tenant"
+    },
+    {
+      "operationId": "reactivate_platform_tenant",
+      "method": "POST",
+      "path": "/api/v1/platform/tenants/{tenant_id}/reactivate",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Reactivate Tenant"
+    },
+    {
+      "operationId": "get_platform_tenant_quotas",
+      "method": "GET",
+      "path": "/api/v1/platform/tenants/{tenant_id}/quotas",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Get Tenant Quotas"
+    },
+    {
+      "operationId": "update_platform_tenant_quotas",
+      "method": "PUT",
+      "path": "/api/v1/platform/tenants/{tenant_id}/quotas",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Update Tenant Quotas"
+    },
+    {
+      "operationId": "get_platform_domain_policy",
+      "method": "GET",
+      "path": "/api/v1/platform/domain-policy",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Domain Policy"
+    },
+    {
       "operationId": "get_tenant_context",
       "method": "GET",
       "path": "/api/v1/tenant/context",
@@ -141,6 +195,60 @@
         "tenancy"
       ],
       "summary": "List Support Sessions"
+    },
+    {
+      "operationId": "revoke_platform_support_session",
+      "method": "POST",
+      "path": "/api/v1/platform/support-sessions/{session_id}/revoke",
+      "tags": [
+        "tenancy"
+      ],
+      "summary": "Revoke Support Session"
+    },
+    {
+      "operationId": "list_platform_tenant_domains",
+      "method": "GET",
+      "path": "/api/v1/platform/tenants/{tenant_id}/domains",
+      "tags": [
+        "tenancy-domains"
+      ],
+      "summary": "List Domains"
+    },
+    {
+      "operationId": "create_platform_tenant_custom_domain",
+      "method": "POST",
+      "path": "/api/v1/platform/tenants/{tenant_id}/domains",
+      "tags": [
+        "tenancy-domains"
+      ],
+      "summary": "Create Domain"
+    },
+    {
+      "operationId": "verify_platform_tenant_custom_domain",
+      "method": "POST",
+      "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/verify",
+      "tags": [
+        "tenancy-domains"
+      ],
+      "summary": "Verify Domain"
+    },
+    {
+      "operationId": "refresh_platform_tenant_custom_domain",
+      "method": "POST",
+      "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/refresh",
+      "tags": [
+        "tenancy-domains"
+      ],
+      "summary": "Refresh Domain"
+    },
+    {
+      "operationId": "deactivate_platform_tenant_custom_domain",
+      "method": "DELETE",
+      "path": "/api/v1/platform/tenants/{tenant_id}/domains/{domain_id}",
+      "tags": [
+        "tenancy-domains"
+      ],
+      "summary": "Deactivate Domain"
     },
     {
       "operationId": "get_current_tenant_branding",
@@ -4427,13 +4535,22 @@
       "summary": "Mailcow State"
     },
     {
-      "operationId": "evolution_send_text",
+      "operationId": "connect_api_migrate_legacy_connection",
       "method": "POST",
-      "path": "/api/v1/integration-connections/{connection_id}/evolution/messages/text",
+      "path": "/api/v1/integration-connections/{connection_id}/connect-api/migrate",
       "tags": [
         "integrations"
       ],
-      "summary": "Evolution Send"
+      "summary": "Migrate Connect Api Connection"
+    },
+    {
+      "operationId": "connect_api_send_text",
+      "method": "POST",
+      "path": "/api/v1/integration-connections/{connection_id}/connect-api/messages/text",
+      "tags": [
+        "integrations"
+      ],
+      "summary": "Connect Api Send Text"
     },
     {
       "operationId": "list_mail_accounts",
@@ -5010,6 +5127,177 @@
         "communication"
       ],
       "summary": "Cancel Notification"
+    },
+    {
+      "operationId": "list_commercial_partners",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/partners",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "List Partners"
+    },
+    {
+      "operationId": "create_commercial_partner",
+      "method": "POST",
+      "path": "/api/v1/platform/commercial/partners",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Create Partner"
+    },
+    {
+      "operationId": "get_commercial_partner",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Get Partner"
+    },
+    {
+      "operationId": "update_commercial_partner",
+      "method": "PATCH",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Update Partner"
+    },
+    {
+      "operationId": "archive_commercial_partner",
+      "method": "DELETE",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Archive Partner"
+    },
+    {
+      "operationId": "suspend_commercial_partner",
+      "method": "POST",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}/suspend",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Suspend Partner"
+    },
+    {
+      "operationId": "reactivate_commercial_partner",
+      "method": "POST",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}/reactivate",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Reactivate Partner"
+    },
+    {
+      "operationId": "link_commercial_partner_tenant",
+      "method": "PUT",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}/tenants/{tenant_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Link Partner Tenant"
+    },
+    {
+      "operationId": "unlink_commercial_partner_tenant",
+      "method": "DELETE",
+      "path": "/api/v1/platform/commercial/partners/{partner_id}/tenants/{tenant_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Unlink Partner Tenant"
+    },
+    {
+      "operationId": "list_commercial_plans",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/plans",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "List Plans"
+    },
+    {
+      "operationId": "create_commercial_plan",
+      "method": "POST",
+      "path": "/api/v1/platform/commercial/plans",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Create Plan"
+    },
+    {
+      "operationId": "get_commercial_plan",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/plans/{plan_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Get Plan"
+    },
+    {
+      "operationId": "update_commercial_plan",
+      "method": "PATCH",
+      "path": "/api/v1/platform/commercial/plans/{plan_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Update Plan"
+    },
+    {
+      "operationId": "archive_commercial_plan",
+      "method": "DELETE",
+      "path": "/api/v1/platform/commercial/plans/{plan_id}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Archive Plan"
+    },
+    {
+      "operationId": "get_commercial_subscription",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/tenants/{tenant_id}/subscription",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Get Subscription"
+    },
+    {
+      "operationId": "set_commercial_subscription",
+      "method": "PUT",
+      "path": "/api/v1/platform/commercial/tenants/{tenant_id}/subscription",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Set Subscription"
+    },
+    {
+      "operationId": "record_commercial_usage",
+      "method": "PUT",
+      "path": "/api/v1/platform/commercial/tenants/{tenant_id}/usage/{period}",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Record Usage"
+    },
+    {
+      "operationId": "list_commercial_usage",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/tenants/{tenant_id}/usage",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "List Usage"
+    },
+    {
+      "operationId": "get_commercial_entitlements",
+      "method": "GET",
+      "path": "/api/v1/platform/commercial/tenants/{tenant_id}/entitlements",
+      "tags": [
+        "platform-commercial"
+      ],
+      "summary": "Get Entitlements"
     },
     {
       "operationId": "list_privacy_notices",
@@ -6261,6 +6549,141 @@
         "fiscal"
       ],
       "summary": "Fiscal Emission Trigger Evaluate"
+    },
+    {
+      "operationId": "list_platform_users",
+      "method": "GET",
+      "path": "/api/v1/platform/users",
+      "tags": [
+        "platform-operations"
+      ],
+      "summary": "List Platform Users"
+    },
+    {
+      "operationId": "set_platform_user_active",
+      "method": "PATCH",
+      "path": "/api/v1/platform/users/{user_id}/active",
+      "tags": [
+        "platform-operations"
+      ],
+      "summary": "Set Platform User Active"
+    },
+    {
+      "operationId": "get_platform_operations_inventory",
+      "method": "GET",
+      "path": "/api/v1/platform/operations/inventory",
+      "tags": [
+        "platform-operations"
+      ],
+      "summary": "Platform Operations Inventory"
+    },
+    {
+      "operationId": "query_platform_logs",
+      "method": "GET",
+      "path": "/api/v1/platform/logs",
+      "tags": [
+        "platform-observability"
+      ],
+      "summary": "Query Logs"
+    },
+    {
+      "operationId": "register_operational_agent",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/agents",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Register Agent"
+    },
+    {
+      "operationId": "list_operational_agents",
+      "method": "GET",
+      "path": "/api/v1/platform/operations/agents",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "List Agents"
+    },
+    {
+      "operationId": "revoke_operational_agent",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/agents/{agent_id}/revoke",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Revoke Agent"
+    },
+    {
+      "operationId": "heartbeat_operational_agent",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/agent/heartbeat",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Heartbeat Agent"
+    },
+    {
+      "operationId": "list_operational_providers",
+      "method": "GET",
+      "path": "/api/v1/platform/operations/providers",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "List Providers"
+    },
+    {
+      "operationId": "queue_operational_job",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/jobs",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Queue Job"
+    },
+    {
+      "operationId": "list_operational_jobs",
+      "method": "GET",
+      "path": "/api/v1/platform/operations/jobs",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "List Jobs"
+    },
+    {
+      "operationId": "get_operational_job",
+      "method": "GET",
+      "path": "/api/v1/platform/operations/jobs/{job_id}",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Get Job"
+    },
+    {
+      "operationId": "cancel_operational_job",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/jobs/{job_id}/cancel",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Cancel Job"
+    },
+    {
+      "operationId": "claim_operational_job",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/agent/jobs/claim",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Claim Job"
+    },
+    {
+      "operationId": "report_operational_job_state",
+      "method": "POST",
+      "path": "/api/v1/platform/operations/agent/jobs/{job_id}/state",
+      "tags": [
+        "platform-operational-control"
+      ],
+      "summary": "Report Job State"
     }
   ]
 }

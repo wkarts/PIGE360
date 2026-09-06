@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+
+import app.modules.tenancy.presentation.domain_router as domain_router
 from app.modules.tenancy.domain_management import _cloudflare_validation_records
 
 
@@ -117,6 +120,100 @@ def test_custom_domain_cannot_claim_canonical_zone(local_env):
     )
     assert response.status_code == 409, response.text
     assert response.json()["code"] == "CUSTOM_DOMAIN_CANONICAL_ZONE_FORBIDDEN"
+
+
+def test_disabled_custom_domain_reactivation_respects_quota(local_env, monkeypatch):
+    tenant_id = local_env.alpha_tenant["id"]
+    local_env.client.app.state.data_router.control.execute(
+        "UPDATE platform_tenants SET quotas_json=? WHERE id=?",
+        (json.dumps({"max_custom_domains": 1}), tenant_id),
+    )
+    provider_calls = {"request": 0, "refresh": 0}
+
+    def fake_request_certificate(_hostname):
+        provider_calls["request"] += 1
+        return {
+            "provider": "edge_acme",
+            "provider_reference": None,
+            "provider_validation": [],
+            "certificate_status": "pending",
+            "status": "pending_tls",
+        }
+
+    def fake_refresh_certificate(_hostname, _provider, _reference):
+        provider_calls["refresh"] += 1
+        return {
+            "status": "active",
+            "certificate_status": "active",
+            "provider_validation": [],
+        }
+
+    monkeypatch.setattr(domain_router, "request_certificate", fake_request_certificate)
+    monkeypatch.setattr(domain_router, "refresh_certificate", fake_refresh_certificate)
+    monkeypatch.setattr(domain_router, "remove_certificate_provider", lambda *_args: None)
+    monkeypatch.setattr(domain_router, "remove_edge_route", lambda *_args: None)
+
+    first = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains",
+        headers=local_env.platform_headers(),
+        json={"hostname": "quota-one.alpha-example.com", "surface": "admin"},
+    )
+    assert first.status_code == 201, first.text
+    first_domain = first.json()
+    token = first_domain["verification_record"]["value"]
+    local_env.client.app.state.domain_txt_lookup = lambda _name: {token}
+    verified = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{first_domain['id']}/verify",
+        headers=local_env.platform_headers(),
+    )
+    assert verified.status_code == 200, verified.text
+    disabled = local_env.client.delete(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{first_domain['id']}",
+        headers=local_env.platform_headers(),
+    )
+    assert disabled.status_code == 200, disabled.text
+
+    occupying = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains",
+        headers=local_env.platform_headers(),
+        json={"hostname": "quota-two.alpha-example.com", "surface": "admin"},
+    )
+    assert occupying.status_code == 201, occupying.text
+
+    blocked_verify = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{first_domain['id']}/verify",
+        headers=local_env.platform_headers(),
+    )
+    assert blocked_verify.status_code == 409, blocked_verify.text
+    assert blocked_verify.json()["code"] == "TENANT_QUOTA_EXCEEDED"
+    assert provider_calls["request"] == 1
+
+    blocked_refresh = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{first_domain['id']}/refresh",
+        headers=local_env.platform_headers(),
+    )
+    assert blocked_refresh.status_code == 409, blocked_refresh.text
+    assert blocked_refresh.json()["code"] == "TENANT_QUOTA_EXCEEDED"
+    assert provider_calls["refresh"] == 0
+
+    persisted = local_env.client.app.state.data_router.control.fetch_one(
+        "SELECT status FROM tenant_domains WHERE tenant_id=? AND id=?",
+        (tenant_id, first_domain["id"]),
+    )
+    assert persisted and persisted["status"] == "disabled"
+
+    released = local_env.client.delete(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{occupying.json()['id']}",
+        headers=local_env.platform_headers(),
+    )
+    assert released.status_code == 200, released.text
+    reactivated = local_env.client.post(
+        f"/api/v1/platform/tenants/{tenant_id}/domains/{first_domain['id']}/refresh",
+        headers=local_env.platform_headers(),
+    )
+    assert reactivated.status_code == 200, reactivated.text
+    assert reactivated.json()["status"] == "active"
+    assert provider_calls["refresh"] == 1
 
 
 def test_platform_logs_are_proxied_with_tenant_and_correlation_filters(local_env):

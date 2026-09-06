@@ -1,3 +1,3 @@
 # CI_CD_KIT_LOCAL
 
-Espelho verificável dos workflows canônicos. O workflow `50` cria uma GitHub Release somente quando `VERSION` é promovida na `main` e todos os gates passam; deploy remoto, registro de imagens, assinatura e publicação em lojas continuam desabilitados por padrão e exigem flags + segredos explícitos.
+Espelho verificável de todos os workflows canônicos. O workflow `50` tenta os 12 alvos a partir da tag imutável, mantém falhas em draft e só permite publicação parcial por decisão manual explícita. O workflow `51` redispara essa mesma matriz sem reutilizar assets antigos. Deploy remoto, assinatura e publicação em lojas continuam condicionados a flags e segredos explícitos.

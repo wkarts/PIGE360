@@ -1,5 +1,115 @@
 # Changelog
 
+## [1.1.2] — deployment service-native (2026-09-05)
+
+- Substitui scripts obrigatórios do host por serviços Compose idempotentes.
+- Adiciona a imagem `pige360-ops` ao catálogo, build e publicação GHCR.
+- Separa inicialização de secrets, configuração, dados, validação e migrations.
+- Adiciona services sob profile `operations` para readiness, bootstrap, secrets externos, diagnóstico, backup e restore.
+- Elimina bind mounts relativos e pastas auxiliares dos pacotes standalone.
+- Preserva update/rollback sob Dockge, Portainer ou CI/CD sem conceder Docker socket aos serviços administrativos.
+
+## [1.1.1] — deployments de homologação e produção (2026-09-04)
+
+### Deploy operacional
+
+- deployments independentes e autocontidos foram adicionados para `develop`
+  (homologação) e `production`, com variantes Docker Compose, Dockge,
+  CloudPanel e Portainer;
+- cada pacote inclui `.env.example`, Compose image-only, instalação, validação,
+  health check, logs, stop, atualização, rollback, bootstrap administrativo,
+  backup e restore;
+- o instalador self-hosted passou a selecionar de fato ambiente, modo
+  `source|registry` e target, com precedência explícita de configuração e
+  isolamento de projetos, redes, portas, volumes e logs;
+- produção recusa tags móveis (`latest`, `main`, `develop`); homologação aceita
+  `develop`, `develop-<sha>` ou uma SemVer deliberadamente informada;
+- apenas o gateway é publicado em loopback. PostgreSQL, Redis, RabbitMQ, MinIO,
+  Prometheus, Grafana e Loki permanecem privados nas redes Docker.
+
+### Imagens, runtime e segurança
+
+- API, migrations, worker e as quatro superfícies administrativas possuem
+  referências GHCR coerentes; os workflows constroem, publicam primeiro a tag
+  imutável por commit, promovem o canal e executam smoke da imagem publicada;
+- `/api` passou a funcionar em same-origin nas imagens web, enquanto métricas
+  Prometheus continuam acessíveis somente pela rede interna;
+- secrets são criados atomicamente, com diretório `0700`, arquivos `0444` para
+  containers non-root e recusa de links simbólicos;
+- storage bind usa ownership por serviço e nunca `chmod 777`; Alloy filtra pelo
+  projeto Compose e Loki usa WAL e retenção operacional de 30 dias;
+- o manifesto alpha histórico da raiz permanece no repositório como evidência,
+  mas não entra nos novos ZIPs nem é apresentado como manifesto da release.
+
+### Limites explícitos
+
+- `BUILD_FARM_ENABLED=false` permanece como padrão; builders e runners nativos
+  são perfis opcionais e não fazem parte da subida administrativa principal;
+- push/pull GHCR, `docker compose up`, DNS/TLS e restore de ensaio dependem de
+  runner ou servidor com Docker e credenciais reais e não são simulados como
+  homologação produtiva local.
+
+## [1.1.0] — evolução conservadora auditada (2026-09-04)
+
+### Administração e segurança
+
+- lifecycle versionado de tenants, quotas, revogação de suporte, usuários da
+  plataforma e inventário operacional sanitizado foram adicionados sem remover
+  telas ou rotas existentes;
+- parceiros, catálogo de planos, assinatura manual, snapshots de uso e
+  entitlements passaram a ser administráveis no Control Plane com
+  idempotência, versão otimista, auditoria e Outbox;
+- agents operacionais passaram a ter credencial one-time, capabilities,
+  heartbeat, stale/revoke e fila auditável de backup, restore e deploy; sem
+  agent compatível o job permanece `queued` e nunca é apresentado como executado;
+- autenticação recebeu lockout persistente, sessão identificada, rotação atômica
+  de refresh token, detecção de replay e logout com revogação no servidor;
+- readiness passou a falhar fechado em produção, cobrindo Control Plane,
+  migrations, tenants ativos, storage, Redis, RabbitMQ e MinIO;
+- eventos ainda sem handler deixaram de ser marcados como concluídos: agora
+  seguem retry e dead letter persistida.
+- quotas de usuários, alunos, API, integrações, builds e domínios são aplicadas
+  também nas reativações; storage permanece explicitamente sem enforcement até
+  existir um ledger transacional comum a Local/S3.
+
+### Deploy e distribuição
+
+- instalação self-hosted ganhou modos fonte/registry e targets base,
+  CloudPanel, Dockge, Portainer e edge;
+- app-init passou a reconciliar migrations do Control Plane e de todos os
+  tenants operacionais;
+- backup/restore incluem Control, bancos de tenants e objetos atuais do MinIO,
+  com manifesto, checksums, fingerprint da chave, confirmação destrutiva e
+  rollback explícito;
+- workflows nativos foram reativados com matriz coordenada para Windows,
+  Linux, macOS, Android e iOS, além de Web/PWA e CloudPanel; publicação permanece
+  bloqueada quando qualquer alvo obrigatório falha;
+- a Build Farm passou a coletar somente artefatos finais, nunca diretórios
+  `target` completos.
+
+### Frontend, offline e supply chain
+
+- as 13 aplicações receberam manifesto PWA, service worker instalável e base de
+  assets relativa;
+- a outbox offline passou a IndexedDB isolado por tenant e usuário;
+- ECharts foi atualizado para 6.1.0 e o lockfile npm passou a ser a fonte
+  reproduzível do build;
+- SBOM passou a inventariar `package-lock.json` e dependências de produção;
+- empacotamento preserva 50 `*.vue.js`, 13 `main.js` e os timestamps reais dos
+  fontes, com gate antes/depois e zero remoção permitida;
+- ZIPs são escritos em fluxo e publicados atomicamente; hashes imutáveis dos
+  pacotes internos são reconferidos antes e depois da montagem do bundle, e um
+  lock exclusivo impede duas execuções sobre o mesmo diretório de entrega;
+- arquivos intermediários são isolados fora da pasta final e qualquer resíduo
+  temporário faz o checksum e a entrega falharem de forma fechada.
+
+### Limites de validação
+
+- nenhuma evidência local é apresentada como homologação de Docker,
+  PostgreSQL, MinIO, DNS/TLS, CloudPanel, Dockge, Portainer ou providers reais;
+- os binários nativos dependem dos runners Windows/Linux/macOS/Android/iOS e não
+  são declarados gerados quando a toolchain correspondente não foi executada.
+
 ## [1.0.0-alpha.2] — checkpoint 0051 (2026-08-14)
 
 ### Catálogo comercial escolar
@@ -31,9 +141,11 @@
 - a promoção de versão na `main` agora cria uma GitHub Release imutável com
   tag, checksums, SBOM e proveniência, em vez de limitar-se a artefatos
   temporários do GitHub Actions;
-- o pré-lançamento monta os 13 PWAs, instaladores Tauri desktop, APK/AAB
-  Android, IPAs iOS unsigned e pacotes self-hosted depois dos gates de
-  validação, imagens Docker e smoke Compose;
+- o pré-lançamento foi desenhado para montar os 13 PWAs, instaladores Tauri
+  desktop, APK/AAB Android, IPAs iOS unsigned e pacotes self-hosted depois dos
+  gates de validação, imagens Docker e smoke Compose; essa descrição é contrato
+  de workflow, não comprovação de que os binários foram gerados naquele
+  checkpoint;
 - a versão canônica passou a ser verificada contra os metadados públicos de
   apps, pacotes, Docker e OpenAPI antes de qualquer publicação, evitando
   regressão silenciosa em promoções futuras.

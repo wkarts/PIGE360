@@ -11,6 +11,7 @@ from starlette.responses import JSONResponse
 
 from app.shared.domain.ids import uuid7
 from app.shared.presentation.errors import DomainError, problem
+from app.shared.tenant_quotas import consume_tenant_api_request
 
 
 logger = logging.getLogger("pige360.http")
@@ -110,6 +111,29 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             else request.app.state.data_router.tenant_store(resolution.tenant_id)
         )
 
+        rate_limit: dict[str, int | str] | None = None
+        if resolution.plane == "tenant" and resolution.tenant_id and request.method != "OPTIONS":
+            try:
+                rate_limit = consume_tenant_api_request(
+                    request.app.state.data_router.control,
+                    resolution.tenant_id,
+                )
+            except DomainError as exc:
+                _log_request(
+                    request,
+                    correlation_id=correlation_id,
+                    host=host,
+                    status=exc.status,
+                    duration_ms=(time.perf_counter() - started) * 1000,
+                    plane=resolution.plane,
+                    tenant_id=resolution.tenant_id,
+                    tenant_code=resolution.tenant_code,
+                    surface=resolution.surface,
+                    error_code=exc.code,
+                )
+                headers = {"X-Correlation-ID": correlation_id, **(exc.headers or {})}
+                return JSONResponse(problem(exc, correlation_id), status_code=exc.status, headers=headers)
+
         try:
             response = await call_next(request)
         except Exception:
@@ -134,6 +158,10 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        if rate_limit:
+            response.headers["X-RateLimit-Limit"] = str(rate_limit["limit"])
+            response.headers["X-RateLimit-Remaining"] = str(rate_limit["remaining"])
+            response.headers["X-RateLimit-Reset"] = str(rate_limit["reset"])
         _log_request(
             request,
             correlation_id=correlation_id,

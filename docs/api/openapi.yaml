@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: PIGE360 — Plataforma Integrada de Gestão Educacional
   description: API REST multi-tenant do PIGE360
-  version: 1.0.0-alpha.1
+  version: 1.1.2
 paths:
   /api/v1/health/live:
     get:
@@ -32,10 +32,13 @@ paths:
           content:
             application/json:
               schema:
-                additionalProperties:
-                  type: string
-                type: object
-                title: Response Health Ready
+                $ref: '#/components/schemas/ReadinessResponse'
+        '503':
+          description: Requisito crítico indisponível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
   /api/v1/about:
     get:
       tags:
@@ -93,6 +96,38 @@ paths:
           content:
             application/json:
               schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auth/logout:
+    post:
+      tags:
+      - identity
+      summary: Logout
+      operationId: auth_logout
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/LogoutInput'
+              - type: 'null'
+              title: Data
+      responses:
+        '204':
+          description: Successful Response
         '422':
           description: Validation Error
           content:
@@ -241,6 +276,182 @@ paths:
               $ref: '#/components/schemas/TenantCreate'
       responses:
         '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/suspend:
+    post:
+      tags:
+      - tenancy
+      summary: Suspend Tenant
+      operationId: suspend_platform_tenant
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantLifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/reactivate:
+    post:
+      tags:
+      - tenancy
+      summary: Reactivate Tenant
+      operationId: reactivate_platform_tenant
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantLifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/quotas:
+    get:
+      tags:
+      - tenancy
+      summary: Get Tenant Quotas
+      operationId: get_platform_tenant_quotas
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - tenancy
+      summary: Update Tenant Quotas
+      operationId: update_platform_tenant_quotas
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantQuotasInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/domain-policy:
+    get:
+      tags:
+      - tenancy
+      summary: Domain Policy
+      operationId: get_platform_domain_policy
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
           description: Successful Response
           content:
             application/json:
@@ -408,6 +619,233 @@ paths:
           type: boolean
           default: false
           title: Active Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/support-sessions/{session_id}/revoke:
+    post:
+      tags:
+      - tenancy
+      summary: Revoke Support Session
+      operationId: revoke_platform_support_session
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Session Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportSessionEndInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/domains:
+    get:
+      tags:
+      - tenancy-domains
+      summary: List Domains
+      operationId: list_platform_tenant_domains
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - tenancy-domains
+      summary: Create Domain
+      operationId: create_platform_tenant_custom_domain
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomDomainCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/verify:
+    post:
+      tags:
+      - tenancy-domains
+      summary: Verify Domain
+      operationId: verify_platform_tenant_custom_domain
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: domain_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/domains/{domain_id}/refresh:
+    post:
+      tags:
+      - tenancy-domains
+      summary: Refresh Domain
+      operationId: refresh_platform_tenant_custom_domain
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: domain_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/tenants/{tenant_id}/domains/{domain_id}:
+    delete:
+      tags:
+      - tenancy-domains
+      summary: Deactivate Domain
+      operationId: deactivate_platform_tenant_custom_domain
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: domain_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Domain Id
       - name: authorization
         in: header
         required: false
@@ -3577,7 +4015,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__admissions__presentation__router__AssessmentInput'
+              $ref: '#/components/schemas/AssessmentInput'
       responses:
         '201':
           description: Successful Response
@@ -3832,7 +4270,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReservationInput'
+              $ref: '#/components/schemas/app__modules__admissions__presentation__router__ReservationInput'
       responses:
         '201':
           description: Successful Response
@@ -6929,8 +7367,7 @@ paths:
         required: false
         schema:
           anyOf:
-          - type: string
-            enum:
+          - enum:
             - general
             - school_uniform
             - textbook
@@ -6940,6 +7377,7 @@ paths:
             - school_kit
             - event_ticket
             - event
+            type: string
           - type: 'null'
           title: School Catalog Category
       - name: authorization
@@ -13792,7 +14230,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__government_education__presentation__router__RetryInput'
+              $ref: '#/components/schemas/RetryInput'
       responses:
         '200':
           description: Successful Response
@@ -14507,7 +14945,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__lesson_planning__presentation__router__ScheduleInput'
+              $ref: '#/components/schemas/ScheduleInput'
       responses:
         '200':
           description: Successful Response
@@ -14959,7 +15397,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PolicyInput'
+              $ref: '#/components/schemas/app__modules__pedagogy__presentation__router__PolicyInput'
       responses:
         '201':
           description: Successful Response
@@ -15042,7 +15480,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AssessmentInput'
+              $ref: '#/components/schemas/app__modules__pedagogy__presentation__router__AssessmentInput'
       responses:
         '201':
           description: Successful Response
@@ -16668,7 +17106,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TemplateVersionInput'
+              $ref: '#/components/schemas/app__modules__contracts__presentation__router__TemplateVersionInput'
       responses:
         '201':
           description: Successful Response
@@ -17960,12 +18398,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/integration-connections/{connection_id}/evolution/messages/text:
+  /api/v1/integration-connections/{connection_id}/connect-api/migrate:
     post:
       tags:
       - integrations
-      summary: Evolution Send
-      operationId: evolution_send_text
+      summary: Migrate Connect Api Connection
+      operationId: connect_api_migrate_legacy_connection
+      parameters:
+      - name: connection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Connection Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/integration-connections/{connection_id}/connect-api/messages/text:
+    post:
+      tags:
+      - integrations
+      summary: Connect Api Send Text
+      operationId: connect_api_send_text
       parameters:
       - name: connection_id
         in: path
@@ -17994,7 +18465,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EvolutionTextInput'
+              $ref: '#/components/schemas/ConnectApiTextInput'
       responses:
         '200':
           description: Successful Response
@@ -18818,7 +19289,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__library__presentation__router__PolicyInput'
+              $ref: '#/components/schemas/PolicyInput'
       responses:
         '201':
           description: Successful Response
@@ -18893,7 +19364,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__library__presentation__router__ReservationInput'
+              $ref: '#/components/schemas/ReservationInput'
       responses:
         '201':
           description: Successful Response
@@ -19112,7 +19583,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ScheduleInput'
+              $ref: '#/components/schemas/app__modules__transportation__presentation__router__ScheduleInput'
       responses:
         '201':
           description: Successful Response
@@ -20005,7 +20476,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__communication__presentation__router__TemplateVersionInput'
+              $ref: '#/components/schemas/TemplateVersionInput'
       responses:
         '201':
           description: Successful Response
@@ -20265,7 +20736,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RetryInput'
+              $ref: '#/components/schemas/app__modules__communication__presentation__router__RetryInput'
       responses:
         '200':
           description: Successful Response
@@ -20304,7 +20775,880 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RetryInput'
+              $ref: '#/components/schemas/app__modules__communication__presentation__router__RetryInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/partners:
+    get:
+      tags:
+      - platform-commercial
+      summary: List Partners
+      operationId: list_commercial_partners
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^(active|suspended|archived)$
+          - type: 'null'
+          title: Status
+      - name: q
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 100
+          - type: 'null'
+          title: Q
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - platform-commercial
+      summary: Create Partner
+      operationId: create_commercial_partner
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnerCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/partners/{partner_id}:
+    get:
+      tags:
+      - platform-commercial
+      summary: Get Partner
+      operationId: get_commercial_partner
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - platform-commercial
+      summary: Update Partner
+      operationId: update_commercial_partner
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnerUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - platform-commercial
+      summary: Archive Partner
+      operationId: archive_commercial_partner
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/partners/{partner_id}/suspend:
+    post:
+      tags:
+      - platform-commercial
+      summary: Suspend Partner
+      operationId: suspend_commercial_partner
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/partners/{partner_id}/reactivate:
+    post:
+      tags:
+      - platform-commercial
+      summary: Reactivate Partner
+      operationId: reactivate_commercial_partner
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/partners/{partner_id}/tenants/{tenant_id}:
+    put:
+      tags:
+      - platform-commercial
+      summary: Link Partner Tenant
+      operationId: link_commercial_partner_tenant
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkTenantInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - platform-commercial
+      summary: Unlink Partner Tenant
+      operationId: unlink_commercial_partner_tenant
+      parameters:
+      - name: partner_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Partner Id
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkTenantInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/plans:
+    get:
+      tags:
+      - platform-commercial
+      summary: List Plans
+      operationId: list_commercial_plans
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^(active|inactive|archived)$
+          - type: 'null'
+          title: Status
+      - name: include_archived
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Archived
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - platform-commercial
+      summary: Create Plan
+      operationId: create_commercial_plan
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/plans/{plan_id}:
+    get:
+      tags:
+      - platform-commercial
+      summary: Get Plan
+      operationId: get_commercial_plan
+      parameters:
+      - name: plan_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plan Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - platform-commercial
+      summary: Update Plan
+      operationId: update_commercial_plan
+      parameters:
+      - name: plan_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plan Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - platform-commercial
+      summary: Archive Plan
+      operationId: archive_commercial_plan
+      parameters:
+      - name: plan_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plan Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifecycleInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/tenants/{tenant_id}/subscription:
+    get:
+      tags:
+      - platform-commercial
+      summary: Get Subscription
+      operationId: get_commercial_subscription
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - platform-commercial
+      summary: Set Subscription
+      operationId: set_commercial_subscription
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/tenants/{tenant_id}/usage/{period}:
+    put:
+      tags:
+      - platform-commercial
+      summary: Record Usage
+      operationId: record_commercial_usage
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: period
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^\d{4}-(0[1-9]|1[0-2])$
+          title: Period
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]+$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsageSnapshotInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/tenants/{tenant_id}/usage:
+    get:
+      tags:
+      - platform-commercial
+      summary: List Usage
+      operationId: list_commercial_usage
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: period
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+          - type: 'null'
+          title: Period
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/commercial/tenants/{tenant_id}/entitlements:
+    get:
+      tags:
+      - platform-commercial
+      summary: Get Entitlements
+      operationId: get_commercial_entitlements
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: period
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+          - type: 'null'
+          title: Period
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
       responses:
         '200':
           description: Successful Response
@@ -20443,7 +21787,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PublishInput'
+              $ref: '#/components/schemas/app__modules__compliance__presentation__router__PublishInput'
       responses:
         '200':
           description: Successful Response
@@ -20954,7 +22298,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PublishInput'
+              $ref: '#/components/schemas/app__modules__compliance__presentation__router__PublishInput'
       responses:
         '200':
           description: Successful Response
@@ -21570,7 +22914,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/app__modules__workflows__presentation__router__PublishInput'
+              $ref: '#/components/schemas/PublishInput'
       responses:
         '200':
           description: Successful Response
@@ -23794,7 +25138,7 @@ paths:
         schema:
           type: string
           format: date
-          default: '2026-08-12'
+          default: '2026-09-05'
           title: Occurred On
       - name: authorization
         in: header
@@ -24004,7 +25348,7 @@ paths:
         schema:
           type: string
           format: date
-          default: '2026-08-12'
+          default: '2026-09-05'
           title: Occurred On
       - name: operation_type
         in: query
@@ -24535,7 +25879,7 @@ paths:
         schema:
           type: string
           format: date
-          default: '2026-08-12'
+          default: '2026-09-05'
           title: Occurred On
       - name: establishment_code
         in: query
@@ -25444,6 +26788,622 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/users:
+    get:
+      tags:
+      - platform-operations
+      summary: List Platform Users
+      operationId: list_platform_users
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/users/{user_id}/active:
+    patch:
+      tags:
+      - platform-operations
+      summary: Set Platform User Active
+      operationId: set_platform_user_active
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: User Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformUserStateInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/inventory:
+    get:
+      tags:
+      - platform-operations
+      summary: Platform Operations Inventory
+      description: 'Inventário interno sem chamar Cloudflare, Mailcow, Connect API
+        ou storage.
+
+
+        A consulta testa somente os bancos já configurados. Probes de providers externos
+
+        continuam deliberadamente fora deste endpoint para evitar efeitos colaterais
+        e
+
+        vazamento acidental de configuração sensível.'
+      operationId: get_platform_operations_inventory
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/logs:
+    get:
+      tags:
+      - platform-observability
+      summary: Query Logs
+      operationId: query_platform_logs
+      parameters:
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+      - name: tenant_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Code
+      - name: correlation_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Correlation Id
+      - name: service
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Service
+      - name: plane
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^(platform|tenant)$
+          - type: 'null'
+          title: Plane
+      - name: level
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 30
+          - type: 'null'
+          title: Level
+      - name: minutes
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10080
+          minimum: 1
+          default: 60
+          title: Minutes
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/agents:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Register Agent
+      operationId: register_operational_agent
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRegistrationInput'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - platform-operational-control
+      summary: List Agents
+      operationId: list_operational_agents
+      parameters:
+      - name: include_revoked
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Revoked
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/agents/{agent_id}/revoke:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Revoke Agent
+      operationId: revoke_operational_agent
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRevokeInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/agent/heartbeat:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Heartbeat Agent
+      operationId: heartbeat_operational_agent
+      parameters:
+      - name: X-PIGE360-Agent-Token
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Pige360-Agent-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentHeartbeatInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/providers:
+    get:
+      tags:
+      - platform-operational-control
+      summary: List Providers
+      operationId: list_operational_providers
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/jobs:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Queue Job
+      operationId: queue_operational_job
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 200
+          pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$
+          title: Idempotency-Key
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationalJobCreate'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - platform-operational-control
+      summary: List Jobs
+      operationId: list_operational_jobs
+      parameters:
+      - name: operation_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - backup
+            - restore
+            - deploy
+            type: string
+          - type: 'null'
+          title: Operation Type
+      - name: state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - enum:
+            - queued
+            - claimed
+            - running
+            - succeeded
+            - failed
+            - cancelled
+            type: string
+          - type: 'null'
+          title: State
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Tenant Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/jobs/{job_id}:
+    get:
+      tags:
+      - platform-operational-control
+      summary: Get Job
+      operationId: get_operational_job
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/jobs/{job_id}/cancel:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Cancel Job
+      operationId: cancel_operational_job
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperationalJobCancelInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/agent/jobs/claim:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Claim Job
+      operationId: claim_operational_job
+      parameters:
+      - name: X-PIGE360-Agent-Token
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Pige360-Agent-Token
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/platform/operations/agent/jobs/{job_id}/state:
+    post:
+      tags:
+      - platform-operational-control
+      summary: Report Job State
+      operationId: report_operational_job_state
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      - name: X-PIGE360-Agent-Token
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Pige360-Agent-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentJobStateInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     AcademicPeriodInput:
@@ -25607,6 +27567,127 @@ components:
       - title
       - requested_hours
       title: ActivityInput
+    AgentHeartbeatInput:
+      properties:
+        software_version:
+          anyOf:
+          - type: string
+            maxLength: 64
+            pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$
+          - type: 'null'
+          title: Software Version
+      additionalProperties: false
+      type: object
+      title: AgentHeartbeatInput
+    AgentJobStateInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        state:
+          type: string
+          enum:
+          - running
+          - succeeded
+          - failed
+          title: State
+        result_code:
+          anyOf:
+          - type: string
+            pattern: ^[A-Z][A-Z0-9_]{2,79}$
+          - type: 'null'
+          title: Result Code
+        evidence_reference:
+          anyOf:
+          - type: string
+            maxLength: 240
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:@-]{0,239}$
+          - type: 'null'
+          title: Evidence Reference
+        evidence_sha256:
+          anyOf:
+          - type: string
+            pattern: ^[0-9a-f]{64}$
+          - type: 'null'
+          title: Evidence Sha256
+        failure_code:
+          anyOf:
+          - type: string
+            pattern: ^[A-Z][A-Z0-9_]{2,79}$
+          - type: 'null'
+          title: Failure Code
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - state
+      title: AgentJobStateInput
+    AgentRegistrationInput:
+      properties:
+        name:
+          type: string
+          maxLength: 120
+          minLength: 3
+          pattern: ^[a-z0-9][a-z0-9._-]+$
+          title: Name
+        agent_type:
+          type: string
+          enum:
+          - host
+          - backup
+          - restore
+          - deploy
+          - multi
+          title: Agent Type
+        capabilities:
+          items:
+            type: string
+            enum:
+            - backup.execute
+            - restore.execute
+            - deploy.execute
+          type: array
+          maxItems: 3
+          minItems: 1
+          title: Capabilities
+        software_version:
+          anyOf:
+          - type: string
+            maxLength: 64
+            pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$
+          - type: 'null'
+          title: Software Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - name
+      - agent_type
+      - capabilities
+      - reason
+      title: AgentRegistrationInput
+    AgentRevokeInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: AgentRevokeInput
     AppManifestInput:
       properties:
         tenant_code:
@@ -25639,6 +27720,62 @@ components:
       - brand_version
       - apps
       title: AppManifestInput
+    AppSigningReferences:
+      properties:
+        mode:
+          type: string
+          enum:
+          - unsigned
+          - managed
+          title: Mode
+          default: unsigned
+        android_keystore_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Android Keystore Reference
+        android_key_alias_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Android Key Alias Reference
+        android_key_password_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Android Key Password Reference
+        ios_certificate_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Ios Certificate Reference
+        ios_provisioning_profile_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Ios Provisioning Profile Reference
+        macos_certificate_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Macos Certificate Reference
+        windows_certificate_reference:
+          anyOf:
+          - type: string
+            pattern: ^secret://[A-Za-z0-9_.-]{1,120}$
+          - type: 'null'
+          title: Windows Certificate Reference
+      additionalProperties: false
+      type: object
+      title: AppSigningReferences
+      description: Referências lógicas de signing; valores secretos nunca entram no
+        manifesto.
     ApplicationInput:
       properties:
         process_id:
@@ -25675,34 +27812,29 @@ components:
       title: ApplicationStateInput
     AssessmentInput:
       properties:
-        academic_period_id:
+        code:
           type: string
-          title: Academic Period Id
-        class_group_id:
+          maxLength: 80
+          minLength: 1
+          title: Code
+        name:
           type: string
-          title: Class Group Id
-        component_id:
-          type: string
-          title: Component Id
-        grading_policy_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Grading Policy Id
-        title:
-          type: string
-          maxLength: 180
+          maxLength: 240
           minLength: 2
-          title: Title
+          title: Name
         assessment_type:
           type: string
-          maxLength: 50
-          minLength: 2
+          enum:
+          - exam
+          - interview
+          - document_review
+          - portfolio
+          - practical
           title: Assessment Type
-          default: exam
         weight:
           anyOf:
           - type: number
+            maximum: 100.0
             exclusiveMinimum: 0.0
           - type: string
             pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
@@ -25711,23 +27843,23 @@ components:
         max_score:
           anyOf:
           - type: number
+            maximum: 10000.0
             exclusiveMinimum: 0.0
           - type: string
             pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
           title: Max Score
-          default: '10'
-        due_on:
+          default: '100'
+        scheduled_at:
           anyOf:
           - type: string
-            format: date
+            format: date-time
           - type: 'null'
-          title: Due On
+          title: Scheduled At
       type: object
       required:
-      - academic_period_id
-      - class_group_id
-      - component_id
-      - title
+      - code
+      - name
+      - assessment_type
       title: AssessmentInput
     AssessmentPatch:
       properties:
@@ -27559,6 +29691,34 @@ components:
       - name
       - workload_hours
       title: ComponentInput
+    ConnectApiTextInput:
+      properties:
+        instance:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Instance
+        number:
+          type: string
+          pattern: ^[0-9]{8,20}$
+          title: Number
+        text:
+          type: string
+          maxLength: 4096
+          minLength: 1
+          title: Text
+        delay_ms:
+          type: integer
+          maximum: 30000.0
+          minimum: 0.0
+          title: Delay Ms
+          default: 0
+      type: object
+      required:
+      - instance
+      - number
+      - text
+      title: ConnectApiTextInput
     ConsentInput:
       properties:
         subject_person_id:
@@ -27856,6 +30016,27 @@ components:
       - name
       - effective_from
       title: CurriculumInput
+    CustomDomainCreate:
+      properties:
+        hostname:
+          type: string
+          maxLength: 253
+          minLength: 3
+          title: Hostname
+        surface:
+          type: string
+          enum:
+          - admin
+          - public
+          - family
+          - student
+          - teacher
+          title: Surface
+          default: admin
+      type: object
+      required:
+      - hostname
+      title: CustomDomainCreate
     DailyRecordInput:
       properties:
         student_id:
@@ -28526,34 +30707,6 @@ components:
       - starts_at
       - ends_at
       title: EventScheduleInput
-    EvolutionTextInput:
-      properties:
-        instance:
-          type: string
-          maxLength: 120
-          minLength: 1
-          title: Instance
-        number:
-          type: string
-          pattern: ^[0-9]{8,20}$
-          title: Number
-        text:
-          type: string
-          maxLength: 4096
-          minLength: 1
-          title: Text
-        delay_ms:
-          type: integer
-          maximum: 30000.0
-          minimum: 0.0
-          title: Delay Ms
-          default: 0
-      type: object
-      required:
-      - instance
-      - number
-      - text
-      title: EvolutionTextInput
     ExecutionCancel:
       properties:
         reason:
@@ -32710,6 +34863,33 @@ components:
       - inventory_code
       - title
       title: LibraryItemInput
+    LifecycleInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: LifecycleInput
+    LinkTenantInput:
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - reason
+      title: LinkTenantInput
     LoanInput:
       properties:
         library_item_id:
@@ -32745,6 +34925,17 @@ components:
       - email
       - password
       title: LoginInput
+    LogoutInput:
+      properties:
+        refresh_token:
+          anyOf:
+          - type: string
+            maxLength: 1024
+            minLength: 20
+          - type: 'null'
+          title: Refresh Token
+      type: object
+      title: LogoutInput
     MailAccountInput:
       properties:
         user_id:
@@ -33427,6 +35618,90 @@ components:
       - occurrence_type
       - description
       title: OccurrenceInput
+    OperationalJobCancelInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: OperationalJobCancelInput
+    OperationalJobCreate:
+      properties:
+        operation_type:
+          type: string
+          enum:
+          - backup
+          - restore
+          - deploy
+          title: Operation Type
+        resource_scope:
+          type: string
+          enum:
+          - platform
+          - tenant
+          title: Resource Scope
+          default: platform
+        tenant_id:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Tenant Id
+        deployment_target:
+          anyOf:
+          - type: string
+            enum:
+            - base
+            - cloudpanel
+            - edge
+            - dockge
+            - portainer
+          - type: 'null'
+          title: Deployment Target
+        image_mode:
+          anyOf:
+          - type: string
+            enum:
+            - source
+            - registry
+          - type: 'null'
+          title: Image Mode
+        release_version:
+          anyOf:
+          - type: string
+            maxLength: 64
+            pattern: ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$
+          - type: 'null'
+          title: Release Version
+        backup_reference:
+          anyOf:
+          - type: string
+            maxLength: 200
+            pattern: ^[A-Za-z0-9][A-Za-z0-9._:@-]{0,239}$
+          - type: 'null'
+          title: Backup Reference
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - operation_type
+      - reason
+      title: OperationalJobCreate
     OrderCancel:
       properties:
         reason:
@@ -33507,6 +35782,83 @@ components:
       required:
       - service_id
       title: OrderItemInput
+    PartnerCreate:
+      properties:
+        code:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9-]{1,62}$
+          title: Code
+        legal_name:
+          type: string
+          maxLength: 300
+          minLength: 2
+          title: Legal Name
+        trade_name:
+          type: string
+          maxLength: 200
+          minLength: 2
+          title: Trade Name
+        contact_email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Contact Email
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - code
+      - legal_name
+      - trade_name
+      title: PartnerCreate
+    PartnerUpdate:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+        legal_name:
+          anyOf:
+          - type: string
+            maxLength: 300
+            minLength: 2
+          - type: 'null'
+          title: Legal Name
+        trade_name:
+          anyOf:
+          - type: string
+            maxLength: 200
+            minLength: 2
+          - type: 'null'
+          title: Trade Name
+        contact_email:
+          anyOf:
+          - type: string
+            format: email
+          - type: 'null'
+          title: Contact Email
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Notes
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: PartnerUpdate
     PaymentAllocationInput:
       properties:
         installment_id:
@@ -33860,92 +36212,187 @@ components:
       required:
       - end_to_end_id
       title: PixConfirmInput
-    PolicyInput:
+    PlanCreate:
       properties:
-        academic_year_id:
+        code:
           type: string
-          title: Academic Year Id
+          pattern: ^[a-z0-9][a-z0-9-]{1,49}$
+          title: Code
         name:
           type: string
-          maxLength: 160
+          maxLength: 120
           minLength: 2
           title: Name
-        class_group_id:
+        description:
           anyOf:
           - type: string
+            maxLength: 4000
           - type: 'null'
-          title: Class Group Id
-        component_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Component Id
-        calculation_method:
+          title: Description
+        currency:
           type: string
-          const: weighted_average
-          title: Calculation Method
-          default: weighted_average
-        max_score:
-          anyOf:
-          - type: number
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          title: Max Score
-          default: '10'
-        passing_score:
-          anyOf:
-          - type: number
-            minimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          title: Passing Score
-          default: '6'
-        attendance_minimum:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            minimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          title: Attendance Minimum
-          default: '75'
-        rounding_precision:
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          default: BRL
+        billing_interval:
+          type: string
+          enum:
+          - monthly
+          - annual
+          - custom
+          title: Billing Interval
+          default: monthly
+        price_minor:
           type: integer
-          maximum: 4.0
+          maximum: 10000000000.0
           minimum: 0.0
-          title: Rounding Precision
-          default: 2
-        recovery_strategy:
+          title: Price Minor
+          default: 0
+        features:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Features
+        limits:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Limits
+      type: object
+      required:
+      - code
+      - name
+      title: PlanCreate
+    PlanUpdate:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
           type: string
-          enum:
-          - replace_if_higher
-          - average_with_recovery
-          - replace
-          title: Recovery Strategy
-          default: replace_if_higher
-        missing_score_strategy:
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+        name:
+          anyOf:
+          - type: string
+            maxLength: 120
+            minLength: 2
+          - type: 'null'
+          title: Name
+        description:
+          anyOf:
+          - type: string
+            maxLength: 4000
+          - type: 'null'
+          title: Description
+        currency:
+          anyOf:
+          - type: string
+            pattern: ^[A-Z]{3}$
+          - type: 'null'
+          title: Currency
+        billing_interval:
+          anyOf:
+          - type: string
+            enum:
+            - monthly
+            - annual
+            - custom
+          - type: 'null'
+          title: Billing Interval
+        price_minor:
+          anyOf:
+          - type: integer
+            maximum: 10000000000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Price Minor
+        features:
+          anyOf:
+          - additionalProperties:
+              type: boolean
+            type: object
+          - type: 'null'
+          title: Features
+        limits:
+          anyOf:
+          - additionalProperties:
+              type: integer
+            type: object
+          - type: 'null'
+          title: Limits
+        status:
+          anyOf:
+          - type: string
+            enum:
+            - active
+            - inactive
+          - type: 'null'
+          title: Status
+      additionalProperties: false
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: PlanUpdate
+    PlatformUserStateInput:
+      properties:
+        active:
+          type: boolean
+          title: Active
+        reason:
           type: string
-          enum:
-          - zero
-          - ignore
-          title: Missing Score Strategy
-          default: zero
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - active
+      - reason
+      title: PlatformUserStateInput
+    PolicyInput:
+      properties:
+        code:
+          type: string
+          title: Code
+          default: default
         effective_from:
           type: string
           format: date
           title: Effective From
-        effective_until:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Effective Until
+        max_loan_days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Max Loan Days
+        max_renewals:
+          type: integer
+          maximum: 20.0
+          minimum: 0.0
+          title: Max Renewals
+        grace_days:
+          type: integer
+          maximum: 30.0
+          minimum: 0.0
+          title: Grace Days
+          default: 0
+        daily_fine:
+          type: string
+          title: Daily Fine
+          default: '0.00'
+        reservation_hold_hours:
+          type: integer
+          maximum: 720.0
+          minimum: 1.0
+          title: Reservation Hold Hours
+          default: 48
       type: object
       required:
-      - academic_year_id
-      - name
       - effective_from
+      - max_loan_days
+      - max_renewals
       title: PolicyInput
     PreferenceInput:
       properties:
@@ -34443,13 +36890,18 @@ components:
       title: ProviderTestInput
     PublishInput:
       properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
         reason:
           type: string
-          maxLength: 2000
+          maxLength: 1000
           minLength: 3
           title: Reason
       type: object
       required:
+      - expected_version
       - reason
       title: PublishInput
     PurchaseItemInput:
@@ -34843,6 +37295,119 @@ components:
       - product_id
       - quantity
       title: QuotationItemInput
+    ReadinessCheck:
+      properties:
+        name:
+          type: string
+          title: Name
+        status:
+          type: string
+          enum:
+          - pass
+          - fail
+          title: Status
+        critical:
+          type: boolean
+          title: Critical
+        duration_ms:
+          type: number
+          minimum: 0.0
+          title: Duration Ms
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+        tenant:
+          anyOf:
+          - $ref: '#/components/schemas/ReadinessTenant'
+          - type: 'null'
+      type: object
+      required:
+      - name
+      - status
+      - critical
+      - duration_ms
+      title: ReadinessCheck
+    ReadinessResponse:
+      properties:
+        status:
+          type: string
+          enum:
+          - ready
+          - not_ready
+          title: Status
+        plane:
+          type: string
+          title: Plane
+        environment:
+          type: string
+          title: Environment
+        checked_at:
+          type: string
+          title: Checked At
+        summary:
+          $ref: '#/components/schemas/ReadinessSummary'
+        checks:
+          items:
+            $ref: '#/components/schemas/ReadinessCheck'
+          type: array
+          title: Checks
+      type: object
+      required:
+      - status
+      - plane
+      - environment
+      - checked_at
+      - summary
+      - checks
+      title: ReadinessResponse
+    ReadinessSummary:
+      properties:
+        checks:
+          type: integer
+          minimum: 0.0
+          title: Checks
+        passed:
+          type: integer
+          minimum: 0.0
+          title: Passed
+        failed:
+          type: integer
+          minimum: 0.0
+          title: Failed
+        active_tenants:
+          type: integer
+          minimum: 0.0
+          title: Active Tenants
+        failed_critical:
+          items:
+            type: string
+          type: array
+          title: Failed Critical
+      type: object
+      required:
+      - checks
+      - passed
+      - failed
+      - active_tenants
+      - failed_critical
+      title: ReadinessSummary
+    ReadinessTenant:
+      properties:
+        id:
+          type: string
+          title: Id
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      type: object
+      required:
+      - id
+      title: ReadinessTenant
     ReceiptItemInput:
       properties:
         purchase_order_item_id:
@@ -35428,23 +37993,17 @@ components:
       title: ReservationCreate
     ReservationInput:
       properties:
-        class_group_id:
+        library_item_id:
           type: string
-          title: Class Group Id
-        expires_at:
-          type: string
-          format: date-time
-          title: Expires At
-        reason:
-          type: string
-          maxLength: 2000
-          minLength: 3
-          title: Reason
+          title: Library Item Id
+        person_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Person Id
       type: object
       required:
-      - class_group_id
-      - expires_at
-      - reason
+      - library_item_id
       title: ReservationInput
     ResolveOccurrenceInput:
       properties:
@@ -35531,7 +38090,7 @@ components:
       properties:
         reason:
           type: string
-          maxLength: 1000
+          maxLength: 2000
           minLength: 3
           title: Reason
       type: object
@@ -35765,43 +38324,21 @@ components:
       title: SaleReturnItemInput
     ScheduleInput:
       properties:
-        route_id:
-          type: string
-          title: Route Id
-        weekdays:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        sessions:
           items:
-            type: integer
+            $ref: '#/components/schemas/ScheduledLesson'
           type: array
-          maxItems: 7
+          maxItems: 500
           minItems: 1
-          title: Weekdays
-        outbound_time:
-          anyOf:
-          - type: string
-            format: time
-          - type: 'null'
-          title: Outbound Time
-        return_time:
-          anyOf:
-          - type: string
-            format: time
-          - type: 'null'
-          title: Return Time
-        valid_from:
-          type: string
-          format: date
-          title: Valid From
-        valid_until:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Valid Until
+          title: Sessions
       type: object
       required:
-      - route_id
-      - weekdays
-      - valid_from
+      - expected_version
+      - sessions
       title: ScheduleInput
     ScheduledLesson:
       properties:
@@ -36596,6 +39133,57 @@ components:
       additionalProperties: false
       type: object
       title: SubscriptionDecision
+    SubscriptionInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0.0
+          title: Expected Version
+          default: 0
+        plan_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Plan Id
+        status:
+          type: string
+          enum:
+          - active
+          - trialing
+          - suspended
+          - canceled
+          title: Status
+          default: active
+        starts_at:
+          type: string
+          format: date-time
+          title: Starts At
+        current_period_end:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Current Period End
+        trial_ends_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Trial Ends At
+        cancel_at_period_end:
+          type: boolean
+          title: Cancel At Period End
+          default: false
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - plan_id
+      - reason
+      title: SubscriptionInput
     SubsidyInput:
       properties:
         student_id:
@@ -36905,6 +39493,17 @@ components:
       - unit_price
       - quantity_available
       title: SupplierProposalItemInput
+    SupportSessionEndInput:
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - reason
+      title: SupportSessionEndInput
     SupportSessionInput:
       properties:
         reason:
@@ -37262,23 +39861,32 @@ components:
       title: TemplatePreviewInput
     TemplateVersionInput:
       properties:
-        body_text:
+        subject_template:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Subject Template
+        body_template:
           type: string
-          maxLength: 200000
-          minLength: 10
-          title: Body Text
+          maxLength: 20000
+          minLength: 1
+          title: Body Template
         variables:
           items:
             type: string
           type: array
+          maxItems: 100
           title: Variables
-        rules:
-          additionalProperties: true
-          type: object
-          title: Rules
+        reason:
+          type: string
+          maxLength: 1000
+          minLength: 3
+          title: Reason
       type: object
       required:
-      - body_text
+      - body_template
+      - reason
       title: TemplateVersionInput
     TenantApp:
       properties:
@@ -37329,10 +39937,7 @@ components:
           type: object
           title: Features
         signing:
-          additionalProperties:
-            type: string
-          type: object
-          title: Signing
+          $ref: '#/components/schemas/AppSigningReferences'
       type: object
       required:
       - display_name
@@ -37358,8 +39963,10 @@ components:
           minLength: 2
           title: Trade Name
         hostname:
-          type: string
-          pattern: ^[a-z0-9][a-z0-9.-]{2,252}$
+          anyOf:
+          - type: string
+            pattern: ^[a-z0-9][a-z0-9.-]{2,252}$
+          - type: 'null'
           title: Hostname
         owner_email:
           type: string
@@ -37375,10 +39982,105 @@ components:
       - code
       - legal_name
       - trade_name
-      - hostname
       - owner_email
       - owner_password
       title: TenantCreate
+    TenantLifecycleInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - expected_version
+      - reason
+      title: TenantLifecycleInput
+    TenantQuotaValues:
+      properties:
+        max_users:
+          anyOf:
+          - type: integer
+            maximum: 1000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Users
+        max_students:
+          anyOf:
+          - type: integer
+            maximum: 10000000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Max Students
+        storage_bytes:
+          anyOf:
+          - type: integer
+            maximum: 1.0e+16
+            minimum: 1048576.0
+          - type: 'null'
+          title: Storage Bytes
+        api_requests_per_minute:
+          anyOf:
+          - type: integer
+            maximum: 1000000.0
+            minimum: 1.0
+          - type: 'null'
+          title: Api Requests Per Minute
+        max_integrations:
+          anyOf:
+          - type: integer
+            maximum: 10000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Max Integrations
+        max_concurrent_builds:
+          anyOf:
+          - type: integer
+            maximum: 64.0
+            minimum: 1.0
+          - type: 'null'
+          title: Max Concurrent Builds
+        max_custom_domains:
+          anyOf:
+          - type: integer
+            maximum: 1000.0
+            minimum: 0.0
+          - type: 'null'
+          title: Max Custom Domains
+      additionalProperties: false
+      type: object
+      title: TenantQuotaValues
+      description: 'Limites administrativos conhecidos; campos não reconhecidos são
+        rejeitados.
+
+
+        O PATCH lógico preserva chaves legadas já persistidas em ``quotas_json`` para
+
+        que a evolução do contrato não apague configuração de versões anteriores.'
+    TenantQuotasInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 1.0
+          title: Expected Version
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+        quotas:
+          $ref: '#/components/schemas/TenantQuotaValues'
+      type: object
+      required:
+      - expected_version
+      - reason
+      - quotas
+      title: TenantQuotasInput
     ThesisInput:
       properties:
         enrollment_id:
@@ -37795,6 +40497,33 @@ components:
       - code
       - name
       title: UnitInput
+    UsageSnapshotInput:
+      properties:
+        expected_version:
+          type: integer
+          minimum: 0.0
+          title: Expected Version
+          default: 0
+        source:
+          type: string
+          pattern: ^[a-z0-9][a-z0-9._-]{1,49}$
+          title: Source
+          default: manual
+        metrics:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Metrics
+        reason:
+          type: string
+          maxLength: 2000
+          minLength: 10
+          title: Reason
+      type: object
+      required:
+      - metrics
+      - reason
+      title: UsageSnapshotInput
     VacationInput:
       properties:
         employee_id:
@@ -38231,57 +40960,26 @@ components:
       - steps
       - reason
       title: WorkflowVersionInput
-    app__modules__admissions__presentation__router__AssessmentInput:
+    app__modules__admissions__presentation__router__ReservationInput:
       properties:
-        code:
+        class_group_id:
           type: string
-          maxLength: 80
-          minLength: 1
-          title: Code
-        name:
+          title: Class Group Id
+        expires_at:
           type: string
-          maxLength: 240
-          minLength: 2
-          title: Name
-        assessment_type:
+          format: date-time
+          title: Expires At
+        reason:
           type: string
-          enum:
-          - exam
-          - interview
-          - document_review
-          - portfolio
-          - practical
-          title: Assessment Type
-        weight:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          title: Weight
-          default: '1'
-        max_score:
-          anyOf:
-          - type: number
-            maximum: 10000.0
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
-          title: Max Score
-          default: '100'
-        scheduled_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Scheduled At
+          maxLength: 2000
+          minLength: 3
+          title: Reason
       type: object
       required:
-      - code
-      - name
-      - assessment_type
-      title: AssessmentInput
+      - class_group_id
+      - expires_at
+      - reason
+      title: ReservationInput
     app__modules__communication__presentation__router__PublishInput:
       properties:
         expected_version:
@@ -38298,25 +40996,8 @@ components:
       - expected_version
       - reason
       title: PublishInput
-    app__modules__communication__presentation__router__TemplateVersionInput:
+    app__modules__communication__presentation__router__RetryInput:
       properties:
-        subject_template:
-          anyOf:
-          - type: string
-            maxLength: 300
-          - type: 'null'
-          title: Subject Template
-        body_template:
-          type: string
-          maxLength: 20000
-          minLength: 1
-          title: Body Template
-        variables:
-          items:
-            type: string
-          type: array
-          maxItems: 100
-          title: Variables
         reason:
           type: string
           maxLength: 1000
@@ -38324,10 +41005,9 @@ components:
           title: Reason
       type: object
       required:
-      - body_template
       - reason
-      title: TemplateVersionInput
-    app__modules__government_education__presentation__router__RetryInput:
+      title: RetryInput
+    app__modules__compliance__presentation__router__PublishInput:
       properties:
         reason:
           type: string
@@ -38337,94 +41017,207 @@ components:
       type: object
       required:
       - reason
-      title: RetryInput
-    app__modules__lesson_planning__presentation__router__ScheduleInput:
+      title: PublishInput
+    app__modules__contracts__presentation__router__TemplateVersionInput:
       properties:
-        expected_version:
-          type: integer
-          minimum: 1.0
-          title: Expected Version
-        sessions:
+        body_text:
+          type: string
+          maxLength: 200000
+          minLength: 10
+          title: Body Text
+        variables:
           items:
-            $ref: '#/components/schemas/ScheduledLesson'
+            type: string
           type: array
-          maxItems: 500
-          minItems: 1
-          title: Sessions
+          title: Variables
+        rules:
+          additionalProperties: true
+          type: object
+          title: Rules
       type: object
       required:
-      - expected_version
-      - sessions
-      title: ScheduleInput
-    app__modules__library__presentation__router__PolicyInput:
+      - body_text
+      title: TemplateVersionInput
+    app__modules__pedagogy__presentation__router__AssessmentInput:
       properties:
-        code:
+        academic_period_id:
           type: string
-          title: Code
-          default: default
+          title: Academic Period Id
+        class_group_id:
+          type: string
+          title: Class Group Id
+        component_id:
+          type: string
+          title: Component Id
+        grading_policy_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Grading Policy Id
+        title:
+          type: string
+          maxLength: 180
+          minLength: 2
+          title: Title
+        assessment_type:
+          type: string
+          maxLength: 50
+          minLength: 2
+          title: Assessment Type
+          default: exam
+        weight:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Weight
+          default: '1'
+        max_score:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Max Score
+          default: '10'
+        due_on:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Due On
+      type: object
+      required:
+      - academic_period_id
+      - class_group_id
+      - component_id
+      - title
+      title: AssessmentInput
+    app__modules__pedagogy__presentation__router__PolicyInput:
+      properties:
+        academic_year_id:
+          type: string
+          title: Academic Year Id
+        name:
+          type: string
+          maxLength: 160
+          minLength: 2
+          title: Name
+        class_group_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Class Group Id
+        component_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Component Id
+        calculation_method:
+          type: string
+          const: weighted_average
+          title: Calculation Method
+          default: weighted_average
+        max_score:
+          anyOf:
+          - type: number
+            exclusiveMinimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Max Score
+          default: '10'
+        passing_score:
+          anyOf:
+          - type: number
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Passing Score
+          default: '6'
+        attendance_minimum:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: string
+            pattern: ^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$
+          title: Attendance Minimum
+          default: '75'
+        rounding_precision:
+          type: integer
+          maximum: 4.0
+          minimum: 0.0
+          title: Rounding Precision
+          default: 2
+        recovery_strategy:
+          type: string
+          enum:
+          - replace_if_higher
+          - average_with_recovery
+          - replace
+          title: Recovery Strategy
+          default: replace_if_higher
+        missing_score_strategy:
+          type: string
+          enum:
+          - zero
+          - ignore
+          title: Missing Score Strategy
+          default: zero
         effective_from:
           type: string
           format: date
           title: Effective From
-        max_loan_days:
-          type: integer
-          maximum: 365.0
-          minimum: 1.0
-          title: Max Loan Days
-        max_renewals:
-          type: integer
-          maximum: 20.0
-          minimum: 0.0
-          title: Max Renewals
-        grace_days:
-          type: integer
-          maximum: 30.0
-          minimum: 0.0
-          title: Grace Days
-          default: 0
-        daily_fine:
-          type: string
-          title: Daily Fine
-          default: '0.00'
-        reservation_hold_hours:
-          type: integer
-          maximum: 720.0
-          minimum: 1.0
-          title: Reservation Hold Hours
-          default: 48
-      type: object
-      required:
-      - effective_from
-      - max_loan_days
-      - max_renewals
-      title: PolicyInput
-    app__modules__library__presentation__router__ReservationInput:
-      properties:
-        library_item_id:
-          type: string
-          title: Library Item Id
-        person_id:
+        effective_until:
           anyOf:
           - type: string
+            format: date
           - type: 'null'
-          title: Person Id
+          title: Effective Until
       type: object
       required:
-      - library_item_id
-      title: ReservationInput
-    app__modules__workflows__presentation__router__PublishInput:
+      - academic_year_id
+      - name
+      - effective_from
+      title: PolicyInput
+    app__modules__transportation__presentation__router__ScheduleInput:
       properties:
-        expected_version:
-          type: integer
-          minimum: 1.0
-          title: Expected Version
-        reason:
+        route_id:
           type: string
-          maxLength: 1000
-          minLength: 3
-          title: Reason
+          title: Route Id
+        weekdays:
+          items:
+            type: integer
+          type: array
+          maxItems: 7
+          minItems: 1
+          title: Weekdays
+        outbound_time:
+          anyOf:
+          - type: string
+            format: time
+          - type: 'null'
+          title: Outbound Time
+        return_time:
+          anyOf:
+          - type: string
+            format: time
+          - type: 'null'
+          title: Return Time
+        valid_from:
+          type: string
+          format: date
+          title: Valid From
+        valid_until:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Valid Until
       type: object
       required:
-      - expected_version
-      - reason
-      title: PublishInput
+      - route_id
+      - weekdays
+      - valid_from
+      title: ScheduleInput

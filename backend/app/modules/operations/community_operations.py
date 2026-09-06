@@ -21,6 +21,7 @@ from app.modules.workflows.application.service import start_workflow_in_connecti
 from app.modules.library.application.service import ensure_policy, fine_for_return, promote_next_reservation
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser, current_user
+from app.shared.tenant_quotas import tenant_quota_limit
 
 router = APIRouter(tags=["community-documents-integrations"])
 EVENT_ROLES = ADMIN_ROLES | {"event_manager"}
@@ -736,7 +737,12 @@ def list_connections(request:Request,user:CurrentUser=Depends(current_user)):
 @router.post("/integration-connections",status_code=201,operation_id="create_integration_connection_relational")
 def create_connection(data:IntegrationConnectionInput,request:Request,user:CurrentUser=Depends(current_user)):
     require(user,INTEGRATION_ROLES);tid=tenant(user);iid=uuid7();now=iso_now();state="configured" if data.secret_reference else "not_configured";result={"id":iid,"provider":data.provider,"name":data.name,"environment":data.environment,"capabilities":data.capabilities,"state":state}
-    with request.state.store.transaction() as conn:conn.execute("INSERT INTO integration_connections(id,tenant_id,provider,name,environment,capabilities_json,secret_reference,config_json,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",(iid,tid,data.provider,data.name,data.environment,dumps(data.capabilities),data.secret_reference,dumps(data.config),state,now,now));add_audit(conn,tenant_id=tid,actor_id=user.id,action="configure",aggregate_type="integration_connection",aggregate_id=iid,correlation_id=request.state.correlation_id,after={**result,"secret_reference":bool(data.secret_reference)})
+    limit=tenant_quota_limit(request.app.state.data_router.control,tid,"max_integrations")
+    with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn,f"tenant-integration-quota:{tid}")
+        current=conn.execute("SELECT COUNT(*) AS n FROM integration_connections WHERE tenant_id=? AND state<>'archived'",(tid,)).fetchone()
+        if int(current["n"] if current else 0)>=limit:raise DomainError("TENANT_QUOTA_EXCEEDED",f"A quota de integrações não arquivadas ({limit}) foi atingida.",409)
+        conn.execute("INSERT INTO integration_connections(id,tenant_id,provider,name,environment,capabilities_json,secret_reference,config_json,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",(iid,tid,data.provider,data.name,data.environment,dumps(data.capabilities),data.secret_reference,dumps(data.config),state,now,now));add_audit(conn,tenant_id=tid,actor_id=user.id,action="configure",aggregate_type="integration_connection",aggregate_id=iid,correlation_id=request.state.correlation_id,after={**result,"secret_reference":bool(data.secret_reference)})
     return result
 
 

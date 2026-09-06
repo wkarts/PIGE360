@@ -19,23 +19,111 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: python -m pip install PyYAML==6.0.3
       - id: matrix
         run: python scripts/validation/tenant_app_manifest.py "${{ inputs.manifest }}" --github-output
   build:
     needs: validate-manifest
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.validate-manifest.outputs.matrix) }}
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
-      - run: bash scripts/mobile/build-tenant-app.sh "${{ inputs.manifest }}" "${{ matrix.app }}" "${{ matrix.platform }}"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.13'}
+      - run: python -m pip install PyYAML==6.0.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - uses: actions/setup-java@v4
+        if: matrix.platform == 'android'
+        with: {distribution: temurin, java-version: '21'}
+      - uses: android-actions/setup-android@v3
+        if: matrix.platform == 'android'
+      - name: Fixar Android NDK
+        if: matrix.platform == 'android'
+        shell: bash
+        run: |
+          ndk_version='27.3.13750724'
+          ndk_home="$ANDROID_HOME/ndk/$ndk_version"
+          if [ ! -d "$ndk_home" ]; then sdkmanager --install "ndk;$ndk_version"; fi
+          test -d "$ndk_home"
+          printf 'NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
+          printf 'ANDROID_NDK_HOME=%s\n' "$ndk_home" >> "$GITHUB_ENV"
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform == 'android'
+        with: {targets: aarch64-linux-android}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform == 'ios'
+        with: {targets: aarch64-apple-ios}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform == 'windows'
+        with: {targets: x86_64-pc-windows-msvc}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform == 'linux'
+        with: {targets: x86_64-unknown-linux-gnu}
+      - uses: dtolnay/rust-toolchain@stable
+        if: matrix.platform == 'macos'
+        with: {targets: aarch64-apple-darwin}
+      - name: Preparar Perl completo para OpenSSL no Windows
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $perl = Join-Path $env:SystemDrive 'Strawberry\perl\bin\perl.exe'
+          if (-not (Test-Path $perl)) { choco install strawberryperl --no-progress --yes --limit-output }
+          if (-not (Test-Path $perl)) { throw 'Strawberry Perl não disponível.' }
+          & $perl -MLocale::Maketext::Simple -e 1
+          "PIGE360_STRAWBERRY_PERL=$perl" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Instalar dependências Tauri no Linux
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - name: Validar Xcode e CocoaPods
+        if: matrix.platform == 'ios'
+        run: |
+          xcodebuild -version
+          if ! command -v pod >/dev/null 2>&1; then brew install cocoapods; fi
+          pod --version
+      - name: Definir target desktop
+        if: contains(fromJson('["windows","linux","macos"]'), matrix.platform)
+        shell: bash
+        run: |
+          case "${{ matrix.platform }}" in
+            windows) target='x86_64-pc-windows-msvc' ;;
+            linux) target='x86_64-unknown-linux-gnu' ;;
+            macos) target='aarch64-apple-darwin' ;;
+          esac
+          printf 'TAURI_TARGET=%s\n' "$target" >> "$GITHUB_ENV"
+      - name: Construir app fixado ao tenant
+        run: bash scripts/mobile/build-tenant-app.sh "${{ inputs.manifest }}" "${{ matrix.app }}" "${{ matrix.platform }}"
       - uses: actions/upload-artifact@v4
-        with: {name: 'tenant-${{ matrix.app }}-${{ matrix.platform }}', path: release/artifacts/tenant-apps/**, if-no-files-found: error}
-  store-publication-disabled:
-    if: ${{ inputs.publish_stores == true && vars.REMOTE_RELEASE_ENABLED == 'true' }}
+        with:
+          name: tenant-${{ matrix.app }}-${{ matrix.platform }}
+          path: release/artifacts/tenant-apps/${{ matrix.app }}/${{ matrix.platform }}/**
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+  store-publication-gated:
+    if: ${{ inputs.publish_stores == true }}
     needs: build
     runs-on: ubuntu-24.04
     environment: app-stores
     steps:
-      - run: echo 'Publicação em lojas permanece condicionada a segredos e aprovação.'
+      - name: Não fingir publicação sem conector de loja homologado
+        env:
+          REMOTE_RELEASE_ENABLED: ${{ vars.REMOTE_RELEASE_ENABLED }}
+        run: |
+          if [ "$REMOTE_RELEASE_ENABLED" != 'true' ]; then
+            echo '::error::REMOTE_RELEASE_ENABLED não está habilitado; nenhuma loja foi alterada.'
+            exit 3
+          fi
+          echo '::error::Builds concluídos, porém o conector Play/App Store não está configurado neste repositório.'
+          echo 'Os artefatos permanecem disponíveis para publicação controlada; nenhuma loja foi alterada.'
+          exit 78

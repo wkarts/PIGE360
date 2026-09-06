@@ -1,0 +1,21 @@
+services:
+  pige360-edge-init:
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/traefik-dynamic
+        target: /dynamic
+  pige360-edge:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/traefik-dynamic
+        target: /etc/traefik/dynamic
+        read_only: true
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/traefik-acme
+        target: /var/lib/traefik
+  pige360-api:
+    volumes:
+      - type: bind
+        source: ${PIGE360_DATA_ROOT:?PIGE360_DATA_ROOT obrigatorio}/traefik-dynamic
+        target: /var/lib/pige360/edge-dynamic

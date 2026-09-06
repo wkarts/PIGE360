@@ -30,6 +30,14 @@ const supplierForm = reactive({
     contact_name: "",
     contact_email: "",
 });
+const productForm = reactive({
+    sku: "",
+    barcode: "",
+    name: "",
+    school_catalog_category: "general",
+    cost: "0",
+    sale_price: "0",
+});
 const variantForm = reactive({
     product_id: "",
     sku: "",
@@ -264,6 +272,31 @@ async function createSupplier() {
             contact_email: "",
         });
         emit("notice", "Fornecedor e contato cadastrados.");
+        await load();
+    }
+    catch (error) {
+        emit("error", message(error));
+    }
+}
+async function createProduct() {
+    try {
+        await post("/products", {
+            sku: productForm.sku,
+            barcode: nullable(productForm.barcode),
+            name: productForm.name,
+            school_catalog_category: productForm.school_catalog_category,
+            cost: productForm.cost,
+            sale_price: productForm.sale_price,
+        });
+        Object.assign(productForm, {
+            sku: "",
+            barcode: "",
+            name: "",
+            school_catalog_category: "general",
+            cost: "0",
+            sale_price: "0",
+        });
+        emit("notice", "Produto escolar cadastrado e disponível para venda e estoque.");
         await load();
     }
     catch (error) {
@@ -888,6 +921,80 @@ function __VLS_template() {
         __VLS_elementAsFunction(__VLS_intrinsicElements.li, __VLS_intrinsicElements.li)({});
         __VLS_elementAsFunction(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
             ...{ class: ("grid-2 forms") },
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
+            ...{ onSubmit: (__VLS_ctx.createProduct) },
+            ...{ class: ("panel") },
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: ("cols") },
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
+            required: (true),
+        });
+        (__VLS_ctx.productForm.sku);
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({});
+        (__VLS_ctx.productForm.barcode);
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
+            required: (true),
+        });
+        (__VLS_ctx.productForm.name);
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.select, __VLS_intrinsicElements.select)({
+            value: ((__VLS_ctx.productForm.school_catalog_category)),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("general"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("school_uniform"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("textbook"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("handout"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("learning_module"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("educational_material"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("school_kit"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("event_ticket"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.option, __VLS_intrinsicElements.option)({
+            value: ("event"),
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: ("cols") },
+        });
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
+            type: ("number"),
+            min: ("0"),
+            step: ("0.01"),
+            required: (true),
+        });
+        (__VLS_ctx.productForm.cost);
+        __VLS_elementAsFunction(__VLS_intrinsicElements.label, __VLS_intrinsicElements.label)({});
+        __VLS_elementAsFunction(__VLS_intrinsicElements.input)({
+            type: ("number"),
+            min: ("0"),
+            step: ("0.01"),
+            required: (true),
+        });
+        (__VLS_ctx.productForm.sale_price);
+        __VLS_elementAsFunction(__VLS_intrinsicElements.button, __VLS_intrinsicElements.button)({
+            ...{ class: ("primary") },
         });
         __VLS_elementAsFunction(__VLS_intrinsicElements.form, __VLS_intrinsicElements.form)({
             ...{ onSubmit: (__VLS_ctx.createVariant) },
@@ -2336,7 +2443,7 @@ function __VLS_template() {
             __VLS_elementAsFunction(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({});
         }
     }
-    ['procurement-module', 'metrics', 'procurement-tabs', 'selected', 'selected', 'selected', 'selected', 'selected', 'selected', 'small', 'refresh', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'cols', 'primary', 'panel', 'checklist', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'inline', 'primary', 'panel', 'panel-title', 'small', 'empty', 'grid-2', 'forms', 'panel', 'cols', 'primary', 'panel', 'rows', 'panel', 'panel', 'panel-title', 'small', 'small', 'small', 'small', 'small', 'grid-2', 'forms', 'panel', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'forms', 'panel', 'rows', 'panel', 'cols', 'cols', 'primary', 'panel', 'panel-title', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'rows', 'panel', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'small', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'inline', 'primary', 'panel', 'panel-title', 'primary', 'grid-2', 'panel', 'panel-title', 'panel', 'panel-title', 'small', 'small', 'grid-2', 'forms', 'panel', 'panel-title', 'cols', 'cols', 'actions', 'primary', 'small', 'panel', 'checklist', 'primary', 'panel', 'panel-title', 'small', 'small', 'empty', 'grid-2', 'panel', 'panel-title', 'small', 'empty', 'panel', 'rows', 'primary', 'dismiss-form', 'small', 'panel',];
+    ['procurement-module', 'metrics', 'procurement-tabs', 'selected', 'selected', 'selected', 'selected', 'selected', 'selected', 'small', 'refresh', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'cols', 'primary', 'panel', 'checklist', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'inline', 'primary', 'panel', 'panel-title', 'small', 'empty', 'grid-2', 'forms', 'panel', 'cols', 'primary', 'panel', 'rows', 'panel', 'panel', 'panel-title', 'small', 'small', 'small', 'small', 'small', 'grid-2', 'forms', 'panel', 'primary', 'panel', 'cols', 'cols', 'primary', 'grid-2', 'forms', 'panel', 'rows', 'panel', 'cols', 'cols', 'primary', 'panel', 'panel-title', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'rows', 'panel', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'cols', 'primary', 'panel', 'panel-title', 'small', 'small', 'grid-2', 'forms', 'panel', 'cols', 'cols', 'primary', 'panel', 'inline', 'primary', 'panel', 'panel-title', 'primary', 'grid-2', 'panel', 'panel-title', 'panel', 'panel-title', 'small', 'small', 'grid-2', 'forms', 'panel', 'panel-title', 'cols', 'cols', 'actions', 'primary', 'small', 'panel', 'checklist', 'primary', 'panel', 'panel-title', 'small', 'small', 'empty', 'grid-2', 'panel', 'panel-title', 'small', 'empty', 'panel', 'rows', 'primary', 'dismiss-form', 'small', 'panel',];
     var __VLS_slots;
     var $slots;
     let __VLS_inheritedAttrs;
@@ -2373,6 +2480,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             editingPolicy: editingPolicy,
             selectedSuggestion: selectedSuggestion,
             supplierForm: supplierForm,
+            productForm: productForm,
             variantForm: variantForm,
             barcodeForm: barcodeForm,
             requisitionForm: requisitionForm,
@@ -2393,6 +2501,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             money: money,
             load: load,
             createSupplier: createSupplier,
+            createProduct: createProduct,
             toggleSupplier: toggleSupplier,
             createVariant: createVariant,
             createBarcode: createBarcode,

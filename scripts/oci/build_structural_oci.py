@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import shutil
 import tarfile
 from datetime import datetime, timezone
@@ -20,20 +21,21 @@ ROOT=Path(__file__).resolve().parents[2]
 VERSION=(ROOT/'VERSION').read_text().strip()
 OUT=ROOT/'release/artifacts/oci'
 LAYOUT=OUT/'layout'
-FIXED_TIME=0
-CREATED='2026-08-07T00:00:00Z'
+SOURCE_TIME=int(os.getenv('SOURCE_DATE_EPOCH',str(int((ROOT/'VERSION').stat().st_mtime))))
+CREATED=datetime.fromtimestamp(SOURCE_TIME,timezone.utc).isoformat().replace('+00:00','Z')
 IMAGES={
  'pige360-base-python':'infra/docker/base/Dockerfile.python',
  'pige360-base-node':'infra/docker/base/Dockerfile.node',
  'pige360-base-rust-tauri':'infra/docker/base/Dockerfile.rust-tauri',
  'pige360-base-runtime':'infra/docker/base/Dockerfile.runtime',
- 'pige360':'compose.yaml',
  'pige360-api':'infra/docker/Dockerfile.api',
  'pige360-web':'infra/docker/Dockerfile.web',
- 'pige360-worker':'infra/docker/Dockerfile.worker',
  'pige360-platform-console':'infra/docker/Dockerfile.web',
- 'pige360-app-factory':'infra/docker/Dockerfile.api',
+ 'pige360-branding-studio':'infra/docker/Dockerfile.web',
+ 'pige360-tenant-download-center':'infra/docker/Dockerfile.web',
+ 'pige360-worker':'infra/docker/Dockerfile.worker',
  'pige360-migrations':'infra/docker/Dockerfile.migrations',
+ 'pige360-ops':'infra/docker/Dockerfile.ops',
  'pige360-reporting':'infra/docker/Dockerfile.reporting',
 }
 
@@ -49,7 +51,7 @@ def layer_bytes(name:str,source:Path)->bytes:
           'Construa a imagem executável com o Dockerfile incluído em runner OCI autorizado.\n').encode()
   entries=[('usr/share/pige360/IMAGE-NOTICE.txt',notice),('usr/share/pige360/source/'+source.name,source.read_bytes())]
   for path,data in entries:
-   info=tarfile.TarInfo(path);info.size=len(data);info.mtime=FIXED_TIME;info.uid=info.gid=0;info.uname=info.gname='root';info.mode=0o644;tar.addfile(info,io.BytesIO(data))
+   info=tarfile.TarInfo(path);info.size=len(data);info.mtime=SOURCE_TIME;info.uid=info.gid=0;info.uname=info.gname='root';info.mode=0o644;tar.addfile(info,io.BytesIO(data))
  return buf.getvalue()
 def main()->None:
  if OUT.exists():shutil.rmtree(OUT)
@@ -77,9 +79,9 @@ def main()->None:
  with tarfile.open(tar_path,'w',format=tarfile.PAX_FORMAT) as tar:
   for p in sorted(LAYOUT.rglob('*')):
    if not p.is_file():continue
-   info=tar.gettarinfo(str(p),arcname=p.relative_to(LAYOUT).as_posix());info.mtime=FIXED_TIME;info.uid=info.gid=0;info.uname=info.gname='root'
+   info=tar.gettarinfo(str(p),arcname=p.relative_to(LAYOUT).as_posix());info.mtime=SOURCE_TIME;info.uid=info.gid=0;info.uname=info.gname='root'
    with p.open('rb') as f:tar.addfile(info,f)
- digests={'schema_version':1,'version':VERSION,'generated_at':datetime.now(timezone.utc).isoformat(),'runtime_engine_available':False,'runtime_build_executed':False,'bundle':{'path':tar_path.relative_to(ROOT).as_posix(),'sha256':digest(tar_path.read_bytes()),'bytes':tar_path.stat().st_size},'images':records}
+ digests={'schema_version':2,'version':VERSION,'generated_at':datetime.now(timezone.utc).isoformat(),'timestamp_policy':'SOURCE_DATE_EPOCH_or_VERSION_mtime','source_date_epoch':SOURCE_TIME,'created':CREATED,'runtime_engine_available':False,'runtime_build_executed':False,'bundle':{'path':tar_path.relative_to(ROOT).as_posix(),'sha256':digest(tar_path.read_bytes()),'bytes':tar_path.stat().st_size},'images':records}
  (OUT/f'PIGE360-{VERSION}-images-digests.json').write_text(json.dumps(digests,ensure_ascii=False,indent=2),encoding='utf-8')
  # verify all referenced blobs and archive
  for desc in index['manifests']:

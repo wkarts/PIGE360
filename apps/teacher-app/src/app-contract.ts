@@ -1,1 +1,1 @@
-export const appContract = { name: "teacher-app", version: "1.0.0", surface: "tenant", title: "Diário do Professor", remotePublishingEnabled: false } as const;
+export const appContract = { name: "teacher-app", version: "1.1.2", surface: "tenant", title: "Diário do Professor", remotePublishingEnabled: false } as const;

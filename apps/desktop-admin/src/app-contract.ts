@@ -1,1 +1,1 @@
-export const appContract = { name: "desktop-admin", version: "1.0.0", surface: "tenant", title: "Administração Desktop", remotePublishingEnabled: false } as const;
+export const appContract = { name: "desktop-admin", version: "1.1.2", surface: "tenant", title: "Administração Desktop", remotePublishingEnabled: false } as const;

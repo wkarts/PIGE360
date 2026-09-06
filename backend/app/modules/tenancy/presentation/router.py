@@ -1,18 +1,25 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, Request
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import AuthService, CurrentUser, current_user, require_roles
+from app.shared.tenant_quotas import (
+    DEFAULT_TENANT_QUOTAS,
+    TENANT_QUOTA_ENFORCEMENT,
+    configured_tenant_quotas,
+)
 
 router = APIRouter(tags=["tenancy"])
+logger = logging.getLogger("pige360.platform.status")
 
 
 class BootstrapInput(BaseModel):
@@ -34,6 +41,54 @@ class SupportSessionInput(BaseModel):
     ticket: str | None = Field(default=None, max_length=200)
     assumed_user_id: str | None = None
     minutes: int = Field(default=30, ge=5, le=120)
+
+
+class TenantLifecycleInput(BaseModel):
+    expected_version: int = Field(ge=1)
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+class SupportSessionEndInput(BaseModel):
+    reason: str = Field(min_length=10, max_length=2000)
+
+
+class TenantQuotaValues(BaseModel):
+    """Limites administrativos conhecidos; campos não reconhecidos são rejeitados.
+
+    O PATCH lógico preserva chaves legadas já persistidas em ``quotas_json`` para
+    que a evolução do contrato não apague configuração de versões anteriores.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_users: int | None = Field(default=None, ge=1, le=1_000_000)
+    max_students: int | None = Field(default=None, ge=0, le=10_000_000)
+    storage_bytes: int | None = Field(default=None, ge=1_048_576, le=10_000_000_000_000_000)
+    api_requests_per_minute: int | None = Field(default=None, ge=1, le=1_000_000)
+    max_integrations: int | None = Field(default=None, ge=0, le=10_000)
+    max_concurrent_builds: int | None = Field(default=None, ge=1, le=64)
+    max_custom_domains: int | None = Field(default=None, ge=0, le=1_000)
+
+    @model_validator(mode="after")
+    def require_one_value(self):
+        if not self.model_dump(exclude_none=True):
+            raise ValueError("Informe ao menos uma quota para atualizar")
+        return self
+
+
+class TenantQuotasInput(BaseModel):
+    expected_version: int = Field(ge=1)
+    reason: str = Field(min_length=10, max_length=2000)
+    quotas: TenantQuotaValues
+
+
+def _require_platform(user: CurrentUser) -> None:
+    if user.plane != "platform":
+        raise DomainError("PLATFORM_ROUTE_REQUIRED", "Rota global indisponível neste domínio.", 404)
+
+
+def _json_object(raw: object) -> dict[str, object]:
+    return configured_tenant_quotas(raw)
 
 
 def _canonical_tenant_hostname(code: str, request: Request) -> str:
@@ -171,6 +226,202 @@ def create_tenant(
     return result
 
 
+def _transition_tenant(
+    tenant_id: str,
+    target: str,
+    data: TenantLifecycleInput,
+    request: Request,
+    user: CurrentUser,
+) -> dict[str, object]:
+    _require_platform(user)
+    allowed_from = {"suspended"} if target == "active" else {"active", "degraded"}
+    event_type = "TenantReactivated" if target == "active" else "TenantSuspended"
+    action = "reactivate" if target == "active" else "suspend"
+    now = iso_now()
+    with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, f"tenant-lifecycle:{tenant_id}")
+        current = conn.execute(
+            "SELECT id,code,status,version,updated_at FROM platform_tenants WHERE id=?",
+            (tenant_id,),
+        ).fetchone()
+        if not current:
+            raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+        before = dict(current)
+        if int(current["version"]) != data.expected_version:
+            raise DomainError(
+                "TENANT_VERSION_CONFLICT",
+                "O tenant foi alterado por outro operador. Atualize a tela antes de tentar novamente.",
+                409,
+            )
+        if str(current["status"]) not in allowed_from:
+            raise DomainError(
+                "INVALID_TENANT_TRANSITION",
+                f"Não é possível executar {action} a partir do status '{current['status']}'.",
+                409,
+            )
+        changed = conn.execute(
+            "UPDATE platform_tenants SET status=?,updated_at=?,version=version+1 WHERE id=? AND version=? AND status=?",
+            (target, now, tenant_id, data.expected_version, current["status"]),
+        ).rowcount
+        if changed != 1:
+            raise DomainError(
+                "TENANT_VERSION_CONFLICT",
+                "O tenant foi alterado por outro operador. Atualize a tela antes de tentar novamente.",
+                409,
+            )
+        support_sessions_revoked = 0
+        if target == "suspended":
+            support_sessions_revoked = conn.execute(
+                """UPDATE support_sessions SET ended_at=?
+                   WHERE tenant_id=? AND ended_at IS NULL AND expires_at>?""",
+                (now, tenant_id, now),
+            ).rowcount
+        result: dict[str, object] = {
+            "id": tenant_id,
+            "code": current["code"],
+            "status": target,
+            "version": data.expected_version + 1,
+            "changed_at": now,
+            "reason": data.reason,
+            "support_sessions_revoked": support_sessions_revoked,
+        }
+        add_audit(
+            conn,
+            tenant_id=tenant_id,
+            actor_id=user.id,
+            action=action,
+            aggregate_type="tenant",
+            aggregate_id=tenant_id,
+            correlation_id=request.state.correlation_id,
+            before=before,
+            after=result,
+            reason=data.reason,
+        )
+        add_outbox(
+            conn,
+            tenant_id=tenant_id,
+            event_type=event_type,
+            aggregate_type="tenant",
+            aggregate_id=tenant_id,
+            payload=result,
+            correlation_id=request.state.correlation_id,
+        )
+    return result
+
+
+@router.post("/platform/tenants/{tenant_id}/suspend", operation_id="suspend_platform_tenant")
+def suspend_tenant(
+    tenant_id: str,
+    data: TenantLifecycleInput,
+    request: Request,
+    user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin")),
+):
+    return _transition_tenant(tenant_id, "suspended", data, request, user)
+
+
+@router.post("/platform/tenants/{tenant_id}/reactivate", operation_id="reactivate_platform_tenant")
+def reactivate_tenant(
+    tenant_id: str,
+    data: TenantLifecycleInput,
+    request: Request,
+    user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin")),
+):
+    return _transition_tenant(tenant_id, "active", data, request, user)
+
+
+@router.get("/platform/tenants/{tenant_id}/quotas", operation_id="get_platform_tenant_quotas")
+def get_tenant_quotas(
+    tenant_id: str,
+    request: Request,
+    user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin")),
+):
+    _require_platform(user)
+    row = request.state.store.fetch_one(
+        "SELECT id,quotas_json,version,updated_at FROM platform_tenants WHERE id=?",
+        (tenant_id,),
+    )
+    if not row:
+        raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+    configured = _json_object(row.get("quotas_json"))
+    return {
+        "tenant_id": tenant_id,
+        "version": row["version"],
+        "configured": configured,
+        "effective": {**DEFAULT_TENANT_QUOTAS, **configured},
+        "enforcement": {key: dict(value) for key, value in TENANT_QUOTA_ENFORCEMENT.items()},
+        "updated_at": row["updated_at"],
+    }
+
+
+@router.put("/platform/tenants/{tenant_id}/quotas", operation_id="update_platform_tenant_quotas")
+def update_tenant_quotas(
+    tenant_id: str,
+    data: TenantQuotasInput,
+    request: Request,
+    user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin")),
+):
+    _require_platform(user)
+    now = iso_now()
+    with request.state.store.transaction() as conn:
+        current = conn.execute(
+            "SELECT id,quotas_json,version,updated_at FROM platform_tenants WHERE id=?",
+            (tenant_id,),
+        ).fetchone()
+        if not current:
+            raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+        if int(current["version"]) != data.expected_version:
+            raise DomainError(
+                "TENANT_VERSION_CONFLICT",
+                "As quotas foram alteradas por outro operador. Atualize a tela antes de tentar novamente.",
+                409,
+            )
+        before = _json_object(current["quotas_json"])
+        configured = {**before, **data.quotas.model_dump(exclude_none=True)}
+        serialized = json.dumps(configured, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        if len(serialized.encode("utf-8")) > 4096:
+            raise DomainError("TENANT_QUOTAS_TOO_LARGE", "A configuração de quotas excede 4 KiB.", 422)
+        changed = conn.execute(
+            "UPDATE platform_tenants SET quotas_json=?,updated_at=?,version=version+1 WHERE id=? AND version=?",
+            (serialized, now, tenant_id, data.expected_version),
+        ).rowcount
+        if changed != 1:
+            raise DomainError(
+                "TENANT_VERSION_CONFLICT",
+                "As quotas foram alteradas por outro operador. Atualize a tela antes de tentar novamente.",
+                409,
+            )
+        result = {
+            "tenant_id": tenant_id,
+            "version": data.expected_version + 1,
+            "configured": configured,
+            "effective": {**DEFAULT_TENANT_QUOTAS, **configured},
+            "enforcement": {key: dict(value) for key, value in TENANT_QUOTA_ENFORCEMENT.items()},
+            "updated_at": now,
+        }
+        add_audit(
+            conn,
+            tenant_id=tenant_id,
+            actor_id=user.id,
+            action="update_quotas",
+            aggregate_type="tenant",
+            aggregate_id=tenant_id,
+            correlation_id=request.state.correlation_id,
+            before={"quotas": before, "version": data.expected_version},
+            after=result,
+            reason=data.reason,
+        )
+        add_outbox(
+            conn,
+            tenant_id=tenant_id,
+            event_type="TenantQuotasChanged",
+            aggregate_type="tenant",
+            aggregate_id=tenant_id,
+            payload=result,
+            correlation_id=request.state.correlation_id,
+        )
+    return result
+
+
 @router.get("/platform/domain-policy", operation_id="get_platform_domain_policy")
 def domain_policy(request: Request, user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin"))):
     if user.plane != "platform":
@@ -213,13 +464,43 @@ def support_session(
 ):
     if user.plane != "platform":
         raise DomainError("PLATFORM_ROUTE_REQUIRED", "Rota global indisponível neste domínio.", 404)
-    tenant = request.state.store.fetch_one("SELECT id,status FROM platform_tenants WHERE id=?", (tenant_id,))
-    if not tenant:
-        raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
-    now = datetime.now(UTC)
     session_id = uuid7()
-    expires = now + timedelta(minutes=data.minutes)
     with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, f"tenant-lifecycle:{tenant_id}")
+        tenant = conn.execute(
+            "SELECT id,status FROM platform_tenants WHERE id=?",
+            (tenant_id,),
+        ).fetchone()
+        if not tenant:
+            raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+        if tenant["status"] != "active":
+            raise DomainError(
+                "TENANT_SUPPORT_UNAVAILABLE",
+                "Sessões de suporte só podem ser abertas para tenants ativos.",
+                409,
+            )
+        if data.assumed_user_id:
+            try:
+                assumed_user = request.app.state.data_router.tenant_store(tenant_id).fetch_one(
+                    "SELECT id,active FROM users WHERE tenant_id=? AND id=?",
+                    (tenant_id, data.assumed_user_id),
+                )
+            except DomainError:
+                raise
+            except Exception as exc:
+                raise DomainError(
+                    "TENANT_DATABASE_UNAVAILABLE",
+                    "Não foi possível validar o usuário assumido no banco do tenant.",
+                    503,
+                ) from exc
+            if not assumed_user or not bool(assumed_user["active"]):
+                raise DomainError(
+                    "SUPPORT_ASSUMED_USER_INVALID",
+                    "O usuário assumido não pertence ao tenant ou não está ativo.",
+                    409,
+                )
+        now = datetime.now(UTC)
+        expires = now + timedelta(minutes=data.minutes)
         conn.execute(
             "INSERT INTO support_sessions(id,platform_admin_id,tenant_id,assumed_user_id,reason,ticket,ip,device,started_at,expires_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
             (
@@ -275,14 +556,38 @@ def platform_status(request: Request, user: CurrentUser = Depends(require_roles(
         or 0
     )
     builds = {"queued": 0, "building": 0, "failed": 0, "completed": 0}
+    unavailable_tenants: list[dict[str, str]] = []
     for tenant in tenants:
-        tenant_store = request.app.state.data_router.tenant_store(tenant["id"])
-        for state in list(builds):
-            builds[state] += int(
-                tenant_store.scalar("SELECT COUNT(*) AS n FROM app_build_requests WHERE status=?", (state,)) or 0
+        try:
+            tenant_store = request.app.state.data_router.tenant_store(tenant["id"])
+            for state in list(builds):
+                builds[state] += int(
+                    tenant_store.scalar(
+                        "SELECT COUNT(*) AS n FROM app_build_requests WHERE status=?",
+                        (state,),
+                    )
+                    or 0
+                )
+        except Exception:
+            unavailable_tenants.append(
+                {
+                    "tenant_id": str(tenant["id"]),
+                    "tenant_status": str(tenant["status"]),
+                    "code": "TENANT_DATABASE_UNAVAILABLE",
+                }
+            )
+            logger.warning(
+                json.dumps(
+                    {
+                        "event": "platform_status_tenant_unavailable",
+                        "tenant_id": str(tenant["id"]),
+                        "correlation_id": request.state.correlation_id,
+                    },
+                    separators=(",", ":"),
+                )
             )
     return {
-        "status": "operational",
+        "status": "degraded" if unavailable_tenants else "operational",
         "tenants": {
             "total": len(tenants),
             "active": sum(1 for item in tenants if item["status"] == "active"),
@@ -297,6 +602,12 @@ def platform_status(request: Request, user: CurrentUser = Depends(require_roles(
         "pending_control_outbox": pending_outbox,
         "active_support_sessions": active_support,
         "builds": builds,
+        "tenant_datastores": {
+            "checked": len(tenants),
+            "available": len(tenants) - len(unavailable_tenants),
+            "unavailable": len(unavailable_tenants),
+            "items": unavailable_tenants,
+        },
         "generated_at": iso_now(),
     }
 
@@ -349,3 +660,58 @@ def list_support_sessions(
         params.append(iso_now())
     sql += " ORDER BY started_at DESC LIMIT 500"
     return {"items": request.state.store.fetch_all(sql, params)}
+
+
+@router.post("/platform/support-sessions/{session_id}/revoke", operation_id="revoke_platform_support_session")
+def revoke_support_session(
+    session_id: str,
+    data: SupportSessionEndInput,
+    request: Request,
+    user: CurrentUser = Depends(require_roles("platform_super_admin", "platform_admin")),
+):
+    _require_platform(user)
+    now = iso_now()
+    with request.state.store.transaction() as conn:
+        current = conn.execute(
+            "SELECT id,tenant_id,platform_admin_id,started_at,expires_at,ended_at FROM support_sessions WHERE id=?",
+            (session_id,),
+        ).fetchone()
+        if not current:
+            raise DomainError("SUPPORT_SESSION_NOT_FOUND", "Sessão de suporte não localizada.", 404)
+        if current["ended_at"]:
+            raise DomainError("SUPPORT_SESSION_ALREADY_ENDED", "A sessão de suporte já foi encerrada.", 409)
+        changed = conn.execute(
+            "UPDATE support_sessions SET ended_at=? WHERE id=? AND ended_at IS NULL",
+            (now, session_id),
+        ).rowcount
+        if changed != 1:
+            raise DomainError("SUPPORT_SESSION_ALREADY_ENDED", "A sessão de suporte já foi encerrada.", 409)
+        result = {
+            "id": session_id,
+            "tenant_id": current["tenant_id"],
+            "state": "revoked",
+            "ended_at": now,
+            "reason": data.reason,
+        }
+        add_audit(
+            conn,
+            tenant_id=current["tenant_id"],
+            actor_id=user.id,
+            action="support_session_revoked",
+            aggregate_type="support_session",
+            aggregate_id=session_id,
+            correlation_id=request.state.correlation_id,
+            before=dict(current),
+            after=result,
+            reason=data.reason,
+        )
+        add_outbox(
+            conn,
+            tenant_id=current["tenant_id"],
+            event_type="SupportSessionRevoked",
+            aggregate_type="support_session",
+            aggregate_id=session_id,
+            payload=result,
+            correlation_id=request.state.correlation_id,
+        )
+    return result

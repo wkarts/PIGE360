@@ -40,7 +40,7 @@ jobs:
         with: {distribution: temurin, java-version: '21'}
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
+          node-version: '24'
           cache: npm
           cache-dependency-path: package-lock.json
       - uses: actions/cache@v4
@@ -65,7 +65,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
-      - name: Construir artefato Android de validação instalável
+      - name: Construir artefato Android de homologação manual
+        id: build
+        continue-on-error: true
         env:
           BUILD_SCOPE: ${{ inputs.scope || 'validation' }}
         shell: bash
@@ -76,7 +78,9 @@ jobs:
             bash scripts/mobile/build-android.sh --app family-app --profile debug --artifacts both --verify-signature
           fi
       - name: Assinar matriz Android solicitada manualmente
-        if: ${{ inputs.scope == 'all' && inputs.sign }}
+        id: sign
+        continue-on-error: true
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.scope == 'all' && inputs.sign && steps.build.outcome == 'success' }}
         env:
           SIGN_REQUESTED: 'true'
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -85,7 +89,21 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: bash scripts/mobile/sign-android.sh
       - uses: actions/upload-artifact@v4
+        if: always() && steps.build.outcome == 'success'
         with:
-          name: android-debug-validation-${{ github.run_id }}
+          name: android-${{ inputs.scope || 'validation' }}-${{ github.run_id }}
           path: release/artifacts/android/**
           if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Falhar quando build ou assinatura solicitada falhar
+        if: >-
+          steps.build.outcome != 'success' ||
+          (github.event_name == 'workflow_dispatch' && inputs.sign && inputs.scope != 'all') ||
+          (github.event_name == 'workflow_dispatch' && inputs.scope == 'all' && inputs.sign && steps.sign.outcome != 'success')
+        run: |
+          echo 'A matriz Android não foi concluída; os artefatos produzidos não serão apresentados como release assinada.' >&2
+          if [ '${{ inputs.sign }}' = 'true' ] && [ '${{ inputs.scope }}' != 'all' ]; then
+            echo 'A assinatura Android exige scope=all para não produzir um conjunto parcialmente assinado.' >&2
+          fi
+          exit 1

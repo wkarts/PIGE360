@@ -7,7 +7,7 @@ on:
       - 'scripts/oci/**'
       - 'VERSION'
   push:
-    branches: [main]
+    branches: [develop]
     paths:
       - 'infra/docker/base/**'
       - 'scripts/oci/**'
@@ -17,6 +17,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-base-images:
     runs-on: ubuntu-24.04
@@ -24,8 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
-      - run: bash scripts/oci/build-runtime-images.sh base release/artifacts/docker/base
-      - run: |
+      - name: Construir imagens base executáveis
+        run: bash scripts/oci/build-runtime-images.sh base release/artifacts/docker/base
+      - name: Validar manifesto das imagens base
+        run: |
           test -s release/artifacts/docker/base/images-manifest.json
           test "$(find release/artifacts/docker/base -name '*.tar' | wc -l)" -eq 4
       - uses: actions/upload-artifact@v4

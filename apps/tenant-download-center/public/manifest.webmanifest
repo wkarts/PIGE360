@@ -1,7 +1,9 @@
 {
   "name": "Central de Aplicativos",
   "short_name": "Central de A",
+  "id": "./",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F2F4F7",
   "theme_color": "#174C4F",

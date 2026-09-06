@@ -4,23 +4,38 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "766b8a17358e25534c38601b3de8118a814e008287ea7a26afb4a5742da42615",
-      "bytes": 325
+      "sha256": "970de6d695691a2ca5a29e13639e98e65beba3afafcaaacc7c5a5ef67c1e6eb9",
+      "bytes": 407
     },
     {
       "path": "scripts/deploy/deploy-saas-ssh.sh",
-      "sha256": "1d32bc47d70c09c16c8f5753d2c82521b35f216b13daebb5c8ad56b224cf4689",
-      "bytes": 2420
+      "sha256": "50ee463add0713a366f1c65f57d52c391baca1f97c67f9ad3a1df521f7dcab1d",
+      "bytes": 3905
     },
     {
       "path": "scripts/release/publish-github-release.sh",
-      "sha256": "b6f8e8eba3302fd86f7782153882efbf731bf5f2acde1dd0311ad3f64eec38fd",
-      "bytes": 3770
+      "sha256": "f10f1491105d99103130748a76b5a3fa7828bdfa658522f5f86a8354b15a8523",
+      "bytes": 3721
     },
     {
       "path": "workflows/00-ci.yml",
-      "sha256": "3b9d3420ce0e6506fbbe89affe2894cb1e2a35eabb2d3256e183b41dba1a2ecc",
-      "bytes": 664
+      "sha256": "a935b08df2e1e1a2c088c584a1e3453e9917bfac052e4eb2ee1b551bf0bde969",
+      "bytes": 1530
+    },
+    {
+      "path": "workflows/03-git-flow.yml",
+      "sha256": "d65c6eb73e5bb0493e37d50d304e19366d9386e904c2223c224cc593d62ddfd2",
+      "bytes": 1394
+    },
+    {
+      "path": "workflows/04-version-sync.yml",
+      "sha256": "65ff5d7899e808a6db5b32dd487fb1692d8797ae0fb3c09c2743441bff01146c",
+      "bytes": 1797
+    },
+    {
+      "path": "workflows/05-cleanup-stale-release.yml",
+      "sha256": "043359d0196e95a2680b2c6ff440d3b30539be66197c7153edd62a79a36dc00f",
+      "bytes": 2489
     },
     {
       "path": "workflows/05-pedagogy-attendance.yml",
@@ -29,38 +44,38 @@
     },
     {
       "path": "workflows/10-base-images.yml",
-      "sha256": "dee53462cf9b2879a64c921d1fd4943846ceee1efcd0d345d101cef4d5ebada8",
-      "bytes": 1113
+      "sha256": "378bccd3032a8609587ea24bef78e32d05a1be94f94a08979f9789f4766c3081",
+      "bytes": 1116
     },
     {
       "path": "workflows/20-application-images.yml",
-      "sha256": "7b5c4100c8ac612adb7da9c331ecf1b3ecf3abf907c52b6238a78f57c46a7c2a",
-      "bytes": 1843
+      "sha256": "2a9f57853a2c653991eb3816af6c8e0b8b0e4c5762d37022426c6cad59f7d59f",
+      "bytes": 4000
     },
     {
       "path": "workflows/30-build-web.yml",
-      "sha256": "7ea5ef6913c66b267012ffb9ceea74111f6202c994cec98c7b5bf285ba78fcff",
-      "bytes": 736
+      "sha256": "d7291a08db9ce36901902c25dbe93fd96cbc0e46b76fced1a2d09f625b3481c4",
+      "bytes": 1174
     },
     {
       "path": "workflows/31-build-desktop.yml",
-      "sha256": "d3a44d745b9ceaecf390cd688cbc04b21cd9696a57297112fe570f154341cd4d",
-      "bytes": 2257
+      "sha256": "84097958ea58bd514134e6680a6ef9593329d4fc4dc8cf1018af505df32b335b",
+      "bytes": 3059
     },
     {
       "path": "workflows/32-build-android.yml",
-      "sha256": "4ddc0770f06a9cc19814e2fdaab273a352db74e2bf5289028752f0e958cebb8b",
-      "bytes": 3405
+      "sha256": "9385c977d4e24a8cc3b3e28d73814e5d0c025f30ea3f1d3779413a77bed5a7db",
+      "bytes": 4444
     },
     {
       "path": "workflows/33-build-ios.yml",
-      "sha256": "1c0dc9af86b2f5f6c9cdd84bb1ca4773c4f9d507e3a9fe5efd81bc7910b1fef2",
-      "bytes": 3799
+      "sha256": "f82ec0cb5b679e22f0c1189befc7081cd11d93f2dc563d51c3bbc831d350a965",
+      "bytes": 5506
     },
     {
       "path": "workflows/34-build-tenant-apps.yml",
-      "sha256": "d85f86cb1d10868bca9fb4ab37ce2aae5853ead18482db53a8ac69f2cf587c5e",
-      "bytes": 1523
+      "sha256": "c2367c9e588db25d7b062079db58dd62a20ffb62673f6d0bbaab5aaa7206283f",
+      "bytes": 5388
     },
     {
       "path": "workflows/40-security.yml",
@@ -69,13 +84,13 @@
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "36a0d3d13bab6e5e71d62f3ed8cb3495ad7fd12b769b5ab5703c38a15077de05",
-      "bytes": 17741
+      "sha256": "d5e67cce0d5702fd998363c590111144733e20c2527720a5bff18973d937d1c9",
+      "bytes": 38083
     },
     {
       "path": "workflows/51-recover-release.yml",
-      "sha256": "0e4034f07ffdeedb330da118b7759ef508768161d682aa6ec644abe5c9c8458f",
-      "bytes": 4734
+      "sha256": "b5503c20ae27911c798218cbf594307c85ffa81a7084c96001108e7de84397e7",
+      "bytes": 4711
     },
     {
       "path": "workflows/60-deploy-saas.yml",

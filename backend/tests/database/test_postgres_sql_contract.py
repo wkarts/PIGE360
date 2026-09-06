@@ -18,3 +18,13 @@ def test_insert_or_ignore_becomes_on_conflict_do_nothing():
     assert sql.startswith("INSERT INTO bank_transactions")
     assert sql.endswith("ON CONFLICT DO NOTHING")
     assert bind == {"p0": "a", "p1": "b"}
+
+
+def test_transaction_advisory_lock_namespace_remains_parameterized():
+    sql, bind = _compile(
+        "SELECT pg_advisory_xact_lock(hashtextextended(?, 0))",
+        ("platform-super-admin-active-invariant",),
+    )
+    assert "hashtextextended(:p0, 0)" in sql
+    assert "platform-super-admin-active-invariant" not in sql
+    assert bind == {"p0": "platform-super-admin-active-invariant"}

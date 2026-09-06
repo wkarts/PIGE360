@@ -1,26 +1,41 @@
 # PIGE360 — Plataforma Integrada de Gestão Educacional
 
-**Versão de testes: 1.0.0**
+**Versão de testes: 1.1.2**
 
 PIGE360 é um ERP educacional brasileiro multi-tenant, SaaS/self-hosted e white-label. O monorepo reúne Control Plane, Tenant Plane, API FastAPI, workers Celery/RabbitMQ, aplicações Vue/PWA/Tauri, PostgreSQL por tenant, Redis, MinIO/S3, App Factory, contratos/assinaturas, módulos acadêmicos, financeiros, fiscais, RH, comunicação e serviços ao aluno.
 
 ## Estado validado desta árvore
 
-- **559 paths / 689 operações OpenAPI / 375 schemas**, sem `operationId` duplicado;
-- **98 testes backend aprovados** em três shards isolados (33/33, 33/33 e 32/32);
+- **599 paths / 742 operações OpenAPI / 403 schemas**, sem `operationId` duplicado;
+- regressão backend executada por nós pytest isolados; a contagem e os comandos
+  finais ficam em `release/reports/test-report.json`, evitando número histórico
+  divergente do pacote;
 - migrations separadas para Control Plane e Tenant Plane, com RLS no Tenant Plane;
+- reconciliação de migrations para todos os bancos de tenants operacionais no
+  `pige360-app-init`;
 - tenant resolvido por hostname antes da abertura do store;
 - PostgreSQL/SQLAlchemy 2 + `asyncpg` em `production/staging`; SQLite somente em desenvolvimento/testes;
-- JWT, refresh rotativo, Argon2, RBAC/ABAC contextual, auditoria, idempotência, transactional outbox/inbox;
+- JWT, lockout persistente, refresh rotativo atômico, revogação/replay, Argon2,
+  RBAC/ABAC contextual, auditoria, idempotência e transactional outbox/inbox;
+- lifecycle de tenants, quotas, sessões de suporte, usuários globais,
+  parceiros, planos, assinaturas manuais, uso/entitlements, agents, providers e
+  jobs operacionais no Control Plane;
 - planejamento pedagógico e frequência/chamada online/offline com vínculo acadêmico físico;
 - financeiro, PIX, vendas, estoque, fiscal, RH/folha/ponto, contratos e assinaturas;
 - ICP-Brasil/PAdES e GOV.BR condicionais, sem simular homologação externa;
 - Mail/IMAP/SMTP, Cloudflare, Mailcow e Evolution por providers configuráveis;
 - Reporting/Analytics, workflows humanos, avisos, solicitações, biblioteca, transporte e saúde;
 - Branding Studio, `TenantBrandKit`, App Factory e Central de Downloads;
-- **13 aplicações** Vue/PWA e fontes Tauri;
-- **46 serviços Compose** e **15 workflows GitHub Actions**;
-- OpenAPI + SDK TypeScript, backup/restore, secret scan, SBOM, provenance e pacote de release local.
+- **13 aplicações** Vue/PWA instaláveis e fontes Tauri preservadas;
+- **49 serviços nomeados** no conjunto base/overlays Compose e **19 workflows
+  GitHub Actions**, validados estruturalmente nesta máquina;
+- matriz de release para Windows x64/x86, Linux x64/ARM64, macOS Intel/Apple
+  Silicon, Web/PWA, CloudPanel x64/x86, Android APK/AAB ARM64 e iOS ARM64
+  unsigned;
+- OpenAPI + SDK TypeScript, backup/restore/update/rollback, secret scan, SBOM,
+  provenance, relatório antes/depois e pacote de release local;
+- nenhum container, provider externo ou binário nativo é apresentado como
+  homologado sem execução no ambiente correspondente.
 
 ## Primeiro uso com Docker
 
@@ -30,14 +45,17 @@ Requisitos: Docker Engine/Compose atual, acesso aos registries/dependências dur
 git clone <SEU_REPOSITORIO_PIGE360>
 cd pige360
 cp .env.example .env
-bash scripts/local/init-secrets.sh runtime-secrets
-
-docker compose -f compose.yaml -f compose.production.yaml config
-docker compose -f compose.yaml -f compose.production.yaml build
-docker compose -f compose.yaml -f compose.production.yaml up -d
+sh deploy/self-hosted/install.sh --mode source --target cloudpanel
 ```
 
-Depois, abra o hostname configurado para o Control Plane e execute o bootstrap do primeiro administrador. O fluxo de provisionamento cria o tenant, domínio lógico, banco/role PostgreSQL, migrations, storage e proprietário inicial.
+O instalador gera apenas os segredos ausentes, valida o Compose, constrói as
+imagens, executa as migrations do Control Plane e dos tenants e aguarda readiness
+dentro do container da API. Também existem targets `base`, `edge`, `dockge` e
+`portainer`, além do modo `registry`.
+
+Depois, abra o hostname configurado para o Control Plane e execute o bootstrap do
+primeiro administrador. O fluxo de provisionamento cria o tenant, domínio lógico,
+banco/role PostgreSQL, migrations, storage e proprietário inicial.
 
 Consulte [Instalação self-hosted](docs/deployment/SELF_HOSTED.md) e [Primeiro push no GitHub](docs/deployment/GITHUB_FIRST_RUN.md).
 
@@ -48,8 +66,7 @@ python -m venv .venv
 . .venv/bin/activate
 pip install -r backend/requirements.lock
 
-# Sem lockfile raiz válido, este script usa npm install com as versões diretas fixadas.
-bash scripts/frontend/install-dependencies.sh
+npm ci
 
 PYTHONPATH=backend pytest -q backend/tests
 npm run validate:ts
@@ -62,10 +79,12 @@ Para desenvolvimento/testes, `Settings.testing()` usa bancos SQLite fisicamente 
 ## CI local
 
 ```bash
-bash scripts/ci/run-all.sh
+bash scripts/ci/run-all.sh --ci --network-used
 ```
 
-No GitHub Actions, `bash scripts/ci/run-all.sh --ci` também instala as dependências frontend e executa os bundles Vite.
+O parâmetro `--network-used` registra explicitamente que a preparação resolveu
+dependências pela rede. No GitHub Actions, o modo `--ci` instala pelo lockfile,
+audita dependências e executa os 13 bundles Vite/PWA.
 
 ## Builds nativos e white-label
 
@@ -78,6 +97,11 @@ Os workflows estão preparados para runners compatíveis:
 - assinatura/publicação: somente quando os respectivos secrets estiverem configurados.
 
 A App Factory mantém builds em `queued` até existir agente compatível. Ausência de toolchain **não** é convertida em sucesso artificial.
+
+A release coordenada só publica quando todos os alvos obrigatórios registram
+artefatos finais válidos. Uma falha mantém uma única GitHub Release em draft; a
+retomada reconstrói a matriz a partir da mesma tag imutável, sem reaproveitar
+silenciosamente artefatos antigos.
 
 ## Segurança e publicação remota
 
@@ -93,9 +117,14 @@ INTEGRATION_REMOTE_ENABLED=false
 
 Nenhum secret real deve ser versionado. Use Docker Secrets/secret manager do runner.
 
-## Reprodutibilidade npm
+## Reprodutibilidade e rastreabilidade
 
-Esta construção local foi produzida sem acesso de rede e o cache npm disponível não continha todos os tarballs Vue/Vite. Por isso, um `package-lock.json` raiz com `integrity` verificado **não foi fabricado**. O instalador usa `npm ci` quando um lock raiz íntegro existir; caso contrário usa `npm install` com versões diretas fixadas. Em um ambiente autorizado com rede, gere e versione o lock raiz antes de exigir builds herméticos.
+O `package-lock.json` v3 é íntegro e o build usa `npm ci`. O ZIP fonte preserva
+todos os arquivos JavaScript espelho já existentes, incluindo os 50 `*.vue.js`
+recebidos, qualquer novo mirror gerado de componente Vue e os 13 `main.js`; ele
+mantém o `mtime` UTC de cada fonte em vez de gravar uma data fixa.
+Consulte `docs/operations/PROCESS_AUDIT_AND_CORRECTION.md` e
+`docs/operations/BEFORE_AFTER_REPORT.md` para o histórico completo.
 
 ## Licença, segurança e operação
 

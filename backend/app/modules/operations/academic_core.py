@@ -13,6 +13,7 @@ from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser, current_user
+from app.shared.tenant_quotas import tenant_quota_limit
 
 router=APIRouter(tags=["institutional-academic-core"])
 
@@ -119,6 +120,26 @@ def _create(request:Request,user:CurrentUser,table:str,fields:dict[str,Any],even
     with request.state.store.transaction() as conn:
         conn.execute(sql,tuple(data[c] for c in cols));add_audit(conn,tenant_id=tid,actor_id=user.id,action="create",aggregate_type=table,aggregate_id=rid,correlation_id=request.state.correlation_id,after=data);add_outbox(conn,tenant_id=tid,event_type=event,aggregate_type=table,aggregate_id=rid,payload=data,correlation_id=request.state.correlation_id)
     return data
+
+
+def _enforce_active_student_quota(request: Request, conn, tenant_id: str) -> int:
+    limit = tenant_quota_limit(
+        request.app.state.data_router.control,
+        tenant_id,
+        "max_students",
+    )
+    request.state.store.transaction_lock(conn, f"tenant-active-student-quota:{tenant_id}")
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM students WHERE tenant_id=? AND state='active'",
+        (tenant_id,),
+    ).fetchone()
+    if int(row["n"] if row else 0) >= limit:
+        raise DomainError(
+            "TENANT_QUOTA_EXCEEDED",
+            f"A quota de alunos ativos ({limit}) foi atingida.",
+            409,
+        )
+    return limit
 
 
 def _list(request:Request,user:CurrentUser,table:str,order:str="created_at DESC",limit:int=100,where:str="",params:list[Any]|None=None):
@@ -262,7 +283,13 @@ def list_students(request:Request,limit:int=100,user:CurrentUser=Depends(current
 @router.post("/students",status_code=201,operation_id="create_student_relational")
 def create_student(data:StudentInput,request:Request,user:CurrentUser=Depends(current_user)):
     require(user,ADMIN_ROLES);tid=tenant(user);row_or_404(request,"SELECT id FROM people WHERE id=? AND tenant_id=?",(data.person_id,tid),"PERSON_NOT_FOUND","Pessoa não localizada.")
-    return _create(request,user,"students",{"person_id":data.person_id,"registration_number":data.registration_number,"state":"active","needs_json":dumps(data.needs)},"StudentRegistered")
+    now=iso_now();student_id=uuid7();result={"id":student_id,"tenant_id":tid,"person_id":data.person_id,"registration_number":data.registration_number,"state":"active","needs_json":dumps(data.needs),"created_at":now,"updated_at":now}
+    with request.state.store.transaction() as conn:
+        _enforce_active_student_quota(request,conn,tid)
+        conn.execute("INSERT INTO students(id,tenant_id,person_id,registration_number,state,needs_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)",(student_id,tid,data.person_id,data.registration_number,"active",dumps(data.needs),now,now))
+        add_audit(conn,tenant_id=tid,actor_id=user.id,action="create",aggregate_type="students",aggregate_id=student_id,correlation_id=request.state.correlation_id,after=result)
+        add_outbox(conn,tenant_id=tid,event_type="StudentRegistered",aggregate_type="students",aggregate_id=student_id,payload=result,correlation_id=request.state.correlation_id)
+    return result
 
 @router.get("/students/{student_id}",operation_id="get_student_relational")
 def get_student(student_id:str,request:Request,user:CurrentUser=Depends(current_user)):
@@ -322,8 +349,11 @@ def convert_candidate(candidate_id:str,data:CandidateConvert,request:Request,use
     if data.class_group_id:
         row_or_404(request,"SELECT id FROM class_groups WHERE tenant_id=? AND id=? AND unit_id=? AND program_id=? AND curriculum_id=? AND academic_year_id=?",(tid,data.class_group_id,data.unit_id,cand["program_id"],data.curriculum_id,cand["academic_year_id"]),"CLASS_GROUP_NOT_FOUND","Turma não localizada para o contexto do candidato.")
     with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn,f"tenant-active-student-quota:{tid}")
         student=conn.execute("SELECT * FROM students WHERE tenant_id=? AND person_id=?",(tid,cand["person_id"])).fetchone();student_id=student["id"] if student else uuid7()
-        if not student:conn.execute("INSERT INTO students(id,tenant_id,person_id,registration_number,state,needs_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)",(student_id,tid,cand["person_id"],data.registration_number,"active","{}",now,now))
+        if not student:
+            _enforce_active_student_quota(request,conn,tid)
+            conn.execute("INSERT INTO students(id,tenant_id,person_id,registration_number,state,needs_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)",(student_id,tid,cand["person_id"],data.registration_number,"active","{}",now,now))
         reservation=None
         if data.class_group_id:
             reservation=conn.execute("SELECT * FROM admission_vacancy_reservations WHERE tenant_id=? AND candidate_id=? AND class_group_id=? AND state='reserved' AND expires_at>? ORDER BY created_at DESC LIMIT 1",(tid,candidate_id,data.class_group_id,now)).fetchone()

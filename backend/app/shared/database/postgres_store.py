@@ -161,6 +161,15 @@ class PostgresStore:
         finally:
             self._run(connection.close())
 
+    @staticmethod
+    def transaction_lock(conn: _TransactionConnection, namespace: str) -> None:
+        """Adquire lock transacional nomeado sem interpolar o namespace no SQL."""
+
+        conn.execute(
+            "SELECT pg_advisory_xact_lock(hashtextextended(?, 0))",
+            (namespace,),
+        )
+
     async def _fetch(self, sql: str, params: Sequence[Any], all_rows: bool) -> Any:
         statement, bind = _compile(sql, params)
         async with self._engine.connect() as conn:

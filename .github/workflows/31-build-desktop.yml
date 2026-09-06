@@ -1,5 +1,13 @@
-name: 31 · Desktop Tauri (manual)
+name: 31 · Desktop Tauri
 'on':
+  pull_request:
+    paths:
+      - 'apps/desktop-admin/**'
+      - 'apps/pos-app/**'
+      - 'rust/**'
+      - 'scripts/desktop/**'
+      - '.github/workflows/31-build-desktop.yml'
+      - 'package-lock.json'
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,21 +22,30 @@ jobs:
         include:
           - os: windows-2025
             target: x86_64-pc-windows-msvc
+            platform_arch: windows-x64
           - os: windows-2025
             target: i686-pc-windows-msvc
+            platform_arch: windows-x86
           - os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
+            platform_arch: linux-x64
           - os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
+            platform_arch: linux-arm64
           - os: macos-15
             target: x86_64-apple-darwin
+            platform_arch: macos-x64
           - os: macos-15
             target: aarch64-apple-darwin
+            platform_arch: macos-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: '22.16.0'}
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@stable
         with: {targets: '${{ matrix.target }}'}
       - name: Preparar Perl completo para OpenSSL no Windows
@@ -49,6 +66,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
-      - run: bash scripts/desktop/build-all.sh "${{ matrix.target }}"
+      - name: Construir somente bundles finais
+        id: build
+        continue-on-error: true
+        run: bash scripts/desktop/build-all.sh "${{ matrix.target }}"
       - uses: actions/upload-artifact@v4
-        with: {name: 'desktop-${{ matrix.target }}', path: release/artifacts/desktop/**, if-no-files-found: error}
+        if: steps.build.outcome == 'success'
+        with:
+          name: desktop-${{ matrix.platform_arch }}
+          path: release/artifacts/desktop/${{ matrix.platform_arch }}/**
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Falhar sem ocultar o resultado da matriz
+        if: steps.build.outcome != 'success'
+        run: |
+          echo "Build desktop falhou para ${{ matrix.target }}; nenhum target Cargo foi publicado." >&2
+          exit 1

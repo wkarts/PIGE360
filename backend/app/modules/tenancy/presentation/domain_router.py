@@ -20,6 +20,7 @@ from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser, require_roles
+from app.shared.tenant_quotas import quota_limit_from_raw
 
 router = APIRouter(tags=["tenancy-domains"])
 
@@ -52,6 +53,45 @@ def _domain(request: Request, tenant_id: str, domain_id: str) -> dict:
     if not row:
         raise DomainError("TENANT_DOMAIN_NOT_FOUND", "Domínio não localizado.", 404)
     return row
+
+
+def _enforce_disabled_domain_reactivation_quota(request: Request, conn, tenant_id: str, domain_id: str) -> None:
+    """Mantém uma reativação no mesmo limite transacional usado na criação."""
+
+    current = conn.execute(
+        "SELECT status FROM tenant_domains WHERE tenant_id=? AND id=?",
+        (tenant_id, domain_id),
+    ).fetchone()
+    if not current:
+        raise DomainError("TENANT_DOMAIN_NOT_FOUND", "Domínio não localizado.", 404)
+    if current["status"] != "disabled":
+        return
+    quota_row = conn.execute(
+        "SELECT quotas_json FROM platform_tenants WHERE id=?",
+        (tenant_id,),
+    ).fetchone()
+    if not quota_row:
+        raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+    limit = quota_limit_from_raw(quota_row["quotas_json"], "max_custom_domains")
+    active = conn.execute(
+        """SELECT COUNT(*) AS n FROM tenant_domains
+           WHERE tenant_id=? AND is_canonical=0 AND status<>'disabled'""",
+        (tenant_id,),
+    ).fetchone()
+    if int(active["n"] if active else 0) >= limit:
+        raise DomainError(
+            "TENANT_QUOTA_EXCEEDED",
+            f"A quota de domínios personalizados ({limit}) foi atingida.",
+            409,
+        )
+
+
+def _preflight_disabled_domain_reactivation(request: Request, tenant_id: str, domain_id: str) -> None:
+    """Falha antes de DNS/provider quando a reativação já não tem capacidade."""
+
+    with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, "custom-domain-registry")
+        _enforce_disabled_domain_reactivation_quota(request, conn, tenant_id, domain_id)
 
 
 def _provider_validation(row: dict) -> list[dict]:
@@ -126,13 +166,37 @@ def create_domain(
             f"Hosts dentro de {base} são provisionados pelo domínio canônico do tenant.",
             409,
         )
-    existing = request.state.store.fetch_one("SELECT id,tenant_id FROM tenant_domains WHERE hostname=?", (hostname,))
-    if existing:
-        raise DomainError("TENANT_DOMAIN_ALREADY_EXISTS", "Este hostname já está cadastrado.", 409)
     name, token = verification_challenge(hostname)
     domain_id = uuid7()
     now = iso_now()
     with request.state.store.transaction() as conn:
+        # O registro de hostname é global. Um lock único preserva ao mesmo tempo
+        # a unicidade amigável (409, não erro de constraint) e a quota por tenant.
+        request.state.store.transaction_lock(conn, "custom-domain-registry")
+        existing = conn.execute(
+            "SELECT id,tenant_id FROM tenant_domains WHERE hostname=?",
+            (hostname,),
+        ).fetchone()
+        if existing:
+            raise DomainError("TENANT_DOMAIN_ALREADY_EXISTS", "Este hostname já está cadastrado.", 409)
+        quota_row = conn.execute(
+            "SELECT quotas_json FROM platform_tenants WHERE id=?",
+            (tenant_id,),
+        ).fetchone()
+        if not quota_row:
+            raise DomainError("TENANT_NOT_FOUND", "Tenant não localizado.", 404)
+        limit = quota_limit_from_raw(quota_row["quotas_json"], "max_custom_domains")
+        current_domains = conn.execute(
+            """SELECT COUNT(*) AS n FROM tenant_domains
+               WHERE tenant_id=? AND is_canonical=0 AND status<>'disabled'""",
+            (tenant_id,),
+        ).fetchone()
+        if int(current_domains["n"] if current_domains else 0) >= limit:
+            raise DomainError(
+                "TENANT_QUOTA_EXCEEDED",
+                f"A quota de domínios personalizados ({limit}) foi atingida.",
+                409,
+            )
         conn.execute(
             """INSERT INTO tenant_domains(
                 id,tenant_id,hostname,surface,status,is_canonical,certificate_policy,certificate_status,
@@ -182,6 +246,7 @@ def verify_domain(
         return _safe(row, request)
     if row.get("verification_status") == "verified" and row.get("status") in {"pending_tls", "active"}:
         return _safe(row, request)
+    _preflight_disabled_domain_reactivation(request, tenant_id, domain_id)
     lookup = getattr(request.app.state, "domain_txt_lookup", None)
     try:
         valid = verify_dns_txt(str(row["verification_name"]), str(row["verification_token"]), lookup=lookup)
@@ -193,6 +258,8 @@ def verify_domain(
         cert = request_certificate(str(row["hostname"]))
     except DomainLifecycleError as exc:
         with request.state.store.transaction() as conn:
+            request.state.store.transaction_lock(conn, "custom-domain-registry")
+            _enforce_disabled_domain_reactivation_quota(request, conn, tenant_id, domain_id)
             conn.execute(
                 "UPDATE tenant_domains SET verification_status='verified',verified_at=?,status='verified_waiting_provider',last_error=?,updated_at=? WHERE id=?",
                 (iso_now(), str(exc), iso_now(), domain_id),
@@ -201,6 +268,8 @@ def verify_domain(
     now = iso_now()
     provider_validation = cert.get("provider_validation") or []
     with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, "custom-domain-registry")
+        _enforce_disabled_domain_reactivation_quota(request, conn, tenant_id, domain_id)
         conn.execute(
             """UPDATE tenant_domains SET verification_status='verified',verified_at=?,status=?,certificate_status=?,
                provider=?,provider_reference=?,provider_validation_json=?,last_error=NULL,updated_at=? WHERE id=?""",
@@ -246,6 +315,7 @@ def refresh_domain(
     row = _domain(request, tenant_id, domain_id)
     if row.get("verification_status") != "verified":
         raise DomainError("DOMAIN_NOT_VERIFIED", "Verifique a propriedade do domínio antes do TLS.", 409)
+    _preflight_disabled_domain_reactivation(request, tenant_id, domain_id)
     try:
         result = refresh_certificate(str(row["hostname"]), row.get("provider"), row.get("provider_reference"))
     except DomainLifecycleError as exc:
@@ -256,6 +326,8 @@ def refresh_domain(
     active = result["status"] == "active" and result["certificate_status"] == "active"
     provider_validation = result.get("provider_validation") or _provider_validation(row)
     with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, "custom-domain-registry")
+        _enforce_disabled_domain_reactivation_quota(request, conn, tenant_id, domain_id)
         conn.execute(
             """UPDATE tenant_domains SET status=?,certificate_status=?,provider_validation_json=?,
                activated_at=CASE WHEN ? THEN COALESCE(activated_at,?) ELSE activated_at END,

@@ -1,0 +1,29 @@
+services:
+  pige360-api:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-web:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-platform-console:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-branding-studio:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-tenant-download-center:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-grafana:
+    labels:
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+
+networks:
+  pige360-app:
+    name: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+  pige360-data:
+    name: ${PIGE360_NETWORK_DATA_NAME:?PIGE360_NETWORK_DATA_NAME obrigatorio}
+  pige360-observability:
+    name: ${PIGE360_NETWORK_OBSERVABILITY_NAME:?PIGE360_NETWORK_OBSERVABILITY_NAME obrigatorio}
+  pige360-build-farm:
+    name: ${PIGE360_NETWORK_BUILD_FARM_NAME:?PIGE360_NETWORK_BUILD_FARM_NAME obrigatorio}

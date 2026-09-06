@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "vue";
 import { Pige360SessionClient, type ApiProblem } from "@pige360/auth";
+import CommercialAdministrationPanel from "./components/CommercialAdministrationPanel.vue";
+import OperationalAdministrationPanel from "./components/OperationalAdministrationPanel.vue";
 
 type Row = Record<string, any>;
 const api = new Pige360SessionClient();
@@ -15,17 +17,60 @@ const tenants = ref<Row[]>([]);
 const status = ref<Row>({});
 const audit = ref<Row[]>([]);
 const support = ref<Row[]>([]);
+const inventory = ref<Row>({});
+const platformUsers = ref<Row[]>([]);
 const selected = ref<Row | null>(null);
 const apps = ref<Row>({ entitlements: [], manifests: [], builds: [], releases: [] });
 const branding = ref<Row>({});
 const domains = ref<Row[]>([]);
+const quotas = ref<Row>({ configured: {}, effective: {}, enforcement: {} });
 const logs = ref<Row[]>([]);
 const lastLogQuery = ref("");
 
 const form = reactive({ code: "", legal_name: "", trade_name: "", owner_email: "", owner_password: "" });
 const supportForm = reactive({ reason: "", ticket: "", minutes: 30 });
+const supportEndReason = ref("");
+const lifecycleReason = ref("");
+const quotaReason = ref("");
 const domainForm = reactive({ hostname: "", surface: "admin" });
 const logFilters = reactive({ correlation_id: "", service: "", plane: "", level: "", minutes: 60, limit: 200 });
+const quotaForm = reactive({
+  max_users: 500,
+  max_students: 5000,
+  storage_bytes: 107374182400,
+  api_requests_per_minute: 6000,
+  max_integrations: 20,
+  max_concurrent_builds: 2,
+  max_custom_domains: 10,
+});
+const selectedProducts = ref<string[]>(["pwa"]);
+const selectedPlatforms = ref<string[]>(["pwa"]);
+const productOptions = [
+  ["pwa", "Web / PWA"],
+  ["family-mobile", "Família mobile"],
+  ["teacher-mobile", "Professor mobile"],
+  ["student-mobile", "Aluno mobile"],
+  ["admin-mobile", "Admin mobile"],
+  ["pos-mobile", "PDV mobile"],
+  ["kiosk", "Quiosque"],
+  ["timeclock", "Ponto"],
+  ["desktop-admin", "Admin desktop"],
+  ["pos-desktop", "PDV desktop"],
+] as const;
+const platformOptions = [
+  ["pwa", "PWA"],
+  ["android-apk", "Android APK"],
+  ["android-aab", "Android AAB"],
+  ["ios-app", "iOS App"],
+  ["ios-xcarchive", "iOS Archive"],
+  ["ios-ipa-unsigned", "iOS IPA sem assinatura"],
+  ["windows-x64", "Windows x64"],
+  ["windows-x86", "Windows x86"],
+  ["linux-x64", "Linux x64"],
+  ["linux-arm64", "Linux ARM64"],
+  ["macos-intel", "macOS Intel"],
+  ["macos-apple", "macOS Apple"],
+] as const;
 
 function msg(e: unknown) {
   const p = (e as Error & { problem?: ApiProblem })?.problem;
@@ -37,22 +82,40 @@ function clearFeedback() {
   notice.value = "";
 }
 
+function handlePanelFeedback(value: { type: "success" | "error"; message: string }) {
+  clearFeedback();
+  if (value.type === "success") notice.value = value.message;
+  else error.value = value.message;
+}
+
 function canonicalDomainHost(): string {
-  return String(domains.value.find((domain: Row) => Boolean(domain.is_canonical))?.hostname || "—");
+  return String(domains.value.find((domain: Row) => Boolean(domain.is_canonical) && domain.status === "active")?.hostname || "—");
+}
+
+function selectedSupportSessions(): Row[] {
+  return support.value.filter((session: Row) => session.tenant_id === selected.value?.id);
+}
+
+function canManagePlatformUsers(): boolean {
+  return Boolean(api.claims()?.roles?.includes("platform_super_admin"));
 }
 
 async function load() {
   clearFeedback();
-  const [t, s, a, ss] = await Promise.all([
+  const [t, s, a, ss, operations, users] = await Promise.all([
     api.request<Row>("/platform/tenants"),
     api.request<Row>("/platform/status"),
     api.request<Row>("/platform/audit?limit=50"),
     api.request<Row>("/platform/support-sessions?active_only=true"),
+    api.request<Row>("/platform/operations/inventory"),
+    api.request<Row>("/platform/users"),
   ]);
   tenants.value = t.items || [];
   status.value = s;
   audit.value = a.items || [];
   support.value = ss.items || [];
+  inventory.value = operations;
+  platformUsers.value = users.items || [];
   if (selected.value) {
     const fresh = tenants.value.find((x) => x.id === selected.value?.id);
     if (fresh) selected.value = fresh;
@@ -62,14 +125,17 @@ async function load() {
 
 async function loadTenant() {
   if (!selected.value) return;
-  const [appData, brandData, domainData] = await Promise.all([
+  const [appData, brandData, domainData, quotaData] = await Promise.all([
     api.request<Row>(`/platform/tenants/${selected.value.id}/apps`),
     api.request<Row>(`/platform/tenants/${selected.value.id}/branding`),
     api.request<Row>(`/platform/tenants/${selected.value.id}/domains`),
+    api.request<Row>(`/platform/tenants/${selected.value.id}/quotas`),
   ]);
   apps.value = appData;
   branding.value = brandData;
   domains.value = domainData.items || [];
+  quotas.value = quotaData;
+  Object.assign(quotaForm, quotaData.effective || {});
 }
 
 async function boot() {
@@ -142,35 +208,147 @@ async function createSupport() {
   }
 }
 
-async function entitlement() {
-  if (!selected.value) return;
+async function revokeSupport(session: Row) {
+  if (!supportEndReason.value.trim()) {
+    error.value = "Informe o motivo do encerramento da sessão de suporte.";
+    return;
+  }
   clearFeedback();
   try {
-    await api.request(`/platform/tenants/${selected.value.id}/apps/entitlements`, {
+    await api.request(`/platform/support-sessions/${session.id}/revoke`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ app_product: "pwa", state: "active", contract_reference: "console" }),
+      body: JSON.stringify({ reason: supportEndReason.value }),
     });
-    notice.value = "Entitlement PWA atualizado.";
-    await loadTenant();
+    supportEndReason.value = "";
+    notice.value = "Sessão de suporte encerrada e revogada.";
+    await load();
   } catch (e) {
     error.value = msg(e);
   }
 }
 
-async function manifestAndBuild() {
+async function changeTenantState(action: "suspend" | "reactivate") {
   if (!selected.value) return;
-  const brandVersion = branding.value.active_version;
-  if (!brandVersion) {
-    error.value = "Publique o branding do tenant antes de gerar a PWA.";
+  if (!lifecycleReason.value.trim()) {
+    error.value = "Informe um motivo auditável para alterar o status do tenant.";
     return;
   }
-  const domain = domains.value.find((d: Row) => d.is_canonical)?.hostname || domains.value.find((d: Row) => d.status === "active")?.hostname;
+  clearFeedback();
+  try {
+    await api.request(`/platform/tenants/${selected.value.id}/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expected_version: selected.value.version, reason: lifecycleReason.value }),
+    });
+    lifecycleReason.value = "";
+    notice.value = action === "suspend" ? "Tenant suspenso." : "Tenant reativado.";
+    await load();
+  } catch (e) {
+    error.value = msg(e);
+  }
+}
+
+async function updateQuotas() {
+  if (!selected.value) return;
+  if (!quotaReason.value.trim()) {
+    error.value = "Informe o motivo da alteração das quotas.";
+    return;
+  }
+  clearFeedback();
+  try {
+    await api.request(`/platform/tenants/${selected.value.id}/quotas`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expected_version: selected.value.version, reason: quotaReason.value, quotas: quotaForm }),
+    });
+    quotaReason.value = "";
+    notice.value = "Quotas atualizadas com controle de versão.";
+    await load();
+  } catch (e) {
+    error.value = msg(e);
+  }
+}
+
+async function setPlatformUserState(platformUser: Row, active: boolean) {
+  if (!canManagePlatformUsers()) return;
+  const reason = window.prompt(active ? "Motivo para reativar este usuário:" : "Motivo para desativar este usuário:");
+  if (!reason) return;
+  clearFeedback();
+  try {
+    await api.request(`/platform/users/${platformUser.id}/active`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ active, reason }),
+    });
+    notice.value = active ? "Usuário da plataforma reativado." : "Usuário da plataforma desativado e sessões revogadas.";
+    await load();
+  } catch (e) {
+    error.value = msg(e);
+  }
+}
+
+async function activateEntitlements() {
+  if (!selected.value || busy.value) return;
+  if (!selectedProducts.value.length) {
+    error.value = "Selecione ao menos um produto.";
+    return;
+  }
+  busy.value = true;
+  clearFeedback();
+  try {
+    await Promise.all(selectedProducts.value.map((appProduct) => api.request(
+      `/platform/tenants/${selected.value!.id}/apps/entitlements`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ app_product: appProduct, state: "active", contract_reference: "platform-console" }),
+      },
+    )));
+    notice.value = "Entitlements selecionados foram ativados.";
+    await loadTenant();
+  } catch (e) {
+    error.value = msg(e);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function manifestAndBuild() {
+  if (!selected.value || busy.value) return;
+  if (!selectedProducts.value.length || !selectedPlatforms.value.length) {
+    error.value = "Selecione ao menos um produto e uma plataforma.";
+    return;
+  }
+  const brandVersion = branding.value.active_version;
+  if (!brandVersion) {
+    error.value = "Publique o branding do tenant antes de solicitar builds.";
+    return;
+  }
+  const domain = domains.value.find((d: Row) => d.is_canonical && d.status === "active")?.hostname || domains.value.find((d: Row) => d.status === "active")?.hostname;
   if (!domain) {
     error.value = "Tenant sem domínio provisionado.";
     return;
   }
   const slug = selected.value.code.replace(/[^a-z0-9]/g, "");
+  const manifestApps = Object.fromEntries(selectedProducts.value.map((product) => {
+    const suffix = product.replace(/[^a-z0-9]/g, "");
+    const label = productOptions.find(([value]) => value === product)?.[1] || product;
+    const previous = apps.value.manifests?.[0]?.payload?.apps?.[product] || {};
+    return [product, {
+      enabled: true,
+      display_name: `${selected.value!.trade_name} ${label}`,
+      identifier: previous.identifier || `br.com.${slug}.${suffix}`,
+      api_url: `https://${domain}`,
+      web_url: `https://${domain}`,
+      update_url: `https://${domain}/apps`,
+      icon_asset_id: previous.icon_asset_id || null,
+      splash_asset_id: previous.splash_asset_id || null,
+      features: { finance: true, attendance: true },
+      signing: previous.signing?.requires_reconfiguration ? {} : (previous.signing || {}),
+    }];
+  }));
+  busy.value = true;
   clearFeedback();
   try {
     const mf = await api.request<Row>(`/platform/tenants/${selected.value.id}/apps/manifests`, {
@@ -180,27 +358,36 @@ async function manifestAndBuild() {
         tenant_code: selected.value.code,
         brand_version: brandVersion,
         release_channel: "stable",
-        apps: {
-          pwa: {
-            enabled: true,
-            display_name: `${selected.value.trade_name} PWA`,
-            identifier: `br.com.${slug}.pwa`,
-            api_url: `https://${domain}`,
-            web_url: `https://${domain}`,
-            update_url: `https://${domain}/apps`,
-            features: { finance: true, attendance: true },
-            signing: {},
-          },
-        },
+        apps: manifestApps,
         metadata: { created_from: "platform-console" },
       }),
     });
     const build = await api.request<Row>(`/platform/tenants/${selected.value.id}/apps/builds`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Idempotency-Key": `build-${crypto.randomUUID()}` },
-      body: JSON.stringify({ manifest_id: mf.id, platforms: ["pwa"], products: ["pwa"] }),
+      body: JSON.stringify({ manifest_id: mf.id, platforms: selectedPlatforms.value, products: selectedProducts.value }),
     });
-    notice.value = `Build PWA ${build.id} enfileirado.`;
+    notice.value = `Build ${build.build_id} enfileirado com ${build.jobs?.length || 0} jobs compatíveis.`;
+    await loadTenant();
+  } catch (e) {
+    error.value = msg(e);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function retryBuild(build: Row) {
+  if (!selected.value) return;
+  const reason = window.prompt("Motivo para reenfileirar os jobs com falha:");
+  if (!reason) return;
+  clearFeedback();
+  try {
+    await api.request(`/platform/tenants/${selected.value.id}/apps/builds/${build.build_id}/retry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    });
+    notice.value = `Build ${build.build_id} reenfileirado.`;
     await loadTenant();
   } catch (e) {
     error.value = msg(e);
@@ -324,25 +511,72 @@ onMounted(boot);
         <article><span>Suporte</span><strong>{{status.active_support_sessions||0}}</strong><small>sessões ativas</small></article>
       </section>
 
-      <section v-if="!selected" class="grid two">
-        <form class="panel form" @submit.prevent="createTenant">
-          <h2>Provisionar tenant</h2>
-          <p class="helper">O domínio canônico é criado automaticamente como <code>&lt;codigo&gt;.pige360.com.br</code>.</p>
-          <label>Código<input v-model="form.code" pattern="[a-z0-9-]+" required placeholder="colegio-modelo"></label>
-          <label>Razão social<input v-model="form.legal_name" required></label>
-          <label>Nome comercial<input v-model="form.trade_name" required></label>
-          <label>Administrador inicial<input v-model="form.owner_email" type="email" required></label>
-          <label>Senha inicial<input v-model="form.owner_password" type="password" minlength="10" required></label>
-          <button class="primary" :disabled="busy">Provisionar</button>
-        </form>
-        <div class="panel"><h2>Auditoria global</h2><div class="list-row" v-for="a in audit.slice(0,15)" :key="a.id"><div><strong>{{a.action}} · {{a.aggregate_type}}</strong><span>{{a.tenant_id||'platform'}} · {{a.correlation_id}}</span></div><small>{{a.created_at}}</small></div></div>
-      </section>
+      <template v-if="!selected">
+        <section class="grid two">
+          <form class="panel form" @submit.prevent="createTenant">
+            <h2>Provisionar tenant</h2>
+            <p class="helper">O domínio canônico é criado automaticamente como <code>&lt;codigo&gt;.pige360.com.br</code>.</p>
+            <label>Código<input v-model="form.code" pattern="[a-z0-9-]+" required placeholder="colegio-modelo"></label>
+            <label>Razão social<input v-model="form.legal_name" required></label>
+            <label>Nome comercial<input v-model="form.trade_name" required></label>
+            <label>Administrador inicial<input v-model="form.owner_email" type="email" required></label>
+            <label>Senha inicial<input v-model="form.owner_password" type="password" minlength="10" required></label>
+            <button class="primary" :disabled="busy">Provisionar</button>
+          </form>
+          <div class="panel"><h2>Auditoria global</h2><div class="list-row" v-for="a in audit.slice(0,15)" :key="a.id"><div><strong>{{a.action}} · {{a.aggregate_type}}</strong><span>{{a.tenant_id||'platform'}} · {{a.correlation_id}}</span></div><small>{{a.created_at}}</small></div></div>
+        </section>
+
+        <section class="grid two">
+          <div class="panel">
+            <div class="section-title"><div><h2>Saúde e recursos</h2><small>Leitura interna; nenhum provider externo é consultado</small></div><span class="status-pill">{{inventory.status||'—'}}</span></div>
+            <dl class="facts">
+              <div><dt>Control DB</dt><dd>{{inventory.control_database?.provider}} · {{inventory.control_database?.state}}</dd></div>
+              <div><dt>Bancos tenant</dt><dd>{{inventory.tenant_resources?.database_reachable||0}} acessíveis · {{inventory.tenant_resources?.database_unavailable||0}} indisponíveis</dd></div>
+              <div><dt>Storage</dt><dd>{{inventory.tenant_resources?.storage_configured||0}} tenants configurados</dd></div>
+              <div><dt>Outbox</dt><dd>{{inventory.workloads?.control_outbox_pending||0}} control · {{inventory.workloads?.tenant_outbox_pending||0}} tenants</dd></div>
+              <div><dt>Integrações</dt><dd>{{inventory.workloads?.integration_connections||0}} conexões registradas</dd></div>
+              <div><dt>Mail</dt><dd>{{inventory.configuration?.mail?.mode||'disabled'}} · {{inventory.workloads?.mail_accounts||0}} contas</dd></div>
+              <div><dt>Deploy remoto</dt><dd>{{inventory.configuration?.remote_operations?.deploy_enabled?'habilitado':'desabilitado'}}</dd></div>
+            </dl>
+          </div>
+          <div class="panel">
+            <div class="section-title"><div><h2>Usuários da plataforma</h2><small>Senha, token e credenciais nunca são exibidos</small></div><span>{{platformUsers.length}} contas</span></div>
+            <div class="list-row" v-for="platformUser in platformUsers" :key="platformUser.id">
+              <div><strong>{{platformUser.email}}</strong><span>{{platformUser.roles.join(', ')}} · {{platformUser.active?'ativo':'inativo'}}<template v-if="platformUser.is_current_user"> · sua conta</template></span></div>
+              <button v-if="canManagePlatformUsers() && !platformUser.is_current_user" :class="platformUser.active?'danger-outline':'ghost-dark'" @click="setPlatformUserState(platformUser,!platformUser.active)">{{platformUser.active?'Desativar':'Reativar'}}</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" v-if="support.length">
+          <div class="section-title"><div><h2>Sessões de suporte ativas</h2><small>Acesse o tenant para encerrar uma sessão com motivo auditável</small></div><span>{{support.length}} ativas</span></div>
+          <div class="list-row" v-for="session in support" :key="session.id"><div><strong>{{session.ticket||session.id}}</strong><span>{{session.tenant_id}} · expira {{session.expires_at}}</span></div><small>{{session.reason}}</small></div>
+        </section>
+
+        <OperationalAdministrationPanel :api="api" :tenants="tenants" @feedback="handlePanelFeedback" />
+        <CommercialAdministrationPanel :api="api" :tenants="tenants" @feedback="handlePanelFeedback" />
+      </template>
 
       <template v-else>
         <section class="grid two">
-          <div class="panel"><h2>Tenant</h2><dl class="facts"><div><dt>Código</dt><dd>{{selected.code}}</dd></div><div><dt>Status</dt><dd>{{selected.status}}</dd></div><div><dt>Branding</dt><dd>v{{branding.active_version||0}} · {{branding.state}}</dd></div><div><dt>Domínio canônico</dt><dd>{{canonicalDomainHost()}}</dd></div></dl></div>
-          <form class="panel form" @submit.prevent="createSupport"><h2>Sessão de suporte</h2><label>Motivo<textarea v-model="supportForm.reason" minlength="10" required></textarea></label><label>Ticket<input v-model="supportForm.ticket"></label><label>Duração (min)<input v-model.number="supportForm.minutes" type="number" min="5" max="120"></label><button class="primary">Criar sessão auditada</button></form>
+          <div class="panel form">
+            <h2>Tenant</h2>
+            <dl class="facts"><div><dt>Código</dt><dd>{{selected.code}}</dd></div><div><dt>Status</dt><dd>{{selected.status}}</dd></div><div><dt>Versão</dt><dd>{{selected.version}}</dd></div><div><dt>Branding</dt><dd>v{{branding.active_version||0}} · {{branding.state}}</dd></div><div><dt>Domínio canônico</dt><dd>{{canonicalDomainHost()}}</dd></div></dl>
+            <label>Motivo da alteração de status<textarea v-model="lifecycleReason" minlength="10" maxlength="2000" placeholder="Motivo auditável"></textarea></label>
+            <div class="row-actions"><button v-if="selected.status==='active'||selected.status==='degraded'" class="danger-outline" @click="changeTenantState('suspend')">Suspender tenant</button><button v-if="selected.status==='suspended'" class="primary" @click="changeTenantState('reactivate')">Reativar tenant</button></div>
+          </div>
+          <form class="panel form" @submit.prevent="createSupport">
+            <h2>Sessão de suporte</h2><label>Motivo<textarea v-model="supportForm.reason" minlength="10" required></textarea></label><label>Ticket<input v-model="supportForm.ticket"></label><label>Duração (min)<input v-model.number="supportForm.minutes" type="number" min="5" max="120"></label><button class="primary" :disabled="selected.status!=='active'">Criar sessão auditada</button>
+            <template v-if="selectedSupportSessions().length"><label>Motivo para encerrar<input v-model="supportEndReason" minlength="10" placeholder="Conclusão do atendimento"></label><div class="support-session" v-for="session in selectedSupportSessions()" :key="session.id"><div><strong>{{session.ticket||session.id}}</strong><small>Expira {{session.expires_at}}</small></div><button type="button" class="danger-outline" @click="revokeSupport(session)">Encerrar e revogar</button></div></template>
+          </form>
         </section>
+
+        <form class="panel form" @submit.prevent="updateQuotas">
+          <div class="section-title"><div><h2>Quotas do tenant</h2><small>Atualização com versão otimista {{quotas.version}}</small></div><span>{{Object.keys(quotas.configured||{}).length}} configuradas</span></div>
+          <div class="quota-grid"><label>Usuários<input v-model.number="quotaForm.max_users" type="number" min="1" max="1000000" required></label><label>Alunos<input v-model.number="quotaForm.max_students" type="number" min="0" max="10000000" required></label><label>Storage (bytes, informativo)<input v-model.number="quotaForm.storage_bytes" type="number" min="1048576" required></label><label>Requests/min<input v-model.number="quotaForm.api_requests_per_minute" type="number" min="1" max="1000000" required></label><label>Integrações<input v-model.number="quotaForm.max_integrations" type="number" min="0" max="10000" required></label><label>Builds simultâneos<input v-model.number="quotaForm.max_concurrent_builds" type="number" min="1" max="64" required></label><label>Domínios próprios<input v-model.number="quotaForm.max_custom_domains" type="number" min="0" max="1000" required></label></div>
+          <div class="entitlements"><span v-for="(rule,key) in quotas.enforcement" :key="String(key)" class="status-pill">{{key}} · {{rule.status==='enforced'?'aplicada':'não aplicada'}}</span></div>
+          <label>Motivo da alteração<input v-model="quotaReason" minlength="10" maxlength="2000" required></label><button class="primary">Salvar quotas</button>
+        </form>
 
         <section class="panel">
           <div class="section-title"><div><h2>Domínios</h2><small>Canônico + domínios próprios com prova de posse, roteamento e TLS</small></div><span>{{domains.length}} registrados</span></div>
@@ -358,7 +592,19 @@ onMounted(boot);
           </article>
         </section>
 
-        <section class="panel"><div class="section-title"><h2>App Factory Web/PWA</h2><span>{{apps.builds?.length||0}} builds</span></div><p class="helper">Builds nativos estão congelados. A distribuição canônica atual é Web/PWA.</p><div class="app-actions"><button class="ghost-dark" @click="entitlement">Ativar entitlement PWA</button><button class="primary" @click="manifestAndBuild">Gerar manifesto + build PWA</button></div><div class="list-row" v-for="b in apps.builds" :key="b.id"><div><strong>{{b.id}}</strong><span>{{b.status||b.state}} · {{b.created_at}}</span></div><small>{{b.jobs?.length||0}} jobs</small></div></section>
+        <section class="panel app-factory">
+          <div class="section-title"><div><h2>App Factory multicanal</h2><small>Os jobs são executados somente por agentes compatíveis; assinatura depende de configuração externa</small></div><span>{{apps.builds?.length||0}} builds</span></div>
+          <div class="build-selection"><fieldset><legend>Produtos</legend><label v-for="option in productOptions" :key="option[0]"><input v-model="selectedProducts" type="checkbox" :value="option[0]">{{option[1]}}</label></fieldset><fieldset><legend>Plataformas</legend><label v-for="option in platformOptions" :key="option[0]"><input v-model="selectedPlatforms" type="checkbox" :value="option[0]">{{option[1]}}</label></fieldset></div>
+          <div class="entitlements"><span v-for="item in apps.entitlements" :key="item.id" class="status-pill">{{item.app_product}} · {{item.state}}</span></div>
+          <div class="app-actions"><button class="ghost-dark" :disabled="busy" @click="activateEntitlements">Ativar entitlements selecionados</button><button class="primary" :disabled="busy" @click="manifestAndBuild">Gerar manifesto + solicitar build</button></div>
+          <article class="build-card" v-for="build in apps.builds" :key="build.build_id">
+            <div class="section-title"><div><strong>{{build.build_id}}</strong><small>{{build.created_at}} · {{build.requested_platforms?.join(', ')}}</small></div><span class="status-pill">{{build.status}}</span></div>
+            <div class="job-grid"><div v-for="job in build.jobs" :key="job.id"><strong>{{job.app_product}} · {{job.platform}}</strong><span>{{job.status}} · {{job.required_os}}/{{job.architecture}}</span><small v-if="job.last_error" class="inline-error">{{job.last_error}}</small></div></div>
+            <div class="artifact-list" v-if="build.artifacts?.length"><div v-for="artifact in build.artifacts" :key="artifact.id"><strong>{{artifact.filename}}</strong><span>{{artifact.artifact_kind}} · {{artifact.platform}}/{{artifact.architecture}} · {{artifact.signed_state}}</span><code>sha256 {{artifact.sha256}}</code></div></div>
+            <button v-if="build.status==='failed'" class="ghost-dark" @click="retryBuild(build)">Reenfileirar falhas</button>
+          </article>
+          <p v-if="!apps.builds?.length" class="empty">Nenhum build solicitado para este tenant.</p>
+        </section>
         <section class="panel"><h2>Releases</h2><div class="list-row" v-for="r in apps.releases" :key="r.id"><div><strong>{{r.version}} · {{r.channel}}</strong><span>{{r.state}}</span></div><small>{{r.created_at}}</small></div><p v-if="!apps.releases?.length" class="empty">Nenhuma release criada.</p></section>
       </template>
 

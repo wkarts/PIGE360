@@ -1,3 +1,3 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-export default defineConfig({ plugins: [vue()], build: { sourcemap: true, target: "es2022" } });
+export default defineConfig({ base: "./", plugins: [vue()], build: { sourcemap: false, target: "es2022" } });

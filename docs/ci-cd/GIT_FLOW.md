@@ -28,7 +28,9 @@ Essas branches abrem Pull Request para `develop`.
 
 Quando `develop` estiver homologada, abre-se Pull Request direto `develop -> main`.
 
-O merge em `main` aciona o release automático SemVer. Não existe canal Alpha, Beta, RC ou Draft para o produto PIGE360.
+O merge em `main` aciona o release automático SemVer. Não existe canal público
+Alpha, Beta ou RC. Um draft técnico pode existir apenas para registrar uma
+matriz incompleta e nunca é anunciado como versão pronta.
 
 ## Versionamento SemVer
 
@@ -41,6 +43,9 @@ Formato oficial: `MAJOR.MINOR.PATCH`.
 A primeira distribuição estável deste novo fluxo parte da base interna `1.0.0` e publica `v1.0.1`.
 
 O workflow manual da release também aceita override `auto`, `patch`, `minor` ou `major`.
+Tags SemVer prerelease existentes também podem ser retomadas manualmente e são
+marcadas como prerelease no GitHub; elas não alteram o cálculo automático
+estável executado pelos merges na `main`.
 
 ## Release automática
 
@@ -50,15 +55,26 @@ A distribuição canônica contém:
 
 - aplicações Web/PWA;
 - pacotes self-hosted e fontes;
-- imagens/runtime e evidências de Compose;
+- imagens/runtime CloudPanel Linux x64/x86;
+- instaladores Windows x64/x86, Linux x64/ARM64 e macOS Intel/Apple Silicon;
+- APK/AAB Android ARM64 e IPA iOS ARM64 não assinado;
 - evidências, SBOM/proveniência quando presentes no bundle;
-- checksums;
+- manifesto da matriz e checksums SHA-256;
 - tag imutável `vX.Y.Z`;
 - GitHub Release oficial.
 
-Binários nativos permanecem fora da distribuição automática. APK, AAB, IPA e instaladores desktop não são gerados nem anexados pelo workflow oficial.
+Os doze alvos são tentados a partir da tag exata. Uma matriz incompleta cria ou
+atualiza somente um draft auditável e não é apresentada como release concluída.
+A publicação parcial exige `allow_partial_release=true` em disparo manual.
 
-Os workflows nativos continuam disponíveis exclusivamente por execução manual para desenvolvimento/homologação.
+Os workflows nativos permanecem disponíveis manualmente e também validam Pull
+Requests pertinentes. Assinaturas e lojas são condicionais a secrets e a uma
+solicitação explícita; builds unsigned continuam sendo executados sem esses
+segredos.
+
+Uma retomada pelo workflow 51 valida a tag e todos os lockfiles persistidos e
+redispara a matriz completa do workflow 50. Ela nunca promove nem reaproveita
+assets de um run anterior; uma nova falha preserva a release como draft.
 
 ## Sincronização pós-release
 

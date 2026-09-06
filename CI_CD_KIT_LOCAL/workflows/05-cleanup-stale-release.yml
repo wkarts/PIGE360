@@ -1,0 +1,75 @@
+name: 05 · Limpar legado de prerelease
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - '.github/workflows/05-cleanup-stale-release.yml'
+  workflow_run:
+    workflows: ['50 · Pré-lançamento Alpha Web/Server']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cleanup-pige360-prerelease-legacy
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Remover releases tags e branches legadas
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Remover releases draft/prerelease e tags prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t release_ids < <(
+            gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate \
+              --jq '.[] | select(.draft == true or .prerelease == true or (.tag_name | test("-(alpha|beta|rc|pre|preview)"; "i"))) | .id'
+          )
+          for release_id in "${release_ids[@]}"; do
+            gh api --silent --method DELETE "repos/$GITHUB_REPOSITORY/releases/$release_id" || true
+          done
+
+          git fetch --tags --force
+          mapfile -t prerelease_tags < <(git tag -l | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta|rc|pre|preview)' || true)
+          for tag in "${prerelease_tags[@]}"; do
+            git push origin ":refs/tags/$tag" || true
+          done
+
+      - name: Remover branches legadas incompatíveis com o fluxo atual
+        shell: bash
+        run: |
+          set -euo pipefail
+          legacy_branches=(
+            dev
+            release/1.0.0-alpha.3
+            release/alpha-2-github-release
+            release/pige360-v1.0.0
+            fix/release-native-builds-alpha2
+          )
+          git fetch origin --prune
+          for branch in "${legacy_branches[@]}"; do
+            if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+              git push origin --delete "$branch" || true
+            fi
+          done
+
+      - name: Confirmar ausência de prereleases oficiais
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          remaining="$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate --jq '[.[] | select(.draft == true or .prerelease == true)] | length')"
+          test "$remaining" = '0'
+          echo 'Legado de prerelease removido.'

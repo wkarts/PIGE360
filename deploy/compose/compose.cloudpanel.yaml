@@ -8,6 +8,12 @@ services:
   pige360-platform-console:
     ports:
       - ${CONTROL_WEB_BIND_HOST:-127.0.0.1}:${CONTROL_WEB_PUBLISHED_PORT:-58081}:8080
+  pige360-branding-studio:
+    ports:
+      - ${BRANDING_BIND_HOST:-127.0.0.1}:${BRANDING_PUBLISHED_PORT:-58082}:8080
+  pige360-tenant-download-center:
+    ports:
+      - ${DOWNLOADS_BIND_HOST:-127.0.0.1}:${DOWNLOADS_PUBLISHED_PORT:-58083}:8080
   pige360-grafana:
     ports:
       - ${OPS_BIND_HOST:-127.0.0.1}:${OPS_PUBLISHED_PORT:-53000}:3000

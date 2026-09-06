@@ -27,12 +27,26 @@ for variable in APPLE_SIGNING_CERTIFICATE_BASE64 APPLE_SIGNING_CERTIFICATE_PASSW
   [ -n "$value" ] || fail_or_skip "variável $variable ausente"
 done
 
-for tool in security codesign ditto openssl; do command -v "$tool" >/dev/null 2>&1 || fail_or_skip "$tool não disponível"; done
+for tool in security codesign ditto openssl unzip; do command -v "$tool" >/dev/null 2>&1 || fail_or_skip "$tool não disponível"; done
+if command -v sha256sum >/dev/null 2>&1; then
+  checksum_write() { sha256sum "$@"; }
+  checksum_check() { sha256sum --check "$1"; }
+elif command -v shasum >/dev/null 2>&1; then
+  checksum_write() { shasum -a 256 "$@"; }
+  checksum_check() { shasum -a 256 --check "$1"; }
+else
+  fail_or_skip 'sha256sum ou shasum não disponível'
+fi
 
 tmp="$(mktemp -d)"
 keychain="$tmp/pige360.keychain-db"
 password="$(openssl rand -hex 24 2>/dev/null || true)"
-cleanup() { security delete-keychain "$keychain" >/dev/null 2>&1 || true; rm -rf "$tmp"; }
+profile=''
+cleanup() {
+  security delete-keychain "$keychain" >/dev/null 2>&1 || true
+  [ -z "$profile" ] || rm -f "$profile"
+  rm -rf "$tmp"
+}
 trap cleanup EXIT INT TERM
 
 [ -n "$password" ] || fail_or_skip 'não foi possível criar senha efêmera para o chaveiro'
@@ -46,20 +60,26 @@ security list-keychains -d user -s "$keychain" >/dev/null 2>&1
 
 profile_dir="$HOME/Library/MobileDevice/Provisioning Profiles"
 mkdir -p "$profile_dir"
-profile="$profile_dir/pige360.mobileprovision"
+profile="$profile_dir/pige360-${GITHUB_RUN_ID:-$$}.mobileprovision"
 printf '%s' "$APPLE_PROVISIONING_PROFILE_BASE64" | decode_base64 > "$profile" 2>/dev/null || fail_or_skip 'perfil de provisionamento Apple inválido'
 security cms -D -i "$profile" >/dev/null 2>&1 || fail_or_skip 'perfil de provisionamento Apple não pôde ser lido'
 
-signed_dir='release/artifacts/ios/signed'
+root_dir="$(pwd)"
+signed_dir="$root_dir/release/artifacts/ios/signed"
 mkdir -p "$signed_dir"
 found=0
 signed_count=0
-for app in $(find apps -type d \( -path '*/src-tauri/gen/apple/build/*/*.app' -o -path '*/src-tauri/target/*/release/bundle/macos/*.app' \)); do
-  [ -d "$app" ] || continue
+for app_archive in "$root_dir"/release/artifacts/ios/*-ios-arm64-unsigned.app.zip; do
+  [ -f "$app_archive" ] || continue
   found=1
+  work="$tmp/app-$signed_count"
+  mkdir -p "$work"
+  unzip -q "$app_archive" -d "$work"
+  app="$(find "$work" -maxdepth 2 -type d -name '*.app' -print | sort | head -n 1)"
+  [ -n "$app" ] || fail_or_skip "bundle .app ausente em $(basename "$app_archive")"
   name="$(basename "$app" .app)"
   cp "$profile" "$app/embedded.mobileprovision"
-  entitlements="$tmp/$name.entitlements"
+  entitlements="$tmp/$signed_count-$name.entitlements"
   codesign -d --entitlements :- "$app" > "$entitlements" 2>/dev/null || true
   if [ -s "$entitlements" ]; then
     codesign --force --deep --sign "$APPLE_SIGNING_IDENTITY" --entitlements "$entitlements" "$app"
@@ -67,11 +87,14 @@ for app in $(find apps -type d \( -path '*/src-tauri/gen/apple/build/*/*.app' -o
     codesign --force --deep --sign "$APPLE_SIGNING_IDENTITY" "$app"
   fi
   codesign --verify --deep --strict "$app"
-  work="$tmp/$name"
-  mkdir -p "$work/Payload"
-  cp -R "$app" "$work/Payload/"
-  output="$signed_dir/${name}.ipa"
-  (cd "$work" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
+  payload="$tmp/payload-$signed_count"
+  mkdir -p "$payload/Payload"
+  cp -R "$app" "$payload/Payload/"
+  archive_name="$(basename "$app_archive")"
+  archive_name="${archive_name%-unsigned.app.zip}"
+  output="$signed_dir/${archive_name}-signed.ipa"
+  (cd "$payload" && ditto -c -k --sequesterRsrc --keepParent Payload "$output")
+  [ -s "$output" ] || fail_or_skip "IPA assinada vazia para $archive_name"
   signed_count=$((signed_count + 1))
 done
 
@@ -84,5 +107,11 @@ if [ "$required" = 'true' ]; then
   find "$signed_dir" -maxdepth 1 -type f -name '*.ipa' -exec mv {} release/artifacts/ios/ \;
   rmdir "$signed_dir" 2>/dev/null || true
 fi
-(cd release/artifacts/ios && sha256sum ./*.ipa > SHA256SUMS)
+(
+  cd release/artifacts/ios
+  find . -type f -name '*.ipa' -print | sort \
+    | while IFS= read -r ipa; do checksum_write "$ipa"; done > SHA256SUMS
+  [ -s SHA256SUMS ] || fail_or_skip 'nenhuma IPA disponível para checksum'
+  checksum_check SHA256SUMS
+)
 printf 'Assinatura iOS concluída e verificada; os IPAs publicados contêm perfil de provisionamento e assinatura Apple.\n'

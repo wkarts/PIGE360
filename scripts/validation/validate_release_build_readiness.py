@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Valida o contrato de release Web/Server e o deploy canônico do PIGE360.
-
-Os binários Desktop/Android/iOS estão congelados e são deliberadamente manuais.
-Eles não podem bloquear nem compor a distribuição oficial Web/PWA/Server.
-"""
+"""Valida a release coordenada multiplataforma e o deploy canônico do PIGE360."""
 
 from __future__ import annotations
 
@@ -42,37 +38,87 @@ def main() -> int:
     for required in (
         "branches: [main]",
         "force_bump:",
+        "release_tag:",
+        "allow_partial_release:",
         "compute-next-version.mjs",
-        "runtime_images:",
-        "web_pwa:",
-        "release_bundle:",
         "persist_version:",
+        "desktop:",
+        "web_pwa:",
+        "cloudpanel:",
+        "android:",
+        "ios:",
+        "release_bundle:",
         "publish:",
         "sync_develop:",
         "package-web-pwa.sh",
         "package-local.sh --output-dir release/output",
-        "publish-github-release.sh release/publish",
-        "Bloquear binários mobile/desktop",
-        "Release oficial e estável promovida",
-    ):
-        if required not in release:
-            failures.append(f"release Web/Server sem requisito: {required}")
-
-    for forbidden in (
+        "scripts/desktop/build-all.sh",
         "scripts/mobile/build-android.sh",
         "scripts/mobile/build-ios.sh",
-        "scripts/mobile/sign-android.sh",
-        "scripts/mobile/sign-ios.sh",
-        "scripts/desktop/build-all.sh",
-        "distribution_mode == 'homologation'",
-        "distribution_mode == 'store'",
+        "collect-release-assets.mjs",
+        "enforce-release-policy.mjs",
+        "write-build-status.mjs",
+        "--draft",
+        "PIGE360_REQUIRE_LOCKED",
+        "prerelease_id=",
+        "--prerelease",
+        'test "$manifest_count" -eq 13',
+        "cargo metadata --manifest-path rust/Cargo.toml --locked",
+        "--allow-prerelease",
     ):
-        if forbidden in release:
-            failures.append(f"release oficial ainda acoplada ao legado nativo: {forbidden}")
+        if required not in release:
+            failures.append(f"release coordenada sem requisito: {required}")
 
-    for extension in ("*.apk", "*.aab", "*.ipa", "*.dmg", "*.msi", "*.exe", "*.appimage", "*.deb", "*.rpm"):
-        if extension not in release.lower():
-            failures.append(f"release não bloqueia artefato nativo: {extension}")
+    for target_id in (
+        "desktop-windows-x64",
+        "desktop-windows-x86",
+        "desktop-linux-x64",
+        "desktop-linux-arm64",
+        "desktop-macos-x64",
+        "desktop-macos-arm64",
+        "web-pwa",
+        "cloudpanel-linux-x64",
+        "cloudpanel-linux-x86",
+        "android-arm64-apk",
+        "android-aab",
+        "ios-arm64-unsigned-ipa",
+    ):
+        if target_id not in release:
+            failures.append(f"alvo obrigatório ausente da release: {target_id}")
+
+    collector = read("scripts/release/collect-release-assets.mjs")
+    for extension in (".apk", ".aab", ".ipa", ".dmg", ".msi", ".exe", ".AppImage", ".deb", ".rpm", ".tar.gz"):
+        if extension not in collector:
+            failures.append(f"coletor não aceita artefato final: {extension}")
+    if "includes('target')" not in collector or "Cargo target não pode ser publicado" not in collector:
+        failures.append("coletor não bloqueia publicação acidental do diretório Cargo target")
+    for required in (
+        "requiredAssets",
+        "allowedSuffixes",
+        "count: 13",
+        "count: 7",
+        "count: 5",
+        "Tipo de artefato inesperado",
+        "Contexto de artefato desconhecido",
+        "CORE_STATIC_ASSETS",
+        "CORE_VERSIONED_SUFFIXES",
+        ".pige360-delivery-root.json",
+    ):
+        if required not in collector:
+            failures.append(f"coletor não valida tipo/quantidade de artefato final: {required}")
+
+    pwa_packager = read("scripts/release/package-web-pwa.sh")
+    for required in ("scripts/validation/validate_pwa_builds.py", 'unzip -tq "$archive"'):
+        if required not in pwa_packager:
+            failures.append(f"pacote Web/PWA não valida o artefato gerado: {required}")
+
+    version_validator = read("scripts/validation/validate_version_consistency.py")
+    for required in ("--allow-prerelease", "is_valid_version", "stable_semver"):
+        if required not in version_validator:
+            failures.append(f"validador de versão não preserva stable e prerelease explícito: {required}")
+    ci_runner = read("scripts/ci/run_all.py")
+    if "--allow-prerelease" not in ci_runner or "version_command.append('--allow-prerelease')" not in ci_runner:
+        failures.append("CI integral não encaminha o gate explícito de prerelease")
 
     for workflow_path in (
         ".github/workflows/31-build-desktop.yml",
@@ -82,8 +128,86 @@ def main() -> int:
         workflow_triggers = triggers(workflow_path)
         if "workflow_dispatch" not in workflow_triggers:
             failures.append(f"workflow nativo não é executável manualmente: {workflow_path}")
-        if "pull_request" in workflow_triggers or "push" in workflow_triggers:
-            failures.append(f"workflow nativo voltou a ter gatilho automático: {workflow_path}")
+        if "pull_request" not in workflow_triggers:
+            failures.append(f"workflow nativo não valida Pull Requests: {workflow_path}")
+        if "push" in workflow_triggers:
+            failures.append(f"workflow nativo possui push independente da release: {workflow_path}")
+
+    android_workflow = read(".github/workflows/32-build-android.yml")
+    if "inputs.sign && inputs.scope != 'all'" not in android_workflow:
+        failures.append("workflow Android ignora solicitação de assinatura fora da matriz completa")
+    ios_workflow = read(".github/workflows/33-build-ios.yml")
+    for required in (
+        "build_mode=local-signing",
+        "requested_mode=store",
+        "inputs.sign && steps.sign.outcome != 'success'",
+        "scripts/mobile/sign-ios.sh",
+    ):
+        if required not in ios_workflow:
+            failures.append(f"workflow iOS não separa build unsigned da assinatura condicional: {required}")
+    tenant_workflow = read(".github/workflows/34-build-tenant-apps.yml")
+    for required in (
+        "if: ${{ inputs.publish_stores == true }}",
+        "REMOTE_RELEASE_ENABLED",
+        "exit 78",
+    ):
+        if required not in tenant_workflow:
+            failures.append(f"workflow white-label mascara solicitação de publicação: {required}")
+
+    for workflow_name in (
+        "31-build-desktop.yml",
+        "32-build-android.yml",
+        "33-build-ios.yml",
+        "34-build-tenant-apps.yml",
+        "50-release.yml",
+        "51-recover-release.yml",
+    ):
+        canonical = read(f".github/workflows/{workflow_name}")
+        mirrored = read(f"CI_CD_KIT_LOCAL/workflows/{workflow_name}")
+        if canonical != mirrored:
+            failures.append(f"workflow {workflow_name} diverge do espelho CI_CD_KIT_LOCAL")
+
+    recovery = read(".github/workflows/51-recover-release.yml")
+    for required in (
+        "release_tag:",
+        "source_run_id:",
+        "allow_partial_release:",
+        "rust/Cargo.lock",
+        "manifest_count",
+        '"$manifest_count" -eq 13',
+        "gh workflow run 50-release.yml",
+        "O workflow 50 reconstruirá os 12 alvos a partir da tag exata.",
+        "Nenhum artefato de execução anterior foi publicado ou reaproveitado.",
+        "prerelease_id=",
+        'GITHUB_REF" = \'refs/heads/main\'',
+    ):
+        if required not in recovery:
+            failures.append(f"retomada de release sem requisito seguro: {required}")
+    for forbidden in (
+        "actions/download-artifact",
+        "publish-github-release.sh",
+        "gh release create",
+        "gh release upload",
+    ):
+        if forbidden in recovery:
+            failures.append(f"retomada de release reutiliza/publica artefato diretamente: {forbidden}")
+
+    for script_path in (
+        "scripts/desktop/build-all.sh",
+        "scripts/mobile/build-android.sh",
+        "scripts/mobile/build-ios.sh",
+        "scripts/release/package-web-pwa.sh",
+    ):
+        script = read(script_path)
+        has_strict_semver = (
+            "prerelease_id=" in script and "semver_re=" in script
+        ) or (
+            script_path == "scripts/mobile/build-ios.sh"
+            and "re.fullmatch(" in script
+            and "[0-9A-Za-z-]" in script
+        )
+        if not has_strict_semver:
+            failures.append(f"empacotador não aceita SemVer stable/prerelease: {script_path}")
 
     web = read(".github/workflows/30-build-web.yml")
     web_kit = read("CI_CD_KIT_LOCAL/workflows/30-build-web.yml")

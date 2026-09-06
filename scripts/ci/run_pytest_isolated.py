@@ -9,7 +9,7 @@ retorna falha 124.
 """
 from __future__ import annotations
 
-import ast
+import hashlib
 import os
 import re
 import signal
@@ -29,36 +29,66 @@ MAX_WORKERS = max(1, min(int(os.getenv("PIGE360_PYTEST_WORKERS", "1")), 12))
 
 @dataclass(frozen=True)
 class TestNode:
-    file: Path
-    name: str
-
-    @property
-    def relative(self) -> Path:
-        return self.file.relative_to(BACKEND)
-
-    @property
-    def node_id(self) -> str:
-        return f"{self.relative}::{self.name}"
+    node_id: str
 
 
-def collect_nodes() -> list[TestNode]:
-    nodes: list[TestNode] = []
-    for path in sorted(BACKEND.glob("tests/**/test_*.py")):
-        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        for item in tree.body:
-            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name.startswith("test_"):
-                nodes.append(TestNode(path, item.name))
-            elif isinstance(item, ast.ClassDef) and item.name.startswith("Test"):
-                for method in item.body:
-                    if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)) and method.name.startswith("test_"):
-                        nodes.append(TestNode(path, f"{item.name}::{method.name}"))
-    return nodes
+class TestCollectionError(RuntimeError):
+    """A coleta real do pytest falhou ou retornou um protocolo inválido."""
+
+
+def pytest_environment() -> dict[str, str]:
+    env = os.environ.copy()
+    # Os testes são executados com cwd=backend para manter os node IDs estáveis,
+    # mas alguns contratos de infraestrutura importam helpers versionados em
+    # scripts/. Use caminhos absolutos e explícitos; depender de "." tornava a
+    # coleta diferente conforme o diretório do chamador.
+    python_paths = [str(BACKEND), str(ROOT)]
+    python_paths.extend(
+        item for item in env.get("PYTHONPATH", "").split(os.pathsep)
+        if item and item not in python_paths
+    )
+    env.update({
+        "PYTHONPATH": os.pathsep.join(python_paths),
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "DD_TRACE_ENABLED": "false",
+        "DD_INSTRUMENTATION_TELEMETRY_ENABLED": "false",
+    })
+    return env
+
+
+def collect_nodes(env: dict[str, str] | None = None) -> list[TestNode]:
+    """Coleta item IDs finais do pytest, incluindo cada parametrização."""
+
+    collected = subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "tests"],
+        cwd=BACKEND,
+        env=env or pytest_environment(),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if collected.returncode != 0:
+        detail = (collected.stdout + "\n" + collected.stderr).strip()
+        raise TestCollectionError(
+            f"Coleta pytest falhou com código {collected.returncode}:\n{detail[-4000:]}"
+        )
+    node_ids = [
+        line.strip()
+        for line in collected.stdout.splitlines()
+        if line.startswith("tests/") and "::" in line
+    ]
+    if not node_ids:
+        raise TestCollectionError("A coleta pytest não retornou nenhum item de teste.")
+    if len(node_ids) != len(set(node_ids)):
+        raise TestCollectionError("A coleta pytest retornou item IDs duplicados.")
+    return [TestNode(node_id) for node_id in node_ids]
 
 
 def run_node(node: TestNode, env: dict[str, str]) -> tuple[int, str, bool, float]:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "__", node.node_id)
-    log_path = LOG_DIR / f"{safe_name}.log"
+    safe_name = re.sub(r"[^A-Za-z0-9_.-]+", "__", node.node_id)[:180]
+    digest = hashlib.sha256(node.node_id.encode("utf-8")).hexdigest()[:16]
+    log_path = LOG_DIR / f"{safe_name}-{digest}.log"
     cmd = [sys.executable, str(ROOT / "scripts/ci/pytest_node_entry.py"), node.node_id]
     started = time.monotonic()
     with log_path.open("w", encoding="utf-8") as log:
@@ -88,14 +118,12 @@ def run_node(node: TestNode, env: dict[str, str]) -> tuple[int, str, bool, float
 
 
 def main() -> int:
-    env = os.environ.copy()
-    env.update({
-        "PYTHONPATH": ".",
-        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
-        "DD_TRACE_ENABLED": "false",
-        "DD_INSTRUMENTATION_TELEMETRY_ENABLED": "false",
-    })
-    nodes = collect_nodes()
+    env = pytest_environment()
+    try:
+        nodes = collect_nodes(env)
+    except TestCollectionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     shard_spec = os.getenv("PIGE360_PYTEST_SHARD", "").strip()
     if shard_spec:
         try:

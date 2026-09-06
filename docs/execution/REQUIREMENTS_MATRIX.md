@@ -2,16 +2,16 @@
 
 Esta matriz foi extraída do contrato integral e deve ser atualizada somente com evidência executável. Estados permitidos: `NOT_STARTED`, `IMPLEMENTING`, `IMPLEMENTED`, `TESTING`, `VERIFIED`, `BLOCKED_EXTERNAL`, `NOT_APPLICABLE`.
 
-Atualizada em `2026-08-13T00:56:01+00:00` após o incremento 0043 de recibos de pagamento para serviços.
+Resumo reconciliado em `2026-09-04T14:02:17+00:00` diretamente dos 4031 registros; nenhum requisito foi promovido por esta operação.
 
 ## Resumo de estados
 
 | Estado | Quantidade |
 |---|---:|
 | BLOCKED_EXTERNAL | 2 |
-| IMPLEMENTED | 253 |
+| IMPLEMENTED | 262 |
 | IMPLEMENTING | 2 |
-| NOT_STARTED | 3215 |
+| NOT_STARTED | 3206 |
 | TESTING | 36 |
 | VERIFIED | 523 |
 

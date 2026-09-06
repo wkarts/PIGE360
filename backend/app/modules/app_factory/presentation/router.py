@@ -8,13 +8,14 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, File, Form, Header, Request, Response, UploadFile
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationError, model_validator
 
 from app.shared.application.idempotency import canonical_hash
 from app.shared.domain.ids import iso_now, uuid7
 from app.shared.events.records import add_audit, add_outbox
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser, current_user
+from app.shared.tenant_quotas import tenant_quota_limit
 
 router = APIRouter(tags=["app-factory"])
 
@@ -29,6 +30,118 @@ PLATFORMS = {
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?$" )
 BUILD_ADMIN_ROLES = {"platform_super_admin", "platform_admin"}
 TENANT_APP_ROLES = {"tenant_owner", "institution_director"}
+SECRET_REFERENCE_PATTERN = r"^secret://[A-Za-z0-9_.-]{1,120}$"
+SENSITIVE_METADATA_KEY = re.compile(
+    r"(?:^|[_.-])(?:password|passwd|passphrase|secret|credential|credentials|token|"
+    r"private[_.-]?key|keystore|key[_.-]?password|provisioning[_.-]?profile|"
+    r"pkcs12|p12)(?:$|[_.-])",
+    flags=re.IGNORECASE,
+)
+PRIVATE_MATERIAL_VALUE = re.compile(
+    r"-----BEGIN [A-Z0-9 ]*(?:PRIVATE KEY|PKCS12)[A-Z0-9 ]*-----|"
+    r"^[a-z][a-z0-9+.-]*://[^/@\s:]+:[^/@\s]+@",
+    flags=re.IGNORECASE,
+)
+PLATFORM_SIGNING_REQUIREMENTS: dict[str, tuple[str, ...]] = {
+    "android-apk": (
+        "android_keystore_reference",
+        "android_key_alias_reference",
+        "android_key_password_reference",
+    ),
+    "android-aab": (
+        "android_keystore_reference",
+        "android_key_alias_reference",
+        "android_key_password_reference",
+    ),
+    "ios-app": ("ios_certificate_reference", "ios_provisioning_profile_reference"),
+    "ios-xcarchive": ("ios_certificate_reference", "ios_provisioning_profile_reference"),
+    "windows-x64": ("windows_certificate_reference",),
+    "windows-x86": ("windows_certificate_reference",),
+    "macos-intel": ("macos_certificate_reference",),
+    "macos-apple": ("macos_certificate_reference",),
+}
+
+
+def _validate_public_metadata(value: Any) -> None:
+    """Impede material sensível em metadata livre, inclusive aninhada.
+
+    Referências de assinatura possuem contrato próprio em ``TenantApp.signing``;
+    aceitá-las novamente em metadata reabriria um canal não tipado que também é
+    copiado para audit/outbox.
+    """
+
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, dict):
+            for key, item in current.items():
+                if SENSITIVE_METADATA_KEY.search(str(key)):
+                    raise ValueError(
+                        "Metadata do manifesto não aceita credenciais ou material de assinatura; use apps[*].signing"
+                    )
+                pending.append(item)
+        elif isinstance(current, (list, tuple)):
+            pending.extend(current)
+        elif isinstance(current, str) and PRIVATE_MATERIAL_VALUE.search(current.strip()):
+            raise ValueError(
+                "Metadata do manifesto não aceita credenciais, userinfo em URL ou chaves privadas"
+            )
+
+
+def _redact_legacy_metadata(value: Any) -> tuple[Any, bool]:
+    """Sanitiza manifestos anteriores sem devolver o material rejeitado hoje."""
+
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        valid = True
+        for key, item in value.items():
+            if SENSITIVE_METADATA_KEY.search(str(key)):
+                result[str(key)] = "[redacted]"
+                valid = False
+                continue
+            sanitized, item_valid = _redact_legacy_metadata(item)
+            result[str(key)] = sanitized
+            valid = valid and item_valid
+        return result, valid
+    if isinstance(value, list):
+        result_list: list[Any] = []
+        valid = True
+        for item in value:
+            sanitized, item_valid = _redact_legacy_metadata(item)
+            result_list.append(sanitized)
+            valid = valid and item_valid
+        return result_list, valid
+    if isinstance(value, str) and PRIVATE_MATERIAL_VALUE.search(value.strip()):
+        return "[redacted]", False
+    return value, True
+
+
+class AppSigningReferences(BaseModel):
+    """Referências lógicas de signing; valores secretos nunca entram no manifesto."""
+
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    mode: Literal["unsigned", "managed"] = "unsigned"
+    android_keystore_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    android_key_alias_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    android_key_password_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    ios_certificate_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    ios_provisioning_profile_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    macos_certificate_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+    windows_certificate_reference: str | None = Field(default=None, pattern=SECRET_REFERENCE_PATTERN)
+
+    @model_validator(mode="after")
+    def validate_mode(self):
+        references = [
+            value
+            for key, value in self.model_dump().items()
+            if key.endswith("_reference") and value is not None
+        ]
+        if self.mode == "managed" and not references:
+            raise ValueError("Signing gerenciado exige ao menos uma referência secret://")
+        if self.mode == "unsigned" and references:
+            raise ValueError("Signing unsigned não aceita referências de credencial")
+        return self
 
 
 class TenantApp(BaseModel):
@@ -41,7 +154,15 @@ class TenantApp(BaseModel):
     icon_asset_id: str | None = None
     splash_asset_id: str | None = None
     features: dict[str, bool] = Field(default_factory=dict)
-    signing: dict[str, str] = Field(default_factory=dict)
+    signing: AppSigningReferences = Field(default_factory=AppSigningReferences)
+
+    @model_validator(mode="after")
+    def validate_public_urls(self):
+        for field_name in ("api_url", "web_url", "update_url"):
+            url = getattr(self, field_name)
+            if url.username is not None or url.password is not None:
+                raise ValueError(f"{field_name} não aceita credenciais embutidas (userinfo)")
+        return self
 
 
 class AppManifestInput(BaseModel):
@@ -62,6 +183,7 @@ class AppManifestInput(BaseModel):
         identifiers = [app.identifier for app in enabled]
         if len(identifiers) != len(set(identifiers)):
             raise ValueError("Identifiers duplicados")
+        _validate_public_metadata(self.metadata)
         return self
 
 
@@ -149,10 +271,44 @@ def _target(request: Request, user: CurrentUser, tenant_id: str | None):
     return user.tenant_id, request.state.store
 
 
+def _safe_manifest_payload(raw: str) -> tuple[dict[str, Any], bool]:
+    payload = json.loads(raw)
+    valid = True
+    metadata, metadata_valid = _redact_legacy_metadata(payload.get("metadata", {}))
+    payload["metadata"] = metadata
+    valid = valid and metadata_valid
+    for app in payload.get("apps", {}).values():
+        if not isinstance(app, dict):
+            continue
+        try:
+            app["signing"] = AppSigningReferences.model_validate(
+                app.get("signing") or {}
+            ).model_dump(exclude_none=True)
+        except ValidationError:
+            # Manifestos legados eventualmente persistidos com valores livres
+            # nunca devolvem esses valores para API, auditoria ou build agent.
+            app["signing"] = {
+                "mode": "legacy_invalid",
+                "requires_reconfiguration": True,
+            }
+            valid = False
+        for field_name in ("api_url", "web_url", "update_url"):
+            try:
+                url = HttpUrl(str(app.get(field_name) or ""))
+            except (TypeError, ValueError):
+                continue
+            if url.username is not None or url.password is not None:
+                app[field_name] = "https://redacted.invalid/"
+                valid = False
+    return payload, valid
+
+
 def _manifest(row: dict[str, Any]) -> dict[str, Any]:
+    payload, signing_configuration_valid = _safe_manifest_payload(row["payload_json"])
     return {
         "id": row["id"], "tenant_id": row["tenant_id"], "version": row["version"], "state": row["state"],
-        "payload": json.loads(row["payload_json"]), "sha256": row["sha256"], "created_by": row["created_by"],
+        "payload": payload, "sha256": row["sha256"], "created_by": row["created_by"],
+        "signing_configuration_valid": signing_configuration_valid,
         "created_at": row["created_at"],
     }
 
@@ -202,7 +358,7 @@ def _create_manifest(tenant_id: str, store, data: AppManifestInput, request: Req
             "INSERT INTO tenant_app_manifests(id,tenant_id,version,state,payload_json,sha256,created_by,created_at) VALUES(?,?,?,?,?,?,?,?)",
             (manifest_id, tenant_id, version, "ready", json.dumps(body, ensure_ascii=False, sort_keys=True), digest, user.id, now),
         )
-        result = {"id": manifest_id, "tenant_id": tenant_id, "version": version, "state": "ready", "payload": body, "sha256": digest, "created_by": user.id, "created_at": now}
+        result = {"id": manifest_id, "tenant_id": tenant_id, "version": version, "state": "ready", "payload": body, "sha256": digest, "created_by": user.id, "signing_configuration_valid": True, "created_at": now}
         add_audit(conn, tenant_id=tenant_id, actor_id=user.id, action="create_manifest", aggregate_type="tenant_app_manifest", aggregate_id=manifest_id, correlation_id=request.state.correlation_id, after=result)
         add_outbox(conn, tenant_id=tenant_id, event_type="TenantAppManifestCreated", aggregate_type="tenant_app_manifest", aggregate_id=manifest_id, payload=result, correlation_id=request.state.correlation_id)
     return result
@@ -268,6 +424,30 @@ def _platform_spec(platform: str) -> tuple[str, str]:
     raise DomainError("INVALID_BUILD_PLATFORM", "Plataforma de build inválida.", 422)
 
 
+def _signing_expectation(app: dict[str, Any], platform: str) -> str:
+    signing = app.get("signing") or {"mode": "unsigned"}
+    mode = signing.get("mode", "unsigned")
+    if platform == "ios-ipa-unsigned":
+        if mode == "managed":
+            raise DomainError(
+                "APP_SIGNING_TARGET_CONFLICT",
+                "ios-ipa-unsigned não aceita configuração de assinatura gerenciada.",
+                422,
+            )
+        return "unsigned"
+    required = PLATFORM_SIGNING_REQUIREMENTS.get(platform, ())
+    if mode != "managed" or not required:
+        return "unsigned"
+    missing = [field for field in required if not signing.get(field)]
+    if missing:
+        raise DomainError(
+            "APP_SIGNING_REFERENCES_INCOMPLETE",
+            f"A assinatura gerenciada para {platform} exige todas as referências tipadas da plataforma.",
+            422,
+        )
+    return "managed"
+
+
 def _compatible(product: str, platform: str) -> bool:
     if platform == "pwa": return True
     if product in {"family-mobile", "teacher-mobile", "student-mobile", "admin-mobile", "pos-mobile"}:
@@ -294,6 +474,7 @@ def _assets_for_app(store, tenant_id: str, app: dict[str, Any]) -> list[dict[str
 
 def _build_spec(request: Request, store, tenant_id: str, manifest: dict[str, Any], product: str, platform: str) -> dict[str, Any]:
     payload = manifest["payload"]; app = payload["apps"][product]; required_os, arch = _platform_spec(platform)
+    signing_expectation = _signing_expectation(app, platform)
     spec = {
         "schema_version": 1,
         "tenant_id": tenant_id,
@@ -308,6 +489,7 @@ def _build_spec(request: Request, store, tenant_id: str, manifest: dict[str, Any
         "platform": platform,
         "architecture": arch,
         "required_os": required_os,
+        "signing_expectation": signing_expectation,
         "assets": _assets_for_app(store, tenant_id, app),
         "source_version": request.app.state.settings.version,
     }
@@ -335,6 +517,12 @@ def _request_build(tenant_id: str, store, data: BuildInput, request: Request, us
     if not manifest_row:
         raise DomainError("APP_MANIFEST_NOT_FOUND", "Manifesto pronto não localizado.", 404)
     manifest = _manifest(manifest_row); _validate_brand_and_assets(store, tenant_id, manifest["payload"])
+    if not manifest["signing_configuration_valid"]:
+        raise DomainError(
+            "APP_SIGNING_CONFIGURATION_INVALID",
+            "O manifesto legado contém configuração de assinatura insegura e deve ser recriado com referências secret://.",
+            409,
+        )
     enabled = {name for name, app in manifest["payload"]["apps"].items() if app.get("enabled")}
     products = set(data.products or enabled)
     if not products or not products.issubset(enabled):
@@ -353,7 +541,29 @@ def _request_build(tenant_id: str, store, data: BuildInput, request: Request, us
     if not jobs_to_create:
         raise DomainError("NO_COMPATIBLE_BUILD_TARGET", "Nenhum produto é compatível com as plataformas solicitadas.", 422)
     build_id = uuid7(); now = iso_now()
+    limit = tenant_quota_limit(
+        request.app.state.data_router.control,
+        tenant_id,
+        "max_concurrent_builds",
+    )
     with store.transaction() as conn:
+        store.transaction_lock(conn, f"tenant-build-quota:{tenant_id}")
+        raced = conn.execute(
+            "SELECT id FROM app_build_requests WHERE tenant_id=? AND idempotency_key=?",
+            (tenant_id, idempotency_key),
+        ).fetchone()
+        if raced:
+            return _build_result(store, raced["id"])
+        concurrent = conn.execute(
+            "SELECT COUNT(*) AS n FROM app_build_requests WHERE tenant_id=? AND status IN ('queued','building')",
+            (tenant_id,),
+        ).fetchone()
+        if int(concurrent["n"] if concurrent else 0) >= limit:
+            raise DomainError(
+                "TENANT_QUOTA_EXCEEDED",
+                f"A quota de builds simultâneos ({limit}) foi atingida.",
+                409,
+            )
         conn.execute(
             "INSERT INTO app_build_requests(id,tenant_id,manifest_id,status,requested_platforms_json,result_json,idempotency_key,created_by,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
             (build_id, tenant_id, manifest["id"], "queued", json.dumps(sorted(set(data.platforms))), None, idempotency_key, user.id, now),
@@ -395,9 +605,44 @@ def get_build_platform(tenant_id: str, build_id: str, request: Request, user: Cu
 @router.post("/platform/tenants/{tenant_id}/apps/builds/{build_id}/retry", operation_id="retry_platform_tenant_app_build")
 def retry_build(tenant_id: str, build_id: str, data: BuildRetryInput, request: Request, user: CurrentUser = Depends(current_user)):
     tid, store = _target(request, user, tenant_id); now = iso_now()
-    row = store.fetch_one("SELECT id,status FROM app_build_requests WHERE id=? AND tenant_id=?", (build_id, tid))
-    if not row: raise DomainError("APP_BUILD_NOT_FOUND", "Build não localizado.", 404)
+    limit = tenant_quota_limit(
+        request.app.state.data_router.control,
+        tid,
+        "max_concurrent_builds",
+    )
     with store.transaction() as conn:
+        store.transaction_lock(conn, f"tenant-build-quota:{tid}")
+        row = conn.execute(
+            "SELECT id,status FROM app_build_requests WHERE id=? AND tenant_id=?",
+            (build_id, tid),
+        ).fetchone()
+        if not row: raise DomainError("APP_BUILD_NOT_FOUND", "Build não localizado.", 404)
+        if row["status"] != "failed":
+            raise DomainError(
+                "APP_BUILD_NOT_FAILED",
+                "Somente builds no estado failed podem ser reenfileirados.",
+                409,
+            )
+        failed_jobs = conn.execute(
+            "SELECT COUNT(*) AS n FROM app_build_jobs WHERE build_request_id=? AND status='failed'",
+            (build_id,),
+        ).fetchone()
+        if int(failed_jobs["n"] if failed_jobs else 0) < 1:
+            raise DomainError(
+                "APP_BUILD_NOT_RETRYABLE",
+                "O build não possui jobs com falha para reenfileirar.",
+                409,
+            )
+        concurrent = conn.execute(
+            "SELECT COUNT(*) AS n FROM app_build_requests WHERE tenant_id=? AND status IN ('queued','building')",
+            (tid,),
+        ).fetchone()
+        if int(concurrent["n"] if concurrent else 0) >= limit:
+            raise DomainError(
+                "TENANT_QUOTA_EXCEEDED",
+                f"A quota de builds simultâneos ({limit}) foi atingida.",
+                409,
+            )
         conn.execute("UPDATE app_build_jobs SET status='queued',claimed_by=NULL,claimed_at=NULL,started_at=NULL,finished_at=NULL,last_error=NULL,updated_at=? WHERE build_request_id=? AND status='failed'", (now, build_id))
         conn.execute("UPDATE app_build_requests SET status='queued',started_at=NULL,finished_at=NULL WHERE id=?", (build_id,))
         add_audit(conn, tenant_id=tid, actor_id=user.id, action="retry", aggregate_type="app_build", aggregate_id=build_id, correlation_id=request.state.correlation_id, reason=data.reason)
@@ -426,9 +671,16 @@ def claim_job(data: BuilderClaimInput, request: Request, x_build_farm_token: str
         job = next((row for row in candidates if row["platform"] in supported), None)
         if not job: continue
         with store.transaction() as conn:
-            current = conn.execute("SELECT status FROM app_build_jobs WHERE id=? AND tenant_id=?", (job["id"], tenant_id)).fetchone()
-            if not current or current["status"] != "queued": continue
-            conn.execute("UPDATE app_build_jobs SET status='building',claimed_by=?,claimed_at=?,started_at=?,attempts=attempts+1,updated_at=? WHERE id=?", (data.worker_id, now, now, now, job["id"]))
+            claimed = conn.execute(
+                """UPDATE app_build_jobs
+                   SET status='building',claimed_by=?,claimed_at=?,started_at=?,attempts=attempts+1,updated_at=?
+                   WHERE id=? AND tenant_id=? AND status='queued'""",
+                (data.worker_id, now, now, now, job["id"], tenant_id),
+            ).rowcount
+            # Compare-and-set é necessário no PostgreSQL: dois workers podem
+            # observar o mesmo candidato antes de qualquer um adquirir o row lock.
+            if claimed != 1:
+                continue
             conn.execute("UPDATE app_build_requests SET status='building',started_at=COALESCE(started_at,?) WHERE id=?", (now, job["build_request_id"]))
         spec = json.loads(job["spec_json"])
         return {"job_id": job["id"], "tenant_id": tenant_id, "spec_sha256": job["spec_sha256"], "spec": spec}
@@ -468,6 +720,20 @@ async def upload_artifact(
 ):
     _builder_auth(request, x_build_farm_token); store, job = _job_store(request, tenant_id, job_id)
     if job["status"] != "building": raise DomainError("APP_BUILD_JOB_NOT_BUILDING", "Job não está em execução.", 409)
+    spec = json.loads(job["spec_json"])
+    signing_expectation = spec.get("signing_expectation", "unsigned")
+    if signing_expectation == "managed" and signed_state != "signed":
+        raise DomainError(
+            "APP_ARTIFACT_SIGNING_STATE_INVALID",
+            "O target exige assinatura gerenciada e o agente não declarou o artefato como assinado.",
+            409,
+        )
+    if signing_expectation != "managed" and signed_state == "signed":
+        raise DomainError(
+            "APP_ARTIFACT_SIGNING_STATE_INVALID",
+            "O agente declarou assinatura para um target sem configuração gerenciada correspondente.",
+            409,
+        )
     content = await file.read()
     digest = hashlib.sha256(content).hexdigest()
     if not hmac.compare_digest(digest, sha256): raise DomainError("ARTIFACT_HASH_MISMATCH", "SHA-256 informado não corresponde ao artefato.", 409)

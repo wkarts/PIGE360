@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import tomllib
@@ -10,11 +11,17 @@ from typing import Any
 
 import yaml
 
+try:
+ from scripts.validation.validate_deployments import validate as validate_deployments
+except ModuleNotFoundError:
+ from validate_deployments import validate as validate_deployments
+
 ROOT=Path(__file__).resolve().parents[2]
 EXPECTED_APPS={'platform-console','branding-studio','tenant-download-center','tenant-admin-web','public-portal','family-app','teacher-app','student-app','admin-app','pos-app','kiosk-app','timeclock-app','desktop-admin'}
-EXPECTED_WORKFLOWS={'00-ci.yml','03-git-flow.yml','04-version-sync.yml','05-cleanup-stale-release.yml','05-pedagogy-attendance.yml','10-base-images.yml','20-application-images.yml','30-build-web.yml','31-build-desktop.yml','32-build-android.yml','33-build-ios.yml','34-build-tenant-apps.yml','40-security.yml','50-release.yml','51-recover-release.yml','60-deploy-saas.yml','61-self-hosted-bundle.yml','70-backup-restore-test.yml','80-dependency-maintenance.yml'}
+REQUIRED_WORKFLOWS={'00-ci.yml','03-git-flow.yml','04-version-sync.yml','05-cleanup-stale-release.yml','05-pedagogy-attendance.yml','10-base-images.yml','20-application-images.yml','30-build-web.yml','31-build-desktop.yml','32-build-android.yml','33-build-ios.yml','34-build-tenant-apps.yml','40-security.yml','50-release.yml','51-recover-release.yml','60-deploy-saas.yml','61-self-hosted-bundle.yml','70-backup-restore-test.yml','80-dependency-maintenance.yml'}
 EXPECTED_SERVICES=set('''pige360-api pige360-web pige360-platform-console pige360-branding-studio pige360-tenant-download-center pige360-app-factory-api pige360-worker-app-builds pige360-worker-app-distribution pige360-worker-visual-regression pige360-worker-default pige360-worker-high-priority pige360-worker-academic pige360-worker-pedagogy pige360-worker-attendance pige360-worker-finance pige360-worker-banking pige360-worker-fiscal pige360-worker-sales pige360-worker-hr pige360-worker-mail pige360-worker-notifications pige360-worker-documents pige360-worker-contracts pige360-worker-signatures pige360-worker-reports pige360-worker-integrations pige360-builder-linux pige360-builder-windows pige360-builder-macos pige360-builder-android pige360-builder-ios pige360-beat pige360-postgres-control pige360-postgres-tenants pige360-redis pige360-rabbitmq pige360-minio pige360-minio-init pige360-app-init pige360-clamav pige360-cloudflared-control pige360-cloudflared-tenants pige360-otel-collector pige360-prometheus pige360-grafana pige360-loki'''.split())
 REQUIRED_MODULES={'foundation','tenancy','branding','app_factory','app_distribution','identity','authorization','people','students','guardians','employees','admissions','secretary','enrollment','academic','pedagogy','lesson_planning','class_attendance','finance','services','banking','sales','pos','canteen','inventory','procurement','assets','fiscal','hr','personnel','payroll','timekeeping','events','travel','notices','requests','workflows','communication','mail','contracts','documents','signatures','library','transportation','health','compliance','government_education','reporting','analytics','integrations','platform_operations'}
+SEMVER_RE=re.compile(r'(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?')
 
 def add(checks:list[dict[str,Any]],name:str,ok:bool,detail:Any)->None:
  checks.append({'name':name,'status':'passed' if ok else 'failed','detail':detail})
@@ -24,7 +31,7 @@ def skip(checks:list[dict[str,Any]],name:str,detail:Any)->None:
 
 def main()->int:
  parser=argparse.ArgumentParser();parser.add_argument('--security-only',action='store_true');parser.add_argument('--output');args=parser.parse_args();checks=[]
- version=(ROOT/'VERSION').read_text().strip();add(checks,'semantic-version',bool(re.fullmatch(r'\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?',version)),version)
+ version=(ROOT/'VERSION').read_text().strip();add(checks,'semantic-version',bool(SEMVER_RE.fullmatch(version)),version)
  env=(ROOT/'.env.example').read_text();remote={k:re.search(rf'(?m)^{k}=(.*)$',env).group(1) for k in ['REMOTE_CI_ENABLED','REMOTE_REGISTRY_ENABLED','REMOTE_RELEASE_ENABLED','REMOTE_DEPLOY_ENABLED']};add(checks,'remote-disabled-default',all(v=='false' for v in remote.values()),remote)
  # Security-relevant selector and config checks.
  middleware=(ROOT/'backend/app/shared/security/middleware.py').read_text();add(checks,'tenant-selector-rejected','X-Tenant-ID' in middleware and 'tenant_id' in middleware,'hostname-only')
@@ -45,8 +52,15 @@ def main()->int:
      stale_dist.append(app)
   add(checks,'no-obsolete-frontend-dist',not stale_dist,stale_dist)
   modules={p.name for p in (ROOT/'backend/app/modules').iterdir() if p.is_dir()};add(checks,'backend-modules',REQUIRED_MODULES<=modules,{'required':len(REQUIRED_MODULES),'present':len(REQUIRED_MODULES&modules),'missing':sorted(REQUIRED_MODULES-modules)})
-  workflows={p.name for p in (ROOT/'.github/workflows').glob('*.yml')};add(checks,'workflows',workflows==EXPECTED_WORKFLOWS,{'count':len(workflows),'missing':sorted(EXPECTED_WORKFLOWS-workflows),'extra':sorted(workflows-EXPECTED_WORKFLOWS)})
+  workflows={p.name for p in (ROOT/'.github/workflows').glob('*.yml')}
+  missing_workflows=REQUIRED_WORKFLOWS-workflows
+  add(checks,'workflows',not missing_workflows,{'count':len(workflows),'required':len(REQUIRED_WORKFLOWS),'missing':sorted(missing_workflows)})
+  mirrored_workflows={p.name for p in (ROOT/'CI_CD_KIT_LOCAL/workflows').glob('*.yml')}
+  divergent_workflows=sorted(name for name in workflows&mirrored_workflows if (ROOT/'.github/workflows'/name).read_bytes()!=(ROOT/'CI_CD_KIT_LOCAL/workflows'/name).read_bytes())
+  add(checks,'workflow-mirror',workflows==mirrored_workflows and not divergent_workflows,{'canonical':len(workflows),'mirrored':len(mirrored_workflows),'missing':sorted(workflows-mirrored_workflows),'extra':sorted(mirrored_workflows-workflows),'divergent':divergent_workflows})
   compose=yaml.safe_load((ROOT/'compose.yaml').read_text());services=set(compose.get('services',{}));add(checks,'compose-services',EXPECTED_SERVICES<=services,{'count':len(services),'missing':sorted(EXPECTED_SERVICES-services)})
+  deployment_report=validate_deployments(ROOT)
+  add(checks,'standalone-deployments',deployment_report['status']=='passed',{'failed_checks':deployment_report['failed_checks'],'checks':deployment_report['checks']})
   openapi=json.loads((ROOT/'docs/api/openapi.json').read_text());operations=[]
   for path,item in openapi.get('paths',{}).items():
    for method,op in item.items():
@@ -83,7 +97,15 @@ def main()->int:
    text=p.read_text(encoding='utf-8')
    if re.search(r'\b(TODO|FIXME|HACK)(?:\([^)]+\))?\s*:',text):critical.append(p.relative_to(ROOT).as_posix())
   add(checks,'no-critical-todos',not critical,critical)
-  kit=json.loads((ROOT/'CI_CD_KIT_LOCAL/manifest.json').read_text());add(checks,'ci-cd-kit',len(kit.get('files',[]))>=16 and kit.get('remote_execution') is False,{'files':len(kit.get('files',[]))})
+  kit_root=ROOT/'CI_CD_KIT_LOCAL';kit=json.loads((kit_root/'manifest.json').read_text())
+  manifest_records=kit.get('files',[]);manifest_paths={record.get('path') for record in manifest_records}
+  actual_kit_files={p.relative_to(kit_root).as_posix() for p in kit_root.rglob('*') if p.is_file() and p.name!='manifest.json'}
+  invalid_hashes=[]
+  for record in manifest_records:
+   path=kit_root/str(record.get('path',''))
+   if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=record.get('sha256') or path.stat().st_size!=record.get('bytes'):invalid_hashes.append(record.get('path'))
+  kit_ok=kit.get('remote_execution') is False and manifest_paths==actual_kit_files and not invalid_hashes
+  add(checks,'ci-cd-kit',kit_ok,{'files':len(manifest_records),'actual':len(actual_kit_files),'missing':sorted(actual_kit_files-manifest_paths),'extra':sorted(manifest_paths-actual_kit_files),'invalid_hashes':invalid_hashes})
   oci_path=ROOT/f'release/artifacts/oci/PIGE360-{version}-images-digests.json'
   if oci_path.is_file():
    try:

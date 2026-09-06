@@ -22,6 +22,7 @@ from app.shared.integrations.providers import (
 )
 from app.shared.presentation.errors import DomainError
 from app.shared.security.auth import CurrentUser, current_user
+from app.shared.tenant_quotas import tenant_quota_limit
 
 router = APIRouter(tags=["integrations"])
 
@@ -273,6 +274,29 @@ def update_connection(connection_id: str, data: IntegrationConnectionUpdate, req
         state = "not_configured"
     now = iso_now()
     with request.state.store.transaction() as conn:
+        request.state.store.transaction_lock(conn, f"tenant-integration-quota:{tid}")
+        current = conn.execute(
+            "SELECT state FROM integration_connections WHERE tenant_id=? AND id=?",
+            (tid, connection_id),
+        ).fetchone()
+        if not current:
+            raise DomainError("INTEGRATION_CONNECTION_NOT_FOUND", "Conexão de integração não localizada.", 404)
+        if current["state"] == "archived" and state != "archived":
+            limit = tenant_quota_limit(
+                request.app.state.data_router.control,
+                tid,
+                "max_integrations",
+            )
+            active = conn.execute(
+                "SELECT COUNT(*) AS n FROM integration_connections WHERE tenant_id=? AND state<>'archived'",
+                (tid,),
+            ).fetchone()
+            if int(active["n"] if active else 0) >= limit:
+                raise DomainError(
+                    "TENANT_QUOTA_EXCEEDED",
+                    f"A quota de integrações não arquivadas ({limit}) foi atingida.",
+                    409,
+                )
         conn.execute(
             "UPDATE integration_connections SET name=?,environment=?,capabilities_json=?,secret_reference=?,config_json=?,state=?,updated_at=? WHERE tenant_id=? AND id=?",
             (name, environment, json.dumps(capabilities), secret_reference, json.dumps(config), state, now, tid, connection_id),
@@ -293,6 +317,12 @@ def test_connection(connection_id: str, request: Request, user: CurrentUser = De
     require(user, INTEGRATION_ROLES)
     tid = tenant(user)
     row = _connection(request, user, connection_id)
+    if row["state"] == "archived":
+        raise DomainError(
+            "INTEGRATION_CONNECTION_INACTIVE",
+            "Uma conexão arquivada não pode ser testada ou reativada implicitamente.",
+            409,
+        )
     run_id = uuid7()
     started = iso_now()
     try:
@@ -302,6 +332,17 @@ def test_connection(connection_id: str, request: Request, user: CurrentUser = De
         state = health.status
         result = {"connection_id": connection_id, "provider": row["provider"], "status": state, "latency_ms": health.latency_ms, "details": health.details, "checked_at": iso_now()}
         with request.state.store.transaction() as conn:
+            request.state.store.transaction_lock(conn, f"tenant-integration-quota:{tid}")
+            current = conn.execute(
+                "SELECT state FROM integration_connections WHERE tenant_id=? AND id=?",
+                (tid, connection_id),
+            ).fetchone()
+            if not current or current["state"] == "archived":
+                raise DomainError(
+                    "INTEGRATION_CONNECTION_INACTIVE",
+                    "A conexão foi arquivada durante o teste e não será reativada.",
+                    409,
+                )
             conn.execute("UPDATE integration_connections SET state=?,last_health_at=?,last_health_state=?,updated_at=? WHERE tenant_id=? AND id=?", ("configured" if state == "healthy" else "degraded", result["checked_at"], state, result["checked_at"], tid, connection_id))
             conn.execute("INSERT INTO integration_runs(id,tenant_id,connection_id,direction,capability,state,cursor,stats_json,error,started_at,finished_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)", (run_id, tid, connection_id, "outbound", "health", state, None, json.dumps({"latency_ms": health.latency_ms, "details": health.details}, ensure_ascii=False, sort_keys=True), None, started, result["checked_at"]))
             add_audit(conn, tenant_id=tid, actor_id=user.id, action="health_check", aggregate_type="integration_connection", aggregate_id=connection_id, correlation_id=request.state.correlation_id, after=result)
@@ -309,7 +350,13 @@ def test_connection(connection_id: str, request: Request, user: CurrentUser = De
     except IntegrationError as exc:
         finished = iso_now()
         with request.state.store.transaction() as conn:
-            conn.execute("UPDATE integration_connections SET state='degraded',last_health_at=?,last_health_state='failed',updated_at=? WHERE tenant_id=? AND id=?", (finished, finished, tid, connection_id))
+            request.state.store.transaction_lock(conn, f"tenant-integration-quota:{tid}")
+            current = conn.execute(
+                "SELECT state FROM integration_connections WHERE tenant_id=? AND id=?",
+                (tid, connection_id),
+            ).fetchone()
+            if current and current["state"] != "archived":
+                conn.execute("UPDATE integration_connections SET state='degraded',last_health_at=?,last_health_state='failed',updated_at=? WHERE tenant_id=? AND id=?", (finished, finished, tid, connection_id))
             conn.execute("INSERT INTO integration_runs(id,tenant_id,connection_id,direction,capability,state,cursor,stats_json,error,started_at,finished_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)", (run_id, tid, connection_id, "outbound", "health", "failed", None, "{}", f"{exc.code}: {str(exc)[:500]}", started, finished))
             add_audit(conn, tenant_id=tid, actor_id=user.id, action="health_check_failed", aggregate_type="integration_connection", aggregate_id=connection_id, correlation_id=request.state.correlation_id, after={"code": exc.code, "retryable": exc.retryable})
         raise _domain_from_integration(exc) from exc

@@ -1,0 +1,15 @@
+{
+  "environment": "production",
+  "files": {
+    ".env.example": "15adfedb37eec0947543487251a0a38b086a8bf09276894422e8175fc3938d45",
+    "README.md": "8bedef8aec83a844494bcde2ad91c34d9b9010e9472409f0fb558894761d7b88",
+    "compose.yaml": "64230d2e7d33219ed6bdd31a7b530055381eac25b751fd362f26645ff31cd579"
+  },
+  "generator": "scripts/deploy/generate_standalone_deployments.py",
+  "image_registry": "ghcr.io/wkarts",
+  "image_tag": "1.1.2",
+  "mode": "service-native-image-only",
+  "platform": null,
+  "project_name": "pige360-production",
+  "schema_version": 2
+}

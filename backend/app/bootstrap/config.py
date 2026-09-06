@@ -41,7 +41,7 @@ _DEFAULT_RESERVED_TENANT_SLUGS = (
 class Settings:
     app_name: str = "PIGE360"
     app_full_name: str = "PIGE360 — Plataforma Integrada de Gestão Educacional"
-    version: str = "1.0.0"
+    version: str = "1.1.2"
     environment: str = "development"
     demo_mode: bool = False
     data_root: Path = Path("runtime-data")
@@ -57,6 +57,8 @@ class Settings:
     jwt_issuer: str = "pige360"
     access_token_minutes: int = 15
     refresh_token_days: int = 30
+    login_max_attempts: int = 5
+    login_lockout_minutes: int = 15
     bootstrap_token: str = ""
     cors_origins: tuple[str, ...] = ()
     remote_ci_enabled: bool = False
@@ -76,6 +78,14 @@ class Settings:
     object_storage_access_key: str = ""
     object_storage_secret_key: str = ""
     object_storage_secure: bool = False
+    redis_url: str = ""
+    redis_password: str = ""
+    rabbitmq_url: str = ""
+    rabbitmq_password: str = ""
+    readiness_timeout_seconds: float = 3.0
+    readiness_require_redis: bool = False
+    readiness_require_rabbitmq: bool = False
+    readiness_require_object_storage: bool = False
     build_farm_token: str = ""
     integration_remote_enabled: bool = False
     mail_mode: str = "disabled"
@@ -106,7 +116,18 @@ class Settings:
         object_storage_endpoint = os.getenv("MINIO_ENDPOINT", "")
         object_storage_access_key = _secret("MINIO_ACCESS_KEY", "MINIO_ACCESS_KEY_FILE")
         object_storage_secret_key = _secret("MINIO_SECRET_KEY", "MINIO_SECRET_KEY_FILE")
+        redis_password = _secret("REDIS_PASSWORD", "REDIS_PASSWORD_FILE")
+        rabbitmq_password = _secret("RABBITMQ_PASSWORD", "RABBITMQ_PASSWORD_FILE")
         build_farm_token = _secret("BUILD_FARM_TOKEN", "BUILD_FARM_TOKEN_FILE")
+        readiness_timeout_seconds = float(os.getenv("READINESS_TIMEOUT_SECONDS", "3"))
+        if not 0.1 <= readiness_timeout_seconds <= 30:
+            raise RuntimeError("READINESS_TIMEOUT_SECONDS deve estar entre 0.1 e 30 segundos.")
+        login_max_attempts = int(os.getenv("APP_LOGIN_MAX_ATTEMPTS", "5"))
+        login_lockout_minutes = int(os.getenv("APP_LOGIN_LOCKOUT_MINUTES", "15"))
+        if not 2 <= login_max_attempts <= 100:
+            raise RuntimeError("APP_LOGIN_MAX_ATTEMPTS deve estar entre 2 e 100.")
+        if not 1 <= login_lockout_minutes <= 1_440:
+            raise RuntimeError("APP_LOGIN_LOCKOUT_MINUTES deve estar entre 1 e 1440.")
 
         base_domain = os.getenv("PIGE360_BASE_DOMAIN", "pige360.com.br").strip().lower().rstrip(".")
         tenant_default_base_domain = os.getenv("TENANT_DEFAULT_BASE_DOMAIN", base_domain).strip().lower().rstrip(".")
@@ -149,7 +170,7 @@ class Settings:
         )
         origins = tuple(x.strip() for x in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",") if x.strip())
         return cls(
-            version=os.getenv("APP_VERSION", "1.0.0"),
+            version=os.getenv("APP_VERSION", "1.1.2"),
             environment=environment,
             demo_mode=_bool("APP_DEMO_MODE"),
             data_root=data_root,
@@ -165,6 +186,8 @@ class Settings:
             bootstrap_token=bootstrap_token,
             access_token_minutes=int(os.getenv("APP_ACCESS_TOKEN_MINUTES", "15")),
             refresh_token_days=int(os.getenv("APP_REFRESH_TOKEN_DAYS", "30")),
+            login_max_attempts=login_max_attempts,
+            login_lockout_minutes=login_lockout_minutes,
             cors_origins=origins,
             remote_ci_enabled=_bool("REMOTE_CI_ENABLED"),
             remote_registry_enabled=_bool("REMOTE_REGISTRY_ENABLED"),
@@ -183,6 +206,16 @@ class Settings:
             object_storage_access_key=object_storage_access_key,
             object_storage_secret_key=object_storage_secret_key,
             object_storage_secure=_bool("MINIO_SECURE"),
+            redis_url=os.getenv("REDIS_URL", ""),
+            redis_password=redis_password,
+            rabbitmq_url=os.getenv("RABBITMQ_URL", ""),
+            rabbitmq_password=rabbitmq_password,
+            readiness_timeout_seconds=readiness_timeout_seconds,
+            readiness_require_redis=_bool("READINESS_REQUIRE_REDIS", environment in {"production", "staging"}),
+            readiness_require_rabbitmq=_bool("READINESS_REQUIRE_RABBITMQ", environment in {"production", "staging"}),
+            readiness_require_object_storage=_bool(
+                "READINESS_REQUIRE_OBJECT_STORAGE", environment in {"production", "staging"}
+            ),
             build_farm_token=build_farm_token,
             integration_remote_enabled=_bool("INTEGRATION_REMOTE_ENABLED", environment in {"production", "staging"}),
             mail_mode=os.getenv("MAIL_MODE", "disabled"),

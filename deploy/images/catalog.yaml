@@ -4,11 +4,13 @@ first_party:
 - {service: api, image: 'pige360-api:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.api, required: true}
 - {service: web, image: 'pige360-web:${PIGE360_IMAGE_TAG}', app: apps/tenant-admin-web, required: true}
 - {service: platform-console, image: 'pige360-platform-console:${PIGE360_IMAGE_TAG}', app: apps/platform-console, required: true}
-- {service: branding-studio, image: 'pige360-branding-studio:${PIGE360_IMAGE_TAG}', app: apps/branding-studio, required: false}
-- {service: tenant-download-center, image: 'pige360-tenant-download-center:${PIGE360_IMAGE_TAG}', app: apps/tenant-download-center, required: false}
-- {service: app-factory, image: 'pige360-app-factory:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.api, required: false}
+- {service: branding-studio, image: 'pige360-branding-studio:${PIGE360_IMAGE_TAG}', app: apps/branding-studio, required: true}
+- {service: tenant-download-center, image: 'pige360-tenant-download-center:${PIGE360_IMAGE_TAG}', app: apps/tenant-download-center, required: true}
+- {service: app-factory, image: 'pige360-api:${PIGE360_IMAGE_TAG}', image_alias_of: api, dockerfile: infra/docker/Dockerfile.api, required: false}
 - {service: worker, image: 'pige360-worker:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.worker, required: true}
-- {service: migrations, image: local-build, dockerfile: infra/docker/Dockerfile.migrations, required: true}
+- {service: migrations, image: 'pige360-migrations:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.migrations, required: false}
+- {service: ops, image: 'pige360-ops:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.ops, required: true}
+- {service: reporting, image: 'pige360-reporting:${PIGE360_IMAGE_TAG}', dockerfile: infra/docker/Dockerfile.reporting, required: false}
 - {service: builder-linux, image: 'pige360-builder-linux:${PIGE360_IMAGE_TAG}', profile: build-farm, required: false}
 - {service: builder-android, image: 'pige360-builder-android:${PIGE360_IMAGE_TAG}', profile: build-farm, required: false}
 third_party:
@@ -21,12 +23,33 @@ third_party:
 - {service: clamav, image: 'clamav/clamav:1.4.2', profile: security, required: false}
 - {service: cloudflared-control, image: 'cloudflare/cloudflared:2025.6.1', profile: cloudflare, required: false}
 - {service: cloudflared-tenants, image: 'cloudflare/cloudflared:2025.6.1', profile: cloudflare, required: false}
-- {service: otel-collector, image: 'otel/opentelemetry-collector-contrib:0.128.0', required: true}
+- {service: otel-collector, image: 'otel/opentelemetry-collector-contrib:0.128.0', profile: otel, required: false}
 - {service: prometheus, image: 'prom/prometheus:v3.4.1', required: true}
 - {service: grafana, image: 'grafana/grafana:12.0.2', required: true}
 - {service: loki, image: 'grafana/loki:3.5.1', required: true}
 - {service: alloy, image: 'grafana/alloy:v1.19.2', overlay: deploy/compose/compose.logging.yaml, required: true}
 - {service: edge, image: '${TRAEFIK_IMAGE:-traefik:v3.7.12}', overlay: deploy/compose/compose.edge.yaml, required: false}
 notes:
-  native_build_images: frozen_manual_only
+  image_catalog_source: scripts/oci/image-catalog.sh
+  publication_strategy: two-phase-immutable-first
+  cross_image_atomicity: false
+  deployment_pin: use_immutable_tag_or_digest
+  develop_tags: ['develop', 'develop-<sha12>']
+  release_tags: ['<semver>', 'v<semver>', 'release-<sha12>']
+  release_manifest: ghcr-release-manifest.json
+  develop_manifest: ghcr-develop-manifest.json
+  native_build_images: coordinated_ci_release_matrix
+  native_release_targets:
+  - windows-x64
+  - windows-x86
+  - linux-x64
+  - linux-arm64
+  - macos-x64
+  - macos-arm64
+  - android-arm64
+  - ios-arm64-unsigned
+  web_release_targets:
+  - web-pwa
+  - cloudpanel-linux-x64
+  - cloudpanel-linux-x86
   canonical_operational_front: apps/tenant-admin-web

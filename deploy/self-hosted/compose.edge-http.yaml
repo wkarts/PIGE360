@@ -1,0 +1,120 @@
+services:
+  pige360-edge-init:
+    image: busybox:1.37.0
+    command:
+      - /bin/sh
+      - -ec
+      - mkdir -p /dynamic && chown -R 10001:10001 /dynamic && chmod 0770 /dynamic
+    volumes:
+      - pige360-traefik-dynamic:/dynamic
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+
+  pige360-edge:
+    image: ${TRAEFIK_IMAGE:-traefik:v3.7.12}
+    depends_on:
+      pige360-edge-init:
+        condition: service_completed_successfully
+    command:
+      - --global.checknewversion=false
+      - --global.sendanonymoususage=false
+      - --api.dashboard=false
+      - --ping=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --accesslog=true
+      - --accesslog.format=json
+      - --log.format=json
+    ports:
+      - ${TRAEFIK_BIND_HOST:-0.0.0.0}:${TRAEFIK_HTTP_PORT:-80}:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - pige360-traefik-dynamic:/etc/traefik/dynamic:ro
+    networks:
+      - pige360-app
+    healthcheck:
+      test: [CMD, traefik, healthcheck, --ping]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  pige360-api:
+    depends_on:
+      pige360-edge-init:
+        condition: service_completed_successfully
+    environment:
+      PIGE360_TRAEFIK_DYNAMIC_DIR_INTERNAL: /var/lib/pige360/edge-dynamic
+    volumes:
+      - pige360-traefik-dynamic:/var/lib/pige360/edge-dynamic
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-api.loadbalancer.server.port: "8000"
+      traefik.http.routers.pige360-control-api.rule: Host(`${PLATFORM_API_HOST:-api.pige360.com.br}`)
+      traefik.http.routers.pige360-control-api.entrypoints: web
+      traefik.http.routers.pige360-control-api.priority: "120"
+      traefik.http.routers.pige360-console-api.rule: Host(`${PLATFORM_CONSOLE_HOST:-console.pige360.com.br}`) && PathPrefix(`/api`)
+      traefik.http.routers.pige360-console-api.entrypoints: web
+      traefik.http.routers.pige360-console-api.priority: "120"
+      traefik.http.routers.pige360-tenant-api.rule: HostRegexp(`^[a-z0-9-]+\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`) && PathPrefix(`/api`)
+      traefik.http.routers.pige360-tenant-api.entrypoints: web
+      traefik.http.routers.pige360-tenant-api.priority: "80"
+
+  pige360-web:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-web.loadbalancer.server.port: "8080"
+      traefik.http.routers.pige360-tenant-web.rule: HostRegexp(`^[a-z0-9-]+\.${TENANT_DEFAULT_BASE_DOMAIN:-pige360.com.br}$`)
+      traefik.http.routers.pige360-tenant-web.entrypoints: web
+      traefik.http.routers.pige360-tenant-web.priority: "40"
+
+  pige360-platform-console:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-platform-console.loadbalancer.server.port: "8080"
+      traefik.http.routers.pige360-platform-console.rule: Host(`${PLATFORM_CONSOLE_HOST:-console.pige360.com.br}`)
+      traefik.http.routers.pige360-platform-console.entrypoints: web
+      traefik.http.routers.pige360-platform-console.priority: "100"
+
+  pige360-branding-studio:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-branding-studio.loadbalancer.server.port: "8080"
+      traefik.http.routers.pige360-branding-studio.rule: Host(`${PLATFORM_BRANDING_HOST:-branding.pige360.com.br}`)
+      traefik.http.routers.pige360-branding-studio.entrypoints: web
+      traefik.http.routers.pige360-branding-studio.priority: "100"
+
+  pige360-tenant-download-center:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-tenant-download-center.loadbalancer.server.port: "8080"
+      traefik.http.routers.pige360-tenant-download-center.rule: Host(`${PLATFORM_DOWNLOADS_HOST:-downloads.pige360.com.br}`)
+      traefik.http.routers.pige360-tenant-download-center.entrypoints: web
+      traefik.http.routers.pige360-tenant-download-center.priority: "100"
+
+  pige360-grafana:
+    networks:
+      - pige360-observability
+      - pige360-app
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${PIGE360_NETWORK_APP_NAME:?PIGE360_NETWORK_APP_NAME obrigatorio}
+      traefik.http.services.pige360-grafana.loadbalancer.server.port: "3000"
+      traefik.http.routers.pige360-ops.rule: Host(`${PLATFORM_OPS_HOST:-ops.pige360.com.br}`)
+      traefik.http.routers.pige360-ops.entrypoints: web
+      traefik.http.routers.pige360-ops.priority: "120"
+
+volumes:
+  pige360-traefik-dynamic:
+    name: ${PIGE360_PROJECT_NAME:-pige360-develop}-traefik-dynamic
