@@ -1,0 +1,130 @@
+name: 35 · PIGE360 Deployer x64
+
+'on':
+  pull_request:
+    paths:
+      - 'tools/pige360-deployer/**'
+      - 'scripts/validation/validate_integrated_deployer.py'
+      - 'scripts/release/sync-version.py'
+      - '.github/workflows/35-build-deployer.yml'
+      - '.github/workflows/36-develop-prerelease.yml'
+      - '.github/workflows/50-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  DEPLOYER_DIR: tools/pige360-deployer
+  AGENT_TARGET: x86_64-unknown-linux-gnu
+
+jobs:
+  agent:
+    name: Validar e compilar agente Linux AMD64
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: tools/pige360-deployer/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ env.AGENT_TARGET }}
+      - name: Validar integração e frontend
+        working-directory: tools/pige360-deployer
+        run: |
+          npm ci --prefer-offline --no-audit --no-fund
+          npm run ci:version
+          npm run validate:deployer
+          npm run typecheck
+          npm run build:web
+      - name: Testar e compilar agente remoto
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path "$DEPLOYER_DIR/src-tauri/Cargo.toml" --locked --no-default-features --lib
+          cargo build --manifest-path "$DEPLOYER_DIR/src-tauri/Cargo.toml" --locked --release \
+            --no-default-features --bin pige360-deploy-agent --target "$AGENT_TARGET"
+          install -D -m 0755 \
+            "$DEPLOYER_DIR/src-tauri/target/$AGENT_TARGET/release/pige360-deploy-agent" \
+            build/deployer-agent/pige360-deploy-agent-linux-amd64
+          build/deployer-agent/pige360-deploy-agent-linux-amd64 self-test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ci-deployer-agent-linux-x64
+          path: build/deployer-agent/pige360-deploy-agent-linux-amd64
+          if-no-files-found: error
+          retention-days: 14
+
+  desktop:
+    name: Implantador ${{ matrix.label }}
+    needs: agent
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows x64
+            os: windows-2025
+            target: x86_64-pc-windows-msvc
+            bundles: nsis,msi
+            artifact: windows-x64
+          - label: Linux x64
+            os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            bundles: deb,appimage
+            artifact: linux-x64
+          - label: macOS Intel x64
+            os: macos-15-intel
+            target: x86_64-apple-darwin
+            bundles: app,dmg
+            artifact: macos-x64
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar dependências Tauri no Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential curl file libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libwebkit2gtk-4.1-dev patchelf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: tools/pige360-deployer/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-deployer-agent-linux-x64
+          path: tools/pige360-deployer/src-tauri/embedded
+      - name: Exigir agente AMD64 embutido
+        shell: bash
+        run: test -s tools/pige360-deployer/src-tauri/embedded/pige360-deploy-agent-linux-amd64
+      - name: Instalar dependências
+        working-directory: tools/pige360-deployer
+        run: npm ci --prefer-offline --no-audit --no-fund
+      - name: Construir instalador desktop x64
+        working-directory: tools/pige360-deployer
+        shell: bash
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/tools/pige360-deployer/src-tauri/target
+        run: npm run tauri -- build --target "${{ matrix.target }}" --bundles "${{ matrix.bundles }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ci-pige360-deployer-${{ matrix.artifact }}
+          path: tools/pige360-deployer/src-tauri/target/${{ matrix.target }}/release/bundle/**
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0

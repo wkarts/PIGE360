@@ -4,7 +4,7 @@
   "files": [
     {
       "path": "README.md",
-      "sha256": "970de6d695691a2ca5a29e13639e98e65beba3afafcaaacc7c5a5ef67c1e6eb9",
+      "sha256": "53f393fe4d7945a6fe4ccdf04ac64160daa0e8255941e3eb3a42b5de7522986b",
       "bytes": 407
     },
     {
@@ -78,18 +78,28 @@
       "bytes": 5388
     },
     {
+      "path": "workflows/35-build-deployer.yml",
+      "sha256": "b72889df47155b83bd2d33f8ac80a39e509a429656a831652ed2dd4f8e7c3c45",
+      "bytes": 4689
+    },
+    {
+      "path": "workflows/36-develop-prerelease.yml",
+      "sha256": "3b8005f764e90f2f24f701a4120d3c9d076bcafefa4025b4cb00390d8faf52a2",
+      "bytes": 9041
+    },
+    {
       "path": "workflows/40-security.yml",
       "sha256": "c75d0baa1649e49db0c31913c1a09fe92249438d0a31acf21b286dcc05edc000",
       "bytes": 905
     },
     {
       "path": "workflows/50-release.yml",
-      "sha256": "d5e67cce0d5702fd998363c590111144733e20c2527720a5bff18973d937d1c9",
-      "bytes": 38083
+      "sha256": "c2213ff05ca5bacc999059604759ed7379b7a63a9e84dade2d56465c862dd490",
+      "bytes": 46233
     },
     {
       "path": "workflows/51-recover-release.yml",
-      "sha256": "b5503c20ae27911c798218cbf594307c85ffa81a7084c96001108e7de84397e7",
+      "sha256": "2932157b296b07280150d591d39a43d64afb2fb409d6e815a90b2915f956a3e6",
       "bytes": 4711
     },
     {

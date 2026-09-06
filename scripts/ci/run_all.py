@@ -86,6 +86,7 @@ def main()->int:
       ('tenant-app-manifest',[sys.executable,'scripts/validation/tenant_app_manifest.py','deploy/local/tenant-app-manifest.demo.yaml'],None,None),
       ('version-consistency',version_command,None,None),
       ('release-build-readiness',[sys.executable,'scripts/validation/validate_release_build_readiness.py'],None,None),
+      ('integrated-deployer',[sys.executable,'scripts/validation/validate_integrated_deployer.py'],None,None),
       ('dockerfile-policy',[sys.executable,'scripts/validation/validate_dockerfiles.py'],None,None),
       ('secret-scan',[sys.executable,'scripts/validation/secret_scan.py','--output','release/secret-scan-report.json'],None,None),
       ('backup-restore',[sys.executable,'scripts/backup/test_backup_restore.py'],None,None),

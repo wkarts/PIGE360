@@ -42,6 +42,16 @@ def metadata_paths() -> list[Path]:
         "apps/**/src/app-contract.js",
         "apps/**/public/sw.js",
         "packages/**/package.json",
+        "tools/pige360-deployer/VERSION",
+        "tools/pige360-deployer/package.json",
+        "tools/pige360-deployer/package-lock.json",
+        "tools/pige360-deployer/app.manifest.example.json",
+        "tools/pige360-deployer/deploy/cloudpanel/package.json",
+        "tools/pige360-deployer/src/assets/branding/brand.json",
+        "tools/pige360-deployer/src/config/projectConfig.ts",
+        "tools/pige360-deployer/src-tauri/Cargo.toml",
+        "tools/pige360-deployer/src-tauri/Cargo.lock",
+        "tools/pige360-deployer/src-tauri/tauri.conf.json",
         "docs/api/openapi.json",
         "docs/api/openapi.yaml",
         "docs/api/OPENAPI_REPORT.json",
@@ -70,7 +80,7 @@ def _json_transform(path: Path, text: str, target: str) -> str:
     relative = path.relative_to(ROOT).as_posix()
     changed = False
 
-    if relative == "package-lock.json":
+    if path.name == "package-lock.json":
         if document.get("version") != target:
             document["version"] = target
             changed = True
@@ -79,7 +89,9 @@ def _json_transform(path: Path, text: str, target: str) -> str:
             for name, package in packages.items():
                 # Nunca toque em node_modules: versões, URLs e integridades ali
                 # pertencem a dependências externas e são imutáveis.
-                if name != "" and not name.startswith(("apps/", "packages/")):
+                if relative == "package-lock.json" and name != "" and not name.startswith(("apps/", "packages/")):
+                    continue
+                if relative != "package-lock.json" and name != "":
                     continue
                 if not isinstance(package, dict):
                     continue
@@ -92,6 +104,13 @@ def _json_transform(path: Path, text: str, target: str) -> str:
             document["version"] = target
             changed = True
         changed = _set_internal_dependencies(document, target) or changed
+    elif relative in {
+        "tools/pige360-deployer/app.manifest.example.json",
+        "tools/pige360-deployer/src/assets/branding/brand.json",
+    }:
+        if document.get("version") != target:
+            document["version"] = target
+            changed = True
     elif relative.endswith("tauri.conf.json"):
         if document.get("version") != target:
             document["version"] = target
@@ -120,6 +139,8 @@ def _text_transform(path: Path, text: str, target: str) -> str:
 
     if relative == "README.md":
         return _replace(r"^(\*\*Versão de testes:\s*)[^*]+(\*\*)$", rf"\g<1>{target}\2", text)
+    if relative == "tools/pige360-deployer/VERSION":
+        return target + "\n"
     if relative == ".env.example" or (
         relative.startswith("deploy/env/") and path.name.endswith(".env.example")
     ):
@@ -156,6 +177,13 @@ def _text_transform(path: Path, text: str, target: str) -> str:
             text,
             count=1,
         )
+    if relative == "tools/pige360-deployer/src-tauri/Cargo.lock":
+        return _replace(
+            r'^(\[\[package\]\]\s*\nname\s*=\s*"pige360_deployer"\s*\nversion\s*=\s*")[^"]+("\s*)$',
+            rf"\g<1>{target}\2",
+            text,
+            count=1,
+        )
     if path.name == "Info.plist":
         return _replace(
             r"(<key>CFBundleShortVersionString</key>\s*<string>)[^<]+(</string>)",
@@ -164,6 +192,8 @@ def _text_transform(path: Path, text: str, target: str) -> str:
             count=1,
         )
     if path.name in {"app-contract.ts", "app-contract.js"}:
+        return _replace(r'(\bversion:\s*")[^"]+("\s*,)', rf"\g<1>{target}\2", text, count=1)
+    if relative == "tools/pige360-deployer/src/config/projectConfig.ts":
         return _replace(r'(\bversion:\s*")[^"]+("\s*,)', rf"\g<1>{target}\2", text, count=1)
     if path.name == "sw.js":
         scoped = _replace(

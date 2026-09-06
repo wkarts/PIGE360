@@ -349,7 +349,7 @@ def test_release_recovery_rebuilds_full_matrix_without_reusing_assets() -> None:
     assert "manifest_count" in recovery
     assert '"$manifest_count" -eq 13' in recovery
     assert "gh workflow run 50-release.yml" in recovery
-    assert "reconstruirá os 12 alvos a partir da tag exata" in recovery
+    assert "reconstruirá os 16 alvos a partir da tag exata" in recovery
     assert "Nenhum artefato de execução anterior foi publicado ou reaproveitado" in recovery
     for forbidden in (
         "actions/download-artifact",

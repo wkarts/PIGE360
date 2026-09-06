@@ -215,6 +215,8 @@ jobs:
           }
           test "$missing_locks" -eq 0
           cargo metadata --manifest-path rust/Cargo.toml --locked --format-version 1 >/dev/null
+          git cat-file -e "$tag:tools/pige360-deployer/src-tauri/Cargo.lock"
+          cargo metadata --manifest-path tools/pige360-deployer/src-tauri/Cargo.toml --locked --format-version 1 >/dev/null
       - name: Garantir que main não mudou durante o planejamento
         if: needs.plan_version.outputs.resume != 'true'
         shell: bash
@@ -247,6 +249,7 @@ jobs:
             exit 4
           }
           cargo metadata --manifest-path rust/Cargo.toml --locked --format-version 1 >/dev/null
+          cargo metadata --manifest-path tools/pige360-deployer/src-tauri/Cargo.toml --locked --format-version 1 >/dev/null
       - name: Criar commit e tag de release atomicamente
         if: needs.plan_version.outputs.resume != 'true'
         shell: bash
@@ -266,6 +269,186 @@ jobs:
       - name: Registrar SHA canônico
         id: final
         run: echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  deployer_agent:
+    name: PIGE360 Deployer · agente Linux x64
+    needs: [plan_version, persist_version]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ needs.plan_version.outputs.tag }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: tools/pige360-deployer/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+      - name: Validar e compilar agente AMD64
+        id: build
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ needs.persist_version.outputs.release_sha }}"
+          python3 scripts/validation/validate_integrated_deployer.py
+          npm ci --prefix tools/pige360-deployer --prefer-offline --no-audit --no-fund
+          npm --prefix tools/pige360-deployer run validate:deployer
+          cargo test --manifest-path tools/pige360-deployer/src-tauri/Cargo.toml --locked --no-default-features --lib
+          cargo build --manifest-path tools/pige360-deployer/src-tauri/Cargo.toml --locked --release \
+            --no-default-features --bin pige360-deploy-agent --target x86_64-unknown-linux-gnu
+          install -D -m 0755 \
+            tools/pige360-deployer/src-tauri/target/x86_64-unknown-linux-gnu/release/pige360-deploy-agent \
+            build/deployer-agent/pige360-deploy-agent-linux-amd64
+          build/deployer-agent/pige360-deploy-agent-linux-amd64 self-test
+          version='${{ needs.plan_version.outputs.version }}'
+          mkdir -p release/artifacts/deployer-agent
+          tar -C build/deployer-agent -czf \
+            "release/artifacts/deployer-agent/PIGE360-Deployer-Agent-v${version}-linux-x64.tar.gz" \
+            pige360-deploy-agent-linux-amd64
+      - uses: actions/upload-artifact@v4
+        if: steps.build.outcome == 'success'
+        with:
+          name: build-deployer-agent-linux-x64
+          path: build/deployer-agent/pige360-deploy-agent-linux-amd64
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: steps.build.outcome == 'success'
+        with:
+          name: release-deployer-agent-linux-x64
+          path: release/artifacts/deployer-agent/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Registrar status do agente
+        if: always()
+        env:
+          BUILD_STATUS: ${{ steps.build.outcome }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          node scripts/release/write-build-status.mjs
+          --output release-status/deployer-agent-linux-x64.status.json
+          --id deployer-agent-linux-x64 --label 'Deployer Agent Linux x64'
+          --platform linux --arch x64 --target x86_64-unknown-linux-gnu
+          --artifact release-deployer-agent-linux-x64
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-status-deployer-agent-linux-x64
+          path: release-status/deployer-agent-linux-x64.status.json
+          if-no-files-found: error
+          retention-days: 14
+      - if: always() && steps.build.outcome != 'success'
+        run: exit 1
+
+  deployer_desktop:
+    name: PIGE360 Deployer · ${{ matrix.label }}
+    needs: [plan_version, persist_version, deployer_agent]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: deployer-windows-x64
+            label: Windows x64
+            os: windows-2025
+            target: x86_64-pc-windows-msvc
+            platform: windows
+            arch: x64
+            bundles: nsis,msi
+            artifact: release-deployer-windows-x64
+          - id: deployer-linux-x64
+            label: Linux x64
+            os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            platform: linux
+            arch: x64
+            bundles: deb,appimage
+            artifact: release-deployer-linux-x64
+          - id: deployer-macos-x64
+            label: macOS Intel x64
+            os: macos-15-intel
+            target: x86_64-apple-darwin
+            platform: macos
+            arch: x64
+            bundles: app,dmg
+            artifact: release-deployer-macos-x64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ needs.plan_version.outputs.tag }}
+      - name: Instalar dependências Tauri no Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential curl file libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libwebkit2gtk-4.1-dev patchelf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: tools/pige360-deployer/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-deployer-agent-linux-x64
+          path: tools/pige360-deployer/src-tauri/embedded
+      - name: Construir e empacotar instalador x64
+        id: build
+        continue-on-error: true
+        working-directory: tools/pige360-deployer
+        shell: bash
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/tools/pige360-deployer/src-tauri/target
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ needs.persist_version.outputs.release_sha }}"
+          test -s src-tauri/embedded/pige360-deploy-agent-linux-amd64
+          npm ci --prefer-offline --no-audit --no-fund
+          npm run tauri -- build --target "${{ matrix.target }}" --bundles "${{ matrix.bundles }}"
+          bundle="src-tauri/target/${{ matrix.target }}/release/bundle"
+          test -d "$bundle"
+          mkdir -p "$GITHUB_WORKSPACE/release/artifacts/deployer/${{ matrix.id }}"
+          tar -C "$bundle" -czf \
+            "$GITHUB_WORKSPACE/release/artifacts/deployer/${{ matrix.id }}/PIGE360-Deployer-v${{ needs.plan_version.outputs.version }}-${{ matrix.id }}.tar.gz" .
+      - uses: actions/upload-artifact@v4
+        if: steps.build.outcome == 'success'
+        with:
+          name: ${{ matrix.artifact }}
+          path: release/artifacts/deployer/${{ matrix.id }}/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Registrar status do implantador
+        if: always()
+        env:
+          BUILD_STATUS: ${{ steps.build.outcome }}
+          RELEASE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: >-
+          node scripts/release/write-build-status.mjs
+          --output release-status/${{ matrix.id }}.status.json
+          --id ${{ matrix.id }} --label 'Deployer ${{ matrix.label }}'
+          --platform ${{ matrix.platform }} --arch ${{ matrix.arch }}
+          --target ${{ matrix.target }} --artifact ${{ matrix.artifact }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-status-${{ matrix.id }}
+          path: release-status/${{ matrix.id }}.status.json
+          if-no-files-found: error
+          retention-days: 14
+      - if: always() && steps.build.outcome != 'success'
+        run: exit 1
 
   container_images:
     name: Publicar imagens OCI SemVer no GHCR
@@ -787,7 +970,7 @@ jobs:
 
   publish:
     name: Consolidar GitHub Release
-    needs: [plan_version, persist_version, container_images, desktop, web_pwa, cloudpanel, android, ios, release_bundle]
+    needs: [plan_version, persist_version, deployer_agent, deployer_desktop, container_images, desktop, web_pwa, cloudpanel, android, ios, release_bundle]
     if: always() && needs.persist_version.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -860,9 +1043,10 @@ jobs:
           Incremento: **${{ needs.plan_version.outputs.bump }}**  
           Referência anterior: **${{ needs.plan_version.outputs.previous }}**
 
-          A distribuição coordenada tenta sempre os 12 alvos: Windows x64/x86,
+          A distribuição coordenada tenta sempre os 16 alvos: Windows x64/x86,
           Linux x64/ARM64, macOS Intel/Apple Silicon, Web/PWA, CloudPanel Linux
-          x64/x86, Android APK/AAB ARM64 e iOS ARM64 unsigned.
+          x64/x86, Android APK/AAB ARM64, iOS ARM64 unsigned, agente Deployer
+          Linux x64 e instaladores Deployer Windows/Linux/macOS x64.
 
           Assinatura e publicação em lojas não são simuladas: permanecem
           condicionadas a credenciais e aos workflows manuais correspondentes.

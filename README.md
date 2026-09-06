@@ -27,11 +27,11 @@ PIGE360 é um ERP educacional brasileiro multi-tenant, SaaS/self-hosted e white-
 - Reporting/Analytics, workflows humanos, avisos, solicitações, biblioteca, transporte e saúde;
 - Branding Studio, `TenantBrandKit`, App Factory e Central de Downloads;
 - **13 aplicações** Vue/PWA instaláveis e fontes Tauri preservadas;
-- **49 serviços nomeados** no conjunto base/overlays Compose e **19 workflows
+- **49 serviços nomeados** no conjunto base/overlays Compose e **21 workflows
   GitHub Actions**, validados estruturalmente nesta máquina;
 - matriz de release para Windows x64/x86, Linux x64/ARM64, macOS Intel/Apple
   Silicon, Web/PWA, CloudPanel x64/x86, Android APK/AAB ARM64 e iOS ARM64
-  unsigned;
+  unsigned, além do agente e dos instaladores PIGE360 Deployer x64;
 - OpenAPI + SDK TypeScript, backup/restore/update/rollback, secret scan, SBOM,
   provenance, relatório antes/depois e pacote de release local;
 - nenhum container, provider externo ou binário nativo é apresentado como
@@ -58,6 +58,19 @@ primeiro administrador. O fluxo de provisionamento cria o tenant, domínio lógi
 banco/role PostgreSQL, migrations, storage e proprietário inicial.
 
 Consulte [Instalação self-hosted](docs/deployment/SELF_HOSTED.md) e [Primeiro push no GitHub](docs/deployment/GITHUB_FIRST_RUN.md).
+
+## Implantador integrado
+
+O `tools/pige360-deployer` é o implantador oficial Tauri 2 + Rust + Vue do
+monorepo. Ele instala, atualiza e reverte `deployments/develop` e
+`deployments/production` nos targets Docker Compose, Dockge, CloudPanel e
+Portainer, orquestrando os services operacionais `pige360-*` sem exigir scripts
+no host. A cadeia própria do implantador gera somente Linux AMD64 e instaladores
+Windows, Linux e macOS Intel x64.
+
+Após a CI verde de `develop`, o workflow `36-develop-prerelease.yml` publica a
+pré-release imutável `develop-<sha12>`. A release estável SemVer inclui os quatro
+artefatos x64 do implantador na mesma política coordenada da plataforma.
 
 ## Desenvolvimento local sem containers
 

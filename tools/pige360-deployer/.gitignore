@@ -1,0 +1,42 @@
+# Node/Vite
+node_modules/
+dist/
+.vite/
+
+# Tauri/Rust build outputs
+src-tauri/dist/
+src-tauri/target/
+target/
+artifacts/
+/release/
+release-assets/
+certificate/
+Dockerfile.cloudpanel-builder
+*.pfx
+*.p12
+
+# Local env
+.env
+.env.local
+.env.*.local
+!*.example
+.bootstrap-admin.local
+
+# Logs/runtime
+logs/
+*.log
+deploy/cloudpanel/data/
+deploy/cloudpanel/logs/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary cargo target dirs created outside the repository are preferred on Windows.
+
+# Generated mobile build caches (project sources under src-tauri/gen remain tracked)
+src-tauri/gen/android/.gradle/
+src-tauri/gen/android/**/build/
+src-tauri/gen/apple/build/

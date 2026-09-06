@@ -47,6 +47,10 @@ const EXPECTED_TARGETS = [
   { id: 'android-arm64-apk', label: 'Android APK ARM64', platform: 'android', arch: 'arm64', target: 'aarch64-linux-android', artifact: 'release-android-arm64-apk', allowedSuffixes: ['.apk'], requiredAssets: [{ suffix: '.apk', count: 7 }] },
   { id: 'android-aab', label: 'Android AAB ARM64', platform: 'android', arch: 'arm64', target: 'android-aab', artifact: 'release-android-aab', allowedSuffixes: ['.aab'], requiredAssets: [{ suffix: '.aab', count: 7 }] },
   { id: 'ios-arm64-unsigned-ipa', label: 'iOS ARM64 IPA não assinado', platform: 'ios', arch: 'arm64', target: 'aarch64-apple-ios', artifact: 'release-ios-arm64-unsigned-ipa', allowedSuffixes: ['.ipa', '.zip', '.tar.gz'], requiredAssets: [{ suffix: '.ipa', count: 5 }] },
+  { id: 'deployer-agent-linux-x64', label: 'Deployer Agent Linux x64', platform: 'linux', arch: 'x64', target: 'x86_64-unknown-linux-gnu', artifact: 'release-deployer-agent-linux-x64', allowedSuffixes: ['.tar.gz'], requiredAssets: [{ suffix: '.tar.gz', count: 1 }] },
+  { id: 'deployer-windows-x64', label: 'Deployer Windows x64', platform: 'windows', arch: 'x64', target: 'x86_64-pc-windows-msvc', artifact: 'release-deployer-windows-x64', allowedSuffixes: ['.tar.gz'], requiredAssets: [{ suffix: '.tar.gz', count: 1 }] },
+  { id: 'deployer-linux-x64', label: 'Deployer Linux x64', platform: 'linux', arch: 'x64', target: 'x86_64-unknown-linux-gnu', artifact: 'release-deployer-linux-x64', allowedSuffixes: ['.tar.gz'], requiredAssets: [{ suffix: '.tar.gz', count: 1 }] },
+  { id: 'deployer-macos-x64', label: 'Deployer macOS Intel x64', platform: 'macos', arch: 'x64', target: 'x86_64-apple-darwin', artifact: 'release-deployer-macos-x64', allowedSuffixes: ['.tar.gz'], requiredAssets: [{ suffix: '.tar.gz', count: 1 }] },
 ];
 const TARGET_BY_ARTIFACT = new Map(EXPECTED_TARGETS.map((target) => [target.artifact, target]));
 
@@ -199,7 +203,7 @@ function buildStatusMarkdown(matrix) {
   const lines = [
     '## Estado da matriz de build', '',
     matrix.outcome === 'complete'
-      ? 'Todos os 12 alvos obrigatórios foram gerados e possuem artefato.'
+      ? `Todos os ${matrix.total} alvos obrigatórios foram gerados e possuem artefato.`
       : 'Matriz parcial: os alvos ausentes ou falhos mantêm a release em draft.',
     '', '| Alvo | Estado | Artefato | Diagnóstico |', '| --- | --- | --- | --- |',
   ];

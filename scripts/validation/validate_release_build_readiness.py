@@ -42,6 +42,8 @@ def main() -> int:
         "allow_partial_release:",
         "compute-next-version.mjs",
         "persist_version:",
+        "deployer_agent:",
+        "deployer_desktop:",
         "desktop:",
         "web_pwa:",
         "cloudpanel:",
@@ -82,6 +84,10 @@ def main() -> int:
         "android-arm64-apk",
         "android-aab",
         "ios-arm64-unsigned-ipa",
+        "deployer-agent-linux-x64",
+        "deployer-windows-x64",
+        "deployer-linux-x64",
+        "deployer-macos-x64",
     ):
         if target_id not in release:
             failures.append(f"alvo obrigatório ausente da release: {target_id}")
@@ -124,6 +130,7 @@ def main() -> int:
         ".github/workflows/31-build-desktop.yml",
         ".github/workflows/32-build-android.yml",
         ".github/workflows/33-build-ios.yml",
+        ".github/workflows/35-build-deployer.yml",
     ):
         workflow_triggers = triggers(workflow_path)
         if "workflow_dispatch" not in workflow_triggers:
@@ -159,6 +166,8 @@ def main() -> int:
         "32-build-android.yml",
         "33-build-ios.yml",
         "34-build-tenant-apps.yml",
+        "35-build-deployer.yml",
+        "36-develop-prerelease.yml",
         "50-release.yml",
         "51-recover-release.yml",
     ):
@@ -176,7 +185,7 @@ def main() -> int:
         "manifest_count",
         '"$manifest_count" -eq 13',
         "gh workflow run 50-release.yml",
-        "O workflow 50 reconstruirá os 12 alvos a partir da tag exata.",
+        "O workflow 50 reconstruirá os 16 alvos a partir da tag exata.",
         "Nenhum artefato de execução anterior foi publicado ou reaproveitado.",
         "prerelease_id=",
         'GITHUB_REF" = \'refs/heads/main\'',

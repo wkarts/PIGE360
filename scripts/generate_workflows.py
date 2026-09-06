@@ -21,7 +21,8 @@ REQUIRED = {
     "00-ci.yml", "03-git-flow.yml", "04-version-sync.yml", "05-cleanup-stale-release.yml",
     "05-pedagogy-attendance.yml", "10-base-images.yml", "20-application-images.yml",
     "30-build-web.yml", "31-build-desktop.yml", "32-build-android.yml", "33-build-ios.yml",
-    "34-build-tenant-apps.yml", "40-security.yml", "50-release.yml", "51-recover-release.yml",
+    "34-build-tenant-apps.yml", "35-build-deployer.yml", "36-develop-prerelease.yml",
+    "40-security.yml", "50-release.yml", "51-recover-release.yml",
     "60-deploy-saas.yml", "61-self-hosted-bundle.yml", "70-backup-restore-test.yml",
     "80-dependency-maintenance.yml",
 }
@@ -67,7 +68,7 @@ def main() -> None:
     (KIT / "README.md").write_text(
         "# CI_CD_KIT_LOCAL\n\n"
         "Espelho verificável de todos os workflows canônicos. O workflow `50` "
-        "tenta os 12 alvos a partir da tag imutável, mantém falhas em draft e "
+        "tenta os 16 alvos a partir da tag imutável, mantém falhas em draft e "
         "só permite publicação parcial por decisão manual explícita. O workflow "
         "`51` redispara essa mesma matriz sem reutilizar assets antigos. Deploy "
         "remoto, assinatura e publicação em lojas continuam condicionados a "

@@ -115,6 +115,6 @@ jobs:
             echo
             echo "Commit imutável: \`${{ steps.validate.outputs.tag_sha }}\`"
             echo
-            echo 'O workflow 50 reconstruirá os 12 alvos a partir da tag exata.'
+            echo 'O workflow 50 reconstruirá os 16 alvos a partir da tag exata.'
             echo 'Nenhum artefato de execução anterior foi publicado ou reaproveitado.'
           } >> "$GITHUB_STEP_SUMMARY"

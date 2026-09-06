@@ -1,0 +1,13 @@
+{
+  "brand": "pige360-deployer",
+  "appName": "PIGE360 Deployer",
+  "productName": "PIGE360 Deployer",
+  "identifier": "br.com.pige360.deployer",
+  "publisher": "ARGWS",
+  "theme": "brand-primary",
+  "primaryColor": "#006D77",
+  "secondaryColor": "#0D1B2A",
+  "transparentAssets": true,
+  "version": "1.1.2",
+  "provisional": true
+}

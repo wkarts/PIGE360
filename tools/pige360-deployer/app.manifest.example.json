@@ -1,0 +1,29 @@
+{
+  "appName": "PIGE360 Deployer",
+  "shortName": "PIGE360",
+  "productName": "PIGE360 Deployer",
+  "identifier": "br.com.pige360.deployer",
+  "packageName": "pige360-deployer",
+  "version": "1.1.2",
+  "developer": "ARGWS",
+  "localDataDir": "pige360-deployer",
+  "storagePrefix": "pige360-deployer",
+  "assets": {
+    "logoLight": "branding/logo-light.png",
+    "logoDark": "branding/logo-dark.png",
+    "logoMark": "branding/logo-mark.png",
+    "iconPng": "branding/icon.png",
+    "iconIco": "branding/icon.ico",
+    "trayIcon": "branding/tray-icon.png"
+  },
+  "mobile": {
+    "enabled": true,
+    "androidPackage": "br.com.pige360.deployer",
+    "iosBundleIdentifier": "br.com.pige360.deployer",
+    "localDatabase": "sqlite",
+    "standaloneSupported": true,
+    "restClientSupported": true,
+    "remoteWebView": false
+  },
+  "description": "Implantador multiplataforma para distribuições develop, prerelease e stable do PIGE360"
+}

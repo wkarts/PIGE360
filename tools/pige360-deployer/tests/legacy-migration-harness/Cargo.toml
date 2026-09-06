@@ -1,0 +1,15 @@
+[package]
+name = "pige360-deployer-legacy-migration-harness"
+version = "1.5.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+chrono = "0.4"
+dirs = "5"
+rand = "0.8"
+rusqlite = { version = "0.31", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tempfile = "3"
